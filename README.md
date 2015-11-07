@@ -26,7 +26,7 @@ Use
 ---------------
 Clone and test the project 
 
-    $ git clone git://github.com/pleira/sgp4_11.git
+    git clone https://github.com/pleira/sgp4_11.git
     $ cd sgp4_11
     $ sbt
     > test

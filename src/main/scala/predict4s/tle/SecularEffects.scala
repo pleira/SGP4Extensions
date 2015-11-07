@@ -16,7 +16,7 @@ trait EarthHarmonicsAndDragSecularEffects {
   
   /** t is the duration in minutes from the epoch , then the SGP4 Time Independent Functions */
   def propagate[F: Field: NRoot : Order: Trig](t: F)(tind: SGP4TimeIndependentFunctions[F])
-  (implicit wgs: WGSConstants[F])
+  (implicit wgs: SGPConstants[F])
          : (SGP4TimeIndependentFunctions[F], TEME.SGPElems[F], F) = {
     import tind._
     import tind.i0f._

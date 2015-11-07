@@ -105,6 +105,7 @@ trait ReferenceSystem {
   }
   
   // inclination, su and right ascension ascending node
+  // su  == 
   def coord2UnitCartesian[F: Field: Trig](incl: F, su: F, Ω: F) = {
   
       /* --------------------- orientation vectors ------------------- */
@@ -127,7 +128,7 @@ trait ReferenceSystem {
       CartesianElems(ux,uy,uz,vx,vy,vz)
   }
   
-    def classical2DelaunayElems[F: Field: Trig: NRoot]( oe : ClassicalElems[F], MU : F) : DelaunayElems[F] = {
+ def classical2DelaunayElems[F: Field: Trig: NRoot]( oe : ClassicalElems[F], MU : F) : DelaunayElems[F] = {
 //  def classical2DelaunayElems[F: Field: Trig: NRoot]( oe : ClassicalElems[F])(implicit wgs: WGSConstants[F]) : DelaunayElems[F] = {
     import oe._
     val L = (MU*a).sqrt; val G = L*(1 - e*e).sqrt; val H = G*cos(i)

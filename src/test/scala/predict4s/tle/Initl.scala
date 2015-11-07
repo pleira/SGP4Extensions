@@ -94,8 +94,9 @@ def xni: Double;
 object Sgp4Result {
   
   
-  implicit val wgs = WGS72Constants.tleDoubleConstants
-
+  implicit val wgs = SGP72Constants.tleDoubleConstants
+  // implicit val cgs = SGP72Constants.tleDoubleConstants
+  
   def apply(tle: TLE)(tt: Double) : Sgp4Result = {
     
     val sgp4    = SGP4Brouwer[Double](tle)
@@ -179,7 +180,7 @@ object Sgp4Result {
       def xno = no
       val error = 0
       val x = r(0); val y = r(1) ; val z = r(2); val xdot = v(0) ; val ydot = v(1) ; val zdot = v(2) ;
-      // fixme
+      // FIXME
       def atime = tt
       def xli = 0.0
       def xni = 0.0   
