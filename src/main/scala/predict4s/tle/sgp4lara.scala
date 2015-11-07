@@ -36,6 +36,9 @@ trait SGP4L[F] extends SGP4[F] {
   
 }
 
+/**
+ * TODO: Use of PolarNodal variables 
+ */
 case class SGP4Lara[F: Field : NRoot : Order : Trig](val state0: OrbitalState[F])(implicit wgs: SGPConstants[F]) extends SGP4L[F] {
 
   override def propagate(t: F)(implicit wgs: SGPConstants[F]) : OrbitalState[F] = {
@@ -88,7 +91,6 @@ object SGP4Lara {
   }
 }
 
-// case class OrbitalState[F](t: F, elem: TEME.SGPElems[F], posVel: TEME.CartesianElems[F], tif : SGP4TimeIndependentFunctions[F])
 case class SecularPerturb[F](elem: TEME.SGPElems[F], tif : SGP4TimeIndependentFunctions[F])
 case class LongPeriodPeriodicPerturb[F](elem: TEME.SGPElems[F], lppp : F)
 case class ShortPeriodPeriodicPerturb[F](elem: TEME.SGPElems[F], lppp : F)

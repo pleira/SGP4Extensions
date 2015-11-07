@@ -93,14 +93,14 @@ def xni: Double;
   
 object Sgp4Result {
   
-  
   implicit val wgs = SGP72Constants.tleDoubleConstants
-  // implicit val cgs = SGP72Constants.tleDoubleConstants
   
-  def apply(tle: TLE)(tt: Double) : Sgp4Result = {
+//  def apply(tle: TLE)(tt: Double) : Sgp4Result = {
     
-    val sgp4    = SGP4Brouwer[Double](tle)
-    val statett = sgp4.propagate(tt)
+//    val sgp4    = SGP4Brouwer[Double](tle)
+//    val statett = sgp4.propagate(tt)
+    
+  def apply(statett: OrbitalState[Double], tle: TLE) : Sgp4Result = {
     
     val r = statett.posVel.pos
     val v = statett.posVel.vel
@@ -114,12 +114,13 @@ object Sgp4Result {
     import coeff._
     import ilf._
     import ocf._
-  
+    import statett._
+    
     new Sgp4Result {
       def satn = tle.satelliteNumber
-      def ecco = e0
+      def ecco  : Double = elem.e0
       def epoch : Double = statett.tif.ini.epoch 
-      def inclo : Double = i0
+      def inclo : Double = elem.i0
     
       //def    no  : Double  = n0 // or n0k
    //   outputs : 
@@ -174,14 +175,14 @@ object Sgp4Result {
       def    mdot  : Double = statett.tif.ocf.mdot
       def   nodecf : Double = Ωcof
       def   nodedt : Double = omegadot     
-      def        t          = tt
+      def        t : Double = statett.t
       def   nodeo  : Double = statett.tif.ini.Ω0
       def      no  : Double = statett.tif.bmmf.n0
       def xno = no
       val error = 0
       val x = r(0); val y = r(1) ; val z = r(2); val xdot = v(0) ; val ydot = v(1) ; val zdot = v(2) ;
       // FIXME
-      def atime = tt
+      def atime = statett.t
       def xli = 0.0
       def xni = 0.0   
     }
