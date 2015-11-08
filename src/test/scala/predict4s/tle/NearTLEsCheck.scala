@@ -8,9 +8,27 @@ import spire.algebra._
 import spire.math._
 import spire.implicits._
 
-trait NearTLEsCheck extends NearTLEs  {
+trait NearTLEsCheck extends NearTLEs with ValladoNearTLEsCheck with ValladoNearTLEsPVCheck { self : FunSuite => 
+
+  implicit val wgs = SGP72Constants.tleDoubleConstants
+  
+  // Propagators for all TLEs
   def propags : List[SGP4[Double]]
+  
   def sgpImpl : String
+
+  // List with List of Propagation results for each TLE and all propagation times 
+  def results : List[IndexedSeq[Sgp4Result]] = ((propags zip tles) zip tlesTimes) map { p  =>  // pair of (pair propagator with tle) with the propagation times   
+    val sgp4 = p._1._1 ; val tle = p._1._2; val times = p._2
+    for (t <- times) yield Sgp4Result(sgp4.propagate(t), sgp4.state0, tle)
+  }
+  
+  test(s"${sgpImpl}: compare Position/Velocity Propagation Results with Vallado's cpp implementation for near TLEs") ({
+    // call the checks for the corresponding result 
+    (pvNearChecks zip results) foreach  { l =>  // pair with the lists containing the checks and the results
+      (l._1 zip l._2) foreach { p => p._1(p._2) } 
+    }
+  })
 }
 
 class HardcodedBrouwerNearTLEsCheck extends FunSuite with NearTLEs with ValladoNearTLEsCheck with ValladoNearTLEsPVCheck {
@@ -38,7 +56,7 @@ class HardcodedBrouwerNearTLEsCheck extends FunSuite with NearTLEs with ValladoN
     check28057 zip results28057 foreach { p => p._1(p._2) }   
    
   })
-  
+
   test(s"${sgpImpl}: compare Position/Velocity Propagation Results with Vallado's cpp implementation for near TLEs") ({
     
     // call the checks for the corresponding result
@@ -47,30 +65,16 @@ class HardcodedBrouwerNearTLEsCheck extends FunSuite with NearTLEs with ValladoN
     pvCheck28057 zip results28057 foreach { p => p._1(p._2) }   
    
   })
-  
+
 } 
 
-class LaraNearTLEsCheck extends FunSuite with NearTLEsCheck with ValladoNearTLEsCheck with ValladoNearTLEsPVCheck  {
-  
-  implicit val wgs = SGP72Constants.tleDoubleConstants
-  override def sgpImpl : String = "Lara"
-  
-  // Lara's Propagators for all TLEs
-  val propags : List[SGP4Lara[Double]]  = tles map (tle => SGP4Lara[Double](tle) )
-  
-  def proc(sgp4 : SGP4Lara[Double], tle: TLE, times: IndexedSeq[Int]) = for (t <- times) yield Sgp4Result(sgp4.propagate(t), sgp4.state0, tle)
-    
-  // List with List of Propagation results for each TLE and all propagation times 
-  val results : List[IndexedSeq[Sgp4Result]] = ((propags zip tles) zip tlesTimes) map { p  =>  // pair of (pair propagator with tle) with the propagation times   
-    val sgp4 = p._1._1 ; val tle = p._1._2; val times = p._2
-    proc(sgp4, tle, times)
-  }
-  
-  test(s"${sgpImpl}: compare Position/Velocity Propagation Results with Vallado's cpp implementation for near TLEs") ({
-    // call the checks for the corresponding result 
-    (pvNearChecks zip results) foreach  { l =>  // pair with the lists containing the checks and the results
-      (l._1 zip l._2) foreach { p => p._1(p._2) } 
-    }
-  })
-  
+class LaraNearTLEsCheck extends FunSuite with NearTLEsCheck {
+  override def sgpImpl : String = "Lara"  
+  override def propags : List[SGP4Lara[Double]]  = tles map (tle => SGP4Lara[Double](tle) )
+}
+
+
+class LaraBNearTLEsCheck extends FunSuite with NearTLEsCheck {
+  override def sgpImpl : String = "LaraB"
+  override def propags : List[SGP4LaraB[Double]]  = tles map (tle => SGP4LaraB[Double](tle) )
 }

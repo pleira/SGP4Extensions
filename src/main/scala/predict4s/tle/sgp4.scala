@@ -13,6 +13,7 @@ package predict4s.tle
  */
 trait SGP4[F] {
   def propagate(t: F) : OrbitalState[F]
+  def state0 : SGP4Context[F]
 }
 
 case class OrbitalState[F](t: F, posVel: TEME.CartesianElems[F])

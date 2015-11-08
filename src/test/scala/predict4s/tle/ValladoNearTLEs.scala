@@ -3,9 +3,7 @@ package predict4s.tle
 import org.scalatest.FunSuite
 import org.scalautils.TolerantNumerics
 
-trait ValladoNearTLEsCheck  { self :  FunSuite => 
-
-  implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(1E-9)
+trait ValladoNearTLEsCheck extends ValladoTLE00005Check with ValladoTLE06251Check with ValladoTLE28057Check { self :  FunSuite => 
 
   val check00005  = List(checkSgp4_5_0 _,checkSgp4_5_360 _, sgp4CheckSat5_720 _, sgp4CheckSat5_1080 _, sgp4CheckSat5_1440 _, sgp4CheckSat5_1800 _, sgp4CheckSat5_2160 _,
                sgp4CheckSat5_2520 _, sgp4CheckSat5_2880 _, sgp4CheckSat5_3240 _, sgp4CheckSat5_3600 _, sgp4CheckSat5_3960 _, sgp4CheckSat5_4320 _)
@@ -27,7 +25,29 @@ trait ValladoNearTLEsCheck  { self :  FunSuite =>
   val times28057   = for (i <- 0 until check28057.size; j = i*120) yield j // times in minutes 
   
   def tlesTimes = List(times00005, times06251, times28057)
+}
+
+trait ValladoNearTLEsPVCheck extends ValladoTLE00005PVCheck with ValladoTLE06251PVCheck with ValladoTLE28057PVCheck { self :  FunSuite =>  
+
+  val pvCheck00005  = List(pvCheckSgp4_5_0 _,pvCheckSgp4_5_360 _, sgp4PVCheckSat5_720 _, sgp4PVCheckSat5_1080 _, sgp4PVCheckSat5_1440 _, sgp4PVCheckSat5_1800 _, sgp4PVCheckSat5_2160 _,
+               sgp4PVCheckSat5_2520 _, sgp4PVCheckSat5_2880 _, sgp4PVCheckSat5_3240 _, sgp4PVCheckSat5_3600 _, sgp4PVCheckSat5_3960 _, sgp4PVCheckSat5_4320 _)
   
+  val pvCheck06251  = List(sgp4PVCheckSat6251_0 _,sgp4PVCheckSat6251_120 _,sgp4PVCheckSat6251_240 _,sgp4PVCheckSat6251_360 _,sgp4PVCheckSat6251_480 _,sgp4PVCheckSat6251_600 _,
+      sgp4PVCheckSat6251_720 _,sgp4PVCheckSat6251_840 _,sgp4PVCheckSat6251_960 _,sgp4PVCheckSat6251_1080 _,sgp4PVCheckSat6251_1200 _,sgp4PVCheckSat6251_1320 _,sgp4PVCheckSat6251_1440 _,
+      sgp4PVCheckSat6251_1560 _,sgp4PVCheckSat6251_1680 _,sgp4PVCheckSat6251_1800 _,sgp4PVCheckSat6251_1920 _,sgp4PVCheckSat6251_2040 _,sgp4PVCheckSat6251_2160 _,sgp4PVCheckSat6251_2280 _,
+      sgp4PVCheckSat6251_2400 _,sgp4PVCheckSat6251_2520 _,sgp4PVCheckSat6251_2640 _,sgp4PVCheckSat6251_2760 _,sgp4PVCheckSat6251_2880 _)
+  
+  
+  val pvCheck28057  = List(sgp4PVCheckSat28057_0 _,sgp4PVCheckSat28057_120 _,sgp4PVCheckSat28057_240 _,sgp4PVCheckSat28057_360 _,sgp4PVCheckSat28057_480 _,sgp4PVCheckSat28057_600 _,
+      sgp4PVCheckSat28057_720 _,sgp4PVCheckSat28057_840 _,sgp4PVCheckSat28057_960 _,sgp4PVCheckSat28057_1080 _,sgp4PVCheckSat28057_1200 _,sgp4PVCheckSat28057_1320 _,sgp4PVCheckSat28057_1440 _,
+      sgp4PVCheckSat28057_1560 _,sgp4PVCheckSat28057_1680 _,sgp4PVCheckSat28057_1800 _,sgp4PVCheckSat28057_1920 _,sgp4PVCheckSat28057_2040 _,sgp4PVCheckSat28057_2160 _,sgp4PVCheckSat28057_2280 _,
+      sgp4PVCheckSat28057_2400 _,sgp4PVCheckSat28057_2520 _)
+      
+  val pvNearChecks = List(pvCheck00005, pvCheck06251, pvCheck28057)
+}
+
+trait  ValladoTLE00005Check { self :  FunSuite => 
+  implicit def doubleEqualityTLE00005 = TolerantNumerics.tolerantDoubleEquality(1E-9)
                                    // ------------------after initl  :---------------
 def checkIntl5(ini : Initl) = {
   import ini._
@@ -288,7 +308,11 @@ def sgp4CheckSat5_4320(res: Sgp4Result) = {
 //    outputs : 
 // assert(  error  ===               0 ); assert(      x  === -9060.473735694 ); assert(      y  ===  4658.709525023 ); assert(      z  ===   813.686731534 ); assert(   xdot  ===    -2.232832783 ); assert(   ydot  ===    -4.110453490 ); assert(   zdot  ===    -3.157345433 ); 
 } 
-                                   // ------------------after initl  :---------------
+}
+
+trait ValladoTLE06251Check { self :  FunSuite => 
+  implicit def doubleEqualityTLE06251 = TolerantNumerics.tolerantDoubleEquality(1E-9)
+// ------------------after initl  :---------------
 def checkIntl6251(ini : Initl) {
  import ini._
 //   assert(   satn  ===            6251 ); assert(             yr  ===           ); assert(   ecco  ===     0.003003500 ); assert(  epoch  === 20630.824120140 ); assert(  inclo  ===     1.013301512 ); 
@@ -626,7 +650,12 @@ def sgp4CheckSat6251_2880(res: Sgp4Result) = {
 //    outputs : 
 // assert(  error  ===               0 ); assert(      x  ===  1159.278028972 ); assert(      y  ===  5056.601754954 ); assert(      z  ===  4353.494185789 ); assert(   xdot  ===    -5.968060341 ); assert(   ydot  ===    -2.314790406 ); assert(   zdot  ===     4.230722669 ); 
 } 
-//                                     ------------------after sgp4   :---------------
+}
+
+trait ValladoTLE28057Check { self :  FunSuite => 
+  implicit def doubleEqualityTLE28057 = TolerantNumerics.tolerantDoubleEquality(1E-9)
+
+  //                                     ------------------after sgp4   :---------------
 def sgp4CheckSat28057_0(res: Sgp4Result) = {
  import res._
  //   inputs : 
@@ -917,26 +946,10 @@ def sgp4CheckSat28057_2520(res: Sgp4Result) = {
 }
 
 
-trait ValladoNearTLEsPVCheck { self :  FunSuite =>  
 
+trait  ValladoTLE00005PVCheck { self :  FunSuite => 
    // here, we are comparing km
-  implicit def pvDoubleEquality = TolerantNumerics.tolerantDoubleEquality(1E-1)
-
-  val pvCheck00005  = List(pvCheckSgp4_5_0 _,pvCheckSgp4_5_360 _, sgp4PVCheckSat5_720 _, sgp4PVCheckSat5_1080 _, sgp4PVCheckSat5_1440 _, sgp4PVCheckSat5_1800 _, sgp4PVCheckSat5_2160 _,
-               sgp4PVCheckSat5_2520 _, sgp4PVCheckSat5_2880 _, sgp4PVCheckSat5_3240 _, sgp4PVCheckSat5_3600 _, sgp4PVCheckSat5_3960 _, sgp4PVCheckSat5_4320 _)
-  
-  val pvCheck06251  = List(sgp4PVCheckSat6251_0 _,sgp4PVCheckSat6251_120 _,sgp4PVCheckSat6251_240 _,sgp4PVCheckSat6251_360 _,sgp4PVCheckSat6251_480 _,sgp4PVCheckSat6251_600 _,
-      sgp4PVCheckSat6251_720 _,sgp4PVCheckSat6251_840 _,sgp4PVCheckSat6251_960 _,sgp4PVCheckSat6251_1080 _,sgp4PVCheckSat6251_1200 _,sgp4PVCheckSat6251_1320 _,sgp4PVCheckSat6251_1440 _,
-      sgp4PVCheckSat6251_1560 _,sgp4PVCheckSat6251_1680 _,sgp4PVCheckSat6251_1800 _,sgp4PVCheckSat6251_1920 _,sgp4PVCheckSat6251_2040 _,sgp4PVCheckSat6251_2160 _,sgp4PVCheckSat6251_2280 _,
-      sgp4PVCheckSat6251_2400 _,sgp4PVCheckSat6251_2520 _,sgp4PVCheckSat6251_2640 _,sgp4PVCheckSat6251_2760 _,sgp4PVCheckSat6251_2880 _)
-  
-  
-  val pvCheck28057  = List(sgp4PVCheckSat28057_0 _,sgp4PVCheckSat28057_120 _,sgp4PVCheckSat28057_240 _,sgp4PVCheckSat28057_360 _,sgp4PVCheckSat28057_480 _,sgp4PVCheckSat28057_600 _,
-      sgp4PVCheckSat28057_720 _,sgp4PVCheckSat28057_840 _,sgp4PVCheckSat28057_960 _,sgp4PVCheckSat28057_1080 _,sgp4PVCheckSat28057_1200 _,sgp4PVCheckSat28057_1320 _,sgp4PVCheckSat28057_1440 _,
-      sgp4PVCheckSat28057_1560 _,sgp4PVCheckSat28057_1680 _,sgp4PVCheckSat28057_1800 _,sgp4PVCheckSat28057_1920 _,sgp4PVCheckSat28057_2040 _,sgp4PVCheckSat28057_2160 _,sgp4PVCheckSat28057_2280 _,
-      sgp4PVCheckSat28057_2400 _,sgp4PVCheckSat28057_2520 _)
-      
-  val pvNearChecks = List(pvCheck00005, pvCheck06251, pvCheck28057)
+  implicit def pv00005DoubleEquality = TolerantNumerics.tolerantDoubleEquality(1E-3)
   
 def pvCheckSgp4_5_0(res: Sgp4Result) = {
  import res._
@@ -1003,9 +1016,12 @@ def sgp4PVCheckSat5_4320(res: Sgp4Result) = {
  import res._
 assert(  error  ===               0 ); assert(      x  === -9060.473735694 ); assert(      y  ===  4658.709525023 ); assert(      z  ===   813.686731534 ); assert(   xdot  ===    -2.232832783 ); assert(   ydot  ===    -4.110453490 ); assert(   zdot  ===    -3.157345433 ); 
 } 
-def pvCheckIntl6251(ini : Initl) {
- import ini._
-} 
+}
+
+trait  ValladoTLE06251PVCheck { self :  FunSuite => 
+   // here, we are comparing km
+  implicit def pv06251DoubleEquality = TolerantNumerics.tolerantDoubleEquality(0.08)
+  
 def sgp4PVCheckSat6251_0(res: Sgp4Result) = {
  import res._
 assert(  error  ===               0 ); assert(      x  ===  3988.310226994 ); assert(      y  ===  5498.966572352 ); assert(      z  ===     0.900558787 ); assert(   xdot  ===    -3.290032738 ); assert(   ydot  ===     2.357652820 ); assert(   zdot  ===     6.496623475 ); 
@@ -1106,6 +1122,11 @@ def sgp4PVCheckSat6251_2880(res: Sgp4Result) = {
  import res._
 assert(  error  ===               0 ); assert(      x  ===  1159.278028972 ); assert(      y  ===  5056.601754954 ); assert(      z  ===  4353.494185789 ); assert(   xdot  ===    -5.968060341 ); assert(   ydot  ===    -2.314790406 ); assert(   zdot  ===     4.230722669 ); 
 } 
+}
+
+trait  ValladoTLE28057PVCheck { self :  FunSuite => 
+   // here, we are comparing km
+  implicit def pv28057DoubleEquality = TolerantNumerics.tolerantDoubleEquality(0.08)
 def sgp4PVCheckSat28057_0(res: Sgp4Result) = {
  import res._
 assert(  error  ===               0 ); assert(      x  === -2715.282374856 ); assert(      y  === -6619.264368891 ); assert(      z  ===    -0.013414430 ); assert(   xdot  ===    -1.008587273 ); assert(   ydot  ===     0.422782003 ); assert(   zdot  ===     7.385272942 ); 
