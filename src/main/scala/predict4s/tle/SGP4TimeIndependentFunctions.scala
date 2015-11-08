@@ -219,7 +219,7 @@ case class ScalcFunctions[F: Field: NRoot: Order: Trig](e0f : EccentricityFuncti
  
   //val coef1  = coef / (psisq pow 3.5)
   def S_above156       =  (1 + 78/aE)
-  def hs               =  perige - aE - 78   // interpolation, being a number bigger than 20, and smaller that 78
+  def hs               =  perige - 78   // interpolation, being a number bigger than 20, and smaller that 78
   def S_between_98_156 =  (1 + hs/aE)
   def S_below98        =  (1 + 20/aE)
 
@@ -276,7 +276,7 @@ case class CoefFunctions[F: Field: NRoot: Order: Trig](ω0: F, bStar: F, i0f : I
 //                           (2.0 * etasq - eeta * (1.0 + etasq)) * cos(2.0 * satrec.argpo)));
 //         satrec.cc5 = 2.0 * coef1 * ao * omeosq * (1.0 + 2.75 *
 //                        (etasq + eeta) + eeta * etasq);
-  val aterm = 3*(1-3*θsq)*(1 + 3*ηsq/2 - 2*e0η - e0η*ηsq/2) + 3*(1-θsq)*(2*ηsq - e0*η - e0η*ηsq)*cos(2*ω0)/4
+  val aterm = 3*(1-3*θsq)*(1 + 3*ηsq/2 - 2*e0η - e0η*ηsq/2) + 3*(1-θsq)*(2*ηsq - e0η - e0η*ηsq)*cos(2*ω0)/4
 
 //  val C4 = 2*n0*a0*β0sq*coef1* ((2*η*(1+e0*η) + (e0 + ηto3)/2) - 2*K2*ξ*aterm/(a0*(1-ηsq)))
 //val C4    = 2*n0* coef1 * a0 * β0sq *

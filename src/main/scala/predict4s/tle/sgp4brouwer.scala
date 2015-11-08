@@ -24,7 +24,6 @@ case class SGP4Brouwer[F : Field : NRoot : Order : Trig](val state0: SGP4Context
     val sinip = sin(xincp)
     // here, should be something returned before in other coordinates 
     val posVel = ShortPeriodPeriodicPerturbations.calcPositionVelocity(state0.tif, nm, xincp, cosip, sinip, am, nodep, axnl, aynl, xl, eo1)
-    // OrbitalState[F](t: F, elem: TEME.SGPElems[F], posVel: TEME.CartesianElems[F], tif : SGP4TimeIndependentFunctions[F])
     OrbitalState(t, posVel)
   }
 }

@@ -18,3 +18,4 @@ trait SGP4[F] {
 
 case class OrbitalState[F](t: F, posVel: TEME.CartesianElems[F])
 case class SGP4Context[F](t: F, elem: TEME.SGPElems[F], posVel: TEME.CartesianElems[F], tif : SGP4TimeIndependentFunctions[F], wgs: SGPConstants[F])
+case class GeoPotentialCoefs[F](C1: F, C2: F, C3: F, C4: F, C5: F, D2: F, D3: F, D4: F)
