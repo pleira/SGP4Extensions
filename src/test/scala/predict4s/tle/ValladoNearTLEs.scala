@@ -7,17 +7,17 @@ trait ValladoNearTLEsCheck  { self :  FunSuite =>
 
   implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(1E-9)
 
-  val check5      = List(checkSgp4_5_0 _,checkSgp4_5_360 _, sgp4CheckSat5_720 _, sgp4CheckSat5_1080 _, sgp4CheckSat5_1440 _, sgp4CheckSat5_1800 _, sgp4CheckSat5_2160 _,
+  val check00005  = List(checkSgp4_5_0 _,checkSgp4_5_360 _, sgp4CheckSat5_720 _, sgp4CheckSat5_1080 _, sgp4CheckSat5_1440 _, sgp4CheckSat5_1800 _, sgp4CheckSat5_2160 _,
                sgp4CheckSat5_2520 _, sgp4CheckSat5_2880 _, sgp4CheckSat5_3240 _, sgp4CheckSat5_3600 _, sgp4CheckSat5_3960 _, sgp4CheckSat5_4320 _)
   
-  val times5      = for (i <- 0 until check5.size; j = i*360) yield j // times in minutes 
+  val times00005  = for (i <- 0 until check00005.size; j = i*360) yield j // times in minutes 
 
-  val check6251   = List(sgp4CheckSat6251_0 _,sgp4CheckSat6251_120 _,sgp4CheckSat6251_240 _,sgp4CheckSat6251_360 _,sgp4CheckSat6251_480 _,sgp4CheckSat6251_600 _,
+  val check06251  = List(sgp4CheckSat6251_0 _,sgp4CheckSat6251_120 _,sgp4CheckSat6251_240 _,sgp4CheckSat6251_360 _,sgp4CheckSat6251_480 _,sgp4CheckSat6251_600 _,
       sgp4CheckSat6251_720 _,sgp4CheckSat6251_840 _,sgp4CheckSat6251_960 _,sgp4CheckSat6251_1080 _,sgp4CheckSat6251_1200 _,sgp4CheckSat6251_1320 _,sgp4CheckSat6251_1440 _,
       sgp4CheckSat6251_1560 _,sgp4CheckSat6251_1680 _,sgp4CheckSat6251_1800 _,sgp4CheckSat6251_1920 _,sgp4CheckSat6251_2040 _,sgp4CheckSat6251_2160 _,sgp4CheckSat6251_2280 _,
       sgp4CheckSat6251_2400 _,sgp4CheckSat6251_2520 _,sgp4CheckSat6251_2640 _,sgp4CheckSat6251_2760 _,sgp4CheckSat6251_2880 _)
   
-  val times6251   = for (i <- 0 until check6251.size; j = i*120) yield j // times in minutes
+  val times06251  = for (i <- 0 until check06251.size; j = i*120) yield j // times in minutes
   
   val check28057  = List(sgp4CheckSat28057_0 _,sgp4CheckSat28057_120 _,sgp4CheckSat28057_240 _,sgp4CheckSat28057_360 _,sgp4CheckSat28057_480 _,sgp4CheckSat28057_600 _,
       sgp4CheckSat28057_720 _,sgp4CheckSat28057_840 _,sgp4CheckSat28057_960 _,sgp4CheckSat28057_1080 _,sgp4CheckSat28057_1200 _,sgp4CheckSat28057_1320 _,sgp4CheckSat28057_1440 _,
@@ -25,6 +25,8 @@ trait ValladoNearTLEsCheck  { self :  FunSuite =>
       sgp4CheckSat28057_2400 _,sgp4CheckSat28057_2520 _)
       
   val times28057   = for (i <- 0 until check28057.size; j = i*120) yield j // times in minutes 
+  
+  def tlesTimes = List(times00005, times06251, times28057)
   
                                    // ------------------after initl  :---------------
 def checkIntl5(ini : Initl) = {
@@ -918,26 +920,23 @@ def sgp4CheckSat28057_2520(res: Sgp4Result) = {
 trait ValladoNearTLEsPVCheck { self :  FunSuite =>  
 
    // here, we are comparing km
-  implicit val pvDoubleEquality = TolerantNumerics.tolerantDoubleEquality(1E-1)
+  implicit def pvDoubleEquality = TolerantNumerics.tolerantDoubleEquality(1E-1)
 
-  val pvCheck5      = List(pvCheckSgp4_5_0 _,pvCheckSgp4_5_360 _, sgp4PVCheckSat5_720 _, sgp4PVCheckSat5_1080 _, sgp4PVCheckSat5_1440 _, sgp4PVCheckSat5_1800 _, sgp4PVCheckSat5_2160 _,
+  val pvCheck00005  = List(pvCheckSgp4_5_0 _,pvCheckSgp4_5_360 _, sgp4PVCheckSat5_720 _, sgp4PVCheckSat5_1080 _, sgp4PVCheckSat5_1440 _, sgp4PVCheckSat5_1800 _, sgp4PVCheckSat5_2160 _,
                sgp4PVCheckSat5_2520 _, sgp4PVCheckSat5_2880 _, sgp4PVCheckSat5_3240 _, sgp4PVCheckSat5_3600 _, sgp4PVCheckSat5_3960 _, sgp4PVCheckSat5_4320 _)
   
-  // val times5      = for (i <- 0 until pvpvCheck5.size; j = i*360) yield j // times in minutes 
-
-  val pvCheck6251   = List(sgp4PVCheckSat6251_0 _,sgp4PVCheckSat6251_120 _,sgp4PVCheckSat6251_240 _,sgp4PVCheckSat6251_360 _,sgp4PVCheckSat6251_480 _,sgp4PVCheckSat6251_600 _,
+  val pvCheck06251  = List(sgp4PVCheckSat6251_0 _,sgp4PVCheckSat6251_120 _,sgp4PVCheckSat6251_240 _,sgp4PVCheckSat6251_360 _,sgp4PVCheckSat6251_480 _,sgp4PVCheckSat6251_600 _,
       sgp4PVCheckSat6251_720 _,sgp4PVCheckSat6251_840 _,sgp4PVCheckSat6251_960 _,sgp4PVCheckSat6251_1080 _,sgp4PVCheckSat6251_1200 _,sgp4PVCheckSat6251_1320 _,sgp4PVCheckSat6251_1440 _,
       sgp4PVCheckSat6251_1560 _,sgp4PVCheckSat6251_1680 _,sgp4PVCheckSat6251_1800 _,sgp4PVCheckSat6251_1920 _,sgp4PVCheckSat6251_2040 _,sgp4PVCheckSat6251_2160 _,sgp4PVCheckSat6251_2280 _,
       sgp4PVCheckSat6251_2400 _,sgp4PVCheckSat6251_2520 _,sgp4PVCheckSat6251_2640 _,sgp4PVCheckSat6251_2760 _,sgp4PVCheckSat6251_2880 _)
   
-  // val times6251   = for (i <- 0 until pvpvCheck6251.size; j = i*120) yield j // times in minutes
   
   val pvCheck28057  = List(sgp4PVCheckSat28057_0 _,sgp4PVCheckSat28057_120 _,sgp4PVCheckSat28057_240 _,sgp4PVCheckSat28057_360 _,sgp4PVCheckSat28057_480 _,sgp4PVCheckSat28057_600 _,
       sgp4PVCheckSat28057_720 _,sgp4PVCheckSat28057_840 _,sgp4PVCheckSat28057_960 _,sgp4PVCheckSat28057_1080 _,sgp4PVCheckSat28057_1200 _,sgp4PVCheckSat28057_1320 _,sgp4PVCheckSat28057_1440 _,
       sgp4PVCheckSat28057_1560 _,sgp4PVCheckSat28057_1680 _,sgp4PVCheckSat28057_1800 _,sgp4PVCheckSat28057_1920 _,sgp4PVCheckSat28057_2040 _,sgp4PVCheckSat28057_2160 _,sgp4PVCheckSat28057_2280 _,
       sgp4PVCheckSat28057_2400 _,sgp4PVCheckSat28057_2520 _)
       
-  // val times28057   = for (i <- 0 until pvpvCheck28057.size; j = i*120) yield j // times in minutes 
+  val pvNearChecks = List(pvCheck00005, pvCheck06251, pvCheck28057)
   
 def pvCheckSgp4_5_0(res: Sgp4Result) = {
  import res._

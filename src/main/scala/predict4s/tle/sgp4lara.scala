@@ -39,9 +39,11 @@ trait SGP4L[F] extends SGP4[F] {
 /**
  * TODO: Use of PolarNodal variables 
  */
-case class SGP4Lara[F: Field : NRoot : Order : Trig](val state0: OrbitalState[F])(implicit wgs: SGPConstants[F]) extends SGP4L[F] {
-
-  override def propagate(t: F)(implicit wgs: SGPConstants[F]) : OrbitalState[F] = {
+case class SGP4Lara[F: Field : NRoot : Order : Trig](val state0: SGP4Context[F]) extends SGP4L[F] {
+  
+  implicit val wgs: SGPConstants[F] = state0.wgs
+  
+  override def propagate(t: F) : OrbitalState[F] = {
       val (_, el, am) = SecularEffects.propagate(t)(state0.tif)
       val (nodep, axnl, aynl, xl) = SGP4LongPeriodicEffects.calculateSGP4LongPeriodicEffects(state0.tif, el, am)
       val (eo1,ecosE,esinE) = NewtonRaphsonKeplerSolver.solveEccentricAnomaly(nodep, axnl, aynl, xl)
@@ -51,8 +53,7 @@ case class SGP4Lara[F: Field : NRoot : Order : Trig](val state0: OrbitalState[F]
       val sinip = sin(xincp)
       // here, should be something returned before in other coordinates 
       val posVel = ShortPeriodPeriodicPerturbations.calcPositionVelocity(state0.tif, nm, xincp, cosip, sinip, am, nodep, axnl, aynl, xl, eo1)
-      // OrbitalState[F](t: F, elem: TEME.SGPElems[F], posVel: TEME.CartesianElems[F], tif : SGP4TimeIndependentFunctions[F])
-      OrbitalState(t, state0.elem, posVel, state0.tif)
+      OrbitalState(t, posVel)
     }
   
   override def getSecularEffect : Store[SecularPerturb[F]] = 
@@ -69,10 +70,10 @@ case class SGP4Lara[F: Field : NRoot : Order : Trig](val state0: OrbitalState[F]
 
 object SGP4Lara {
 
-  def apply[F : Field : NRoot : Order : Trig](tle: TLE)(implicit wgs: SGPConstants[F]) : SGP4L[F] = {
+  def apply[F : Field : NRoot : Order : Trig](tle: TLE)(implicit wgs: SGPConstants[F]) : SGP4Lara[F] = {
     
-    val elem = TEME.sgpElems[F](tle)
-    val tif  = SGP4TimeIndependentFunctions(elem)
+    val elem0 = TEME.sgpElems[F](tle)
+    val tif  = SGP4TimeIndependentFunctions(elem0)
       // Propagate for time 0 minutes to get all initialized. 
     val t = 0.as[F] 
     val (_, el, am) = SecularEffects.propagate(t)(tif)
@@ -85,8 +86,8 @@ object SGP4Lara {
     val cosip = cos(xincp)
     val sinip = sin(xincp)
     // here, should be something returned before in other coordinates 
-    val posVel = ShortPeriodPeriodicPerturbations.calcPositionVelocity(tif, nm, xincp, cosip, sinip, am, nodep, axnl, aynl, xl, eo1)
-    val state0 = OrbitalState(t, elem, posVel, tif)
+    val posVel0 = ShortPeriodPeriodicPerturbations.calcPositionVelocity(tif, nm, xincp, cosip, sinip, am, nodep, axnl, aynl, xl, eo1)
+    val state0 = SGP4Context(t, elem0, posVel0, tif, wgs)
     SGP4Lara(state0)
   }
 }

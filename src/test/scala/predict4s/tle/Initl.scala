@@ -100,12 +100,13 @@ object Sgp4Result {
 //    val sgp4    = SGP4Brouwer[Double](tle)
 //    val statett = sgp4.propagate(tt)
     
-  def apply(statett: OrbitalState[Double], tle: TLE) : Sgp4Result = {
+  def apply(statett: OrbitalState[Double], ctx: SGP4Context[Double], tle: TLE) : Sgp4Result = {
     
     val r = statett.posVel.pos
     val v = statett.posVel.vel
     
-    import statett.tif._
+    import statett._
+    import ctx.tif._
     import wgs._
     import i0f._
     import e0f._
@@ -118,9 +119,9 @@ object Sgp4Result {
     
     new Sgp4Result {
       def satn = tle.satelliteNumber
-      def ecco  : Double = elem.e0
-      def epoch : Double = statett.tif.ini.epoch 
-      def inclo : Double = elem.i0
+      def ecco  : Double = ctx.elem.e0
+      def epoch : Double = ctx.tif.ini.epoch 
+      def inclo : Double = ctx.elem.i0
     
       //def    no  : Double  = n0 // or n0k
    //   outputs : 
@@ -129,26 +130,26 @@ object Sgp4Result {
       def  ainv  : Double    = 1 / a0 
       def    ao  : Double    = a0 
       def con41  : Double    = x3thm1   // FIXME for d
-      def con42  : Double    = statett.tif.i0f.con42
+      def con42  : Double    = ctx.tif.i0f.con42
       def cosio  : Double    = θ
       def cosio2 : Double    = θsq
       def eccsq  : Double    = e0sq 
       def omeosq : Double    = β0sq
-      def  posq  : Double    = statett.tif.sf.posq
-      def    rp  : Double    = statett.tif.bmmf.rp
+      def  posq  : Double    = ctx.tif.sf.posq
+      def    rp  : Double    = ctx.tif.bmmf.rp
       def rteosq : Double    = β0
-      def sinio  : Double    = statett.tif.i0f.sinio
-      def  gsto  : Double    = statett.tif.ocf.gsto    
+      def sinio  : Double    = ctx.tif.i0f.sinio
+      def  gsto  : Double    = ctx.tif.ocf.gsto    
       
       // ---
       def      yr  : Int    = tle.epochyear
-      def   bstar  : Double = statett.tif.ini.bStar
-      def   argpo  : Double = statett.tif.ini.ω0
-      def      mo  : Double = statett.tif.ini.M0
+      def   bstar  : Double = ctx.tif.ini.bStar
+      def   argpo  : Double = ctx.tif.ini.ω0
+      def      mo  : Double = ctx.tif.ini.M0
       def   isimp  : Int    = if ((omeosq >= 0.0) || (no >= 0.0))
                                     if (isImpacting || isDeepSpace) 1 else 0
                               else 0
-      def   aycof  : Double = statett.tif.ocf.aycof // FIXME for d
+      def   aycof  : Double = ctx.tif.ocf.aycof // FIXME for d
       def    cc1   : Double =  C1   
       def     cc4  : Double =  C4 
       def     cc5  : Double =  C5   
@@ -160,24 +161,24 @@ object Sgp4Result {
       def  argpdot : Double =  ωdot 
       def   omgcof : Double =  ωcof 
       def   sinmao : Double =  sinM0.toDouble
-      def   t2cof  : Double = statett.tif.ilf.t2cof
-      def   t3cof  : Double = statett.tif.ilf.t3cof
-      def   t4cof  : Double = statett.tif.ilf.t4cof
-      def   t5cof  : Double = statett.tif.ilf.t5cof
-      def  x1mth2  : Double = statett.tif.i0f.x1mth2 // FIXME for d
-      def  x7thm1  : Double = statett.tif.ocf.x7thm1 // FIXME for d
-      def   xlcof  : Double = statett.tif.ocf.xlcof // FIXME for d
+      def   t2cof  : Double = ctx.tif.ilf.t2cof
+      def   t3cof  : Double = ctx.tif.ilf.t3cof
+      def   t4cof  : Double = ctx.tif.ilf.t4cof
+      def   t5cof  : Double = ctx.tif.ilf.t5cof
+      def  x1mth2  : Double = ctx.tif.i0f.x1mth2 // FIXME for d
+      def  x7thm1  : Double = ctx.tif.ocf.x7thm1 // FIXME for d
+      def   xlcof  : Double = ctx.tif.ocf.xlcof // FIXME for d
       def   xmcof  : Double = Mcof
 //      def temp1 : Double = 3 * J2 / posq * no / 2  
 //      def temp2 : Double = J2/ posq *temp1 / 2
       //def    mdot  : Double = no + 0.5 * temp1 * rteosq * con41 + 0.0625 * temp2 * rteosq * (13.0 - 78.0 * cosio2 + 137.0 * cosio2*cosio2) // tif.ocf.mdot
       // def    mdot  : Double = no + temp1 * rteosq * con41 / 2 + temp2 * rteosq * (13 - 78 * cosio2 + 137 * cosio2*cosio2) / 16 // 
-      def    mdot  : Double = statett.tif.ocf.mdot
+      def    mdot  : Double = ctx.tif.ocf.mdot
       def   nodecf : Double = Ωcof
       def   nodedt : Double = omegadot     
       def        t : Double = statett.t
-      def   nodeo  : Double = statett.tif.ini.Ω0
-      def      no  : Double = statett.tif.bmmf.n0
+      def   nodeo  : Double = ctx.tif.ini.Ω0
+      def      no  : Double = ctx.tif.bmmf.n0
       def xno = no
       val error = 0
       val x = r(0); val y = r(1) ; val z = r(2); val xdot = v(0) ; val ydot = v(1) ; val zdot = v(2) ;

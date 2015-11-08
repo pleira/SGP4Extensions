@@ -12,7 +12,8 @@ package predict4s.tle
  * (from Space Debris, by H. Klinkrad, pag 216).
  */
 trait SGP4[F] {
-  def propagate(t: F)(implicit wgs: SGPConstants[F]) : OrbitalState[F]
+  def propagate(t: F) : OrbitalState[F]
 }
 
-case class OrbitalState[F](t: F, elem: TEME.SGPElems[F], posVel: TEME.CartesianElems[F], tif : SGP4TimeIndependentFunctions[F])
+case class OrbitalState[F](t: F, posVel: TEME.CartesianElems[F])
+case class SGP4Context[F](t: F, elem: TEME.SGPElems[F], posVel: TEME.CartesianElems[F], tif : SGP4TimeIndependentFunctions[F], wgs: SGPConstants[F])
