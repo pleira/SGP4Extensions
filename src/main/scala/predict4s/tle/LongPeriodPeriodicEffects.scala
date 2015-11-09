@@ -5,6 +5,9 @@ import spire.math._
 import spire.implicits._
 import predict4s.tle.TEME.SGPElems
 
+// TODO: express the operations here as being part of an AST with a single Context as parameter, 
+// returning a description, that is the new perturbed elements after long periodic effects and an updated Context 
+
 trait SGP4LongPeriodicEffects {
   
   def calculateSGP4LongPeriodicEffects[F: Field: NRoot : Order: Trig](tif: SGP4TimeIndependentFunctions[F], el: TEME.SGPElems[F], am: F) = {
@@ -39,7 +42,6 @@ trait SGP4LongPeriodicEffects {
      // Are these variables in relation with Delauney's? 
      (nodep, axnl, aynl, xl)
   }
-  
   
   def calcHootsSGP4LongPeriodicEffects[F: Field: NRoot : Order: Trig](tif: SGP4TIF[F], el: TEME.SGPElems[F], ocf: HootsOtherCoefs[F], am: F) = {
        /* ----------------- compute extra mean quantities ------------- */

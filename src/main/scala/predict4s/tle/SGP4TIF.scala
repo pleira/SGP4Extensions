@@ -41,8 +41,8 @@ case class SGP4TIF[F: Field: NRoot : Order: Trig](ini : TEME.SGPElems[F])(implic
   def potentialCOEFs(elemsdp : TEME.SGPElems[F], a0: F) : (GeoPotentialCoefs[F], Context1[F]) = {
   
     // use now double prime variables
-    import elemsdp._, wgs.aE,ini.i0, ini.e0
-
+    import elemsdp._, wgs.aE
+    val e0 = elemsdp.e
     
     // radius of perigee (as a0 (dp) is present, there is a aE term difference with Vallado's)
     val rp    = a0*(1-e0)
@@ -50,8 +50,7 @@ case class SGP4TIF[F: Field: NRoot : Order: Trig](ini : TEME.SGPElems[F])(implic
     
     // perigee height, altitude relative to the earth's surface, so perige instead of perigee 
     val perige =  rp - aE  
-    
-   
+       
     def S_above156       =  (1 + 78/aE)
     def hs               =  perige - 78   // interpolation, being a number bigger than 20, and smaller that 78
     def S_between_98_156 =  (1 + hs/aE)

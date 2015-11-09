@@ -66,22 +66,22 @@ object SGP4Hoots {
 /**
  *  Secular Effects of Earth Zonal Harmonics and Atmospheric Drag 
  */
-case class HootsSecularEffects[F : Field: NRoot : Order: Trig](p : GeoPotentialCoefs[F], tif: SGP4TIF[F], ctx1: Context1[F]) { 
-  
-  val C1 = p.C1; val C2=p.C2; val C3 = p.C3; val C4=p.C4; val C5=p.C5; 
-  val D2 = p.D2; val D3=p.D3; val D4 = p.D4; 
+case class HootsSecularEffects[F : Field: NRoot : Order: Trig](potential : GeoPotentialCoefs[F], tif: SGP4TIF[F], ctx1: Context1[F]) { 
   
   import tif._, ctx1._
   import ctx._, elemsdp._
   
-  val ocoefs = HootsOtherCoefs(elemsdp, ctx, ctx1, p)
+  val ocoefs = HootsOtherCoefs(elemsdp, ctx, ctx1, potential)
 
-  /** t is the duration in minutes from the epoch , then the SGP4 Time Independent Functions */
+  // TODO: try to express this operation as being part of an AST with a single Context and the time in minutes as parameters, 
+  // returning a description, that is the secular effect perturbed elements and an updated Context
+  /** t is the duration in minutes from the epoch */
   def secularEffects(t: F) : (TEME.SGPElems[F], F) = {
     import ocoefs._
     import ctx._, elemsdp._
+    import potential._
     
-    // TBX this is julian days +  min
+    // type safety: this is julian days +  min in day units 
     val refepoch = tif.ini.epoch + t / 1440.0
     
     val ωdf : F = ω0 + ωdot*t

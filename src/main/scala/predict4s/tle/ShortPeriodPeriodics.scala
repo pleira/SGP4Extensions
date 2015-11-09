@@ -5,18 +5,19 @@ import spire.implicits._
 import spire.math._
 import spire.syntax.primitives._
 
+
+// TODO: express the operations here as being part of an AST with a single Context as parameter, 
+// returning a description, that is the new perturbed elements after short period periodic effects and an updated Context
+// TODO: give physical meaning to the variables
+
 trait ShortPeriodPeriodicPerturbations {
   
   
-  // should be here be Delauney's elements?
-  
   def calcPositionVelocity[F: Field: NRoot : Order: Trig](tind: SGP4TimeIndependentFunctions[F], nm: F, xincp: F, cosip: F, sinip: F, am: F, nodep: F, axnl: F, aynl: F, xl : F, eo1: F)
   (implicit wgs: SGPConstants[F])  = {
-    
-    
+     
     import tind._
   import i0f._
-  //import sf._
   import wgs._
   import ocf._
   
@@ -83,8 +84,6 @@ trait ShortPeriodPeriodicPerturbations {
      ( mrt *: pos,  (1.0/60.0).as[F] *: (mvt *: pos + rvdot *: vel))
   }
 
-  
-  
   
   def calcPositionVelocity[F: Field: NRoot : Order: Trig](tif: SGP4TIF[F], ocf: HootsOtherCoefs[F], ctx1 : Context1[F], nm: F, xincp: F, cosip: F, sinip: F, am: F, nodep: F, axnl: F, aynl: F, xl : F, eo1: F) = {
     
