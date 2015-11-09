@@ -81,10 +81,8 @@ case class HootsSecularEffects[F : Field: NRoot : Order: Trig](p : GeoPotentialC
     import ocoefs._
     import ctx._, elemsdp._
     
-    // this is days + min: val refepoch = tind.ini.epoch + t
-    // should this be? val refepoch = gsto + t
-    // FIXME
-    val refepoch = gsto + t
+    // TBX this is julian days +  min
+    val refepoch = tif.ini.epoch + t / 1440.0
     
     val ωdf : F = ω0 + ωdot*t
     val Ωdf : F = Ω0 + Ωdot*t

@@ -29,7 +29,8 @@ trait EarthHarmonicsAndDragSecularEffects {
     import tind.ini.{M0,Ω0}
     import wgs.KE
     
-    val refepoch = tind.ini.epoch + t
+    // tind.ini.epoch + t -> this can not be OK: julian days + minutes => type safety !!!
+    val refepoch = tind.ini.epoch + t / 1440.0
     
     val ωdf : F = ω0 + ωdot*t
     val Ωdf : F = Ω0 + Ωdot*t

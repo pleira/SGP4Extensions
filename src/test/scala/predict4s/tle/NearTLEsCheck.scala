@@ -31,12 +31,12 @@ trait NearTLEsCheck extends NearTLEs with ValladoNearTLEsCheck with ValladoNearT
   })
 }
 
-class HardcodedBrouwerNearTLEsCheck extends FunSuite with NearTLEs with ValladoNearTLEsCheck with ValladoNearTLEsPVCheck {
+class HardcodedValladoNearTLEsCheck extends FunSuite with NearTLEs with ValladoNearTLEsCheck with ValladoNearTLEsPVCheck {
  
   implicit val wgs = SGP72Constants.tleDoubleConstants
 
-  def propags : List[SGP4Brouwer[Double]] = tles map (tle => SGP4Brouwer[Double](tle) )
-  def sgpImpl : String = "Brouwer"
+  def propags : List[SGP4Vallado[Double]] = tles map (tle => SGP4Vallado[Double](tle) )
+  def sgpImpl : String = "Vallado"
   
   val sgps     = propags
   
@@ -78,3 +78,5 @@ class LaraBNearTLEsCheck extends FunSuite with NearTLEsCheck {
   override def sgpImpl : String = "LaraB"
   override def propags : List[SGP4LaraB[Double]]  = tles map (tle => SGP4LaraB[Double](tle) )
 }
+
+

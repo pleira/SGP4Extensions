@@ -10,7 +10,7 @@ import predict4s._
 import TEME._
 
 
-case class SGP4Brouwer[F : Field : NRoot : Order : Trig](val state0: SGP4Context[F]) extends SGP4[F] {
+case class SGP4Vallado[F : Field : NRoot : Order : Trig](val state0: SGP4Context[F]) extends SGP4[F] {
     
   implicit val wgs: SGPConstants[F] = state0.wgs
     
@@ -28,11 +28,10 @@ case class SGP4Brouwer[F : Field : NRoot : Order : Trig](val state0: SGP4Context
   }
 }
 
-object SGP4Brouwer {
+object SGP4Vallado {
 
-  // TODO See if Delaunays variables can be introduced 
   // this should use the state monad
-  def apply[F : Field : NRoot : Order : Trig](tle: TLE)(implicit wgs: SGPConstants[F]) : SGP4Brouwer[F] = {
+  def apply[F : Field : NRoot : Order : Trig](tle: TLE)(implicit wgs: SGPConstants[F]) : SGP4Vallado[F] = {
     
     val elem0 = TEME.sgpElems[F](tle)
     val tif  = SGP4TimeIndependentFunctions(elem0)
@@ -50,7 +49,7 @@ object SGP4Brouwer {
     // here, should be something returned before in other coordinates 
     val posVel0 = ShortPeriodPeriodicPerturbations.calcPositionVelocity(tif, nm, xincp, cosip, sinip, am, nodep, axnl, aynl, xl, eo1)
     val context0 = SGP4Context(t0, elem0, posVel0, tif, wgs)
-    SGP4Brouwer(context0)
+    SGP4Vallado(context0)
   }
   
 }
