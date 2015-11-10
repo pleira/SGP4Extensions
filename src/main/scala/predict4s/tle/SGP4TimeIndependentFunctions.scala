@@ -35,7 +35,7 @@ case class OtherCoefs[F : Field: NRoot : Order: Trig](ini: TEME.SGPElems[F], i0f
   import coeff._
   import sf._
   import wgs._
-  import ini.{epoch,M0}
+  import ini.{epoch,bStar,M=>M0,ω=>ω0}
   
   val gsto = gstime(epoch + 2433281.5) 
   
@@ -136,8 +136,8 @@ case class InclFunctions[F: Field: Trig](val i0: F) {
 case class EccentricityFunctions[F: Field: NRoot](val e0: F) {
     val e0sq       = e0*e0
     val β0sq       = 1-e0sq
-    lazy val β0    = β0sq.sqrt
-    lazy val β0to3 = β0sq * β0
+    val β0         = β0sq.sqrt
+    val β0to3      = β0sq * β0
     val β0to4      = β0sq * β0sq
     def rteosq     = β0sq
 }
@@ -305,7 +305,7 @@ case class ILCoefs[F: Field](cf : CoefFunctions[F]) {
 object SGP4TimeIndependentFunctions {
   
   def apply[F: Field: NRoot : Order: Trig](ini : TEME.SGPElems[F])(implicit wgs: SGPConstants[F]) : SGP4TimeIndependentFunctions[F] = {
-    import ini._
+    import ini.{a => a0,e => e0,n => n0,i => i0,ω => ω0, bStar}
     val i0f  = InclFunctions(i0)
     val e0f  = EccentricityFunctions(e0)
     val bmmf = BrowerMeanMotion(n0,i0f,e0f)

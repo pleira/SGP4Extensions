@@ -119,9 +119,9 @@ object Sgp4Result {
     
     new Sgp4Result {
       def satn = tle.satelliteNumber
-      def ecco  : Double = ctx.elem.e0
+      def ecco  : Double = ctx.elem.e
       def epoch : Double = ctx.tif.ini.epoch 
-      def inclo : Double = ctx.elem.i0
+      def inclo : Double = ctx.elem.i
     
       //def    no  : Double  = n0 // or n0k
    //   outputs : 
@@ -144,8 +144,8 @@ object Sgp4Result {
       // ---
       def      yr  : Int    = tle.epochyear
       def   bstar  : Double = ctx.tif.ini.bStar
-      def   argpo  : Double = ctx.tif.ini.ω0
-      def      mo  : Double = ctx.tif.ini.M0
+      def   argpo  : Double = ctx.tif.ini.ω
+      def      mo  : Double = ctx.tif.ini.M
       def   isimp  : Int    = if ((omeosq >= 0.0) || (no >= 0.0))
                                     if (isImpacting || isDeepSpace) 1 else 0
                               else 0
@@ -177,7 +177,7 @@ object Sgp4Result {
       def   nodecf : Double = Ωcof
       def   nodedt : Double = omegadot     
       def        t : Double = statett.t
-      def   nodeo  : Double = ctx.tif.ini.Ω0
+      def   nodeo  : Double = ctx.tif.ini.Ω
       def      no  : Double = ctx.tif.bmmf.n0
       def xno = no
       val error = 0

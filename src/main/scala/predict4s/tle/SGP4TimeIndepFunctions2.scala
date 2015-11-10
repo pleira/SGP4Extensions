@@ -5,7 +5,7 @@ import spire.math._
 import spire.implicits._
 
 import spire.syntax.primitives._
-
+/*
 case class SGP4TimeIndepFunctions[F: Field: NRoot : Order: Trig] (ini : TEME.SGPElems[F])(implicit wgs: WGSConstants[F]) {
   import ini._
   import wgs._
@@ -163,3 +163,4 @@ case class SGP4TimeIndepFunctions[F: Field: NRoot : Order: Trig] (ini : TEME.SGP
 //   SGP4TimeIndepFunctions(ini)
 //  }
 //}
+*/

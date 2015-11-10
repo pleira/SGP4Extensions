@@ -18,8 +18,9 @@ case class SGP4TIF[F: Field: NRoot : Order: Trig](ini : TEME.SGPElems[F])(implic
   val ctx = Context0(ini)
   
   // Recover original mean motion (n0'', n0dp) and semimajor axis (a0'' , a0dp)
-  def transformToDoublePrimeElems :  (TEME.SGPElems[F], F) = {
-    import ini.i0, ini.e0, ini.n0, ctx.`cos²i0`, ctx.`e0²`,ctx.k2,ctx.Ke
+  def transformToDoublePrimeElems :  TEME.SGPElems[F] = {
+    import ini.{i => i0,e => e0,n => n0,ω => ω0,Ω => Ω0,M =>M0, bStar}
+    import ctx.`cos²i0`, ctx.`e0²`,ctx.k2,ctx.Ke
     val a1   = (Ke / n0) pow 1.5   
     val tval = 3 * k2 * (3*`cos²i0` - 1) / ((1-`e0²`) pow 1.5) / 4 
     val δ1   = tval / (a1*a1)
@@ -30,19 +31,19 @@ case class SGP4TIF[F: Field: NRoot : Order: Trig](ini : TEME.SGPElems[F])(implic
     val n0dp = n0   / (1 + δ0) 
     val a0dp = a0   / (1 - δ0)
     import ini._
-    (TEME.SGPElems(n0dp, e0, i0, ω0, Ω0, M0, bStar, epoch), a0dp)
+    TEME.SGPElems(n0dp, e0, i0, ω0, Ω0, M0, a0dp, bStar, epoch)
   }
   
   def potentialCOEFs0 : (GeoPotentialCoefs[F], Context1[F]) = {
-    val (elemsdp, a0) = transformToDoublePrimeElems
-    potentialCOEFs(elemsdp, a0)
+    val elemsdp = transformToDoublePrimeElems
+    potentialCOEFs(elemsdp)
   }
   
-  def potentialCOEFs(elemsdp : TEME.SGPElems[F], a0: F) : (GeoPotentialCoefs[F], Context1[F]) = {
+  def potentialCOEFs(elemsdp : TEME.SGPElems[F]) : (GeoPotentialCoefs[F], Context1[F]) = {
   
     // use now double prime variables
-    import elemsdp._, wgs.aE
-    val e0 = elemsdp.e
+    import wgs.aE
+    import elemsdp.{a => a0,e => e0,n => n0,ω => ω0, bStar}
     
     // radius of perigee (as a0 (dp) is present, there is a aE term difference with Vallado's)
     val rp    = a0*(1-e0)
@@ -68,12 +69,10 @@ case class SGP4TIF[F: Field: NRoot : Order: Trig](ini : TEME.SGPElems[F])(implic
        else if (perige >= 98)   S_between_98_156
        else                     S_below98  
     
-    // The parameter q0 is the geocentric reference altitude, 
-    // a constant equal to 120 km plus one Earth radius 
     val s    = fittingAtmosphericParameter
 
-    val ctx1 = Context1(elemsdp, a0, s, rp, aE)
-    import ctx1.{a0 =>_,_}
+    val ctx1 = Context1(elemsdp, s, rp, aE)
+    import ctx1._
     import ctx.k2,ctx.Ke,ctx.A30,ctx.sini0,ctx.`θ²`,ctx.`β0²`
 
     val coef1 = q0ms_ξ__to4 / (psisq** 3.5)
@@ -89,7 +88,7 @@ case class SGP4TIF[F: Field: NRoot : Order: Trig](ini : TEME.SGPElems[F])(implic
     val C4 = 2*a0*`β0²`*coef1*n0*((2*η*(1+e0η) + (e0 + ηto3)/2) - 2*k2*ξ*aterm/(a0*`psi²`))
     val C5 = 2*a0*`β0²`*coef1*(1 + 11*(`η²`+e0η)/4 + e0η*`η²`)
      
-    val D2 = 4*a0*C1*C1*ξ
+    val D2 = 4*a0*`C1²`*ξ
     val D3 = D2*(17*a0+s)*C1*ξ/3
     val D4 = D2*D2*ξ*(221*a0+31*s)/24
     (GeoPotentialCoefs(C1,C2,C3,C4,C5,D2,D3,D4), ctx1)
@@ -97,9 +96,11 @@ case class SGP4TIF[F: Field: NRoot : Order: Trig](ini : TEME.SGPElems[F])(implic
   
 }
 
-case class Context0[F: Field: NRoot : Order: Trig](ini : TEME.SGPElems[F])(implicit wgs: SGPConstants[F]) {
+case class Context0[F: Field: NRoot : Order: Trig](ini : TEME.SGPElems[F])(implicit val wgs: SGPConstants[F]) {
   // some constants here, that differ with the aE scale from Vallado's 
-  import wgs.aE,wgs.J2,wgs.J3,wgs.J4,wgs.MU,ini.i0,ini.e0
+  import wgs.aE,wgs.J2,wgs.J3,wgs.J4,wgs.MU
+  import ini.{i => i0,e => e0}
+  
   val k2         = J2 * aE * aE / 2
   val k4         = -3 * J4 * aE**4 / 8
   val Ke         = MU // sqrt(GM) where G is Newton’s universal gravitational constant and M is the mass of the Earth
@@ -133,8 +134,9 @@ case class Context0[F: Field: NRoot : Order: Trig](ini : TEME.SGPElems[F])(impli
  
 }
 
-case class Context1[F: Field: NRoot : Order: Trig](elemsdp : TEME.SGPElems[F], a0: F, s: F, rp: F, aE: F) {
-  import elemsdp.{e0,n0}
+case class Context1[F: Field: NRoot : Order: Trig](elemsdp : TEME.SGPElems[F], s: F, rp: F, aE: F) {
+  import elemsdp.{n => n0,e => e0, a => a0}
+
   val ξ    = 1 / (a0 - s)  // tsi
   val `ξ²` = ξ*ξ
   val `ξ³` = ξ**3
@@ -157,6 +159,8 @@ case class Context1[F: Field: NRoot : Order: Trig](elemsdp : TEME.SGPElems[F], a
   def psisq = abs[F](1-ηsq)  // Vallado's uses fabs
   val `psi²`= psisq
   
+  // The parameter q0 is the geocentric reference altitude, 
+  // a constant equal to 120 km plus one Earth radius 
   val q0   = 1 + 120/aE 
   val q0ms_to4 = (q0 - s)**4 
   
@@ -166,17 +170,17 @@ case class Context1[F: Field: NRoot : Order: Trig](elemsdp : TEME.SGPElems[F], a
   // use deep space
   def isDeepSpace = (2*pi / n0) >= 225
    
-  def isImpacting : Boolean = rp < (220/aE + 1)
+  val isImpacting : Boolean = rp < (220/aE + 1)
 
 }
 
 case class HootsOtherCoefs[F : Field: NRoot : Order: Trig](elem: TEME.SGPElems[F],  ctx : Context0[F], 
-    ctx1 : Context1[F], coeff : GeoPotentialCoefs[F])(implicit wgs: SGPConstants[F]) {
+    ctx1 : Context1[F], coeff : GeoPotentialCoefs[F]) {
     
   import ctx._, ctx1._
   import coeff._
-  import wgs._
-  import elem._ 
+  import ctx.wgs._
+  import elem.{n => n0,e => e0, a => a0,ω => ω0, M => M0,_}
   
   val gsto = gstime(epoch + 2433281.5) 
   

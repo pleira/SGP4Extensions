@@ -10,27 +10,15 @@ import predict4s.tle.TEME.SGPElems
 
 trait SGP4LongPeriodicEffects {
   
-  def calculateSGP4LongPeriodicEffects[F: Field: NRoot : Order: Trig](tif: SGP4TimeIndependentFunctions[F], el: TEME.SGPElems[F], am: F) = {
+  def calculateSGP4LongPeriodicEffects[F: Field: NRoot : Order: Trig](tif: SGP4TimeIndependentFunctions[F], el: TEME.SGPElems[F]) = {
        /* ----------------- compute extra mean quantities ------------- */
-    import el._
-    //val sinim = sin(i) //  sin(inclm);
-    //val cosim = cos(i)
-
-//     ep     = em;
-//     xincp  = inclm;
-//     argpp  = argpm;
-//     nodep  = nodem;
-//     mp     = mm;
-//     sinip  = sinim;
-//     cosip  = cosim;
-    
-    // p for periodics
     // inputs are the mean elements
-     val ep     = e 
-     val xincp  = i 
-     val argpp  = ω 
-     val nodep  = Ω 
-     val mp     = M 
+     val ep     = el.e 
+     val xincp  = el.i 
+     val argpp  = el.ω 
+     val nodep  = el.Ω 
+     val mp     = el.M 
+     val am     = el.a
      //val sinip  = sinim 
      //val cosip  = cosim 
      
@@ -43,37 +31,16 @@ trait SGP4LongPeriodicEffects {
      (nodep, axnl, aynl, xl)
   }
   
-  def calcHootsSGP4LongPeriodicEffects[F: Field: NRoot : Order: Trig](tif: SGP4TIF[F], el: TEME.SGPElems[F], ocf: HootsOtherCoefs[F], am: F) = {
+  def calcHootsSGP4LongPeriodicEffects[F: Field: NRoot : Order: Trig](tif: SGP4TIF[F], el: TEME.SGPElems[F], ocf: HootsOtherCoefs[F]) = {
        /* ----------------- compute extra mean quantities ------------- */
     import el._
-    //val sinim = sin(i) //  sin(inclm);
-    //val cosim = cos(i)
+    val axnl = e * cos(ω)
+    val temp = 1 / (a * (1 - e * e))
+    val aynl = e * sin(ω) + temp * ocf.aycof
+    val xl   = M + ω + Ω + temp * ocf.xlcof * axnl
 
-//     ep     = em;
-//     xincp  = inclm;
-//     argpp  = argpm;
-//     nodep  = nodem;
-//     mp     = mm;
-//     sinip  = sinim;
-//     cosip  = cosim;
-    
-    // p for periodics
-    // inputs are the mean elements
-     val ep     = e 
-     val xincp  = i 
-     val argpp  = ω 
-     val nodep  = Ω 
-     val mp     = M 
-     //val sinip  = sinim 
-     //val cosip  = cosim 
-     
-     val axnl = ep * cos(argpp)
-     val temp = 1 / (am * (1 - ep * ep))
-     val aynl = ep * sin(argpp) + temp * ocf.aycof
-     val xl   = mp + argpp + nodep + temp * ocf.xlcof * axnl
-
-     // Are these variables in relation with Delauney's? 
-     (nodep, axnl, aynl, xl)
+    // Are these variables in relation with Delauney's? 
+    (Ω, axnl, aynl, xl)
   }  
 }
 

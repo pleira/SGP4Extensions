@@ -30,7 +30,8 @@ package object tle {
       val M0 = meanAnomaly    
       val radpm0 = revPerDay2RadPerMin(meanMotion)
   
-      SGPElems[F](radpm0,e0,i0,pa,raan,M0,bStar,epoch)
+      // not yet the apogee recovered
+      SGPElems[F](radpm0,e0,i0,pa,raan,M0, 0.as[F], bStar,epoch)
     }
     
     def revPerDay2RadPerMin[F: Field](rpd: F) : F = 2 * pi * rpd / 1440 

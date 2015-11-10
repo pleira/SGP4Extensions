@@ -88,8 +88,8 @@ trait ShortPeriodPeriodicPerturbations {
   def calcPositionVelocity[F: Field: NRoot : Order: Trig](tif: SGP4TIF[F], ocf: HootsOtherCoefs[F], ctx1 : Context1[F], nm: F, xincp: F, cosip: F, sinip: F, am: F, nodep: F, axnl: F, aynl: F, xl : F, eo1: F) = {
     
     import tif._, ctx1._
-    import ctx._
     import wgs._
+    import ctx._
     import ocf._
   
      /* ------------- short period preliminary quantities ----------- */

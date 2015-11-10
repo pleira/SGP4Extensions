@@ -32,16 +32,9 @@ trait ReferenceSystem {
         ω : F, // argument Of perigee
         Ω : F, // right ascension ascending node
         M : F, // mean anomaly
+        a : F, // semimajor axis (apogee)
         bStar : F, // atmospheric Drag Coeficient
         epoch : F) // epoch time in days from jan 0, 1950. 0 hr 
-  {
-    def n0 = n  
-    def e0 = e 
-    def i0 = i 
-    def ω0 = ω 
-    def Ω0 = Ω
-    def M0 = M 
-  }
   
          
   case class CartesianElems[F](x: F, y: F, z: F, vx: F, vy: F, vz: F) {
