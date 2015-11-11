@@ -1,5 +1,4 @@
-An analysis of new implementations of the SGP4 algorithm in Scala is done.
-These implementations have different characteristics regarding speed, architecture, applicability and readability. These characteristics address different use cases. For processing the TLE object catalog to find out possible collision events, metadata produced during propagation allows the integration of new algorithms for collision detection. The integration of such algorithms is also discussed.
+The SGP4 algorithm is widely used to propagate orbits of objects around the earth like space debris. There are many implementations of the algorithm in many languages. This work presents new implementations of the SGP4 algorithm implemented in Scala following a more functional architecture in contrast to the imperative/object oriented solutions used in previous implementations. Besides the classical implementation adapted from Vallado's code, there is an alternative implementation using algorithms developed by Lara. These implementations have different characteristics regarding speed, architecture, applicability and readability which find applicability in massive data processing like prediction of orbital collision events. 
 
 
 ### Rationale
@@ -7,14 +6,16 @@ These implementations have different characteristics regarding speed, architectu
 This project initially was about testing new software techniques to develop solutions for scientific and engineering problems. Therefore, provides these characteristics:
 
 * Scala based to use functional programing paradigm
+* Interpreter pattern in its core
 * Avoidance of mutable state
 * Parameterisation of numeric types in the algorithms
 * unicode variables to help reading the software against ecuations given in the literature
 * better structure to allow the introduction of new algorithms 
-* choice of algorithms 
-* fast through specialization/inlining
+* choice of algorithms presented through Abstract Data Types in contrast to Object Oriented Interfaces 
 
-The improvements can provide more flexibility and more capabilities for masive data processing operations. Here is where this project, about orbit propagation, could set new goals which are related with operational problems.
+The interpreter pattern design provides more flexibility and more capabilities for masive data processing operations. There is a separation of the run time part that has state, like reading/writing to files, from a pure functional part, which just is responsible to describe the algorithm applied. 
+
+For processing the TLE object catalog to find out possible collision events, metadata produced during propagation allows the integration of new algorithms for collision detection. Abstract Data Types hide the different SGP4 implementations which provide different kinds of metadata. It is therefore, easier to integrate other analysis techniques with the generated orbital data from a massive catalog. Here is where this project about orbit propagation could set new goals which are related with operational problems.
 
 ### Goals 
 
@@ -38,4 +39,8 @@ The improvements can provide more flexibility and more capabilities for masive d
 * relate software types with phyical variables in comparison with current SGP4 implementations.
 * improve code self-description of the physics and equations used compared with other SGP4 implementations.
 * As example, separate the derivation of the Potential Model coefficients which includes the atmospheric term.
+
+### References
+
+TBD
 
