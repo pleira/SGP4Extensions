@@ -8,6 +8,99 @@ import spire.implicits._
 import spire.math._
 import spire.syntax.primitives._
 
+case class SecularState[F](t: F, elems: TEME.SGPElems[F], ocofs : HootsOtherCoefs[F], ilcofs : IlCoefs[F])
+
+/**
+ *  Secular Effects of Earth Zonal Harmonics and Atmospheric Drag 
+ */
+case class HootsSecularEffects[F : Field: NRoot : Order: Trig](gpState : GeoPotentialState[F]) { 
+  
+  val eValidInterval = Interval.open(0.as[F],1.as[F])
+  
+  val ocofs = HootsOtherCoefs(gpState)
+  val ilcofs = IlCoefs(gpState)
+  // TODO: try to express this operation as being part of an AST with a single Context and the time in minutes as parameters, 
+  // returning a description, that is the secular effect perturbed elements and an updated Context
+  /** t is the duration in minutes from the epoch */
+  def secularEffects(t: F) : SecularState[F] = {
+    import gpState._
+    import gcof._, dps.elem._
+    import ocofs.{ωdot,Ωdot,mdot=>Mdot,Ωcof}
+    
+    // type safety: this is julian days +  min in day units 
+    val refepoch = epoch + t / 1440.0
+    
+    val `t²` = t*t
+    val t2   = t*t
+
+    val ωdf  = ω + ωdot*t
+    val Ωdf  = Ω + Ωdot*t
+    val Mdf  = M + Mdot*t
+    
+    // It should be noted that when epoch perigee height is less than
+    // 220 kilometers, the equations for a and IL are truncated after the C1 term, 
+    // and the terms involving C5 , δω, and δM are dropped.
+
+    import dps.isImpacting,gctx.η
+    import ilcofs._
+    import ocofs.{ωcof,delM0,sinM0,Mcof,twopi}
+    //import tif.wgs.{MU=>Ke}
+    val Ke : F = dps.ctx.wgs.MU
+    
+
+    val (tempa,tempe,templ,ωm, mp) : (F,F,F,F,F) = 
+      if (isImpacting) (1 - C1*t, bStar*C4*t, t2cof*`t²`, ωdf, Mdf)
+      else {
+        val `t³` = `t²`*t
+        val `t⁴` = `t²`*`t²`
+        val δω  = ωcof*t
+        val δM  = Mcof*( (1+η*cos(Mdf))**3 - delM0)
+        val Mpm_ = Mdf + δω + δM
+        val ωm_  = ωdf - δω - δM
+       
+        (1 - C1*t - D2*`t²` - D3*`t³` - D4*`t⁴`, 
+          bStar*(C4*t + C5*(sin(Mpm_) - sinM0)), 
+          t2cof*`t²` + t3cof*`t³` + `t⁴` * (t4cof + t*t5cof),
+          ωm_, 
+          Mpm_)
+      }
+    
+    val am   = a * tempa**2  
+    val nm   = Ke / (am pow 1.5)
+    val em_  = e - tempe
+    val Ωm   = Ωdf + Ωcof*`t²` 
+    
+     // fix tolerance for error recognition
+     // sgp4fix am is fixed from the previous nm check
+    // FIXME: can we use intervals?
+    if (!eValidInterval.contains(em_))
+       {
+         // sgp4fix to return if there is an error in eccentricity
+         // FIXME: we should move to use Either
+        // return TEME.SGPElems[F](nm, em_, i, ωm, Ωm, mp, am, bStar, epoch)  
+        return SecularState(t, TEME.SGPElems(nm, em_, i, ωm, Ωm, mp, am, bStar, epoch), ocofs, ilcofs) 
+       }
+
+     // sgp4fix fix tolerance to avoid a divide by zero
+     val em = if (em_ < 1.0e-6.as[F]) 1.0e-6.as[F] else em_ 
+    
+     val Mm_  = mp + n*templ
+     val ℓm   = Mm_ + ωm + Ωm
+
+     // modulus so that the angles are in the range 0,2pi
+     val Ω_      = Ωm  % twopi
+     val ω_      = ωm  % twopi
+     val lm      = ℓm  % twopi
+     val Mm      = (lm - ω_ - Ω_) % twopi
+     
+     // Better SGPElems (radpm0,e0,i0,pa,raan,M0,bStar,refepoch)
+      
+    // Return a different structure here for the long periodic effects
+    SecularState(t, TEME.SGPElems(nm, em, i, ω_, Ω_, Mm, am, bStar, epoch), ocofs, ilcofs) 
+    
+  }
+   
+}
 
 /**
  *  Secular Effects of Earth Zonal Harmonics and Atmospheric Drag 

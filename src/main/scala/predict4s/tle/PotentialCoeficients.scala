@@ -5,67 +5,130 @@ import spire.math._
 import spire.implicits._
 import scala.{ specialized => spec }
 import spire.syntax.primitives._
-  
+import DpTransform._
+
+
+trait PotentialCoeficients[F] {
+  def C1: F;  def C2: F;  def C3: F;  def C4: F;  def C5: F
+  def D2: F;  def D3: F;  def D4: F
+}
+
 // TODO: try to express this operation as being part of an AST with a single Context as parameter, 
 // returning a description, that is the GeoPotentialCoefs and an updated Context
 
-trait PotentialCoeficients {  
+/**
+ * The AtmosphericCoef parameter s is a fitting parameter in density representation.
+ * It is determined based of epoch perigee height above a spherical Earth. 
+ * If perigee height is greater than or equal 156 km, the value of s is
+ * fixed to be 78 km plus one Earth radius. For altitudes greater than or equal to 98 km but less
+ * than 156 km, s is defined to be perigee height minus 78 km plus one Earth radius. 
+ * For altitudes below 98 km, s is 20 km plus one Earth radius.
+ */
+class AtmosphericCoef[F: Field: NRoot: Order](dp : DpState[F]) { 
   
-  def getCoefs[F: Field : NRoot : Order : Trig](elemsdp : TEME.SGPElems[F], ctx: Context0[F])(implicit wgs: SGPConstants[F])  : (GeoPotentialCoefs[F], Context1[F]) = {
+    import dp.ctx.wgs.aE, dp.{perige => perigeeHeight}
   
-    // use now double prime variables
-    import elemsdp.{a => a0,e => e0,n => n0,ω => ω0, bStar}, wgs.aE
-    
-    // radius of perigee (as a0 (dp) is present, there is a aE term difference with Vallado's)
-    val rp    = a0*(1-e0)
-    assert (rp > aE)
-    
-    // perigee height, altitude relative to the earth's surface, so perige instead of perigee 
-    val perige =  rp - aE  
-    
-   
-    def S_above156       =  (1 + 78/aE)
-    def hs               =  perige - 78   // interpolation, being a number bigger than 20, and smaller that 78
-    def S_between_98_156 =  (1 + hs/aE)
-    def S_below98        =  (1 + 20/aE)
+    def S_above156 : F       =  (1 + 78/aE)
+    def hs         : F       =  perigeeHeight - 78   // interpolation, being a number bigger than 20, and smaller that 78
+    def S_between_98_156 : F =  (1 + hs/aE)
+    def S_below98        : F =  (1 + 20/aE)
   
-    /* the parameter s is a fitting parameter in density representation.
-     * It is determined based of epoch perigee
-     * height above a spherical Earth. If perigee height is greater than or equal 156 km, the value of s is
-     * fixed to be 78 km plus one Earth radius. For altitudes greater than or equal to 98 km but less
-     * than 156 km, s is defined to be perigee height minus 78 km plus one Earth radius. 
-     * For altitudes below 98 km, s is 20 km plus one Earth radius.
-     */
     def fittingAtmosphericParameter : F = 
-       if (perige >= 156)       S_above156
-       else if (perige >= 98)   S_between_98_156
-       else                     S_below98  
-
-    val s    = fittingAtmosphericParameter
-
-    val ctx1 = Context1(elemsdp, s, rp, aE)
-    import ctx1._
-    import ctx.k2,ctx.Ke,ctx.A30,ctx.sini0,ctx.`θ²`,ctx.`β0²`
-
-    val coef1 = q0ms_ξ__to4 / (psisq** 3.5)
-    val C2 : F = coef1 * n0 *(a0 * (1 + 1.5*`η²` + e0η*(4 + `η²`)) + 3*k2*ξ / 2 / psisq * (3*`θ²` - 1) / 2 * (8 + 3*`η²`*(8 + `η²`)))
-    
-    val C1 : F = bStar * C2
-    val `C1²`  = C1*C1
-    def C1sq   = `C1²`
+       if (perigeeHeight >= 156)       S_above156
+       else if (perigeeHeight >= 98)   S_between_98_156
+       else                            S_below98  
   
-    val C3 =  if (e0 > 0.0001.as[F]) q0ms_ξ__to4 * ξ * A30 * n0 * aE * sini0 / e0 / k2  else 0.as[F]
-    
-    val aterm = 3*(1-3*`θ²`)*(1 + 3*`η²`/2 - 2*e0η - e0η*`η²`/2) + 3*(1-`θ²`)*(2*`η²` - e0η - e0η*`η²`)*cos(2*ω0)/4
-    val C4 = 2*a0*`β0²`*coef1*n0*((2*η*(1+e0η) + (e0 + ηto3)/2) - 2*k2*ξ*aterm/(a0*`psi²`))
-    val C5 = 2*a0*`β0²`*coef1*(1 + 11*(`η²`+e0η)/4 + e0η*`η²`)
-     
-    val D2 = 4*a0*`C1²`*ξ
-    val D3 = D2*(17*a0+s)*C1*ξ/3
-    val D4 = D2*D2*ξ*(221*a0+31*s)/24
-    (GeoPotentialCoefs(C1,C2,C3,C4,C5,D2,D3,D4), ctx1)
-  }
+    def s : F = fittingAtmosphericParameter
 
 }
 
-object PotentialCoeficients extends PotentialCoeficients
+class GeoPotentialState[F] private (val gcof: GeoPotentialCoefs[F], val dps: DpState[F], val gctx : GeoContext[F])
+
+
+class GeoContext[F: Field: NRoot : Order: Trig](elemsdp : TEME.SGPElems[F], s: F, rp: F, aE: F) {
+    import elemsdp.{n => n0,e => e0, a => a0}
+  
+    val ξ    = 1 / (a0 - s)  // tsi
+    val `ξ²` = ξ*ξ
+    val `ξ³` = ξ**3
+    val `ξ⁴` = ξ**4
+    
+    def ξsq  = ξ*ξ
+    def ξto3 = ξsq*ξ
+    def ξto4 = ξsq*ξsq
+    def ξto5 = ξto4*ξ
+  
+    val η    = a0*e0*ξ   // eta
+    val `η²` = η*η
+    val `η³` = η**3
+    val `η⁴` = η**4
+    def ηsq  = η*η       // etasq
+    def ηto3 = ηsq*η
+    def ηto4 = ηsq*ηsq
+    
+    val e0η   = e0*η      // eeta 
+    def psisq = abs[F](1-ηsq)  // Vallado's uses fabs
+    val `psi²`= psisq
+    
+    // The parameter q0 is the geocentric reference altitude, 
+    // a constant equal to 120 km plus one Earth radius 
+    val q0   = 1 + 120/aE 
+    val q0ms_to4 = (q0 - s)**4 
+    
+    // q0 minus s ξ  all to 4 
+    val q0ms_ξ__to4 = q0ms_to4*(ξ**4)  
+  
+  }
+
+// class GeoPotentialState[F: Field : NRoot : Order : Trig](dp : DpState[F]) extends AtmosphericCoef[F](dp) with PotentialCoeficients[F] {
+object GeoPotentialState {
+
+  def apply[F: Field : NRoot : Order : Trig](dp : DpState[F]) : GeoPotentialState[F] = {
+  import dp.{elem,ctx, rp}
+  import elem.{a => a0,e => e0,n => n0,ω => ω0, bStar},ctx.wgs.aE 
+
+  // AtmosphericCoef
+    import dp.ctx.wgs.aE, dp.{perige => perigeeHeight}
+  
+    def S_above156 : F       =  (1 + 78/aE)
+    def hs         : F       =  perigeeHeight - 78   // interpolation, being a number bigger than 20, and smaller that 78
+    def S_between_98_156 : F =  (1 + hs/aE)
+    def S_below98        : F =  (1 + 20/aE)
+  
+    def fittingAtmosphericParameter : F = 
+       if (perigeeHeight >= 156)       S_above156
+       else if (perigeeHeight >= 98)   S_between_98_156
+       else                            S_below98  
+  
+    def s : F = fittingAtmosphericParameter
+  //--------------------------------
+    
+  val gctx = new GeoContext(elem, s, rp, aE)
+
+  import gctx._
+  import ctx.k2,ctx.Ke,ctx.A30,ctx.sini0,ctx.`θ²`,ctx.`β0²`
+
+  val coef1 = q0ms_ξ__to4 / (psisq** 3.5)
+
+  def C2 : F = coef1 * n0 *(a0 * (1 + 1.5*`η²` + e0η*(4 + `η²`)) + 3*k2*ξ / 2 / psisq * (3*`θ²` - 1) / 2 * (8 + 3*`η²`*(8 + `η²`)))
+  
+  val C1 : F = bStar * C2
+  val `C1²`  = C1*C1
+  def C1sq   = `C1²`
+
+  val C3 =  if (e0 > 0.0001.as[F]) q0ms_ξ__to4 * ξ * A30 * n0 * aE * sini0 / e0 / k2  else 0.as[F]
+  
+  val aterm = 3*(1-3*`θ²`)*(1 + 3*`η²`/2 - 2*e0η - e0η*`η²`/2) + 3*(1-`θ²`)*(2*`η²` - e0η - e0η*`η²`)*cos(2*ω0)/4
+  val C4 = 2*a0*`β0²`*coef1*n0*((2*η*(1+e0η) + (e0 + ηto3)/2) - 2*k2*ξ*aterm/(a0*`psi²`))
+  val C5 = 2*a0*`β0²`*coef1*(1 + 11*(`η²`+e0η)/4 + e0η*`η²`)
+   
+  val D2 = 4*a0*`C1²`*ξ
+  val D3 = D2*(17*a0+s)*C1*ξ/3
+  val D4 = D2*D2*ξ*(221*a0+31*s)/24
+
+  //def getPotentialCoefs : (GeoPotentialCoefs[F], Context1[F]) = 
+   new GeoPotentialState(GeoPotentialCoefs(C1,C2,C3,C4,C5,D2,D3,D4), dp, gctx)
+  
+  }
+
+}

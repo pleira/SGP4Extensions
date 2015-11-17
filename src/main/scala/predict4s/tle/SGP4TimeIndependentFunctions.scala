@@ -22,7 +22,7 @@ case class SGP4TimeIndependentFunctions[F: Field: NRoot : Order: Trig] private (
     val bmmf : BrowerMeanMotion[F],
     val sf   : ScalcFunctions[F],
     val coeff : CoefFunctions[F],
-    val ilf  : ILCoefs[F],
+    val ilf  : ILCofs[F],
     val ocf  : OtherCoefs[F]
     ) 
 
@@ -293,7 +293,7 @@ case class CoefFunctions[F: Field: NRoot: Order: Trig](ω0: F, bStar: F, i0f : I
   val D4 = D2*D2*ξ*(221*a0+31*s)/24
 }
 
-case class ILCoefs[F: Field](cf : CoefFunctions[F]) {
+case class ILCofs[F: Field](cf : CoefFunctions[F]) {
    // coeficients for IL
   import cf._
    val t2cof = 3*C1/2
@@ -311,7 +311,7 @@ object SGP4TimeIndependentFunctions {
     val bmmf = BrowerMeanMotion(n0,i0f,e0f)
     val sf   = ScalcFunctions(e0f,bmmf)
     val coeff = CoefFunctions(ω0, bStar,i0f,e0f,bmmf, sf)
-    val ilf  = ILCoefs(coeff) 
+    val ilf  = ILCofs(coeff) 
     val ocf  = OtherCoefs(ini, i0f,e0f,bmmf,sf,coeff) 
    
   new SGP4TimeIndependentFunctions(ini,i0f,e0f,bmmf,sf,coeff,ilf,ocf)

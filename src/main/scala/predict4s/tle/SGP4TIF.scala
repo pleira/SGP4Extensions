@@ -3,7 +3,6 @@ package predict4s.tle
 import spire.algebra._
 import spire.math._
 import spire.implicits._
-import predict4s.tle.TEME.SGPElems
 
 import spire.syntax.primitives._
 
@@ -13,178 +12,32 @@ import spire.syntax.primitives._
  *  
  * (Reference http://aero.tamu.edu/sites/default/files/faculty/alfriend/S6.1%20Hoots.pdf)
  */
-case class SGP4TIF[F: Field: NRoot : Order: Trig](ini : TEME.SGPElems[F])(implicit val wgs: SGPConstants[F]) {
-
-  val ctx = Context0(ini)
-  
-  // Recover original mean motion (n0'', n0dp) and semimajor axis (a0'' , a0dp)
-  def transformToDoublePrimeElems :  TEME.SGPElems[F] = {
-    import ini.{i => i0,e => e0,n => n0,ω => ω0,Ω => Ω0,M =>M0, bStar}
-    import ctx.`cos²i0`, ctx.`e0²`,ctx.k2,ctx.Ke
-    val a1   = (Ke / n0) pow 1.5   
-    val tval = 3 * k2 * (3*`cos²i0` - 1) / ((1-`e0²`) pow 1.5) / 4 
-    val δ1   = tval / (a1*a1)
-    
-    val a0   = a1 * (1 - δ1 * (1.0/3.0 + δ1 * (1 + 134 * δ1 / 81)))
-    
-    val δ0   = tval / (a0 * a0)  
-    val n0dp = n0   / (1 + δ0) 
-    val a0dp = a0   / (1 - δ0)
-    import ini._
-    TEME.SGPElems(n0dp, e0, i0, ω0, Ω0, M0, a0dp, bStar, epoch)
-  }
-  
-  def potentialCOEFs0 : (GeoPotentialCoefs[F], Context1[F]) = {
-    val elemsdp = transformToDoublePrimeElems
-    potentialCOEFs(elemsdp)
-  }
-  
-  def potentialCOEFs(elemsdp : TEME.SGPElems[F]) : (GeoPotentialCoefs[F], Context1[F]) = {
-  
-    // use now double prime variables
-    import wgs.aE
-    import elemsdp.{a => a0,e => e0,n => n0,ω => ω0, bStar}
-    
-    // radius of perigee (as a0 (dp) is present, there is a aE term difference with Vallado's)
-    val rp    = a0*(1-e0)
-    assert (rp > aE)
-    
-    // perigee height, altitude relative to the earth's surface, so perige instead of perigee 
-    val perige =  rp - aE  
-       
-    def S_above156       =  (1 + 78/aE)
-    def hs               =  perige - 78   // interpolation, being a number bigger than 20, and smaller that 78
-    def S_between_98_156 =  (1 + hs/aE)
-    def S_below98        =  (1 + 20/aE)
-  
-    /* the parameter s is a fitting parameter in density representation.
-     * It is determined based of epoch perigee
-     * height above a spherical Earth. If perigee height is greater than or equal 156 km, the value of s is
-     * fixed to be 78 km plus one Earth radius. For altitudes greater than or equal to 98 km but less
-     * than 156 km, s is defined to be perigee height minus 78 km plus one Earth radius. 
-     * For altitudes below 98 km, s is 20 km plus one Earth radius.
-     */
-    def fittingAtmosphericParameter : F = 
-       if (perige >= 156)       S_above156
-       else if (perige >= 98)   S_between_98_156
-       else                     S_below98  
-    
-    val s    = fittingAtmosphericParameter
-
-    val ctx1 = Context1(elemsdp, s, rp, aE)
-    import ctx1._
-    import ctx.k2,ctx.Ke,ctx.A30,ctx.sini0,ctx.`θ²`,ctx.`β0²`
-
-    val coef1 = q0ms_ξ__to4 / (psisq** 3.5)
-    val C2 : F = coef1 * n0 *(a0 * (1 + 1.5*`η²` + e0η*(4 + `η²`)) + 3*k2*ξ / 2 / psisq * (3*`θ²` - 1) / 2 * (8 + 3*`η²`*(8 + `η²`)))
-    
-    val C1 : F = bStar * C2
-    val `C1²`  = C1*C1
-    def C1sq   = `C1²`
-  
-    val C3 =  if (e0 > 0.0001.as[F]) q0ms_ξ__to4 * ξ * A30 * n0 * aE * sini0 / e0 / k2  else 0.as[F]
-    
-    val aterm = 3*(1-3*`θ²`)*(1 + 3*`η²`/2 - 2*e0η - e0η*`η²`/2) + 3*(1-`θ²`)*(2*`η²` - e0η - e0η*`η²`)*cos(2*ω0)/4
-    val C4 = 2*a0*`β0²`*coef1*n0*((2*η*(1+e0η) + (e0 + ηto3)/2) - 2*k2*ξ*aterm/(a0*`psi²`))
-    val C5 = 2*a0*`β0²`*coef1*(1 + 11*(`η²`+e0η)/4 + e0η*`η²`)
-     
-    val D2 = 4*a0*`C1²`*ξ
-    val D3 = D2*(17*a0+s)*C1*ξ/3
-    val D4 = D2*D2*ξ*(221*a0+31*s)/24
-    (GeoPotentialCoefs(C1,C2,C3,C4,C5,D2,D3,D4), ctx1)
-  }
-  
+//case class SGP4TIF[F: Field: NRoot : Order: Trig](val dp: DpState[F]) {
+//
+//}
+case class IlCoefs[F: Field](gpState : GeoPotentialState[F]) {
+   // coeficients for IL
+   import gpState._
+   import gcof._,dps._,gctx._
+   val `C1²` = C1*C1
+   val t2cof = 3*C1/2
+   val t3cof = D2 + 2*`C1²`
+   val t4cof = (3*D3 + C1*(12*D2 + 10 * `C1²`))/4
+   val t5cof = (3*D4 + 12*C1*D3 + 6*D2*D2 + 15*`C1²`*(2*D2+`C1²`))/5
 }
 
-case class Context0[F: Field: NRoot : Order: Trig](ini : TEME.SGPElems[F])(implicit val wgs: SGPConstants[F]) {
-  // some constants here, that differ with the aE scale from Vallado's 
-  import wgs.aE,wgs.J2,wgs.J3,wgs.J4,wgs.MU
-  import ini.{i => i0,e => e0}
-  
-  val k2         = J2 * aE * aE / 2
-  val k4         = -3 * J4 * aE**4 / 8
-  val Ke         = MU // sqrt(GM) where G is Newton’s universal gravitational constant and M is the mass of the Earth
-  val A30        = - J3 * aE**3
-  val cosi0      = cos(i0)
-  val `cos²i0`   = cosi0 * cosi0
-  val θ          = cosi0
-  val `θ²`       = `cos²i0`
-  val `θ³`       = cosi0**3
-  val `θ⁴`       = cosi0**4
-  def θsq        = `cos²i0`
-  val sini0      = sin(i0)
-  def sinio      = sini0
-  def x3thm1     = 3*`θ²` - 1
-  def con41      = x3thm1
-  def con42      = 1 - 5*`θ²`
-  def x1mth2     = 1 - `θ²`
-  
-  val `e0²`      = e0*e0
-  val `β0²`      = 1-`e0²`
-  val β0         = `β0²`.sqrt
-  val `β0³`      = β0 * `β0²`
-  val `β0⁴`      = `β0²`*`β0²`
-  def e0sq       = e0*e0
-  def β0sq       = `β0²`
-  def β0to3      = `β0³`
-  def β0to4      = `β0⁴`
-  def rteosq     = β0sq
-  
-  def polyδ1 = poly"-134/81x^3 - x^2 - 1/3x + 1" 
- 
-}
-
-case class Context1[F: Field: NRoot : Order: Trig](elemsdp : TEME.SGPElems[F], s: F, rp: F, aE: F) {
-  import elemsdp.{n => n0,e => e0, a => a0}
-
-  val ξ    = 1 / (a0 - s)  // tsi
-  val `ξ²` = ξ*ξ
-  val `ξ³` = ξ**3
-  val `ξ⁴` = ξ**4
-  
-  def ξsq  = ξ*ξ
-  def ξto3 = ξsq*ξ
-  def ξto4 = ξsq*ξsq
-  def ξto5 = ξto4*ξ
-
-  val η    = a0*e0*ξ   // eta
-  val `η²` = η*η
-  val `η³` = η**3
-  val `η⁴` = η**4
-  def ηsq  = η*η       // etasq
-  def ηto3 = ηsq*η
-  def ηto4 = ηsq*ηsq
-  
-  val e0η   = e0*η      // eeta 
-  def psisq = abs[F](1-ηsq)  // Vallado's uses fabs
-  val `psi²`= psisq
-  
-  // The parameter q0 is the geocentric reference altitude, 
-  // a constant equal to 120 km plus one Earth radius 
-  val q0   = 1 + 120/aE 
-  val q0ms_to4 = (q0 - s)**4 
-  
-  // q0 minus s ξ  all to 4 
-  val q0ms_ξ__to4 = q0ms_to4*(ξ**4)  
-
-  // use deep space
-  def isDeepSpace = (2*pi / n0) >= 225
-   
-  val isImpacting : Boolean = rp < (220/aE + 1)
-
-}
-
-case class HootsOtherCoefs[F : Field: NRoot : Order: Trig](elem: TEME.SGPElems[F],  ctx : Context0[F], 
-    ctx1 : Context1[F], coeff : GeoPotentialCoefs[F]) {
+case class HootsOtherCoefs[F : Field: NRoot : Order: Trig](gpState : GeoPotentialState[F]) {
+//case class HootsOtherCoefs[F : Field: NRoot : Order: Trig](elem: TEME.SGPElems[F],  ctx : Context0[F], 
+//    ctx1 : Context1[F], coeff : GeoPotentialCoefs[F]) {
     
-  import ctx._, ctx1._
-  import coeff._
-  import ctx.wgs._
-  import elem.{n => n0,e => e0, a => a0,ω => ω0, M => M0,_}
+  import gpState._
+  import gcof._,dps._,gctx._
+  import ctx.wgs._,ctx._
+  import elem.{n => n0,a => a0,ω => ω0, M => M0,_}
   
-  val gsto = gstime(epoch + 2433281.5) 
+  // val gsto = gstime(epoch + 2433281.5) 
   
-  val po    = a0*β0sq
+  val po    = a0*`β0²`
   val posq  = po*po
   
   // other derived coeficients and variables that can be used
@@ -195,8 +48,8 @@ case class HootsOtherCoefs[F : Field: NRoot : Order: Trig](elem: TEME.SGPElems[F
   val temp1  = 3 * J2 * pinvsq * n0 / 2
   val temp2  = temp1 * J2 * pinvsq / 2
   val temp3  = -0.46875 * J4 * pinvsq * pinvsq * n0
-  val xhdot1 = -temp1 * θ
-  val Ωcof   = 7 * β0sq * xhdot1 * C1 / 2
+  val xhdot1 : F = - temp1*θ 
+  val Ωcof   = 7 * `β0²` * xhdot1 * C1 / 2
   def nodecf = Ωcof
   val delM0   = (1+η*cos(M0))**3
   // sgp4fix for divide by zero with inco = 180 deg, // FIXME: not valid for deep space
@@ -207,11 +60,11 @@ case class HootsOtherCoefs[F : Field: NRoot : Order: Trig](elem: TEME.SGPElems[F
   def sinmao  = sinM0
   val x7thm1  = 7*θsq - 1
    
-   val t2cof = 3*C1 / 2
-   val C1sq  = C1*C1
-   val t3cof = D2 + 2*C1sq
-   val t4cof = (3*D3 + C1*(12*D2 + 10 * C1sq))/4
-   val t5cof = (3*D4 + 12*C1*D3 + 6*D2*D2 + 15*C1sq*(2*D2+C1sq))/5
+//   val t2cof = 3*C1 / 2
+//   val C1sq  = C1*C1
+//   val t3cof = D2 + 2*C1sq
+//   val t4cof = (3*D3 + C1*(12*D2 + 10 * C1sq))/4
+//   val t5cof = (3*D4 + 12*C1*D3 + 6*D2*D2 + 15*C1sq*(2*D2+C1sq))/5
  
   val twopi : F = 2.as[F]*pi
    
@@ -243,9 +96,9 @@ case class HootsOtherCoefs[F : Field: NRoot : Order: Trig](elem: TEME.SGPElems[F
 //      // derivative of the raan  
 //      val Ωdot = n0*( 3*K2*θ/(a0sq*β0to4) + 3*K2*K2*θ*(4 - 19*θsq)/(2*a0to4*β0to4*β0to4)
 //          + 5*K4*θ*(3-7*θsq)/(2*a0to4*β0to4*β0to4))
-  val (_Mdot, ωdot, omegadot) : (F,F,F) = if (n0 >= 0.as[F] || β0sq >= 0.as[F])
+  val (_Mdot, ωdot, omegadot) : (F,F,F) = if (n0 >= 0.as[F] || `β0²` >= 0.as[F])
       ( 
-          n0 + 0.5 * temp1 * β0 * con41 + 0.0625 * temp2 * β0 * (13 - 78*`θ²` + 137*`θ⁴`),
+        n0 + 0.5.as[F] * temp1 * β0 * con41 + 0.0625.as[F] * temp2 * β0 * (13 - 78 * `θ²` + 137 * `θ⁴`),
         //  n0dp + temp1 * β0sq * con41 / 2 + 0.0625 * temp2 * β0sq * (13 - 78*`θ²` + 137*`θ⁴`) / 16, 
       //val Ṁ = n0*3*K2*((-1+3*`θ²`)/(2*a0sq*β0to3) + K2*(13-78*`θ²` + 137*`θ⁴`)/(16*a0to4*β0to4*β0to3)) 
       
@@ -260,11 +113,7 @@ case class HootsOtherCoefs[F : Field: NRoot : Order: Trig](elem: TEME.SGPElems[F
 //          + 5*K4*θ*(3-7*`θ²`)/(2*a0to4*β0to4*β0to4))
      else (0.as[F],0.as[F],0.as[F])
      
-   def Ṁ = _Mdot
-      // TEME.ElemTimeDerivative(0,0,0, ωdot, Ωdot, Ṁ)
- //     TEME.OrbitalElements[F](0.as[F],0.as[F],0.as[F], ωdot, Ωdot, Mdot)
- // }
-  
+   def Ṁ = _Mdot  
   def Ωdot = omegadot
   def mdot = _Mdot
 
@@ -454,7 +303,7 @@ case class ILCoefs[F: Field](cf : CoefFunctions[F]) {
 }
 */
 
-object SGP4TIF {
+//object SGP4TIF {
   
 //  def apply[F: Field: NRoot : Order: Trig](ini : TEME.SGPElems[F])(implicit wgs: SGPConstants[F]) : SGP4TIF[F] = {
 //    import ini._
@@ -468,4 +317,4 @@ object SGP4TIF {
 //   
 //  new SGP4TIF() // ini,i0f,e0f,bmmf,sf,coeff,ilf,ocf)
 //  }
-}
+//}

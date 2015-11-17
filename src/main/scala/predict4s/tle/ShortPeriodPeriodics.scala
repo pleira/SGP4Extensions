@@ -5,10 +5,12 @@ import spire.implicits._
 import spire.math._
 import spire.syntax.primitives._
 
+// TODO: give physical meaning to the variables
+
+case class ShortPeriodPeriodicState[F](elem: TEME.SGPElems[F], xinc: F, su: F, xnode: F, mrt: F, mvt: F, rvdot: F, eaState: EccentricAnomalyState[F])
 
 // TODO: express the operations here as being part of an AST with a single Context as parameter, 
 // returning a description, that is the new perturbed elements after short period periodic effects and an updated Context
-// TODO: give physical meaning to the variables
 
 trait ShortPeriodPeriodicPerturbations {
   
@@ -17,9 +19,9 @@ trait ShortPeriodPeriodicPerturbations {
   (implicit wgs: SGPConstants[F])  = {
      
     import tind._
-  import i0f._
-  import wgs._
-  import ocf._
+    import i0f._
+    import wgs._
+    import ocf._
   
      /* ------------- short period preliminary quantities ----------- */
      // these can come from the kepler solver 
@@ -85,30 +87,29 @@ trait ShortPeriodPeriodicPerturbations {
   }
 
   
-  def calcPositionVelocity[F: Field: NRoot : Order: Trig](tif: SGP4TIF[F], ocf: HootsOtherCoefs[F], ctx1 : Context1[F], nm: F, xincp: F, cosip: F, sinip: F, am: F, nodep: F, axnl: F, aynl: F, xl : F, eo1: F) = {
+  def calcPositionVelocity[F: Field: NRoot : Order: Trig](eaState: EccentricAnomalyState[F]) = {
+      // tif: SGP4TIF[F], ocf: HootsOtherCoefs[F], ctx1 : Context1[F], nm: F, xincp: F, cosip: F, sinip: F, am: F, nodep: F, axnl: F, aynl: F, xl : F, eo1: F) = {
     
-    import tif._, ctx1._
+    import eaState._ 
+    import lppState._
+    import secularState._
+    import elems.{n=>nm,Ω => nodep,a => am,M=>mp,ω=>argpp,i=>xincp,e=>ep,_}, ocofs._
+    import gpState._
+    import dps._
+    import ctx.{cosi0=>cosip,sini0=>sinip,_}
     import wgs._
-    import ctx._
-    import ocf._
   
-     /* ------------- short period preliminary quantities ----------- */
-     // these can come from the kepler solver 
-     val coseo1 = cos(eo1)
-     val sineo1 = sin(eo1)
-     val ecose = axnl*coseo1 + aynl*sineo1
-     val esine = axnl*sineo1 - aynl*coseo1
-     
+     /* ------------- short period preliminary quantities ----------- */  
      
      val el2   = axnl*axnl + aynl*aynl
      val pl    = am*(1 - el2)
      if (pl < 0.as[F]) throw new Exception("pl: " + pl)
 
-     val    rl     = am * (1 - ecose)
-     val    rdotl  = sqrt(am) * esine/rl
+     val    rl     = am * (1 - ecosE)
+     val    rdotl  = sqrt(am) * esinE/rl
      val    rvdotl = sqrt(pl) / rl
      val    betal  = sqrt(1 - el2)
-     val    temp0  = esine / (1 + betal)
+     val    temp0  = esinE / (1 + betal)
      val    sinu   = am / rl * (sineo1 - aynl - axnl * temp0)
      val    cosu   = am / rl * (coseo1 - axnl + aynl * temp0)
      val    su0    = atan2(sinu, cosu)
@@ -132,17 +133,11 @@ trait ShortPeriodPeriodicPerturbations {
      val    xinc  = xincp + 1.5 * temp2 * cosip * sinip * cos2u
      val    mvt   = rdotl - nm * temp1 * x1mth2 * sin2u / KE
      val    rvdot = rvdotl + nm * temp1 * (x1mth2 * cos2u + 1.5 * con41) / KE
-         // here
-    
-     // unit position and velocity 
-    val PV: TEME.CartesianElems[F] = TEME.coord2UnitCartesian(xinc, su, xnode)
-    // return position and velocity (in km and km/sec)
-    val (p, v) = hootsConvertUnitVectors(PV.pos, PV.vel, mrt, mvt, rvdot)
-    TEME.CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
+     
+     val  el = TEME.SGPElems(nm, ep, xinc, argpp, xnode, mp, am, bStar, epoch) 
+     ShortPeriodPeriodicState(el, xinc, su, xnode, mrt, mvt, rvdot, eaState)
   }
 
-
-  
 }
 
 object ShortPeriodPeriodicPerturbations extends ShortPeriodPeriodicPerturbations

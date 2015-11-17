@@ -7,6 +7,7 @@ import predict4s.tle.TEME.SGPElems
 
 // TODO: express the operations here as being part of an AST with a single Context as parameter, 
 // returning a description, that is the new perturbed elements after long periodic effects and an updated Context 
+case class LongPeriodPeriodicState[F](axnl: F, aynl: F, xl: F, secularState: SecularState[F])
 
 trait SGP4LongPeriodicEffects {
   
@@ -31,16 +32,17 @@ trait SGP4LongPeriodicEffects {
      (nodep, axnl, aynl, xl)
   }
   
-  def calcHootsSGP4LongPeriodicEffects[F: Field: NRoot : Order: Trig](tif: SGP4TIF[F], el: TEME.SGPElems[F], ocf: HootsOtherCoefs[F]) = {
+  def calcHootsSGP4LongPeriodicEffects[F: Field: NRoot : Order: Trig](secularState: SecularState[F]): LongPeriodPeriodicState[F] = {
        /* ----------------- compute extra mean quantities ------------- */
-    import el._
+    import secularState._
+    import ocofs._,elems._
     val axnl = e * cos(ω)
     val temp = 1 / (a * (1 - e * e))
-    val aynl = e * sin(ω) + temp * ocf.aycof
-    val xl   = M + ω + Ω + temp * ocf.xlcof * axnl
+    val aynl = e * sin(ω) + temp * aycof
+    val xl   = M + ω + Ω + temp * xlcof * axnl
 
     // Are these variables in relation with Delauney's? 
-    (Ω, axnl, aynl, xl)
+    LongPeriodPeriodicState(axnl, aynl, xl, secularState)
   }  
 }
 
