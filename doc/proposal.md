@@ -1,4 +1,7 @@
-The SGP4 algorithm is widely used to propagate orbits of objects around the earth like space debris. There are many implementations of the algorithm in many languages. This work presents new implementations of the SGP4 algorithm implemented in Scala following a more functional architecture in contrast to the imperative/object oriented solutions used in previous implementations. Besides the classical implementation adapted from Vallado's code, there is an alternative implementation using algorithms developed by Lara. These implementations have different characteristics regarding speed, architecture, applicability and readability which find applicability in massive data processing like prediction of orbital collision events. 
+## Implementation of the SGP4 algorithm following a functional paradigm
+
+The SGP4 algorithm is widely used to propagate orbits of objects around the earth like space debris. There are many implementations of the algorithm in many languages. This work presents new implementations of the SGP4 algorithm in Scala following a more functional architecture in contrast to the imperative/object oriented solutions used in previous implementations. These implementations have different characteristics regarding speed, architecture, applicability and readability. Besides the classical implementation adapted from Vallado's code, there is an alternative implementation using algorithms developed by Lara. Finally, applicability of this functional solution in massive data processing like prediction of orbital collision events and in academic fields is discussed.
+
 
 
 ### Rationale
