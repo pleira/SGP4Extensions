@@ -102,16 +102,21 @@ trait ShortPeriodPeriodicPerturbations {
      /* ------------- short period preliminary quantities ----------- */  
      
      val el2   = axnl*axnl + aynl*aynl
-     val pl    = am*(1 - el2)
+     val pl    = am*(1 - el2)                          // pl is C2 (2 is squared), where replacing C2 by μa(1 − e2 ) gives simplified eq between dt and dr.
      if (pl < 0.as[F]) throw new Exception("pl: " + pl)
 
-     val    rl     = am * (1 - ecosE)
-     val    rdotl  = sqrt(am) * esinE/rl
-     val    rvdotl = sqrt(pl) / rl
+     // References done to the formulas given in Handbook of Satellite Orbits, Chapter 4
+     // Consider the plane containing the position and velocity vectors of the satellite centered in the ellipse focus as our Earth)
+    
+     val    rl     = am * (1 - ecosE)                  // 4.64, change of variable to E related to r, as in 4.63
+     val    rdotl  = sqrt(am) * esinE/rl               // 4.67, simple manipulations rdot (note missing √μ factor)
+     val    rvdotl = sqrt(pl) / rl                     // ??? 4.68, r·rdot = √(μa)* esinE 
      val    betal  = sqrt(1 - el2)
      val    temp0  = esinE / (1 + betal)
-     val    sinu   = am / rl * (sineo1 - aynl - axnl * temp0)
-     val    cosu   = am / rl * (coseo1 - axnl + aynl * temp0)
+     
+     // ???? u is the true anomaly that can be defined immediately as the polar angle = (Ox, OS), x along the semimajor axis, S sat position
+     val    sinu   = am / rl * (sineo1 - aynl - axnl * temp0)             // ??? 4.71,  y = r sinu = a * sqrt(1 − e2) * sinE
+     val    cosu   = am / rl * (coseo1 - axnl + aynl * temp0)             // ??? 4.70,  x = r cosu = a(cosE − e)
      val    su0    = atan2(sinu, cosu)
      val    sin2u  = (cosu + cosu) * sinu
      val    cos2u  = 1 - 2.0 * sinu * sinu
