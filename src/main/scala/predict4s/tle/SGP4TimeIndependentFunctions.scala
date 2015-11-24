@@ -139,7 +139,7 @@ case class EccentricityFunctions[F: Field: NRoot](val e0: F) {
     val β0         = β0sq.sqrt
     val β0to3      = β0sq * β0
     val β0to4      = β0sq * β0sq
-    def rteosq     = β0sq
+    // def rteosq     = β0sq
 }
 
 case class BrowerMeanMotion[F: Field: Order: NRoot](n0k: F, i0f : InclFunctions[F], e0f : EccentricityFunctions[F])(implicit wgs: SGPConstants[F])  {

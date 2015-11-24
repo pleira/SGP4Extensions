@@ -14,7 +14,6 @@ import predict4s._
  *  Transformations done in this reference system.
  */
 object TEME extends ReferenceSystem {
-
      
   def sgpElems[F: Field: Trig](tle: TLE) :  SGPElems[F] = { 
     val e0 = tle.eccentricity.toDouble.as[F]

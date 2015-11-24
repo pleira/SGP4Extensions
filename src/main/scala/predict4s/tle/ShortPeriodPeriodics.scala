@@ -66,7 +66,7 @@ trait ShortPeriodPeriodicPerturbations {
          // here
     
      // unit position and velocity 
-    val PV: TEME.CartesianElems[F] = TEME.coord2UnitCartesian(xinc, su, xnode)
+    val PV: TEME.CartesianElems[F] = TEME.polarNodal2UnitCartesian(xinc, su, xnode)
     // return position and velocity (in km and km/sec)
     val (p, v) = convertUnitVectors(PV.pos, PV.vel, mrt, mvt, rvdot)
     TEME.CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))

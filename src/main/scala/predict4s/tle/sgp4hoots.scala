@@ -25,7 +25,7 @@ case class SGP4Hoots[F : Field : NRoot : Order : Trig](state0: SGP4HootsState[F]
 
     // unit position and velocity 
     import sppState._
-    val uPV: TEME.CartesianElems[F] = TEME.coord2UnitCartesian(xinc, su, xnode)
+    val uPV: TEME.CartesianElems[F] = TEME.polarNodal2UnitCartesian(xinc, su, xnode)
     
     // return position and velocity (in km and km/sec)
     val (p, v) = convertUnitVectors(uPV.pos, uPV.vel, mrt, mvt, rvdot)
@@ -56,7 +56,7 @@ object SGP4Hoots {
 
     // unit position and velocity 
     import sppState._
-    val uPV: TEME.CartesianElems[F] = TEME.coord2UnitCartesian(xinc, su, xnode)
+    val uPV: TEME.CartesianElems[F] = TEME.polarNodal2UnitCartesian(xinc, su, xnode)
     
     // return position and velocity (in km and km/sec)
     val (p, v) = convertUnitVectors(uPV.pos, uPV.vel, mrt, mvt, rvdot)
