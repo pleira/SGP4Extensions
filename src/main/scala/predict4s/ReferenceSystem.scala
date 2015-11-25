@@ -10,7 +10,7 @@ trait ReferenceSystem {
   case class ClassicalElems[F](
         a : F, // semimajor axis 
         e : F, // eccentricity
-        i : F, // inclination
+        I : F, // inclination
         ω : F, // argument of perigee
         Ω : F, // right ascension ascending node
         M : F) // mean anomaly
@@ -24,7 +24,7 @@ trait ReferenceSystem {
     def trueAnomaly = ν
     override def toString = s"a: $a, e: $e, i: $i, raan: $Ω, ω: $ω, true anomaly: $trueAnomaly"
   }
-      
+
   case class SGPElems[F](
         n : F, // mean motion 
         e : F, // eccentricity
@@ -32,31 +32,14 @@ trait ReferenceSystem {
         ω : F, // argument Of perigee
         Ω : F, // right ascension ascending node
         M : F, // mean anomaly
+        a : F, // semimajor axis (apogee)
         bStar : F, // atmospheric Drag Coeficient
         epoch : F) // epoch time in days from jan 0, 1950. 0 hr 
-  {
-    def n0 = n  
-    def e0 = e 
-    def i0 = i 
-    def ω0 = ω 
-    def Ω0 = Ω
-    def M0 = M 
-  }
-  
-         
+                 
   case class CartesianElems[F](x: F, y: F, z: F, vx: F, vy: F, vz: F) {
     def pos = Vector[F](x,y,z)
     def vel = Vector[F](vx,vy,vz)
   }
-   /**
-    *  the Delaunay actions are L, G and H with units of angular momentum    
-    */
-  case class DelaunayElems[F](
-        ℓ : F, L : F,  // mean anomaly and its conjugate momentum L = √µ a ,
-        g : F, G : F,  // the argument of the perigee g = ω and its conjugate momentum G = L√(1 − e*e)
-                       // (the total angular momentum), where e is the orbital eccentricity, 
-        h : F, H : F   // the argument of the node h and its conjugate momentum H = G cosI (the polar component of the angular momentum).       
-  )
   
   // Naming of the elements after "Efficient formulation of the periodic corrections in
   // Brouwer’s gravity solution" by Martin Lara
@@ -72,15 +55,15 @@ trait ReferenceSystem {
    /** 
     * The direct transformation from nonsingular to Cartesian variables is obtained
 		* by means of the usual rotations applied to the projections of the position and
-		* velocity vectors in the orbital frame. Thus R_3 (−ν) ◦ R_1 (−I) ◦ R_3 (−θ) 
-		* with I the orbital inclination where R_1 , R_3 , are the usual rotation matrices
+		* velocity vectors in the orbital frame. Thus R3 (−ν) ◦ R1 (−I) ◦ R3 (−θ) 
+		* with I the orbital inclination where R1 , R3 , are the usual rotation matrices
 		*/
-    def polarNodal2Cartesian(i : F) : CartesianElems[F] = {
+    def polarNodal2Cartesian(I : F) : CartesianElems[F] = {
        // After replacing ν = ψ − θ and sin θ = ξ/s, cos θ = χ/s, the
        // transformation from nonsingular to Cartesian variables can be obtained from the sequence
        // (s and c are abbreviations for the sine and cosine of the inclination)
-       val s = sin(i)
-       val c = cos(i)
+       val s = sin(I)
+       val c = cos(I)
        val ψ = ν + θ
        val ξ = s * sin(θ)
        val χ = s * cos(θ)
@@ -104,36 +87,32 @@ trait ReferenceSystem {
     }
   }
   
-  // inclination, su and right ascension ascending node
-  // su  == 
-  def coord2UnitCartesian[F: Field: Trig](incl: F, su: F, Ω: F) = {
+  /**
+   *  Standard transformation from polar-nodal to Cartesian variables
+   *  (r,0,0, rdot=R, rθdot = Θ/r, 0) -> (x,y,z, vx,vy,vz)
+   *  where r is radial distance, R is radial velocity, and Ω is the node argument
+   *  Mathematically involves matrix multiplication  R3(−h) R1(−I) R3(−θ)
+   *  where R1 and R3 are the usual rotation matrices about the x and z axes, respectively
+   */
+  def polarNodal2UnitCartesian[F: Field: Trig](I: F, R: F, Ω: F) = {
   
       /* --------------------- orientation vectors ------------------- */
-      val     sinsu =  sin(su)
-      val     cossu =  cos(su)
-      val     snode =  sin(Ω)
-      val     cnode =  cos(Ω)
-      val     sini  =  sin(incl)
-      val     cosi  =  cos(incl)
-      val     xmx   = -snode * cosi
-      val     xmy   =  cnode * cosi
-      val     ux    =  xmx * sinsu + cnode * cossu
-      val     uy    =  xmy * sinsu + snode * cossu
-      val     uz    =  sini * sinsu
-      val     vx    =  xmx * cossu - cnode * sinsu
-      val     vy    =  xmy * cossu - snode * sinsu
-      val     vz    =  sini * cossu
+      val     sinR  =  sin(R);         val     cosR  =  cos(R)
+      val     sinΩ  =  sin(Ω);         val     cosΩ  =  cos(Ω)
+      val     sinI  =  sin(I);         val     cosI  =  cos(I)
+      val     xmx   = -sinΩ * cosI
+      val     xmy   =  cosΩ * cosI
+      val     ux    =  xmx * sinR + cosΩ * cosR
+      val     uy    =  xmy * sinR + sinΩ * cosR
+      val     uz    =  sinI * sinR
+      val     vx    =  xmx * cosR - cosΩ * sinR
+      val     vy    =  xmy * cosR - sinΩ * sinR
+      val     vz    =  sinI * cosR
   
       // return unit vectors position and velocity
       CartesianElems(ux,uy,uz,vx,vy,vz)
   }
-  
- def classical2DelaunayElems[F: Field: Trig: NRoot]( oe : ClassicalElems[F], MU : F) : DelaunayElems[F] = {
-//  def classical2DelaunayElems[F: Field: Trig: NRoot]( oe : ClassicalElems[F])(implicit wgs: WGSConstants[F]) : DelaunayElems[F] = {
-    import oe._
-    val L = (MU*a).sqrt; val G = L*(1 - e*e).sqrt; val H = G*cos(i)
-    DelaunayElems(M, L, ω, G, Ω, H)
-  }
+
 }
 
 // can we do without exceptions, just scala.util.Try?

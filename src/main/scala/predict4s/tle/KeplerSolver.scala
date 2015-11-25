@@ -6,6 +6,9 @@ import spire.implicits._
 import predict4s.tle.TEME.SGPElems
 import spire.syntax.primitives._
 
+
+case class EccentricAnomalyState[F](eo1 : F, coseo1: F, sineo1: F, ecosE: F, esinE: F, lppState: LongPeriodPeriodicState[F])  
+
 /**
  *  Kepler's equation
  *  https://en.wikipedia.org/wiki/Kepler%27s_equation
@@ -13,6 +16,46 @@ import spire.syntax.primitives._
  *  Orekit seems to solve this a little bit differently to Vallado
  */
 trait NewtonRaphsonKeplerSolver {
+  
+
+    def solveEccentricAnomaly[F: Field: NRoot : Order: Trig](lppState: LongPeriodPeriodicState[F]) : EccentricAnomalyState[F]= {
+      
+      /* --------------------- solve kepler's equation  M = E - e sin E     --------------- */
+     
+      // Nodep (or M) is the mean anomaly, E is the eccentric anomaly, and e is the eccentricity.
+     import lppState._
+     import secularState._
+     import elems.{Ω => nodep}, ocofs.twopi
+     
+     var ktr : Int = 1
+     val u    = Field[F].mod(xl - nodep, twopi)
+     var eo1  = u
+     var tem5 : F = 9999.9.as[F]     //   sgp4fix for kepler iteration
+     var ecosE : F = 0.as[F]
+     var esinE : F = 0.as[F]
+     var coseo1 : F = 0.as[F]
+     var sineo1 : F = 0.as[F]
+     
+     //   the following iteration needs better limits on corrections
+     while (( abs(tem5) >= 1e-12.as[F]) && (ktr <= 10) )
+       {
+         sineo1 = sin(eo1)
+         coseo1 = cos(eo1)
+         ecosE = axnl * coseo1 + aynl * sineo1
+         esinE = axnl * sineo1 - aynl * coseo1
+
+         val fdot   = 1 - ecosE
+         val f = (u + esinE - eo1)
+         tem5   = f / fdot  // delta value
+         if(abs(tem5) >= 0.95.as[F])
+             tem5 = if (tem5 > 0.as[F]) 0.95.as[F]  else -0.95.as[F] 
+         eo1    = eo1 + tem5
+         ktr = ktr + 1
+       }
+     
+     EccentricAnomalyState(eo1,coseo1,sineo1,ecosE,esinE,lppState)
+     
+    }
   
     def solveEccentricAnomaly[F: Field: NRoot : Order: Trig](nodep: F, axnl: F, aynl: F, xl : F) : (F, F, F)  = {
 

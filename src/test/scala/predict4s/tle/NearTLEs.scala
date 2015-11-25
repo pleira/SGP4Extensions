@@ -1,9 +1,5 @@
 package predict4s.tle
 
-import org.scalatest.FunSuite
-
-import org.scalautils.TolerantNumerics
-
 /* Near earth examples from Vallado's */
 trait NearTLEs extends TLE00005 with TLE06251 with TLE28057 {
   def tles = List(tle00005, tle06251, tle28057)
@@ -30,4 +26,4 @@ trait TLE28057 {
   "1 28057U 03049A   06177.78615833  .00000060  00000-0  35940-4 0  1836",
   "2 28057  98.4283 247.6961 0000884  88.1964 271.9322 14.35478080140550      0.0      2880.0        120.00")).head
 }
-
+     

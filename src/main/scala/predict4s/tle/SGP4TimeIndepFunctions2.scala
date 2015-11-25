@@ -5,7 +5,7 @@ import spire.math._
 import spire.implicits._
 
 import spire.syntax.primitives._
-
+/*
 case class SGP4TimeIndepFunctions[F: Field: NRoot : Order: Trig] (ini : TEME.SGPElems[F])(implicit wgs: WGSConstants[F]) {
   import ini._
   import wgs._
@@ -122,7 +122,7 @@ case class SGP4TimeIndepFunctions[F: Field: NRoot : Order: Trig] (ini : TEME.SGP
  
   //val coef1  = coef / (psisq pow 3.5)
   def S_above156       =  (1 + 78/aE)
-  def hs               =  perige - aE - 78   // interpolation, being a number bigger than 20, and smaller that 78
+  def hs               =  rp - aE - 78   // interpolation, being a number bigger than 20, and smaller that 78
   def S_between_98_156 =  (1 + hs/aE)
   def S_below98        =  (1 + 20/aE)
 
@@ -163,3 +163,4 @@ case class SGP4TimeIndepFunctions[F: Field: NRoot : Order: Trig] (ini : TEME.SGP
 //   SGP4TimeIndepFunctions(ini)
 //  }
 //}
+*/

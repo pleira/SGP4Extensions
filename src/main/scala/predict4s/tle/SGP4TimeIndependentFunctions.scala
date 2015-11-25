@@ -22,7 +22,7 @@ case class SGP4TimeIndependentFunctions[F: Field: NRoot : Order: Trig] private (
     val bmmf : BrowerMeanMotion[F],
     val sf   : ScalcFunctions[F],
     val coeff : CoefFunctions[F],
-    val ilf  : ILCoefs[F],
+    val ilf  : ILCofs[F],
     val ocf  : OtherCoefs[F]
     ) 
 
@@ -35,7 +35,7 @@ case class OtherCoefs[F : Field: NRoot : Order: Trig](ini: TEME.SGPElems[F], i0f
   import coeff._
   import sf._
   import wgs._
-  import ini.{epoch,M0}
+  import ini.{epoch,bStar,M=>M0,ω=>ω0}
   
   val gsto = gstime(epoch + 2433281.5) 
   
@@ -136,10 +136,10 @@ case class InclFunctions[F: Field: Trig](val i0: F) {
 case class EccentricityFunctions[F: Field: NRoot](val e0: F) {
     val e0sq       = e0*e0
     val β0sq       = 1-e0sq
-    lazy val β0    = β0sq.sqrt
-    lazy val β0to3 = β0sq * β0
+    val β0         = β0sq.sqrt
+    val β0to3      = β0sq * β0
     val β0to4      = β0sq * β0sq
-    def rteosq     = β0sq
+    // def rteosq     = β0sq
 }
 
 case class BrowerMeanMotion[F: Field: Order: NRoot](n0k: F, i0f : InclFunctions[F], e0f : EccentricityFunctions[F])(implicit wgs: SGPConstants[F])  {
@@ -219,7 +219,7 @@ case class ScalcFunctions[F: Field: NRoot: Order: Trig](e0f : EccentricityFuncti
  
   //val coef1  = coef / (psisq pow 3.5)
   def S_above156       =  (1 + 78/aE)
-  def hs               =  perige - aE - 78   // interpolation, being a number bigger than 20, and smaller that 78
+  def hs               =  perige - 78   // interpolation, being a number bigger than 20, and smaller that 78
   def S_between_98_156 =  (1 + hs/aE)
   def S_below98        =  (1 + 20/aE)
 
@@ -276,7 +276,7 @@ case class CoefFunctions[F: Field: NRoot: Order: Trig](ω0: F, bStar: F, i0f : I
 //                           (2.0 * etasq - eeta * (1.0 + etasq)) * cos(2.0 * satrec.argpo)));
 //         satrec.cc5 = 2.0 * coef1 * ao * omeosq * (1.0 + 2.75 *
 //                        (etasq + eeta) + eeta * etasq);
-  val aterm = 3*(1-3*θsq)*(1 + 3*ηsq/2 - 2*e0η - e0η*ηsq/2) + 3*(1-θsq)*(2*ηsq - e0*η - e0η*ηsq)*cos(2*ω0)/4
+  val aterm = 3*(1-3*θsq)*(1 + 3*ηsq/2 - 2*e0η - e0η*ηsq/2) + 3*(1-θsq)*(2*ηsq - e0η - e0η*ηsq)*cos(2*ω0)/4
 
 //  val C4 = 2*n0*a0*β0sq*coef1* ((2*η*(1+e0*η) + (e0 + ηto3)/2) - 2*K2*ξ*aterm/(a0*(1-ηsq)))
 //val C4    = 2*n0* coef1 * a0 * β0sq *
@@ -293,7 +293,7 @@ case class CoefFunctions[F: Field: NRoot: Order: Trig](ω0: F, bStar: F, i0f : I
   val D4 = D2*D2*ξ*(221*a0+31*s)/24
 }
 
-case class ILCoefs[F: Field](cf : CoefFunctions[F]) {
+case class ILCofs[F: Field](cf : CoefFunctions[F]) {
    // coeficients for IL
   import cf._
    val t2cof = 3*C1/2
@@ -305,13 +305,13 @@ case class ILCoefs[F: Field](cf : CoefFunctions[F]) {
 object SGP4TimeIndependentFunctions {
   
   def apply[F: Field: NRoot : Order: Trig](ini : TEME.SGPElems[F])(implicit wgs: SGPConstants[F]) : SGP4TimeIndependentFunctions[F] = {
-    import ini._
+    import ini.{a => a0,e => e0,n => n0,i => i0,ω => ω0, bStar}
     val i0f  = InclFunctions(i0)
     val e0f  = EccentricityFunctions(e0)
     val bmmf = BrowerMeanMotion(n0,i0f,e0f)
     val sf   = ScalcFunctions(e0f,bmmf)
     val coeff = CoefFunctions(ω0, bStar,i0f,e0f,bmmf, sf)
-    val ilf  = ILCoefs(coeff) 
+    val ilf  = ILCofs(coeff) 
     val ocf  = OtherCoefs(ini, i0f,e0f,bmmf,sf,coeff) 
    
   new SGP4TimeIndependentFunctions(ini,i0f,e0f,bmmf,sf,coeff,ilf,ocf)

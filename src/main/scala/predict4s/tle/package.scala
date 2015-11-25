@@ -6,37 +6,8 @@ import spire.syntax.primitives._
 
 package object tle {
     
-  // true equator, mean equinox (TEME)
-  
-  object TEME extends ReferenceSystem {
-     
-    def sgpElems[F: Field: Trig](tle: TLE) :  SGPElems[F] = { 
-      val e0 = tle.eccentricity.toDouble.as[F]
-      val i0 = tle.inclination.toDouble.toRadians.as[F]
-      val pa = tle.argumentOfPeriapsis.toDouble.toRadians.as[F]
-      val raan = tle.rightAscension.toDouble.toRadians.as[F]
-      val meanAnomaly =  tle.meanAnomaly.toDouble.toRadians.as[F]
-      def meanMotion = tle.meanMotion.toDouble.as[F]
-      val year = tle.year
-      val bStar = tle.atmosphericDragCoeficient.toDouble.as[F]
-    
-      // in julian days
-      val epoch : F = {
-        val mdhms = days2mdhms(tle.year, tle.epoch.toDouble)
-        (jday(tle.year, mdhms._1, mdhms._2, mdhms._3, mdhms._4, mdhms._5) - 2433281.5).as[F]
-      }
-      val ω0 = pa
-      val Ω0 = raan
-      val M0 = meanAnomaly    
-      val radpm0 = revPerDay2RadPerMin(meanMotion)
-  
-      SGPElems[F](radpm0,e0,i0,pa,raan,M0,bStar,epoch)
-    }
-    
-    def revPerDay2RadPerMin[F: Field](rpd: F) : F = 2 * pi * rpd / 1440 
-
-  }
-     
+  def revPerDay2RadPerMin[F: Field](rpd: F) : F = 2 * pi * rpd / 1440 
+   
   // use old way of finding gst
   // count integer number of days from 0 jan 1970
   def oldGst(epoch: Double) : Double = {
