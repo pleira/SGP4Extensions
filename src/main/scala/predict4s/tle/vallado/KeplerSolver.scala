@@ -5,8 +5,7 @@ import spire.math._
 import spire.implicits._
 import predict4s.tle.TEME.SGPElems
 import spire.syntax.primitives._
-import predict4s.tle.SGPConstants
-import predict4s.tle.TEME
+import predict4s.tle._
 
 /**
  *  Kepler's equation
@@ -67,4 +66,4 @@ trait NewtonRaphsonKeplerSolver {
 
 object NewtonRaphsonKeplerSolver extends NewtonRaphsonKeplerSolver
 
-case class EccentricAnomalyState[F](eo1 : F, coseo1: F, sineo1: F, ecosE: F, esinE: F, lppState: LongPeriodPeriodicState[F])  
+// case class EccentricAnomalyState[F](eo1 : F, coseo1: F, sineo1: F, ecosE: F, esinE: F, lppState: LongPeriodPeriodicState[F])  

@@ -1,11 +1,14 @@
 package predict4s.tle
-package vallado
 
 import spire.algebra._
+
 import spire.math._
+
 import spire.implicits._
 
 import spire.syntax.primitives._
+
+import predict4s.tle.vallado.GeoPotentialState
 
 case class OtherCoefs[F : Field: NRoot : Order: Trig](gpState : GeoPotentialState[F]) {
  

@@ -1,5 +1,32 @@
 package predict4s.tle
 
+case class OrbitalState[F](t: F, posVel: TEME.CartesianElems[F])
+
+case class GeoPotentialCoefs[F](C1: F, C2: F, C3: F, C4: F, C5: F, D2: F, D3: F, D4: F)
+
+case class EccentricAnomalyState[F](eo1 : F, coseo1: F, sineo1: F, ecosE: F, esinE: F, lppState: LongPeriodPeriodicState[F])  
+
+case class SecularState[F](t: F, elems: TEME.SGPElems[F], ocofs : OtherCoefs[F])
+
+case class SGP4State[F](orbitalState: OrbitalState[F], uPV: TEME.CartesianElems[F], elem: TEME.SGPElems[F], 
+    sppState : ShortPeriodPeriodicState[F], wgs: SGPConstants[F])
+
+case class LongPeriodPeriodicState[F](axnl: F, aynl: F, xl: F, secularState: SecularState[F])
+
+case class ShortPeriodPeriodicState[F](
+    elem: TEME.SGPElems[F], 
+    I: F,     // inclination 
+    R: F,     // Radial velocity    
+    Ω: F,     // argument of the node
+    mrt: F, 
+    mvt: F, 
+    rvdot: F, 
+    eaState: EccentricAnomalyState[F])
+    
+trait LaneDragCoef[F] {
+  def t2cof  : F ;def t3cof : F;  def t4cof  : F ; def t5cof : F
+}
+
 /** 
  * The SGP-4 theory is applied for all orbits with periods of T <= 225 min. 
  * It performs a propagation in time of doubly averaged elements according to their
@@ -11,13 +38,9 @@ package predict4s.tle
  * of first-order, short-period perturbation amplitudes due to J2. 
  * (from Space Debris, by H. Klinkrad, pag 216).
  */
-trait SGP4[F] {
-  def propagate(t: F) : OrbitalState[F]
-  def state0 : SGP4Context[F]
-}
-
-case class OrbitalState[F](t: F, posVel: TEME.CartesianElems[F])
-case class SGP4Context[F](t: F, elem: TEME.SGPElems[F], posVel: TEME.CartesianElems[F], tif : SGP4TimeIndependentFunctions[F], wgs: SGPConstants[F])
-case class GeoPotentialCoefs[F](C1: F, C2: F, C3: F, C4: F, C5: F, D2: F, D3: F, D4: F)
 
 
+//trait SGP4[F] {
+//  def propagate(t: F) : OrbitalState[F]
+//  def state0 : SGP4Context[F]
+//}

@@ -3,11 +3,12 @@ package predict4s.tle.vallado
 import spire.algebra._
 import spire.math._
 import spire.implicits._
-import scala.{ specialized => spec }
 import spire.syntax.primitives._
 import predict4s.tle.GeoPotentialCoefs
-import predict4s.tle.TEME
+import predict4s.tle.LaneDragCoef
 import DpTransform._
+//import dp.Context0.wgs
+import predict4s.tle.TEME
 
 
 trait PotentialCoeficients[F] {
@@ -49,7 +50,7 @@ class GeoPotentialState[F] private (val gcof: GeoPotentialCoefs[F], val dps: DpS
  * 
  * This class appears in the time expansion, where tX are powers of the time.
  */
-case class LaneCoefs[F: Field](gpState : GeoPotentialState[F]) {
+case class LaneCoefs[F : Field](gpState : GeoPotentialState[F]) extends LaneDragCoef[F] {
    import gpState.gcof._
    val `C1²` = C1*C1
    val t2cof = 3*C1/2

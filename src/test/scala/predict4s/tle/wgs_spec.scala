@@ -2,7 +2,6 @@ package predict4s.tle
 
 import org.scalatest._
 
-
 class wgs_spec extends FunSuite {
   
   test("Check WGS values") {

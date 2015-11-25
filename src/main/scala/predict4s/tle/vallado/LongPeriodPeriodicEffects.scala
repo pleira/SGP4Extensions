@@ -3,10 +3,10 @@ package predict4s.tle.vallado
 import spire.algebra._
 import spire.math._
 import spire.implicits._
-import predict4s.tle.TEME.SGPElems
+import predict4s.tle._
 
 
-case class LongPeriodPeriodicState[F](axnl: F, aynl: F, xl: F, secularState: SecularState[F])
+// case class LongPeriodPeriodicState[F](axnl: F, aynl: F, xl: F, secularState: SecularState[F])
 
 
 trait LongPeriodPeriodicEffects {

@@ -2,7 +2,7 @@ package predict4s.tle.vallado
 import org.scalatest.FunSuite
 import org.scalautils.TolerantNumerics
 import predict4s.tle.{SGP72Constants,NearTLEs,TEME}
-import predict4s.tle.{TLE,Sgp4Result,ValladoNearTLEsCheck,ValladoNearTLEsPVCheck}
+import predict4s.tle._
 
 trait ValladoResultCheck extends NearTLEs with ValladoNearTLEsCheck with ValladoNearTLEsPVCheck { self : FunSuite => 
 
@@ -16,7 +16,7 @@ trait ValladoResultCheck extends NearTLEs with ValladoNearTLEsCheck with Vallado
   // List with List of Propagation results for each TLE and all propagation times 
   def results : List[IndexedSeq[Sgp4Result]] = ((propags zip tles) zip tlesTimes) map { p  =>  // pair of (pair propagator with tle) with the propagation times   
     val sgp4 = p._1._1 ; val tle = p._1._2; val times = p._2
-    for (t <- times) yield ValladoResultCheck.sgp4Result(sgp4.propagate(t), tle)
+    for (t <- times) yield ValladoResultCheck.sgp4Result(sgp4.propagate(t), sgp4, tle)
   }
   
   test(s"${sgpImpl}: compare Position/Velocity Propagation Results with Vallado's cpp implementation for near TLEs") ({
@@ -54,9 +54,9 @@ class HardcodedValladoCheck extends FunSuite with NearTLEs with ValladoNearTLEsC
   def sgp06251 = sgps(1)
   def sgp28057 = sgps(2)
   
-  val results00005 = for (t <- times00005)  yield ValladoResultCheck.sgp4Result(sgp00005.propagate(t), tle00005)
-  val results06251 = for (t <- times06251)  yield ValladoResultCheck.sgp4Result(sgp06251.propagate(t), tle06251)
-  val results28057 = for (t <- times28057)  yield ValladoResultCheck.sgp4Result(sgp28057.propagate(t), tle28057)
+  val results00005 = for (t <- times00005)  yield ValladoResultCheck.sgp4Result(sgp00005.propagate(t), sgps(0), tle00005)
+  val results06251 = for (t <- times06251)  yield ValladoResultCheck.sgp4Result(sgp06251.propagate(t), sgps(1), tle06251)
+  val results28057 = for (t <- times28057)  yield ValladoResultCheck.sgp4Result(sgp28057.propagate(t), sgps(2), tle28057)
 
   test(s"${sgpImpl}: compare Intermediate result t=0") ({ 
     checkIntl5(results00005(0))
@@ -87,18 +87,18 @@ class HardcodedValladoCheck extends FunSuite with NearTLEs with ValladoNearTLEsC
 
 object ValladoResultCheck {
   
-  def sgp4Result(statett: SGP4State[Double], tle: TLE) : Sgp4Result = {    
+  def sgp4Result(statett: SGP4State[Double], sgp: SGP4Vallado[Double], tle: TLE) : Sgp4Result = {    
     val r = statett.orbitalState.posVel.pos
     val v = statett.orbitalState.posVel.vel
     
     import statett._
-    import statett.sec.gpState.dps._
-    import statett.sec.gpState.gcof._
-    import statett.sppState.eaState.lppState.secularState.{ocofs,lcofs}
-    import statett.sec.gpState.dps.ctx._
-    import statett.sec.gpState.gctx.η
+    import sgp.secularEffects.gpState.dps._
+    import sgp.secularEffects.gpState.gcof._
+    import sgp.secularEffects.{ocofs,lcofs}
+    import sgp.secularEffects.gpState.dps.ctx._
+    import sgp.secularEffects.gpState.gctx.η
     import statett._
-    import statett.sec.gpState.dps.{elem=>elem0}
+    import sgp.secularEffects.gpState.dps.{elem=>elem0}
     
     new Sgp4Result {
       def satn = tle.satelliteNumber
@@ -112,15 +112,15 @@ object ValladoResultCheck {
       def  ainv  : Double    = 1 / elem0.a
       def    ao  : Double    = elem0.a
       def con41  : Double    = x3thm1   // FIXME for d
-      def con42  : Double    = statett.sec.gpState.dps.ctx.con42
+      def con42  : Double    = sgp.secularEffects.gpState.dps.ctx.con42
       def cosio  : Double    = θ
       def cosio2 : Double    = θsq
       def eccsq  : Double    = e0sq 
       def omeosq : Double    = β0sq
       def  posq  : Double    = ocofs.posq
-      def    rp  : Double    = statett.sec.gpState.dps.rp
+      def    rp  : Double    = sgp.secularEffects.gpState.dps.rp
       def rteosq : Double    = β0
-      def sinio  : Double    = statett.sec.gpState.dps.ctx.sinio
+      def sinio  : Double    = sgp.secularEffects.gpState.dps.ctx.sinio
       def  gsto  : Double    = ocofs.gsto    
       
       // ---
@@ -148,7 +148,7 @@ object ValladoResultCheck {
       def   t3cof  : Double = lcofs.t3cof
       def   t4cof  : Double = lcofs.t4cof
       def   t5cof  : Double = lcofs.t5cof
-      def  x1mth2  : Double = statett.sec.gpState.dps.ctx.x1mth2 // FIXME for d
+      def  x1mth2  : Double = sgp.secularEffects.gpState.dps.ctx.x1mth2 // FIXME for d
       def  x7thm1  : Double = ocofs.x7thm1 // FIXME for d
       def   xlcof  : Double = ocofs.xlcof // FIXME for d
       def   xmcof  : Double = Mcof

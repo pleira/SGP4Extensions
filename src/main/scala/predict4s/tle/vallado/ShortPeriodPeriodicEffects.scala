@@ -4,8 +4,7 @@ import spire.algebra._
 import spire.implicits._
 import spire.math._
 import spire.syntax.primitives._
-import predict4s.tle.SGPConstants
-import predict4s.tle.TEME
+import predict4s.tle._
 
 /**
  * Brouwer’s theory finds trouble when evaluating the short-period
@@ -91,13 +90,13 @@ trait ShortPeriodPeriodicEffects {
 
 object ShortPeriodPeriodicEffects extends ShortPeriodPeriodicEffects
 
-
-case class ShortPeriodPeriodicState[F](
-    elem: TEME.SGPElems[F], 
-    I: F,     // inclination 
-    R: F,     // Radial velocity    
-    Ω: F,     // argument of the node
-    mrt: F, 
-    mvt: F, 
-    rvdot: F, 
-    eaState: EccentricAnomalyState[F])
+//
+//case class ShortPeriodPeriodicState[F](
+//    elem: TEME.SGPElems[F], 
+//    I: F,     // inclination 
+//    R: F,     // Radial velocity    
+//    Ω: F,     // argument of the node
+//    mrt: F, 
+//    mvt: F, 
+//    rvdot: F, 
+//    eaState: EccentricAnomalyState[F])
