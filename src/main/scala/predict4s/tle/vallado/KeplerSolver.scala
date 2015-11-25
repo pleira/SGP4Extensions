@@ -8,14 +8,11 @@ import spire.syntax.primitives._
 import predict4s.tle.SGPConstants
 import predict4s.tle.TEME
 
-
-case class EccentricAnomalyState[F](eo1 : F, coseo1: F, sineo1: F, ecosE: F, esinE: F, lppState: LongPeriodPeriodicState[F])  
-
 /**
  *  Kepler's equation
  *  https://en.wikipedia.org/wiki/Kepler%27s_equation
  *  See the section Numerical approximation of inverse problem
- *  Orekit seems to solve this a little bit differently to Vallado
+ *  Orekit seems to solve this ecuation a little bit differently to Vallado
  */
 trait NewtonRaphsonKeplerSolver {
   
@@ -69,3 +66,5 @@ trait NewtonRaphsonKeplerSolver {
 }
 
 object NewtonRaphsonKeplerSolver extends NewtonRaphsonKeplerSolver
+
+case class EccentricAnomalyState[F](eo1 : F, coseo1: F, sineo1: F, ecosE: F, esinE: F, lppState: LongPeriodPeriodicState[F])  

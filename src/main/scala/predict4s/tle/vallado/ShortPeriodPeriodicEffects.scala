@@ -7,10 +7,6 @@ import spire.syntax.primitives._
 import predict4s.tle.SGPConstants
 import predict4s.tle.TEME
 
-// TODO: give meaning to the variables
-
-case class ShortPeriodPeriodicState[F](elem: TEME.SGPElems[F], xinc: F, su: F, xnode: F, mrt: F, mvt: F, rvdot: F, eaState: EccentricAnomalyState[F])
-
 /**
  * Brouwer’s theory finds trouble when evaluating the short-period
  * corrections for the lower eccentricity orbits. The trouble is artificial, and is
@@ -38,7 +34,7 @@ trait ShortPeriodPeriodicEffects {
     import elems.{n=>nm,Ω => nodep,a => am,M=>mp,ω=>argpp,i=>xincp,e=>ep,_}, ocofs._
     import gpState._
     import dps._
-    import ctx.{cosi0=>cosip,sini0=>sinip,_}
+    import ctx.{cosI0=>cosIp,sinI0=>sinIp,_}
     import wgs._
   
      /* ------------- short period preliminary quantities ----------- */  
@@ -57,7 +53,7 @@ trait ShortPeriodPeriodicEffects {
      // Note: Vallado's SGP4 uses rθdot = Θ/r instead of Θ
     
      val    rl     = am * (1 - ecosE)                  // 4.64, change of variable to E related to r, as in 4.63
-     val    rdotl  = sqrt(am) * esinE/rl               // 4.67, simple manipulations rdot (note missing √μ factor)
+     val    rdotl  = sqrt(am) * esinE/rl               // 4.67, simple manIpulations rdot (note missing √μ factor)
      val    rvdotl = sqrt(pl) / rl                     // ??? 4.68, r·rdot = √(μa)* esinE 
      val    betal  = sqrt(1 - el2)
      val    temp0  = esinE / (1 + betal)
@@ -75,23 +71,33 @@ trait ShortPeriodPeriodicEffects {
          /* -------------- update for short period gravitational periodics ------------ */
 //         if (satrec.method == 'd')
 //           {
-//             cosisq                 = cosip * cosip
+//             cosisq                 = cosIp * cosIp
 //             satrec.con41  = 3.0*cosisq - 1.0
 //             satrec.x1mth2 = 1- cosisq
 //             satrec.x7thm1 = 7.0*cosisq - 1.0
 //           }
      val    mrt   = rl * (1 - 1.5 * temp2 * betal * con41) + 0.5 * temp1 * x1mth2 * cos2u
      val    su    = su0 - 0.25 * temp2 * x7thm1 * sin2u
-     val    xnode = nodep + 1.5 * temp2 * cosip * sin2u
-     val    xinc  = xincp + 1.5 * temp2 * cosip * sinip * cos2u
+     val    xnode = nodep + 1.5 * temp2 * cosIp * sin2u
+     val    xinc  = xincp + 1.5 * temp2 * cosIp * sinIp * cos2u
      val    mvt   = rdotl - nm * temp1 * x1mth2 * sin2u / KE
      val    rvdot = rvdotl + nm * temp1 * (x1mth2 * cos2u + 1.5 * con41) / KE
      
-     val  el = TEME.SGPElems(nm, ep, xinc, argpp, xnode, mp, am, bStar, epoch) 
-     ShortPeriodPeriodicState(el, xinc, su, xnode, mrt, mvt, rvdot, eaState)
+     val  elem = TEME.SGPElems(nm, ep, xinc, argpp, xnode, mp, am, bStar, epoch) 
+     ShortPeriodPeriodicState(elem, xinc, su, xnode, mrt, mvt, rvdot, eaState)
   }
 
 }
 
 object ShortPeriodPeriodicEffects extends ShortPeriodPeriodicEffects
 
+
+case class ShortPeriodPeriodicState[F](
+    elem: TEME.SGPElems[F], 
+    I: F,     // inclination 
+    R: F,     // Radial velocity    
+    Ω: F,     // argument of the node
+    mrt: F, 
+    mvt: F, 
+    rvdot: F, 
+    eaState: EccentricAnomalyState[F])

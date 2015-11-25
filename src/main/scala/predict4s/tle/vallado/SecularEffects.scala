@@ -10,8 +10,6 @@ import spire.syntax.primitives._
 import predict4s.tle.SGPConstants
 import predict4s.tle.TEME
 
-case class SecularState[F](t: F, elems: TEME.SGPElems[F], ocofs : OtherCoefs[F], lcofs : LaneCoefs[F])
-
 /**
  *  Secular Effects of Earth Zonal Harmonics and Atmospheric Drag.
  *
@@ -130,4 +128,6 @@ class SecularEffects[F : Field: NRoot : Order: Trig](val gpState : GeoPotentialS
 object SecularEffects {
   def apply[F : Field: NRoot : Order: Trig](gpState : GeoPotentialState[F]) : SecularEffects[F] = new SecularEffects(gpState)
 }
-  
+
+case class SecularState[F](t: F, elems: TEME.SGPElems[F], ocofs : OtherCoefs[F], lcofs : LaneCoefs[F])
+

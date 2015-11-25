@@ -121,7 +121,7 @@ object GeoPotentialState {
   import gctx._
   // import ctx.k2,ctx.Ke,ctx.A30
   import dp.ctx.wgs.{J2,J3}
-  import ctx.sini0,ctx.`θ²`,ctx.`β0²`,ctx.β0sq,ctx.θsq
+  import ctx.sinI0,ctx.`θ²`,ctx.`β0²`,ctx.β0sq,ctx.θsq
 
   val coef1 : F = q0ms_ξ__to4 / (psisq** 3.5)
 
@@ -132,7 +132,7 @@ object GeoPotentialState {
   val `C1²`  = C1*C1
   def C1sq   = `C1²`
 
-  val C3 =  if (e0 > 0.0001.as[F]) -2 * q0ms_ξ__to4 * ξ * (J3/J2) * n0 * sini0 / e0 else 0.as[F]
+  val C3 =  if (e0 > 0.0001.as[F]) -2 * q0ms_ξ__to4 * ξ * (J3/J2) * n0 * sinI0 / e0 else 0.as[F]
   
   val aterm = 3*(1-3*`θ²`)*(1 + 3*`η²`/2 - 2*e0η - e0η*`η²`/2) + 3*(1-`θ²`)*(2*`η²` - e0η - e0η*`η²`)*cos(2*ω0)/4
   val C4 = 2*a0*`β0²`*coef1*n0*((2*η*(1+e0η) + (e0 + ηto3)/2) - J2*ξ*aterm/(a0*`psi²`))

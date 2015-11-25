@@ -10,7 +10,7 @@ trait ReferenceSystem {
   case class ClassicalElems[F](
         a : F, // semimajor axis 
         e : F, // eccentricity
-        i : F, // inclination
+        I : F, // inclination
         ω : F, // argument of perigee
         Ω : F, // right ascension ascending node
         M : F) // mean anomaly
@@ -55,15 +55,15 @@ trait ReferenceSystem {
    /** 
     * The direct transformation from nonsingular to Cartesian variables is obtained
 		* by means of the usual rotations applied to the projections of the position and
-		* velocity vectors in the orbital frame. Thus R_3 (−ν) ◦ R_1 (−I) ◦ R_3 (−θ) 
-		* with I the orbital inclination where R_1 , R_3 , are the usual rotation matrices
+		* velocity vectors in the orbital frame. Thus R3 (−ν) ◦ R1 (−I) ◦ R3 (−θ) 
+		* with I the orbital inclination where R1 , R3 , are the usual rotation matrices
 		*/
-    def polarNodal2Cartesian(i : F) : CartesianElems[F] = {
+    def polarNodal2Cartesian(I : F) : CartesianElems[F] = {
        // After replacing ν = ψ − θ and sin θ = ξ/s, cos θ = χ/s, the
        // transformation from nonsingular to Cartesian variables can be obtained from the sequence
        // (s and c are abbreviations for the sine and cosine of the inclination)
-       val s = sin(i)
-       val c = cos(i)
+       val s = sin(I)
+       val c = cos(I)
        val ψ = ν + θ
        val ξ = s * sin(θ)
        val χ = s * cos(θ)
@@ -90,23 +90,24 @@ trait ReferenceSystem {
   /**
    *  Standard transformation from polar-nodal to Cartesian variables
    *  (r,0,0, rdot=R, rθdot = Θ/r, 0) -> (x,y,z, vx,vy,vz)
+   *  where r is radial distance, R is radial velocity, and Ω is the node argument
    *  Mathematically involves matrix multiplication  R3(−h) R1(−I) R3(−θ)
-   *  where R 1 and R 3 are the usual rotation matrices about the x and z axes, respectively
+   *  where R1 and R3 are the usual rotation matrices about the x and z axes, respectively
    */
-  def polarNodal2UnitCartesian[F: Field: Trig](incl: F, su: F, Ω: F) = {
+  def polarNodal2UnitCartesian[F: Field: Trig](I: F, R: F, Ω: F) = {
   
       /* --------------------- orientation vectors ------------------- */
-      val     sinsu =  sin(su);        val     cossu =  cos(su)
-      val     snode =  sin(Ω);         val     cnode =  cos(Ω)
-      val     sini  =  sin(incl);      val     cosi  =  cos(incl)
-      val     xmx   = -snode * cosi
-      val     xmy   =  cnode * cosi
-      val     ux    =  xmx * sinsu + cnode * cossu
-      val     uy    =  xmy * sinsu + snode * cossu
-      val     uz    =  sini * sinsu
-      val     vx    =  xmx * cossu - cnode * sinsu
-      val     vy    =  xmy * cossu - snode * sinsu
-      val     vz    =  sini * cossu
+      val     sinR  =  sin(R);         val     cosR  =  cos(R)
+      val     sinΩ  =  sin(Ω);         val     cosΩ  =  cos(Ω)
+      val     sinI  =  sin(I);         val     cosI  =  cos(I)
+      val     xmx   = -sinΩ * cosI
+      val     xmy   =  cosΩ * cosI
+      val     ux    =  xmx * sinR + cosΩ * cosR
+      val     uy    =  xmy * sinR + sinΩ * cosR
+      val     uz    =  sinI * sinR
+      val     vx    =  xmx * cosR - cosΩ * sinR
+      val     vy    =  xmy * cosR - sinΩ * sinR
+      val     vz    =  sinI * cosR
   
       // return unit vectors position and velocity
       CartesianElems(ux,uy,uz,vx,vy,vz)

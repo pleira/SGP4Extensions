@@ -36,7 +36,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](state0: SGP4State[F])  {
 
     // unit position and velocity 
     import sppState._
-    val uPV: TEME.CartesianElems[F] = TEME.polarNodal2UnitCartesian(xinc, su, xnode)
+    val uPV: TEME.CartesianElems[F] = TEME.polarNodal2UnitCartesian(I, R, Ω)
     
     // return position and velocity (in km and km/sec)
     val (p, v) = convertUnitVectors(uPV.pos, uPV.vel, mrt, mvt, rvdot)
@@ -70,7 +70,7 @@ object SGP4Vallado {
 
     // unit position and velocity 
     import sppState._
-    val uPV: TEME.CartesianElems[F] = TEME.polarNodal2UnitCartesian(xinc, su, xnode)
+    val uPV: TEME.CartesianElems[F] = TEME.polarNodal2UnitCartesian(I, R, Ω)
     
     // return position and velocity (in km and km/sec)
     val (p, v) = convertUnitVectors(uPV.pos, uPV.vel, mrt, mvt, rvdot)
