@@ -10,10 +10,11 @@ import predict4s.tle.GeoPotentialCoefs
 import predict4s.tle.OrbitalState
 import predict4s.tle._
 import TEME._   
+import predict4s.tle.DpTransform
 
 
-//case class SGP4State[F](orbitalState: OrbitalState[F], uPV: TEME.CartesianElems[F], elem: TEME.SGPElems[F], 
-//    sppState : ShortPeriodPeriodicState[F], sec: SecularEffects[F], wgs: SGPConstants[F])
+case class SGP4State[F](orbitalState: OrbitalState[F], uPV: TEME.CartesianElems[F], elem: TEME.SGPElems[F], 
+    sppState : ShortPeriodPeriodicState[F], wgs: SGPConstants[F])
 
 class SGP4Vallado[F : Field : NRoot : Order : Trig](val secularEffects: SecularEffects[F])(implicit wgs: SGPConstants[F])  {
     

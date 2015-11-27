@@ -6,7 +6,7 @@ import spire.implicits._
 import predict4s.tle._
 
 
-// case class LongPeriodPeriodicState[F](axnl: F, aynl: F, xl: F, secularState: SecularState[F])
+case class LongPeriodPeriodicState[F](axnl: F, aynl: F, xl: F, secularState: SecularState[F])
 
 
 trait LongPeriodPeriodicEffects {
@@ -27,6 +27,8 @@ trait LongPeriodPeriodicEffects {
     import ocofs._,elems._
     val axnl = e * cos(ω)
     val temp = 1 / (a * (1 - e * e))
+    
+    // TBC: LPPE added     
     val aynl = e * sin(ω) + temp * aycof
     val xl   = M + ω + Ω + temp * xlcof * axnl
 

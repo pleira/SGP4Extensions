@@ -1,4 +1,4 @@
-package predict4s.tle.vallado
+package predict4s.tle.lara
 
 import spire.algebra.Field
 import spire.algebra.NRoot
@@ -133,4 +133,3 @@ object SecularEffects {
 // case class SecularState[F](t: F, elems: TEME.SGPElems[F], ocofs : OtherCoefs[F], lcofs : LaneCoefs[F])
 
 case class SecularState[F](t: F, elems: TEME.SGPElems[F], ocofs : OtherCoefs[F])
-

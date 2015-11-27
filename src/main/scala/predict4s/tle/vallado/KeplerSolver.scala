@@ -66,4 +66,4 @@ trait NewtonRaphsonKeplerSolver {
 
 object NewtonRaphsonKeplerSolver extends NewtonRaphsonKeplerSolver
 
-// case class EccentricAnomalyState[F](eo1 : F, coseo1: F, sineo1: F, ecosE: F, esinE: F, lppState: LongPeriodPeriodicState[F])  
+case class EccentricAnomalyState[F](eo1 : F, coseo1: F, sineo1: F, ecosE: F, esinE: F, lppState: LongPeriodPeriodicState[F])  

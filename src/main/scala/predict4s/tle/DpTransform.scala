@@ -1,12 +1,10 @@
-package predict4s.tle.vallado
+package predict4s.tle
 
 import spire.algebra._
 import spire.math._
-import scala.{ specialized => spec }
 import spire.syntax.primitives._
 import predict4s._
-import predict4s.tle.SGPConstants
-import predict4s.tle.TEME
+import spire.implicits
 
 object DpTransform {
  

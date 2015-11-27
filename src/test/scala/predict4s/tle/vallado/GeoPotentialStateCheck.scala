@@ -3,8 +3,9 @@ import org.scalatest.FunSuite
 import org.scalautils.TolerantNumerics
 import predict4s.tle.{SGP72Constants,TLE00005,TEME}
 import predict4s.tle.TLE
-import predict4s.tle.vallado.DpTransform.DpState
+import predict4s.tle.DpTransform.DpState
 import predict4s.tle.NearTLEs
+import predict4s.tle.DpTransform
 
 
 trait  ValladoTLE00005GeoPotentialCheck { self :  FunSuite => 

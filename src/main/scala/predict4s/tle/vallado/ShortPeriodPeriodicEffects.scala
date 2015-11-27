@@ -90,13 +90,13 @@ trait ShortPeriodPeriodicEffects {
 
 object ShortPeriodPeriodicEffects extends ShortPeriodPeriodicEffects
 
-//
-//case class ShortPeriodPeriodicState[F](
-//    elem: TEME.SGPElems[F], 
-//    I: F,     // inclination 
-//    R: F,     // Radial velocity    
-//    Ω: F,     // argument of the node
-//    mrt: F, 
-//    mvt: F, 
-//    rvdot: F, 
-//    eaState: EccentricAnomalyState[F])
+
+case class ShortPeriodPeriodicState[F](
+    elem: TEME.SGPElems[F], 
+    I: F,     // inclination 
+    R: F,     // Radial velocity    
+    Ω: F,     // argument of the node
+    mrt: F, 
+    mvt: F, 
+    rvdot: F, 
+    eaState: EccentricAnomalyState[F])

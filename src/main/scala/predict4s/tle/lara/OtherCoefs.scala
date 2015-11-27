@@ -1,4 +1,4 @@
-package predict4s.tle
+package predict4s.tle.lara
 
 import spire.algebra._
 
@@ -17,7 +17,7 @@ case class OtherCoefs[F : Field: NRoot : Order: Trig](gpState : GeoPotentialStat
   import ctx.wgs._,ctx._
   import elem.{n => n0,a => a0,ω => ω0, M => M0,_}
   
-  val gsto = gstime(epoch + 2433281.5) 
+  val gsto = predict4s.tle.gstime(epoch + 2433281.5) 
   
   val po    = a0*`β0²`
   val posq  = po*po
