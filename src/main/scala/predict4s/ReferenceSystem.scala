@@ -28,7 +28,7 @@ trait ReferenceSystem {
   case class SGPElems[F](
         n : F, // mean motion 
         e : F, // eccentricity
-        i : F, // inclination
+        I : F, // inclination
         ω : F, // argument Of perigee
         Ω : F, // right ascension ascending node
         M : F, // mean anomaly
@@ -39,6 +39,10 @@ trait ReferenceSystem {
   case class CartesianElems[F](x: F, y: F, z: F, vx: F, vy: F, vz: F) {
     def pos = Vector[F](x,y,z)
     def vel = Vector[F](vx,vy,vz)
+    // Lara uses X,Y,Z for velocities in his formulas. Allow to follow his convention
+    def X = vx
+    def Y = vy
+    def Z = vz
   }
   
   // Naming of the elements after "Efficient formulation of the periodic corrections in

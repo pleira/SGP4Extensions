@@ -17,30 +17,30 @@ case class OtherCoefs[F : Field: NRoot : Order: Trig](gpState : GeoPotentialStat
   import ctx.wgs._,ctx._
   import elem.{n => n0,a => a0,ω => ω0, M => M0,_}
   
-  val gsto = predict4s.tle.gstime(epoch + 2433281.5) 
+  val gsto : F = predict4s.tle.gstime(epoch + 2433281.5) 
   
-  val po    = a0*`β0²`
-  val posq  = po*po
+  val po   : F   = a0*`β0²`
+  val posq : F   = po*po
   
   // other derived coeficients and variables that can be used
-  val Mcof  = if (e0 > 0.0001.as[F]) - 2*q0ms_ξ__to4 * bStar / e0η / 3 else 0.as[F]
-  def xmcof  = Mcof
-  val ωcof   = bStar*C3*cos(ω0)
-  val pinvsq = 1 / posq
-  val temp1  = 3 * J2 * pinvsq * n0 / 2
-  val temp2  = temp1 * J2 * pinvsq / 2
-  val temp3  = -0.46875 * J4 * pinvsq * pinvsq * n0
+  val Mcof : F   = if (e0 > 0.0001.as[F]) - 2*q0ms_ξ__to4 * bStar / e0η / 3 else 0.as[F]
+  def xmcof : F   = Mcof
+  val ωcof  : F   = bStar*C3*cos(ω0)
+  val pinvsq : F  = 1 / posq
+  val temp1  : F  = 3 * J2 * pinvsq * n0 / 2
+  val temp2 : F   = temp1 * J2 * pinvsq / 2
+  val temp3  : F  = -0.46875 * J4 * pinvsq * pinvsq * n0
   val xhdot1 : F = - temp1*θ 
-  val Ωcof   = 7 * `β0²` * xhdot1 * C1 / 2
-  def nodecf = Ωcof
-  val delM0   = (1+η*cos(M0))**3
+  val Ωcof : F    = 7 * `β0²` * xhdot1 * C1 / 2
+  def nodecf  : F = Ωcof
+  val delM0  : F   = (1+η*cos(M0))**3
   // sgp4fix for divide by zero with inco = 180 deg, // FIXME: not valid for deep space
-  val xlcof =  if (abs(θ+1) > 1.5e-12.as[F]) - J3/J2 * sinio * (3 + 5*θ) / (1 + θ) / 4
+  val xlcof  : F  =  if (abs(θ+1) > 1.5e-12.as[F]) - J3/J2 * sinio * (3 + 5*θ) / (1 + θ) / 4
                else                          - J3/J2 * sinio * (3 + 5*θ) / 1.5e-12 / 4
-  val aycof   = - J3/J2 * sinio / 2  // FIXME: not valid for deep space
-  val sinM0  = sin(M0)
-  def sinmao  = sinM0
-  val x7thm1  = 7*θsq - 1
+  val aycof  : F   = - J3/J2 * sinio / 2  // FIXME: not valid for deep space
+  val sinM0  : F  = sin(M0)
+  def sinmao  : F  = sinM0
+  val x7thm1   : F = 7*θsq - 1
    
   val twopi : F = 2.as[F]*pi
  
@@ -55,8 +55,8 @@ case class OtherCoefs[F : Field: NRoot : Order: Trig](gpState : GeoPotentialStat
       )
     else (0.as[F],0.as[F],0.as[F])
      
-  def Ṁ = _Mdot  
-  def Ωdot = omegadot
-  def mdot = _Mdot
+  def Ṁ  : F = _Mdot  
+  def Ωdot : F  = omegadot
+  def mdot : F = _Mdot
 
 }

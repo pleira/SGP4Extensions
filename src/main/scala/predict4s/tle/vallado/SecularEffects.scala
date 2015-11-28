@@ -104,7 +104,7 @@ class SecularEffects[F : Field: NRoot : Order: Trig](val gpState : GeoPotentialS
          // sgp4fix to return if there is an error in eccentricity
          // FIXME: we should move to use Either
         // return TEME.SGPElems[F](nm, em_, i, ωm, Ωm, mp, am, bStar, epoch)  
-        return SecularState(t, TEME.SGPElems(nm, em_, i, ωm, Ωm, mp, am, bStar, epoch), ocofs) 
+        return SecularState(t, TEME.SGPElems(nm, em_, I, ωm, Ωm, mp, am, bStar, epoch), ocofs) 
        }
 
      // sgp4fix fix tolerance to avoid a divide by zero
@@ -121,7 +121,7 @@ class SecularEffects[F : Field: NRoot : Order: Trig](val gpState : GeoPotentialS
      val Mm      = (lm - ω_ - Ω_) % twopi
      
     // Return a different structure here for the long periodic effects
-    SecularState(t, TEME.SGPElems(nm, em, i, ω_, Ω_, Mm, am, bStar, epoch), ocofs) 
+    SecularState(t, TEME.SGPElems(nm, em, I, ω_, Ω_, Mm, am, bStar, epoch), ocofs) 
   }
    
 }

@@ -30,7 +30,7 @@ trait ShortPeriodPeriodicEffects {
     import eaState._ 
     import lppState._
     import secularState._
-    import elems.{n=>nm,Ω => nodep,a => am,M=>mp,ω=>argpp,i=>xincp,e=>ep,_}, ocofs._
+    import elems.{n=>nm,Ω => nodep,a => am,M=>mp,ω=>argpp,I,e=>ep,_}, ocofs._
     import gpState._
     import dps._
     import ctx.{cosI0=>cosIp,sinI0=>sinIp,_}
@@ -78,7 +78,7 @@ trait ShortPeriodPeriodicEffects {
      val    mrt   = rl * (1 - 1.5 * temp2 * betal * con41) + 0.5 * temp1 * x1mth2 * cos2u
      val    su    = su0 - 0.25 * temp2 * x7thm1 * sin2u
      val    xnode = nodep + 1.5 * temp2 * cosIp * sin2u
-     val    xinc  = xincp + 1.5 * temp2 * cosIp * sinIp * cos2u
+     val    xinc  = I + 1.5 * temp2 * cosIp * sinIp * cos2u
      val    mvt   = rdotl - nm * temp1 * x1mth2 * sin2u / KE
      val    rvdot = rvdotl + nm * temp1 * (x1mth2 * cos2u + 1.5 * con41) / KE
      

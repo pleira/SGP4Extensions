@@ -94,7 +94,7 @@ object DpTransform {
    * The state returned contains a reference to the constants.
    */
   def dpState[F: Field: NRoot : Order: Trig](ini : TEME.SGPElems[F])(implicit wgs: SGPConstants[F]) :  DpState[F] = {
-    import ini.{i => I0,e => e0,n => n0,ω => ω0,Ω => Ω0,M =>M0, bStar}
+    import ini.{I => I0,e => e0,n => n0,ω => ω0,Ω => Ω0,M =>M0, bStar}
     val ctx = Context0(I0, e0)
     import spire.implicits._
     import wgs.{KE,J2}

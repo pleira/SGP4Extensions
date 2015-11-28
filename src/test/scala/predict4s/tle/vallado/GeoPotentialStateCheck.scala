@@ -19,7 +19,7 @@ trait  ValladoTLE00005GeoPotentialCheck { self :  FunSuite =>
    
     assert(  n      ===     0.047206302); assert(   a  ===     1.353899821); 
     assert(  e      ===     0.185966700); 
-    assert(  i      ===     0.598092919); assert(   ω  ===     5.790416027); 
+    assert(  I      ===     0.598092919); assert(   ω  ===     5.790416027); 
     assert(  Ω      ===     6.086385471); assert(   M  ===     0.337309313);
     assert(  bStar  ===     0.000028098); assert( epoch  === 18441.784950620);
     assert(    rp  ===     1.102119539); 
@@ -39,7 +39,7 @@ trait  ValladoTLE06251GeoPotentialCheck { self :  FunSuite =>
     val ωcof = C3*bStar*math.cos(ω)
     assert(  n      ===     0.067918037); assert(   a  ===     1.062338933); 
     assert(  e      ===     0.003003500); 
-    assert(  i      ===     1.013301512); assert(   ω  ===     2.428744337); 
+    assert(  I      ===     1.013301512); assert(   ω  ===     2.428744337); 
     assert(  Ω      ===     0.943219561); assert(   M  ===     3.860413487);
     assert(  bStar  ===     0.000128080); assert( epoch  === 20630.824120140);
     assert(    rp  ===     1.059148199); 

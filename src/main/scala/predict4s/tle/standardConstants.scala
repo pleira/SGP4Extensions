@@ -26,6 +26,7 @@ trait WGSConstants[F] {
   def K4: F 
   def A30 : F
   def A3OVK2 : F // def K2: F   // units of (Earth radii) ]
+  
 }
 
 abstract class WGS[F: Field]() extends WGSConstants[F] {
@@ -59,6 +60,9 @@ class WGS72Constants[F: Field]() extends WGS[F] {
   val J4     =  -0.00000165597.as[F]
   override val K2     =   super.K2
   override val K4     =   super.K4
+  val `J2/J3` : F = J2/J3
+  val α : F = aE                        // Earth's equatorial radius
+  
 }
 
 class WGS84Constants[F: Field]() extends WGS[F] {
@@ -70,6 +74,8 @@ class WGS84Constants[F: Field]() extends WGS[F] {
   val J4     =  -0.00000161098761.as[F]
   override val K2     =   super.K2
   override val K4     =   super.K4
+  val `J2/J3` : F = J2/J3
+  val α : F = aE                        // Earth's equatorial radius
 }
   
 object WGS721Constants {
@@ -94,7 +100,10 @@ trait SGPConstants[F] {
   def J3: F
   def J4: F  
   def KE: F
-  def vkmpersec: F   
+  def vkmpersec: F 
+  def α : F
+  def `J2/J3` : F
+  def μ : F
 //  def CK2: F = wgs.K2 // = 5.413080E-4.as[F] // 1/2 J2aE
 //  def CK4: F = wgs.K4  // = -3*J4* aE * aE * aE * aE / 8
 //  def K2: F =  wgs.K2
@@ -111,7 +120,9 @@ class SGP721Constants[F: Field](wgs: WGS721Constants[F]) extends SGPConstants[F]
   override def J3: F = wgs.J3
   override def J4: F = wgs.J4    
   val vkmpersec =  aE * KE/60
-
+  override val `J2/J3` : F = J2/J3
+  override val α : F = aE                        // Earth's equatorial radius
+  override val μ : F = wgs.MU
 }
 
 class SGP72Constants[F: Field](wgs: WGS72Constants[F]) extends SGPConstants[F] {
@@ -121,7 +132,10 @@ class SGP72Constants[F: Field](wgs: WGS72Constants[F]) extends SGPConstants[F] {
   override def J2: F = wgs.J2
   override def J3: F = wgs.J3
   override def J4: F = wgs.J4    
-    val vkmpersec =  aE * KE/60
+  val vkmpersec =  aE * KE/60
+  override val `J2/J3` : F = J2/J3
+  override val α : F = aE                        // Earth's equatorial radius
+  override val μ : F = wgs.MU
 }
 
 class SGP84Constants[F: Field](wgs: WGS84Constants[F]) extends SGPConstants[F] {
@@ -132,6 +146,9 @@ class SGP84Constants[F: Field](wgs: WGS84Constants[F]) extends SGPConstants[F] {
   override def J3: F = wgs.J3
   override def J4: F = wgs.J4    
   val vkmpersec =  aE * KE/60
+  override val `J2/J3` : F = J2/J3
+  override val α : F = aE                        // Earth's equatorial radius
+  override val μ : F = wgs.MU
 }
 
 object SGP721Constants {

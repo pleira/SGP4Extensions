@@ -104,7 +104,7 @@ object ValladoResultCheck {
       def satn = tle.satelliteNumber
       def ecco  : Double = elem0.e
       def epoch : Double = elem0.epoch
-      def inclo : Double = elem0.i
+      def inclo : Double = elem0.I
     
    //   outputs : 
       def method  : Char  = if (isDeepSpace) 'd' else 'n'
