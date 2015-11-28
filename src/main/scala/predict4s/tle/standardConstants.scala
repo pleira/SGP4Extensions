@@ -104,6 +104,7 @@ trait SGPConstants[F] {
   def α : F
   def `J2/J3` : F
   def μ : F
+  def twopi = 2*pi
 //  def CK2: F = wgs.K2 // = 5.413080E-4.as[F] // 1/2 J2aE
 //  def CK4: F = wgs.K4  // = -3*J4* aE * aE * aE * aE / 8
 //  def K2: F =  wgs.K2

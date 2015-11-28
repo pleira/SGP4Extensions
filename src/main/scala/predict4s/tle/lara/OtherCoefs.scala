@@ -42,8 +42,6 @@ case class OtherCoefs[F : Field: NRoot : Order: Trig](gpState : GeoPotentialStat
   def sinmao  : F  = sinM0
   val x7thm1   : F = 7*θsq - 1
    
-  val twopi : F = 2.as[F]*pi
- 
   val (_Mdot, ωdot, omegadot) : (F,F,F) = 
     if (n0 >= 0.as[F] || `β0²` >= 0.as[F])
       (// derivative of M 

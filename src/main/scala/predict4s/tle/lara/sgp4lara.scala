@@ -11,9 +11,7 @@ import predict4s.tle.OrbitalState
 import predict4s.tle._
 import TEME._   
 
-
-case class SGP4State[F](orbitalState: OrbitalState[F], uPV: TEME.CartesianElems[F], elem: TEME.SGPElems[F]) 
-
+case class SGP4State[F](orbitalState: OrbitalState[F], uPV: TEME.CartesianElems[F]) 
 
 class SGP4Lara[F : Field : NRoot : Order : Trig](
     val elem0: TEME.SGPElems[F],
@@ -29,8 +27,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
  
   val eValidInterval = Interval.open(0.as[F],1.as[F])
    
-  import elem0._, wgs._, geoPot._, laneCoefs._, otherCoefs._
-  val I: F = I                          // inclination
+  import elem0._, wgs._
   val `e²` : F = e**2
   val s : SinI = sin(I)
   val c : CosI = cos(I)
@@ -49,7 +46,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val secularLaraNonSingular = polarNodal2LaraNonSingular(s, secularPolarNodal)
     val lppState = lppCorrections(secularLaraNonSingular)
     val sppState = sppCorrections(s, c, `c²`, secularLaraNonSingular)
-    val finalState = secularLaraNonSingular // FIXME + lppState + sppState
+    val finalState = secularLaraNonSingular // FIXME apply really the corrections + lppState + sppState
     val finalPolarNodal : PolarNodalElems[F] = laraNonSingular2PolarNodal(finalState) 
       
     // unit position and velocity 
@@ -61,7 +58,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val (p, v) = convertUnitVectors(uPV.pos, uPV.vel, mrt, mvt, rvdot)
     val posVel = TEME.CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
     val orbitalState = OrbitalState(t, posVel)
-    SGP4State(orbitalState, uPV, ???)
+    SGP4State(orbitalState, uPV)
   }
 
   /**
@@ -208,7 +205,6 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
       {
         // sgp4fix to return if there is an error in eccentricity
         // FIXME: we should move to use Either
-        // return TEME.SGPElems[F](nm, em_, i, ωm, Ωm, mp, am, bStar, epoch)  
         return TEME.SGPElems(nm, em_, I, ωm, Ωm, mp, am, bStar, epoch) 
       }
 
@@ -231,9 +227,9 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 
   def tempTerms(t: Minutes, ωdf: F, Mdf: F) : (F,F,F,F,F) = {
 
-    import dps.isImpacting
+    import geoPot.dps.isImpacting
     import laneCoefs._
-    import otherCoefs.{ωcof,delM0,sinM0,Mcof,twopi}    
+    import otherCoefs.{ωcof,delM0,sinM0,Mcof}    
     import geoPot.gcof._        
     val `t²` : F = t**2    
  
@@ -265,7 +261,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
    */
   def solveKeplerEq(elem : TEME.SGPElems[F]): EccentricAnomalyState[F]= {
        
-    import elem.{e,Ω,ω,M,a}
+    import elem.{e,Ω,ω,M,a}, wgs.twopi
      
     //---------------------------------------------------------------------------------------
     // CONFIRM
@@ -285,7 +281,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     /* --------------------- solve kepler's equation  M = E - e sin E     --------------- */
     // Nodep (or M) is the mean anomaly, E is the eccentric anomaly, and e is the eccentricity.
     var ktr : Int = 1
-    val u    = Field[F].mod(xl - Ω, twopi)
+    val u    = Field[F].mod(xl - Ω, twopi.as[F])
     var eo1  = u
     var tem5 : F = 9999.9.as[F]     //   sgp4fix for kepler iteration
     var ecosE : F = 0.as[F]
