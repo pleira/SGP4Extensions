@@ -92,13 +92,13 @@ object ValladoResultCheck {
     val v = statett.orbitalState.posVel.vel
     
     import statett._
-    import sgp.secularEffects.gpState.dps._
-    import sgp.secularEffects.gpState.gcof._
-    import sgp.secularEffects.{ocofs,lcofs}
-    import sgp.secularEffects.gpState.dps.ctx._
-    import sgp.secularEffects.gpState.gctx.η
+    import sgp.geoPot.dps._
+    import sgp.geoPot.gcof._
+    import sgp.{otherCoefs,laneCoefs}
+    import sgp.geoPot.dps.ctx._
+    import sgp.geoPot.gctx.η
     import statett._
-    import sgp.secularEffects.gpState.dps.{elem=>elem0}
+    import sgp.geoPot.dps.{elem=>elem0}
     
     new Sgp4Result {
       def satn = tle.satelliteNumber
@@ -112,16 +112,16 @@ object ValladoResultCheck {
       def  ainv  : Double    = 1 / elem0.a
       def    ao  : Double    = elem0.a
       def con41  : Double    = x3thm1   // FIXME for d
-      def con42  : Double    = sgp.secularEffects.gpState.dps.ctx.con42
+      def con42  : Double    = sgp.geoPot.dps.ctx.con42
       def cosio  : Double    = θ
       def cosio2 : Double    = θsq
       def eccsq  : Double    = e0sq 
       def omeosq : Double    = β0sq
-      def  posq  : Double    = ocofs.posq
-      def    rp  : Double    = sgp.secularEffects.gpState.dps.rp
+      def  posq  : Double    = otherCoefs.posq
+      def    rp  : Double    = sgp.geoPot.dps.rp
       def rteosq : Double    = β0
-      def sinio  : Double    = sgp.secularEffects.gpState.dps.ctx.sinio
-      def  gsto  : Double    = ocofs.gsto    
+      def sinio  : Double    = sgp.geoPot.dps.ctx.sinio
+      def  gsto  : Double    = otherCoefs.gsto    
       
       // ---
       def      yr  : Int    = tle.epochyear
@@ -131,34 +131,33 @@ object ValladoResultCheck {
       def   isimp  : Int    = if ((omeosq >= 0.0) || (no >= 0.0))
                                     if (isImpacting || isDeepSpace) 1 else 0
                               else 0
-      def   aycof  : Double = statett.sppState.eaState.lppState.secularState.ocofs.aycof // FIXME for d
+      def   aycof  : Double = otherCoefs.aycof // FIXME for d
       def    cc1   : Double =  C1   
       def     cc4  : Double =  C4 
       def     cc5  : Double =  C5   
       def      d2  : Double =  D2
       def      d3  : Double =  D3     
       def      d4  : Double =  D4 
-      import ocofs._
-      def   delmo  : Double =  delM0
+      def   delmo  : Double =  otherCoefs.delM0
       def     eta  : Double =  η
-      def  argpdot : Double =  ωdot 
-      def   omgcof : Double =  ωcof 
-      def   sinmao : Double =  sinM0.toDouble
-      def   t2cof  : Double = lcofs.t2cof
-      def   t3cof  : Double = lcofs.t3cof
-      def   t4cof  : Double = lcofs.t4cof
-      def   t5cof  : Double = lcofs.t5cof
-      def  x1mth2  : Double = sgp.secularEffects.gpState.dps.ctx.x1mth2 // FIXME for d
-      def  x7thm1  : Double = ocofs.x7thm1 // FIXME for d
-      def   xlcof  : Double = ocofs.xlcof // FIXME for d
-      def   xmcof  : Double = Mcof
+      def  argpdot : Double =  otherCoefs.ωdot 
+      def   omgcof : Double =  otherCoefs.ωcof 
+      def   sinmao : Double = otherCoefs.sinM0.toDouble
+      def   t2cof  : Double = laneCoefs.t2cof
+      def   t3cof  : Double = laneCoefs.t3cof
+      def   t4cof  : Double = laneCoefs.t4cof
+      def   t5cof  : Double = laneCoefs.t5cof
+      def  x1mth2  : Double = sgp.geoPot.dps.ctx.x1mth2 // FIXME for d
+      def  x7thm1  : Double = otherCoefs.x7thm1 // FIXME for d
+      def   xlcof  : Double = otherCoefs.xlcof // FIXME for d
+      def   xmcof  : Double = otherCoefs.Mcof
 //      def temp1 : Double = 3 * J2 / posq * no / 2  
 //      def temp2 : Double = J2/ posq *temp1 / 2
       //def    mdot  : Double = no + 0.5 * temp1 * rteosq * con41 + 0.0625 * temp2 * rteosq * (13.0 - 78.0 * cosio2 + 137.0 * cosio2*cosio2) // tif.ocf.mdot
       // def    mdot  : Double = no + temp1 * rteosq * con41 / 2 + temp2 * rteosq * (13 - 78 * cosio2 + 137 * cosio2*cosio2) / 16 // 
-      def    mdot  : Double = ocofs.mdot
-      def   nodecf : Double = Ωcof
-      def   nodedt : Double = omegadot     
+      def    mdot  : Double = otherCoefs.mdot
+      def   nodecf : Double = otherCoefs.Ωcof
+      def   nodedt : Double = otherCoefs.omegadot     
       def        t : Double = statett.orbitalState.t
       def   nodeo  : Double = elem0.Ω
       def      no  : Double = elem0.n

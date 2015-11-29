@@ -1,14 +1,10 @@
-package predict4s.tle.lara
+package predict4s.tle
 
 import spire.algebra._
 import spire.math._
 import spire.implicits._
 import spire.syntax.primitives._
-import predict4s.tle.GeoPotentialCoefs
-import predict4s.tle.LaneDragCoef
 import predict4s.tle.DpTransform._
-import predict4s.tle.TEME
-import predict4s.tle.DpTransform
 
 
 /**

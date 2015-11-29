@@ -10,6 +10,8 @@ import predict4s.tle.GeoPotentialCoefs
 import predict4s.tle.OrbitalState
 import predict4s.tle._
 import TEME._   
+import predict4s.tle.LaneCoefs
+import predict4s.tle.GeoPotentialState
 
 case class SGP4State[F](orbitalState: OrbitalState[F], uPV: TEME.CartesianElems[F]) 
 
@@ -73,10 +75,10 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
       ( (aE*mrt) *: pos,  vkmpersec *: (mvt *: pos + rvdot *: vel))
   }  
 
-  case class LaraNonSingular[F](ψ : F, ξ: F, χ: F, r: F, R: F, Θ: F)
-  case class EccentricAnomalyState[F](eo1 : F, coseo1: F, sineo1: F, ecosE: F, esinE: F)  
+  case class LaraNonSingular(ψ : F, ξ: F, χ: F, r: F, R: F, Θ: F)
+  case class EccentricAnomalyState(eo1 : F, coseo1: F, sineo1: F, ecosE: F, esinE: F)  
 
-  def laraNonSingular2PolarNodal(lnSingular: LaraNonSingular[F]) : TEME.PolarNodalElems[F] = {
+  def laraNonSingular2PolarNodal(lnSingular: LaraNonSingular) : TEME.PolarNodalElems[F] = {
 	  import lnSingular._
 	  val `ξ²` : F = ξ**2
 	  val `χ²` : F = χ**2
@@ -95,7 +97,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
  }
   
   // Sec 4.2 Lara's personal communication (r, θ, R, Θ) −→ (F, C, S, a)
-  def delauney2PolarNodal(elem: TEME.SGPElems[F], eas : EccentricAnomalyState[F]) : TEME.PolarNodalElems[F] = {
+  def delauney2PolarNodal(elem: TEME.SGPElems[F], eas : EccentricAnomalyState) : TEME.PolarNodalElems[F] = {
     import eas._
     import elem._
     import wgs.μ
@@ -115,7 +117,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   }
 
 
-  def polarNodal2LaraNonSingular(s: SinI, polarNodal: TEME.PolarNodalElems[F]) : LaraNonSingular[F] = {
+  def polarNodal2LaraNonSingular(s: SinI, polarNodal: TEME.PolarNodalElems[F]) : LaraNonSingular = {
     import polarNodal._ 
     val ψ = ν + θ
     val ξ = s * sin(θ)
@@ -123,7 +125,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     LaraNonSingular(ψ, ξ, χ, r, R, Θ) 
   }
   
-  def cartesian2LaraNonSingular(pv: TEME.CartesianElems[F]) : LaraNonSingular[F] = {
+  def cartesian2LaraNonSingular(pv: TEME.CartesianElems[F]) : LaraNonSingular = {
     import pv._
     val r : F = (x**2 + y**2 + z**2).sqrt 
     val R : F = (x*X + y*Y + z*Z)/r
@@ -143,7 +145,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     LaraNonSingular(ψ, ξ, χ, r, R, Θ)
   }
   
-  def laraNonSingular2Cartesian(lnSingular: LaraNonSingular[F]) : CartesianElems[F] = {
+  def laraNonSingular2Cartesian(lnSingular: LaraNonSingular) : CartesianElems[F] = {
     import lnSingular._
     val `ξ²` : F = ξ**2
     val `χ²` : F = χ**2
@@ -259,7 +261,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
    * where E is the eccentric anomaly.
    * We are using Delauney's elements as variables.
    */
-  def solveKeplerEq(elem : TEME.SGPElems[F]): EccentricAnomalyState[F]= {
+  def solveKeplerEq(elem : TEME.SGPElems[F]): EccentricAnomalyState = {
        
     import elem.{e,Ω,ω,M,a}, wgs.twopi
      
@@ -309,7 +311,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
      EccentricAnomalyState(eo1,coseo1,sineo1,ecosE,esinE)   
   }
   
-  def lppCorrections(lnSingular: LaraNonSingular[F]) : LaraNonSingular[F] = {
+  def lppCorrections(lnSingular: LaraNonSingular) : LaraNonSingular = {
     import lnSingular._
     val `p/r` = p/r
     val δψ = 2 * ϵ3 * χ 
@@ -321,7 +323,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     LaraNonSingular(δψ,δξ,δχ,δr,δR,δΘ)
   }
   
-  def sppCorrections(s: SinI, c: CosI, `c²`: CosI, lnSingular: LaraNonSingular[F]) : LaraNonSingular[F] = {
+  def sppCorrections(s: SinI, c: CosI, `c²`: CosI, lnSingular: LaraNonSingular) : LaraNonSingular = {
     import lnSingular._
     val `χ²` : F = χ**2
     val `ξ²` : F = ξ**2

@@ -1,7 +1,6 @@
-## Implementation of the SGP4 algorithm following a functional paradigm
+## SGP4 algorithm implementation using Lara's non singular variable set in a functional paradigm 
 
-The SGP4 algorithm is widely used to propagate orbits of objects around the earth like space debris. There are many implementations of the algorithm in many languages. This work presents new implementations of the SGP4 algorithm in Scala following a more functional architecture in contrast to the imperative/object oriented solutions used in previous implementations. These implementations have different characteristics regarding speed, architecture, applicability and readability. Besides the classical implementation adapted from Vallado's code, there is an alternative implementation using algorithms developed by Lara. Finally, applicability of this functional solution in massive data processing like prediction of orbital collision events and in academic fields is discussed.
-
+The SGP4 (Simplified General Perturbations 4) algorithm is a widely used orbital propagator. Current implementations are based on Brouwer's gravity solution using Lyddane's variable set. Lara has recently proposed an alternative nonsingular variable set for the calculation of the periodic terms in SGP4. This work presents new implementations of the SGP4 algorithm in Scala, one using Lara's new variable set and another one derived from the well-known Vallado's implementation as presented in his Spacetrack Revision #3 report. Scala is a hybrid functional/object oriented programming language running in the Java Virtual Machine that allows for functional features in the implementations. Validation of Lara's calculation for different orbits is performed using Vallado's results as reference. Finally, applicability for massive data processing tasks like prediction of orbital collision events and performance are discussed.
 
 
 ### Rationale
