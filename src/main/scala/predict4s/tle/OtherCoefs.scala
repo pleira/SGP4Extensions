@@ -5,12 +5,11 @@ import spire.math._
 import spire.implicits._
 import spire.syntax.primitives._
 
-case class OtherCoefs[F : Field: NRoot : Order: Trig](gpState : GeoPotentialState[F]) {
+case class OtherCoefs[F : Field: NRoot : Order: Trig](elem: TEME.SGPElems[F], ctx0: Context0[F], gcof : GeoPotentialCoefs[F], gctx : GeoPotentialContext[F]) {
  
-  import gpState._
-  import gcof._,dps._,gctx._
-  import ctx.wgs._,ctx._
-  import elem.{n => n0,a => a0,ω => ω0, M => M0,_}
+  import gcof._,gctx._,ctx0._
+  import ctx0.wgs._
+  import elem.{e => e0,n => n0,a => a0,ω => ω0, M => M0,_}
   
   val gsto : F = predict4s.tle.gstime(epoch + 2433281.5) 
   

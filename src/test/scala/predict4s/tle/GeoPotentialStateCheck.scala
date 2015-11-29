@@ -8,9 +8,8 @@ trait  ValladoTLE00005GeoPotentialCheck { self :  FunSuite =>
   
   implicit def doubleEqualityTLE00005 = TolerantNumerics.tolerantDoubleEquality(1E-9)
    
-  def checkSgp4GeoPotential_5(ini: GeoPotentialState[Double]) = {
-    import ini._
-    import gcof._,dps.elem._,dps.perige,dps.rp,dps.isImpactingBis,dps.ctx.con41,dps.ctx.omeosq // rteosq
+  def checkSgp4GeoPotential_5(elem0: TEME.SGPElems[Double], context0: Context0[Double], geoPot: GeoPotentialCoefs[Double], gctx: GeoPotentialContext[Double], rp: Double, perigeeHeight: Double, isImpacting: Boolean) = {
+    import geoPot._,elem0._,context0.{con41,omeosq} // rteosq
     val ωcof = C3*bStar*math.cos(ω)
    
     assert(  n      ===     0.047206302); assert(   a  ===     1.353899821); 
@@ -29,9 +28,8 @@ trait  ValladoTLE06251GeoPotentialCheck { self :  FunSuite =>
 
   implicit def doubleEqualityTLE06251 = TolerantNumerics.tolerantDoubleEquality(1E-9)
 
-  def checkSgp4GeoPotential_06251(ini: GeoPotentialState[Double]) = {
-    import ini._
-    import gcof._,dps.elem._,dps.perige,dps.rp,dps.isImpactingBis,dps.ctx.con41,dps.ctx.omeosq // rteosq
+  def checkSgp4GeoPotential_06251(elem0: TEME.SGPElems[Double], context0: Context0[Double], geoPot: GeoPotentialCoefs[Double], gctx: GeoPotentialContext[Double], rp: Double, perigeeHeight: Double, isImpacting: Boolean) = {
+    import geoPot._,elem0._,context0.{con41,omeosq} // rteosq
     val ωcof = C3*bStar*math.cos(ω)
     assert(  n      ===     0.067918037); assert(   a  ===     1.062338933); 
     assert(  e      ===     0.003003500); 
@@ -45,7 +43,7 @@ trait  ValladoTLE06251GeoPotentialCheck { self :  FunSuite =>
   } 
 }
 
-class GeoPotentialStateCheck extends FunSuite with NearTLEs with ValladoTLE00005GeoPotentialCheck with ValladoTLE06251GeoPotentialCheck {
+class GeoPotentialStateCheck extends FunSuite with SGP4Factory with NearTLEs with ValladoTLE00005GeoPotentialCheck with ValladoTLE06251GeoPotentialCheck {
 
   implicit val wgs = SGP72Constants.tleDoubleConstants
 
@@ -53,24 +51,24 @@ class GeoPotentialStateCheck extends FunSuite with NearTLEs with ValladoTLE00005
   def sgpImpl : String = "Vallado SGP4"
   
   test(s"${sgpImpl}: compare GeoPotentialState for 00005 when t=0") ({
-    val gps = buildGeoPotential(tle00005)
-    assert(gps.dps.isImpacting == false)
-    assert(gps.dps.isDeepSpace == false)
-    checkSgp4GeoPotential_5(gps)
+    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = buildGeoPotential(tle00005)
+    assert(isImpacting == false)
+    //assert(isDeepSpace == false)
+    checkSgp4GeoPotential_5(elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
   })
   
   test(s"${sgpImpl}: compare GeoPotentialState for 06251 when t=0") ({
-    val gps = buildGeoPotential(tle06251)
-    assert(gps.dps.isImpacting == false)
-    assert(gps.dps.isDeepSpace == false)
-    checkSgp4GeoPotential_06251(gps)
+    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = buildGeoPotential(tle06251)
+    assert(isImpacting == false)
+    //assert(gps.dps.isDeepSpace == false)
+    checkSgp4GeoPotential_06251(elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
   })
   
   def buildGeoPotential(tle: TLE) = {
     import spire.implicits._
-    val ini : TEME.SGPElems[Double] = TEME.sgpElems(tle)
-    val elemsdp = DpTransform.dpState(ini)
-    GeoPotentialState(elemsdp)
+    val elemTLE : TEME.SGPElems[Double] = TEME.sgpElems(tle)
+    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = geoPotentialCoefsAndContexts(elemTLE)
+    (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
   }
 }
 

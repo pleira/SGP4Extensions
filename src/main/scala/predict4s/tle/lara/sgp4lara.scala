@@ -11,16 +11,16 @@ import predict4s.tle.OrbitalState
 import predict4s.tle._
 import TEME._   
 import predict4s.tle.LaneCoefs
-import predict4s.tle.GeoPotentialState
 
 case class SGP4State[F](orbitalState: OrbitalState[F], uPV: TEME.CartesianElems[F]) 
 
 class SGP4Lara[F : Field : NRoot : Order : Trig](
     val elem0: TEME.SGPElems[F],
     val wgs: SGPConstants[F],
-    val geoPot: GeoPotentialState[F],
+    val geoPot: GeoPotentialCoefs[F],
     val laneCoefs : LaneCoefs[F],
-    val otherCoefs : OtherCoefs[F]
+    val otherCoefs : OtherCoefs[F],
+    val isImpacting: Boolean
   )  {
   
   type SinI = F  // type to remember dealing with the sine   of the Inclination 
@@ -229,10 +229,9 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 
   def tempTerms(t: Minutes, ωdf: F, Mdf: F) : (F,F,F,F,F) = {
 
-    import geoPot.dps.isImpacting
     import laneCoefs._
     import otherCoefs.{ωcof,delM0,sinM0,Mcof}    
-    import geoPot.gcof._        
+    import geoPot._        
     val `t²` : F = t**2    
  
     // It should be noted that when epoch perigee height is less than
@@ -339,26 +338,12 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 
 }
 
-object SGP4Lara {
-      
-  /**
-   * Here we are starting with a TLE which has been transformed into the original not transformed SGP Elements
-   * The method returns a SGP4 Propagator where some coeficients are calculated
-   */
-  def apply[F : Field : NRoot : Order : Trig](elem0: TEME.SGPElems[F])(implicit wgs: SGPConstants[F]) : SGP4Lara[F] = {
-    val dpState = DpTransform.dpState(elem0)
-    val geoPot  = GeoPotentialState(dpState)
-    val laneCoefs = LaneCoefs(geoPot)
-    val otherCofs = OtherCoefs(geoPot)
-    new SGP4Lara(dpState.elem, wgs, geoPot, laneCoefs, otherCofs)
+object SGP4Lara extends SGP4Factory {
+  
+  def apply[F : Field : NRoot : Order : Trig](elemTLE: TEME.SGPElems[F])(implicit wgs0: SGPConstants[F]) : SGP4Lara[F] = {
+    val (elem, wgs, geoPot, laneCoefs, otherCoefs, isImpacting) = from(elemTLE)
+    new SGP4Lara(elem, wgs, geoPot, laneCoefs, otherCoefs, isImpacting)
   }
-
-  // FIXME
-//  def dpState[F: Field: Trig](tle: TLE)(implicit wgs: SGPConstants[F]) :  DpTransform.DpState[F] = 
-//    DpTransform.dpState(TEME.sgpElems(tle))
-//
-//  def geoState[F: Field: Trig](tle: TLE)(implicit wgs: SGPConstants[F]) : GeoPotentialState[F] =
-//    GeoPotentialState(dpState(tle))
   
 }
 

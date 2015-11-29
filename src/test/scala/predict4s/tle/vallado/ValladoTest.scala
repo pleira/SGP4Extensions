@@ -4,6 +4,7 @@ import org.scalautils.TolerantNumerics
 import predict4s.tle.{SGP72Constants,NearTLEs,TEME}
 import predict4s.tle._
 
+/*
 trait ValladoResultCheck extends NearTLEs with ValladoNearTLEsCheck with ValladoNearTLEsPVCheck { self : FunSuite => 
 
   implicit val wgs = SGP72Constants.tleDoubleConstants
@@ -171,3 +172,4 @@ object ValladoResultCheck {
     }
   }
 }
+*/

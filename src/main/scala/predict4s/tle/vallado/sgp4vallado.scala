@@ -10,17 +10,16 @@ import predict4s.tle.GeoPotentialCoefs
 import predict4s.tle.OrbitalState
 import predict4s.tle._
 import TEME._   
-import predict4s.tle.DpTransform
 import predict4s.tle.LaneCoefs
-import predict4s.tle.GeoPotentialState
 
     
 class SGP4Vallado[F : Field : NRoot : Order : Trig](
     val elem0: TEME.SGPElems[F],
     val wgs: SGPConstants[F],
-    val geoPot: GeoPotentialState[F],
+    val geoPot: GeoPotentialCoefs[F],
     val laneCoefs : LaneCoefs[F],
-    val otherCoefs : OtherCoefs[F]
+    val otherCoefs : OtherCoefs[F],
+    val isImpacting: Boolean
   )  {
   
   type SinI = F  // type to remember dealing with the sine   of the Inclination 
@@ -144,10 +143,9 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
 
   def tempTerms(t: Minutes, ωdf: F, Mdf: F) : (F,F,F,F,F) = {
 
-    import geoPot.dps.isImpacting
     import laneCoefs._
     import otherCoefs.{ωcof,delM0,sinM0,Mcof}    
-    import geoPot.gcof._        
+    import geoPot._        
     val `t²` : F = t**2    
  
     // It should be noted that when epoch perigee height is less than
@@ -271,28 +269,15 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     val  elem = TEME.SGPElems(n, e, xinc, ω, xnode, M, a, bStar, epoch) 
     ShortPeriodPeriodicState(elem, xinc, su, xnode, mrt, mvt, rvdot)
   }
-    
+
 }
 
-object SGP4Vallado {
+object SGP4Vallado extends SGP4Factory {
   
-  /**
-   * Here we are starting with a SGP Elements directly obtained from a TLE. 
-   * The method returns a Vallado SGP4 Propagator where some secular related coeficients are already calculated.
-   */
-  def apply[F : Field : NRoot : Order : Trig](elem0: TEME.SGPElems[F])(implicit wgs: SGPConstants[F]) : SGP4Vallado[F] = {
-    val dpState = DpTransform.dpState(elem0)
-    val geoPot  = GeoPotentialState(dpState)
-    val laneCoefs = LaneCoefs(geoPot)
-    val otherCofs = OtherCoefs(geoPot)
-    new SGP4Vallado(dpState.elem, wgs, geoPot, laneCoefs, otherCofs)
+  def apply[F : Field : NRoot : Order : Trig](elemTLE: TEME.SGPElems[F])(implicit wgs0: SGPConstants[F]) :  SGP4Vallado[F] = {
+    val (elem, wgs, geoPot, laneCoefs, otherCoefs, isImpacting) = from(elemTLE)
+    new SGP4Vallado(elem, wgs, geoPot, laneCoefs, otherCoefs, isImpacting)
   }
-  // FIXME
-//  def dpState[F: Field: Trig](tle: TLE)(implicit wgs: SGPConstants[F]) :  DpTransform.DpState[F] = 
-//    DpTransform.dpState(TEME.sgpElems(tle))
-//
-//  def geoState[F: Field: Trig](tle: TLE)(implicit wgs: SGPConstants[F]) : GeoPotentialState[F] =
-//    GeoPotentialState(dpState(tle))
   
 }
 
