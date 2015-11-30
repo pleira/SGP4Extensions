@@ -7,26 +7,20 @@ import scala.{ specialized => spec }
 import spire.syntax.primitives._
 import predict4s._
 import predict4s.tle.GeoPotentialCoefs
-import predict4s.tle.OrbitalState
 import predict4s.tle._
 import TEME._   
 import predict4s.tle.LaneCoefs
 
-case class SGP4State[F](orbitalState: OrbitalState[F], uPV: TEME.CartesianElems[F]) 
 
 class SGP4Lara[F : Field : NRoot : Order : Trig](
     val elem0: TEME.SGPElems[F],
-    val wgs: SGPConstants[F],
+    wgs: SGPConstants[F],
     val geoPot: GeoPotentialCoefs[F],
     val laneCoefs : LaneCoefs[F],
     val otherCoefs : OtherCoefs[F],
     val isImpacting: Boolean
-  )  {
+  )  extends SGP4(wgs)  {
   
-  type SinI = F  // type to remember dealing with the sine   of the Inclination 
-  type CosI = F  // type to remember dealing with the cosine of the Inclination 
-  type Minutes = F // type to remember dealing with minutes from epoch
- 
   val eValidInterval = Interval.open(0.as[F],1.as[F])
    
   import elem0._, wgs._
@@ -40,8 +34,10 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   val ϵ2 : F = -J2*(`α/p`**2) / 4
   val ϵ3 : F = (`J2/J3`)*`α/p` / 2      // or (`C30/C20`)*`α/p` / 2 
   val η : F = (1 - `e²`).sqrt           // eccentricity function G/L, with G as the Delauney's action, the total angular momentum , and L = √(μ a)
+
  
-  def propagate(t: Minutes) : SGP4State[F] = {
+  override def propagatePolarNodalAndContext(t: Minutes)
+      : ((F,F,F,F,F,F), LongPeriodPeriodicState, TEME.SGPElems[F], EccentricAnomalyState) = {
     val secularElemt = secularCorrections(t)
     val eaState = solveKeplerEq(secularElemt)
     val secularPolarNodal = delauney2PolarNodal(secularElemt, eaState)
@@ -50,33 +46,33 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val sppState = sppCorrections(s, c, `c²`, secularLaraNonSingular)
     val finalState = secularLaraNonSingular // FIXME apply really the corrections + lppState + sppState
     val finalPolarNodal : PolarNodalElems[F] = laraNonSingular2PolarNodal(finalState) 
-      
-    // unit position and velocity 
-    import finalPolarNodal._
-    val I: F = ???; val R: F = ???; val Ω: F = ???;  val mrt: F = ???; val mvt: F = ???; val rvdot: F = ???
-    val uPV: TEME.CartesianElems[F] = TEME.polarNodal2UnitCartesian(I, R, Ω)
-    
-    // return position and velocity (in km and km/sec)
-    val (p, v) = convertUnitVectors(uPV.pos, uPV.vel, mrt, mvt, rvdot)
-    val posVel = TEME.CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
-    val orbitalState = OrbitalState(t, posVel)
-    SGP4State(orbitalState, uPV)
+     (???, ???, secularElemt, eaState)   
   }
+  
+//  def propagate(t: Minutes) : SGP4State[F] = {
+//    val secularElemt = secularCorrections(t)
+//    val eaState = solveKeplerEq(secularElemt)
+//    val secularPolarNodal = delauney2PolarNodal(secularElemt, eaState)
+//    val secularLaraNonSingular = polarNodal2LaraNonSingular(s, secularPolarNodal)
+//    val lppState = lppCorrections(secularLaraNonSingular)
+//    val sppState = sppCorrections(s, c, `c²`, secularLaraNonSingular)
+//    val finalState = secularLaraNonSingular // FIXME apply really the corrections + lppState + sppState
+//    val finalPolarNodal : PolarNodalElems[F] = laraNonSingular2PolarNodal(finalState) 
+//      
+//    // unit position and velocity 
+//    import finalPolarNodal._
+//    val I: F = ???; val R: F = ???; val Ω: F = ???;  val mrt: F = ???; val mvt: F = ???; val rvdot: F = ???
+//    val uPV: TEME.CartesianElems[F] = TEME.polarNodal2UnitCartesian(I, R, Ω)
+//    
+//    // return position and velocity (in km and km/sec)
+//    val (p, v) = convertUnitVectors(uPV.pos, uPV.vel, mrt, mvt, rvdot)
+//    val posVel = TEME.CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
+//    val orbitalState = OrbitalState(t, posVel)
+//    SGP4State(orbitalState, uPV)
+//  }
 
-  /**
-   * Lara's code works with internal units of length LU (units of earth’s radius  
-   * R⊕ in km) and time TU (units of the orbit’s period in min) 
-   * TU = 60 * sqrt( (R⊕ km)³ /(μ km³ /s² ) ) min
-   * where μ is the earth’s gravitational constant; μ = 1 UL³/UT² in internal units.    
-   */
-  def convertUnitVectors(pos : Vector[F], vel : Vector[F], mrt: F, mvt: F, rvdot: F)
-      : (Vector[F], Vector[F]) = {
-      import wgs._
-      ( (aE*mrt) *: pos,  vkmpersec *: (mvt *: pos + rvdot *: vel))
-  }  
 
   case class LaraNonSingular(ψ : F, ξ: F, χ: F, r: F, R: F, Θ: F)
-  case class EccentricAnomalyState(eo1 : F, coseo1: F, sineo1: F, ecosE: F, esinE: F)  
 
   def laraNonSingular2PolarNodal(lnSingular: LaraNonSingular) : TEME.PolarNodalElems[F] = {
 	  import lnSingular._

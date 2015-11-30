@@ -55,9 +55,9 @@ class HardcodedValladoCheck extends FunSuite with NearTLEs with ValladoNearTLEsC
   def sgp06251 = sgps(1)
   def sgp28057 = sgps(2)
   
-  val results00005 = for (t <- times00005)  yield ValladoResultCheck.sgp4Result(sgp00005.propagate(t), sgps(0), tle00005)
-  val results06251 = for (t <- times06251)  yield ValladoResultCheck.sgp4Result(sgp06251.propagate(t), sgps(1), tle06251)
-  val results28057 = for (t <- times28057)  yield ValladoResultCheck.sgp4Result(sgp28057.propagate(t), sgps(2), tle28057)
+  val results00005 = for (t <- times00005)  yield ValladoResultCheck.sgp4Result(sgps(0), sgp00005.propagate(t), tle00005)
+  val results06251 = for (t <- times06251)  yield ValladoResultCheck.sgp4Result(sgps(1), sgp06251.propagate(t), tle06251)
+  val results28057 = for (t <- times28057)  yield ValladoResultCheck.sgp4Result(sgps(2), sgp28057.propagate(t), tle28057)
 
   test(s"${sgpImpl}: compare Intermediate result t=0") ({ 
     checkIntl5(results00005(0))
@@ -88,7 +88,8 @@ class HardcodedValladoCheck extends FunSuite with NearTLEs with ValladoNearTLEsC
 
 object ValladoResultCheck {
   
-  def sgp4Result(statett: SGP4State[Double], sgp: SGP4Vallado[Double], tle: TLE) : Sgp4Result = {    
+  def sgp4Result(sgp: SGP4Vallado[Double], statett: (TEME.CartesianElems[Double], TEME.CartesianElems[Double], 
+      (Double,Double,Double,Double,Double,Double), sgp.LongPeriodPeriodicState, TEME.SGPElems[Double], sgp.EccentricAnomalyState), tle: TLE) : Sgp4Result = {    
     val r = statett.orbitalState.posVel.pos
     val v = statett.orbitalState.posVel.vel
     

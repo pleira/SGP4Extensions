@@ -7,7 +7,6 @@ import scala.{ specialized => spec }
 import spire.syntax.primitives._
 import predict4s._
 import predict4s.tle.GeoPotentialCoefs
-import predict4s.tle.OrbitalState
 import predict4s.tle._
 import TEME._   
 import predict4s.tle.LaneCoefs
@@ -15,17 +14,13 @@ import predict4s.tle.LaneCoefs
     
 class SGP4Vallado[F : Field : NRoot : Order : Trig](
     val elem0: TEME.SGPElems[F],
-    val wgs: SGPConstants[F],
+    wgs: SGPConstants[F],
     val geoPot: GeoPotentialCoefs[F],
     val laneCoefs : LaneCoefs[F],
     val otherCoefs : OtherCoefs[F],
     val isImpacting: Boolean
-  )  {
-  
-  type SinI = F  // type to remember dealing with the sine   of the Inclination 
-  type CosI = F  // type to remember dealing with the cosine of the Inclination 
-  type Minutes = F // type to remember dealing with minutes from epoch
- 
+  )  extends SGP4(wgs) {
+   
   val eValidInterval = Interval.open(0.as[F],1.as[F])
    
   import elem0._, wgs._
@@ -44,48 +39,17 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
   val con42      = 1 - 5*`c²`
   val x1mth2     = 1 - `c²`
 
-    
-  def propagate(t: Minutes) : SGP4State[F] = {
+ 
+  override def propagatePolarNodalAndContext(t: Minutes)
+      : ((F,F,F,F,F,F), LongPeriodPeriodicState, TEME.SGPElems[F], EccentricAnomalyState) = {
     val secularElemt = secularCorrections(t)
     val lppState = lppCorrections(secularElemt)
     val eaState = solveKeplerEq(secularElemt, lppState)
-    val finalPolarNodal = sppCorrections(s, c, `c²`, eaState, lppState, secularElemt)
-      
-    // unit position and velocity 
-    import finalPolarNodal._
-    val uPV: TEME.CartesianElems[F] = TEME.polarNodal2UnitCartesian(I, R, Ω)
-    
-    // return position and velocity (in km and km/sec)
-    val (p, v) = convertUnitVectors(uPV.pos, uPV.vel, mrt, mvt, rvdot)
-    val posVel = TEME.CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
-    val orbitalState = OrbitalState(t, posVel)
-    SGP4State(orbitalState, uPV)
+    val (elem, finalPolarNodal) = sppCorrections(s, c, `c²`, eaState, lppState, secularElemt)
+    (finalPolarNodal, lppState, secularElemt, eaState)   
   }
-
-  /**
-   * Vallado's code works with internal units of length LU (units of earth’s radius  
-   * R⊕ in km) and time TU (units of the orbit’s period in min) 
-   * TU = 60 * sqrt( (R⊕ km)³ /(μ km³ /s² ) ) min
-   * where μ is the earth’s gravitational constant; μ = 1 UL³/UT² in internal units.    
-   */
-  def convertUnitVectors(pos : Vector[F], vel : Vector[F], mrt: F, mvt: F, rvdot: F)
-      : (Vector[F], Vector[F]) = {
-      import wgs._
-      ( (aE*mrt) *: pos,  vkmpersec *: (mvt *: pos + rvdot *: vel))
-  }  
-
-
-  case class LongPeriodPeriodicState(axnl: F, aynl: F, xl: F)
-  case class EccentricAnomalyState(eo1 : F, coseo1: F, sineo1: F, ecosE: F, esinE: F)  
-  case class ShortPeriodPeriodicState(
-    elem: TEME.SGPElems[F], 
-    I: F,     // inclination 
-    R: F,     // Radial velocity    
-    Ω: F,     // argument of the node
-    mrt: F, 
-    mvt: F, 
-    rvdot: F)
-    
+  
+   
   /** 
    *  This calculation updates the secular elements at epoch to the desired date given by 
    *  the time t in minutes from the epoch 
@@ -221,7 +185,8 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     LongPeriodPeriodicState(axnl, aynl, xl)
   }
   
-  def sppCorrections(s: SinI, c: CosI, `c²`: CosI, eaState: EccentricAnomalyState, lppState: LongPeriodPeriodicState, secularElem: TEME.SGPElems[F]) : ShortPeriodPeriodicState = {
+  def sppCorrections(s: SinI, c: CosI, `c²`: CosI, eaState: EccentricAnomalyState, lppState: LongPeriodPeriodicState, secularElem: TEME.SGPElems[F]) 
+      : (TEME.SGPElems[F], (F,F,F,F,F,F)) = { // PolarNodalElems[F]) = {
     import eaState._ 
     import lppState._
     import secularElem._ // {n,e,I,ω,Ω,M,a}
@@ -267,7 +232,8 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     val    mvt   = rdotl - n * temp1 * x1mth2 * sin2u / KE
     val    rvdot = rvdotl + n * temp1 * (x1mth2 * cos2u + 1.5 * con41) / KE  
     val  elem = TEME.SGPElems(n, e, xinc, ω, xnode, M, a, bStar, epoch) 
-    ShortPeriodPeriodicState(elem, xinc, su, xnode, mrt, mvt, rvdot)
+    val polarNodalXX = (xinc, su, xnode, mrt, mvt, rvdot)
+    (elem, polarNodalXX)
   }
 
 }
@@ -280,5 +246,3 @@ object SGP4Vallado extends SGP4Factory {
   }
   
 }
-
-case class SGP4State[F](orbitalState: OrbitalState[F], uPV: TEME.CartesianElems[F]) 
