@@ -1,7 +1,6 @@
 package predict4s.tle
 import org.scalatest.FunSuite
 import org.scalautils.TolerantNumerics
-import predict4s.tle.DpTransform.DpState
 
 
 trait  ValladoTLE00005GeoPotentialCheck { self :  FunSuite => 
@@ -43,32 +42,38 @@ trait  ValladoTLE06251GeoPotentialCheck { self :  FunSuite =>
   } 
 }
 
-class GeoPotentialStateCheck extends FunSuite with SGP4Factory with NearTLEs with ValladoTLE00005GeoPotentialCheck with ValladoTLE06251GeoPotentialCheck {
+class GeoPotentialStateCheck extends FunSuite with NearTLEs with ValladoTLE00005GeoPotentialCheck with ValladoTLE06251GeoPotentialCheck {
 
   implicit val wgs = SGP72Constants.tleDoubleConstants
 
-
   def sgpImpl : String = "Vallado SGP4"
   
-  test(s"${sgpImpl}: compare GeoPotentialState for 00005 when t=0") ({
-    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = buildGeoPotential(tle00005)
+  def fixture = new {
+    val model = new SGP4Factory {
+        def buildGeoPotential(tle: TLE) = {
+          import spire.implicits._
+          val elemTLE : TEME.SGPElems[Double] = TEME.sgpElems(tle)
+          val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = geoPotentialCoefsAndContexts(elemTLE)
+          (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
+        }
+    }
+  }
+  
+  test(s"${sgpImpl}: compare GeoPotentialState for 00005 when t=0") {
+    val f = fixture
+    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = f.model.buildGeoPotential(tle00005)
     assert(isImpacting == false)
     //assert(isDeepSpace == false)
     checkSgp4GeoPotential_5(elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
-  })
+  }
   
-  test(s"${sgpImpl}: compare GeoPotentialState for 06251 when t=0") ({
-    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = buildGeoPotential(tle06251)
+  test(s"${sgpImpl}: compare GeoPotentialState for 06251 when t=0") {
+    val f = fixture
+    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = f.model.buildGeoPotential(tle06251)
     assert(isImpacting == false)
     //assert(gps.dps.isDeepSpace == false)
     checkSgp4GeoPotential_06251(elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
-  })
-  
-  def buildGeoPotential(tle: TLE) = {
-    import spire.implicits._
-    val elemTLE : TEME.SGPElems[Double] = TEME.sgpElems(tle)
-    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = geoPotentialCoefsAndContexts(elemTLE)
-    (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
   }
+  
 }
 

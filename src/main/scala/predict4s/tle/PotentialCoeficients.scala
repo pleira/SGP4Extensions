@@ -4,8 +4,9 @@ import spire.algebra._
 import spire.math._
 import spire.implicits._
 import spire.syntax.primitives._
-import predict4s.tle.DpTransform._
 
+
+case class GeoPotentialCoefs[F](C1: F, C2: F, C3: F, C4: F, C5: F, D2: F, D3: F, D4: F)
 
 /**
  * The initialization process provides a series of coefficients needed
@@ -57,7 +58,7 @@ case class GeoPotentialContext[F: Field: NRoot : Order: Trig](elemsdp : TEME.SGP
 
   }
 
-trait FittingAtmosphericParameter {
+abstract class FittingAtmosphericParameter {
   // AtmosphericCoef
     // import ctx.wgs.aE, dp.{perige => perigeeHeight}
   
@@ -75,7 +76,7 @@ trait FittingAtmosphericParameter {
   //--------------------------------
 }
     
-trait GeoPotentialModel extends FittingAtmosphericParameter {
+abstract class GeoPotentialModel extends FittingAtmosphericParameter {
 
   def geoPotentialCoefs[F: Field : NRoot : Order : Trig](elem: TEME.SGPElems[F], ctx: Context0[F], gctx: GeoPotentialContext[F], aE: F) 
       : GeoPotentialCoefs[F] = {

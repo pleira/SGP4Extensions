@@ -16,14 +16,30 @@ import spire.syntax.primitives._
  * (from Space Debris, by H. Klinkrad, pag 216).
  */
 abstract class SGP4[F : Field : NRoot : Order : Trig](
+    val elem0: TEME.SGPElems[F],    
     val wgs: SGPConstants[F]
     ){
+  
+  import elem0._, wgs._
+  val `e²` : F = e**2
+  val s : SinI = sin(I)
+  val c : CosI = cos(I)
+  val `c²` : CosI = c**2
+  val `s²` : SinI = s**2
+  val p : F = a * (1 - `e²`)            // semilatus rectum , which also is G²/μ, with G as the Delauney's action, the total angular momentum
+  val `α/p` : F = α/p
+  val ϵ2 : F = -J2*(`α/p`**2) / 4
+  val ϵ3 : F = (`J2/J3`)*`α/p` / 2      // or (`C30/C20`)*`α/p` / 2 
+  val η : F = (1 - `e²`).sqrt           // eccentricity function G/L, with G as the Delauney's action, the total angular momentum , and L = √(μ a)
+  val x3thm1     = 3*`c²` - 1
+  val con41      = x3thm1
+  val con42      = 1 - 5*`c²`
+  val x1mth2     = 1 - `c²`
   
   type SinI = F  // type to remember dealing with the sine   of the Inclination 
   type CosI = F  // type to remember dealing with the cosine of the Inclination 
   type Minutes = F // type to remember dealing with minutes from epoch
  
-  
   def propagatePolarNodalAndContext(t: Minutes) : ((F,F,F,F,F,F), LongPeriodPeriodicState, TEME.SGPElems[F], EccentricAnomalyState)
   
   def propagatePolarNodal(t: Minutes) = {
@@ -35,7 +51,7 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
     val (finalPolarNodalXX, lppState, secularElemt, eaState) = propagatePolarNodalAndContext(t)
     import finalPolarNodalXX.{_1=>I,_2=>R,_3=> Ω, _4=>mrt,_5=>mvt,_6=>rvdot}
     val uPV: TEME.CartesianElems[F] = TEME.polarNodal2UnitCartesian(I, R, Ω)
-    val (p, v) = convertUnitVectors(uPV.pos, uPV.vel, mrt, mvt, rvdot)
+    val (p, v) = convertAndScale2UnitVectors(uPV.pos, uPV.vel, mrt, mvt, rvdot)
     val posVel = TEME.CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
     (posVel, uPV, finalPolarNodalXX, lppState, secularElemt, eaState)    
   }
@@ -65,8 +81,7 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
    * TU = 60 * sqrt( (R⊕ km)³ /(μ km³ /s² ) ) min
    * where μ is the earth’s gravitational constant; μ = 1 UL³/UT² in internal units.    
    */
-  def convertUnitVectors(pos : Vector[F], vel : Vector[F], mrt: F, mvt: F, rvdot: F)
-      : (Vector[F], Vector[F]) = {
+  def convertAndScale2UnitVectors(pos : Vector[F], vel : Vector[F], mrt: F, mvt: F, rvdot: F): (Vector[F], Vector[F]) = {
       import wgs._
       ( (aE*mrt) *: pos,  vkmpersec *: (mvt *: pos + rvdot *: vel))
   }  
@@ -74,110 +89,4 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
 }
 
 
-
-trait SGP4Factory extends GeoPotentialModel { 
-  
-  /**
-   * Recover original mean motion (n0'', n0dp) and semimajor axis (a0'' , a0dp).
-   * 
-   */
-  def originalElems[F: Field: NRoot : Order: Trig](elemTLE : TEME.SGPElems[F])(implicit wgs: SGPConstants[F]) : TEME.SGPElems[F]= 
-    calcOriginalElems(elemTLE, Context0(elemTLE))
-  
-  /**
-   * Recover original mean motion (n0'', n0dp) and semimajor axis (a0'' , a0dp) 
-   * and some context data to avoid repeating calculations.
-   * 
-   */
-  def originalElemsAndContext[F: Field: NRoot : Order: Trig](elemTLE : TEME.SGPElems[F])(implicit wgs: SGPConstants[F])
-    : (TEME.SGPElems[F], Context0[F]) = {
-    val context0 = Context0(elemTLE)
-    val elem0 = calcOriginalElems(elemTLE, context0)
-    (elem0, context0)
-  }
-  
-  /**
-   * Recover original mean motion (n0'', n0dp) and semimajor axis (a0'' , a0dp).
-   * 
-   */
-  private def calcOriginalElems[F: Field: NRoot : Order: Trig](elemTLE : TEME.SGPElems[F], context0: Context0[F]) = {
-    import elemTLE._,context0._ 
-    import wgs.{KE,J2}
-    
-    val a1 : F   = (KE / n) fpow (2.0/3.0).as[F]  // (Ke / n0) pow 1.5   
-    val tval : F = (3.0/4.0) * J2 * x3thm1 / β0to3  // 3 * k2 * (3*`cos²I0` - 1) / ((1-`e0²`) pow 1.5) / 4 
-    val δ1   = tval / (a1*a1)
-    val a0   = a1 * (1 - δ1 * (1.0/3.0 + δ1 * (1 + 134 * δ1 / 81)))
-    val δ0   = tval / (a0 * a0)  
-    val n0dp = n   / (1 + δ0) 
-    val a0dp = (KE / n0dp) fpow (2.0/3.0).as[F]  // a0   / (1 - δ0)
-    TEME.SGPElems(n0dp, e, I, ω, Ω, M, a0dp, bStar, epoch)
-  }
-  
-  /**
-   * Factory method to produce all inputs needed to create a SGP4 propagator.
-   * Here we are starting with a SGP Elements directly obtained from a TLE. 
-   */
-  def from[F : Field : NRoot : Order : Trig](elemTLE: TEME.SGPElems[F])(implicit wgs: SGPConstants[F]) = {
-    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = geoPotentialCoefsAndContexts(elemTLE)    
-    val laneCoefs = LaneCoefs(geoPot)
-    val otherCofs = OtherCoefs(elem0, context0, geoPot, gctx)
-    (elem0, wgs, geoPot, laneCoefs, otherCofs, isImpacting)
-  }
-
-  
-  def calcGeoPotentialCoefs[F : Field : NRoot : Order : Trig](elemTLE: TEME.SGPElems[F])(implicit wgs: SGPConstants[F]) 
-    : GeoPotentialCoefs[F] = {
-    val (_,_,geoPot,_,_,_,_) = geoPotentialCoefsAndContexts(elemTLE)
-    geoPot
-  }
-  
-  def geoPotentialCoefsAndContexts[F : Field : NRoot : Order : Trig](elemTLE: TEME.SGPElems[F])(implicit wgs: SGPConstants[F]) 
-    : (TEME.SGPElems[F], Context0[F], GeoPotentialCoefs[F], GeoPotentialContext[F], F, F, Boolean) = {
-    val (elem0, context0) = originalElemsAndContext(elemTLE)
-    import elem0.{a,e},wgs.aE
-    
-    // radius of perigee
-    val rp : F = a*(1-e)
-    assert (rp > 1)
-      
-    // perigee height, altitude relative to the earth's surface, so perige instead of perigee 
-    val perigeeHeight =  (rp - 1) * aE
-    val isImpacting : Boolean    = rp < (220/aE + 1) 
-    val s = fittingAtmosphericParameter(perigeeHeight, aE)
-    val gctx = GeoPotentialContext(elem0, s, rp, aE)
-
-    val geoPot  = geoPotentialCoefs(elem0, context0, gctx, aE)
-    (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
-  }  
-  
-}
-
-//case class OrbitalState[F](t: F, posVel: TEME.CartesianElems[F])
-
-case class GeoPotentialCoefs[F](C1: F, C2: F, C3: F, C4: F, C5: F, D2: F, D3: F, D4: F)
-
-//case class EccentricAnomalyState[F](eo1 : F, coseo1: F, sineo1: F, ecosE: F, esinE: F, lppState: LongPeriodPeriodicState[F])  
-//
-//case class SGP4State[F](orbitalState: OrbitalState[F], uPV: TEME.CartesianElems[F], elem: TEME.SGPElems[F], 
-//    sppState : ShortPeriodPeriodicState[F], wgs: SGPConstants[F])
-
-// case class LongPeriodPeriodicState[F](axnl: F, aynl: F, xl: F, secularState: SecularState[F])
-
-//case class ShortPeriodPeriodicState[F](
-//    elem: TEME.SGPElems[F], 
-//    I: F,     // inclination 
-//    R: F,     // Radial velocity    
-//    Ω: F,     // argument of the node
-//    mrt: F, 
-//    mvt: F, 
-//    rvdot: F) 
-//    eaState: EccentricAnomalyState[F])
-    
-
-//
-//trait PotentialCoeficients[F] {
-//  def C1: F;  def C2: F;  def C3: F;  def C4: F;  def C5: F
-//  def D2: F;  def D3: F;  def D4: F
-//}
 

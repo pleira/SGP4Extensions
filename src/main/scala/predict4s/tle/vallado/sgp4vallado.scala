@@ -13,32 +13,19 @@ import predict4s.tle.LaneCoefs
 
     
 class SGP4Vallado[F : Field : NRoot : Order : Trig](
-    val elem0: TEME.SGPElems[F],
+    elem0: TEME.SGPElems[F],
     wgs: SGPConstants[F],
     val geoPot: GeoPotentialCoefs[F],
+    val gctx: GeoPotentialContext[F],
     val laneCoefs : LaneCoefs[F],
     val otherCoefs : OtherCoefs[F],
-    val isImpacting: Boolean
-  )  extends SGP4(wgs) {
+    val isImpacting: Boolean,
+    val rp: F
+  )  extends SGP4(elem0, wgs) {
    
   val eValidInterval = Interval.open(0.as[F],1.as[F])
    
   import elem0._, wgs._
-  val `e²` : F = e**2
-  val s : SinI = sin(I)
-  val c : CosI = cos(I)
-  val `c²` : CosI = c**2
-  val `s²` : SinI = s**2
-  val p : F = a * (1 - `e²`)            // semilatus rectum , which also is G²/μ, with G as the Delauney's action, the total angular momentum
-  val `α/p` : F = α/p
-  val ϵ2 : F = -J2*(`α/p`**2) / 4
-  val ϵ3 : F = (`J2/J3`)*`α/p` / 2      // or (`C30/C20`)*`α/p` / 2 
-  val η : F = (1 - `e²`).sqrt           // eccentricity function G/L, with G as the Delauney's action, the total angular momentum , and L = √(μ a)
-  val x3thm1     = 3*`c²` - 1
-  val con41      = x3thm1
-  val con42      = 1 - 5*`c²`
-  val x1mth2     = 1 - `c²`
-
  
   override def propagatePolarNodalAndContext(t: Minutes)
       : ((F,F,F,F,F,F), LongPeriodPeriodicState, TEME.SGPElems[F], EccentricAnomalyState) = {
@@ -241,8 +228,8 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
 object SGP4Vallado extends SGP4Factory {
   
   def apply[F : Field : NRoot : Order : Trig](elemTLE: TEME.SGPElems[F])(implicit wgs0: SGPConstants[F]) :  SGP4Vallado[F] = {
-    val (elem, wgs, geoPot, laneCoefs, otherCoefs, isImpacting) = from(elemTLE)
-    new SGP4Vallado(elem, wgs, geoPot, laneCoefs, otherCoefs, isImpacting)
+    val (elem, wgs, geoPot, gctx, laneCoefs, otherCoefs, isImpacting, rp) = from(elemTLE)
+    new SGP4Vallado(elem, wgs, geoPot, gctx, laneCoefs, otherCoefs, isImpacting, rp)
   }
   
 }
