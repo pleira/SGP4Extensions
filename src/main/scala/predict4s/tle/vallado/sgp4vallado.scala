@@ -18,7 +18,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     val geoPot: GeoPotentialCoefs[F],
     val gctx: GeoPotentialContext[F],
     val laneCoefs : LaneCoefs[F],
-    val otherCoefs : OtherCoefs[F],
+    val secularFreqs : SecularFrequencies[F],
     val isImpacting: Boolean,
     val rp: F
   )  extends SGP4(elem0, wgs) {
@@ -43,16 +43,15 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
    */
   def secularCorrections(t: Minutes): TEME.SGPElems[F] = {
     
-    import otherCoefs.{ωdot,Ωdot,mdot=>Mdot,Ωcof}
-    
-    // Gravity corrections
+    import secularFreqs.{ωdot,Ωdot,mdot=>Mdot,Ωcof}
+     
     // Brouwer’s gravitational corrections are applied first
-    // TBC: implementation here with Delaunays (or with Lydanne's ?) variables, 
+    // Note that his theory relies on Delaunays variables, 
     // ωdot is gdot, Mdot is ℓdot, and  Ωdot is hdot.
     val `t²` : F = t**2    
     val ωdf  : F = ω + ωdot*t
     val Ωdf  : F = Ω + Ωdot*t
-    val Mdf  : F = M + Mdot*t
+    val Mdf  : F = M + Mdot*t    
     
     // Next, the secular corrections due to the atmospheric drag are incorporated;
     // in particular δh, δL, δe, δℓ 
@@ -95,7 +94,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
   def tempTerms(t: Minutes, ωdf: F, Mdf: F) : (F,F,F,F,F) = {
 
     import laneCoefs._
-    import otherCoefs.{ωcof,delM0,sinM0,Mcof}    
+    import secularFreqs.{ωcof,delM0,sinM0,Mcof}    
     import geoPot._        
     val `t²` : F = t**2    
  
@@ -161,7 +160,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
   
   def lppCorrections(secularElem : TEME.SGPElems[F]) : LongPeriodPeriodicState = {
     import secularElem._
-    import otherCoefs.{aycof,xlcof}
+    import secularFreqs.{aycof,xlcof}
     val axnl = e * cos(ω)
     val temp = 1 / (a * (1 - e * e))
     
@@ -211,7 +210,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
 
     /* -------------- update for short period gravitational periodics ------------ */
 
-    import otherCoefs._
+    import secularFreqs._
     val    mrt   = rl * (1 - 1.5 * temp2 * betal * con41) + 0.5 * temp1 * x1mth2 * cos2u
     val    su    = su0 - 0.25 * temp2 * x7thm1 * sin2u
     val    xnode = Ω + 1.5 * temp2 * c * sin2u
@@ -228,8 +227,8 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
 object SGP4Vallado extends SGP4Factory {
   
   def apply[F : Field : NRoot : Order : Trig](elemTLE: TEME.SGPElems[F])(implicit wgs0: SGPConstants[F]) :  SGP4Vallado[F] = {
-    val (elem, wgs, geoPot, gctx, laneCoefs, otherCoefs, isImpacting, rp) = from(elemTLE)
-    new SGP4Vallado(elem, wgs, geoPot, gctx, laneCoefs, otherCoefs, isImpacting, rp)
+    val (elem, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp) = from(elemTLE)
+    new SGP4Vallado(elem, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp)
   }
   
 }

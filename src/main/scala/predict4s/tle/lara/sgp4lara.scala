@@ -18,7 +18,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val geoPot: GeoPotentialCoefs[F],
     val gctx: GeoPotentialContext[F],
     val laneCoefs : LaneCoefs[F],
-    val otherCoefs : OtherCoefs[F],
+    val secularFreqs : SecularFrequencies[F],
     val isImpacting: Boolean,
     val rp: F
   )  extends SGP4(elem0, wgs)  {
@@ -176,7 +176,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
    */
   def secularCorrections(t: Minutes): TEME.SGPElems[F] = {
     
-    import otherCoefs.{ωdot,Ωdot,mdot=>Mdot,Ωcof}
+    import secularFreqs.{ωdot,Ωdot,mdot=>Mdot,Ωcof}
     
     // Gravity corrections
     // Brouwer’s gravitational corrections are applied first
@@ -228,7 +228,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   def tempTerms(t: Minutes, ωdf: F, Mdf: F) : (F,F,F,F,F) = {
 
     import laneCoefs._
-    import otherCoefs.{ωcof,delM0,sinM0,Mcof}    
+    import secularFreqs.{ωcof,delM0,sinM0,Mcof}    
     import geoPot._        
     val `t²` : F = t**2    
  
@@ -271,7 +271,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val temp : F = 1 / (a * (1 - e * e))
     
     // TBC: is here LPPE added? should aycof and xlcof go away here?
-    import otherCoefs.{aycof,xlcof}
+    import secularFreqs.{aycof,xlcof}
     val aynl : F = e * sin(ω) + temp * aycof
     val xl : F  = M + ω + Ω + temp * xlcof * axnl
      
@@ -339,8 +339,8 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 object SGP4Lara extends SGP4Factory {
   
   def apply[F : Field : NRoot : Order : Trig](elemTLE: TEME.SGPElems[F])(implicit wgs0: SGPConstants[F]) : SGP4Lara[F] = {
-    val (elem, wgs, geoPot, gctx, laneCoefs, otherCoefs, isImpacting, rp) = from(elemTLE)
-    new SGP4Lara(elem, wgs, geoPot, gctx, laneCoefs, otherCoefs, isImpacting, rp)
+    val (elem, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp) = from(elemTLE)
+    new SGP4Lara(elem, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp)
   }
   
 }

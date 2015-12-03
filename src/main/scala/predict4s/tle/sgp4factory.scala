@@ -51,8 +51,8 @@ class SGP4Factory extends GeoPotentialModel {
   def from[F : Field : NRoot : Order : Trig](elemTLE: TEME.SGPElems[F])(implicit wgs: SGPConstants[F]) = {
     val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = geoPotentialCoefsAndContexts(elemTLE)    
     val laneCoefs = LaneCoefs(geoPot)
-    val otherCofs = OtherCoefs(elem0, context0, geoPot, gctx)
-    (elem0, wgs, geoPot, gctx, laneCoefs, otherCofs, isImpacting, rp)
+    val secularFreqs = new SecularFrequencies(elem0, context0, geoPot, gctx)
+    (elem0, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp)
   }
 
   

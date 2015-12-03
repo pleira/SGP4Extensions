@@ -47,6 +47,8 @@ class WGS721Constants[F: Field]() extends WGS[F] {
   val J3     =  -0.00000253881.as[F]
   val J4     =  -0.00000165597.as[F]
   val vkmpersec =  aE * KE/60
+  val `J2/J3` : F = J2/J3
+  val `J3/J2` : F = J3/J2
   override val K2     =   super.K2
   override val K4     =   super.K4
 }
@@ -61,6 +63,7 @@ class WGS72Constants[F: Field]() extends WGS[F] {
   override val K2     =   super.K2
   override val K4     =   super.K4
   val `J2/J3` : F = J2/J3
+  val `J3/J2` : F = J3/J2
   val α : F = aE                        // Earth's equatorial radius
   
 }
@@ -75,6 +78,7 @@ class WGS84Constants[F: Field]() extends WGS[F] {
   override val K2     =   super.K2
   override val K4     =   super.K4
   val `J2/J3` : F = J2/J3
+  val `J3/J2` : F = J3/J2
   val α : F = aE                        // Earth's equatorial radius
 }
   
@@ -103,6 +107,7 @@ trait SGPConstants[F] {
   def vkmpersec: F 
   def α : F
   def `J2/J3` : F
+  def `J3/J2` : F
   def μ : F
   def twopi = 2*pi
 //  def CK2: F = wgs.K2 // = 5.413080E-4.as[F] // 1/2 J2aE
@@ -122,6 +127,7 @@ class SGP721Constants[F: Field](wgs: WGS721Constants[F]) extends SGPConstants[F]
   override def J4: F = wgs.J4    
   val vkmpersec =  aE * KE/60
   override val `J2/J3` : F = J2/J3
+  override val `J3/J2` : F = J3/J2
   override val α : F = aE                        // Earth's equatorial radius
   override val μ : F = wgs.MU
 }
@@ -135,6 +141,7 @@ class SGP72Constants[F: Field](wgs: WGS72Constants[F]) extends SGPConstants[F] {
   override def J4: F = wgs.J4    
   val vkmpersec =  aE * KE/60
   override val `J2/J3` : F = J2/J3
+  override val `J3/J2` : F = J3/J2
   override val α : F = aE                        // Earth's equatorial radius
   override val μ : F = wgs.MU
 }
@@ -148,6 +155,7 @@ class SGP84Constants[F: Field](wgs: WGS84Constants[F]) extends SGPConstants[F] {
   override def J4: F = wgs.J4    
   val vkmpersec =  aE * KE/60
   override val `J2/J3` : F = J2/J3
+  override val `J3/J2` : F = J3/J2
   override val α : F = aE                        // Earth's equatorial radius
   override val μ : F = wgs.MU
 }

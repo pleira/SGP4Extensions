@@ -59,7 +59,7 @@ case class Sgp4Result(
     import sgp.elem0
     import sgp.geoPot._
     import sgp.isImpacting
-    import sgp.{otherCoefs,laneCoefs}
+    import sgp.{secularFreqs,laneCoefs}
 //    import sgp.geoPot.dps.ctx._
 //    import sgp.geoPot.gctx.η
     import statett._
@@ -81,11 +81,11 @@ case class Sgp4Result(
       def cosio2 : Double    = sgp.`c²` // θsq
       def eccsq  : Double    = sgp.`e²` // e0sq 
       def omeosq : Double    = 1 - sgp.`e²` //  β0sq
-      def  posq  : Double    = otherCoefs.posq
+      def  posq  : Double    = secularFreqs.posq
       def    rp  : Double    = sgp.rp
       def rteosq : Double    = math.sqrt(1 - sgp.`e²`) // β0
       def sinio  : Double    = sgp.s
-      def  gsto  : Double    = otherCoefs.gsto    
+      def  gsto  : Double    = secularFreqs.gsto    
       
       // ---
       def      yr  : Int    = tle.epochyear
@@ -96,33 +96,33 @@ case class Sgp4Result(
                                       if (isImpacting) 1 else 0
                                     // FIXME: should be if (isImpacting || isDeepSpace) 1 else 0
                               else 0
-      def   aycof  : Double = otherCoefs.aycof // FIXME for d
+      def   aycof  : Double = secularFreqs.aycof // FIXME for d
       def    cc1   : Double =  C1   
       def     cc4  : Double =  C4 
       def     cc5  : Double =  C5   
       def      d2  : Double =  D2
       def      d3  : Double =  D3     
       def      d4  : Double =  D4 
-      def   delmo  : Double =  otherCoefs.delM0
+      def   delmo  : Double =  secularFreqs.delM0
       def     eta  : Double =  sgp.η
-      def  argpdot : Double =  otherCoefs.ωdot 
-      def   omgcof : Double =  otherCoefs.ωcof 
-      def   sinmao : Double = otherCoefs.sinM0.toDouble
+      def  argpdot : Double =  secularFreqs.ωdot 
+      def   omgcof : Double =  secularFreqs.ωcof 
+      def   sinmao : Double = secularFreqs.sinM0.toDouble
       def   t2cof  : Double = laneCoefs.t2cof
       def   t3cof  : Double = laneCoefs.t3cof
       def   t4cof  : Double = laneCoefs.t4cof
       def   t5cof  : Double = laneCoefs.t5cof
       def  x1mth2  : Double = sgp.x1mth2 // FIXME for d
-      def  x7thm1  : Double = otherCoefs.x7thm1 // FIXME for d
-      def   xlcof  : Double = otherCoefs.xlcof // FIXME for d
-      def   xmcof  : Double = otherCoefs.Mcof
+      def  x7thm1  : Double = secularFreqs.x7thm1 // FIXME for d
+      def   xlcof  : Double = secularFreqs.xlcof // FIXME for d
+      def   xmcof  : Double = secularFreqs.Mcof
 //      def temp1 : Double = 3 * J2 / posq * no / 2  
 //      def temp2 : Double = J2/ posq *temp1 / 2
       //def    mdot  : Double = no + 0.5 * temp1 * rteosq * con41 + 0.0625 * temp2 * rteosq * (13.0 - 78.0 * cosio2 + 137.0 * cosio2*cosio2) // tif.ocf.mdot
       // def    mdot  : Double = no + temp1 * rteosq * con41 / 2 + temp2 * rteosq * (13 - 78 * cosio2 + 137 * cosio2*cosio2) / 16 // 
-      def    mdot  : Double = otherCoefs.mdot
-      def   nodecf : Double = otherCoefs.Ωcof
-      def   nodedt : Double = otherCoefs.omegadot     
+      def    mdot  : Double = secularFreqs.mdot
+      def   nodecf : Double = secularFreqs.Ωcof
+      def   nodedt : Double = secularFreqs.omegadot     
       def   nodeo  : Double = elem0.Ω
       def      no  : Double = elem0.n
       def xno = no

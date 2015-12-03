@@ -59,19 +59,19 @@ class HardcodedValladoCheck extends FunSuite with NearTLEs with ValladoNearTLEsC
   val results06251 = for (t <- times06251)  yield Sgp4Result(sgps(1), sgp06251.propagate(t), tle06251, t)
   val results28057 = for (t <- times28057)  yield Sgp4Result(sgps(2), sgp28057.propagate(t), tle28057, t)
 // FIXME
-//  test(s"${sgpImpl}: compare Intermediate result t=0") { 
-//    checkIntl5(results00005(0))
-//    checkSgp4Init5(results00005(0))
-//    checkIntl6251(results06251(0))
-//    checkSgp4Init6251(results06251(0))
-//  }
-//  
-//  test(s"${sgpImpl}: compare Intermediate Propagation Results with Vallado's cpp implementation for near TLEs") {
-//    // call the checks for the corresponding result
-//    check00005 zip results00005 foreach { p => p._1(p._2) }
-//    check06251 zip results06251 foreach { p => p._1(p._2) }
-//    check28057 zip results28057 foreach { p => p._1(p._2) }   
-//  }
+  test(s"${sgpImpl}: compare Intermediate result t=0") { 
+    checkIntl5(results00005(0))
+    checkSgp4Init5(results00005(0))
+    checkIntl6251(results06251(0))
+    checkSgp4Init6251(results06251(0))
+  }
+  
+  test(s"${sgpImpl}: compare Intermediate Propagation Results with Vallado's cpp implementation for near TLEs") {
+    // call the checks for the corresponding result
+    check00005 zip results00005 foreach { p => p._1(p._2) }
+    check06251 zip results06251 foreach { p => p._1(p._2) }
+    check28057 zip results28057 foreach { p => p._1(p._2) }   
+  }
 
   test(s"${sgpImpl}: compare Position/Velocity Propagation Results with Vallado's cpp implementation for near TLEs") {
     // call the checks for the corresponding result
