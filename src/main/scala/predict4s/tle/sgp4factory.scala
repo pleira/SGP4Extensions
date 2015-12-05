@@ -16,7 +16,7 @@ class SGP4Factory extends GeoPotentialModel {
     val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = geoPotentialCoefsAndContexts(elem0Ctx0, wgs)    
     val laneCoefs = calcLaneCoefs(geoPot)
     val secularFreqs = calcSecularFrequenciesAndCoefs(elem0, context0, geoPot, gctx, wgs)
-    (elem0, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp)
+    (elem0, wgs, context0, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp)
   }
   
   /**

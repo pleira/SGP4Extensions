@@ -15,6 +15,7 @@ import predict4s.tle.LaneCoefs
 class SGP4Vallado[F : Field : NRoot : Order : Trig](
     elem0: SGPElems[F],
     wgs: SGPConstants[F],
+    val ctx0: Context0[F],
     val geoPot: GeoPotentialCoefs[F],
     val gctx: GeoPotentialContext[F],
     val laneCoefs : LaneCoefs[F],
@@ -32,7 +33,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     val secularElemt = secularCorrections(t)
     val lppState = lppCorrections(secularElemt, secularTerms._2) // dragSecularCoefs)
     val eaState = solveKeplerEq(secularElemt, lppState)
-    val (elem, finalPolarNodal) = sppCorrections(s, c, `c²`, eaState, lppState, secularElemt)
+    val (elem, finalPolarNodal) = sppCorrections(ctx0, eaState, lppState, secularElemt)
     (finalPolarNodal, lppState, secularElemt, eaState)   
   }
   
@@ -95,7 +96,9 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
 
     import laneCoefs._
     import secularTerms._2._ // dragSecularCoefs._ // {ωcof,delM0,sinM0,Mcof}    
-    import geoPot._        
+    import geoPot._ 
+    import gctx.η 
+    
     val `t²` : F = t**2    
  
     // It should be noted that when epoch perigee height is less than
@@ -171,7 +174,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     LongPeriodPeriodicState(axnl, aynl, xl)
   }
   
-  def sppCorrections(s: SinI, c: CosI, `c²`: CosI, eaState: EccentricAnomalyState, lppState: LongPeriodPeriodicState, secularElem: SGPElems[F]) 
+  def sppCorrections(ctx: Context0[F], eaState: EccentricAnomalyState, lppState: LongPeriodPeriodicState, secularElem: SGPElems[F]) 
       : (SGPElems[F], (F,F,F,F,F,F)) = { // PolarNodalElems[F]) = {
     import eaState._ 
     import lppState._
@@ -211,6 +214,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     /* -------------- update for short period gravitational periodics ------------ */
 
     import secularTerms._
+    import ctx._
     val    mrt   = rl * (1 - 1.5 * temp2 * betal * con41) + 0.5 * temp1 * x1mth2 * cos2u
     val    su    = su0 - 0.25 * temp2 * x7thm1 * sin2u
     val    xnode = Ω + 1.5 * temp2 * c * sin2u
@@ -227,14 +231,14 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
 object SGP4Vallado extends SGP4Factory {
   
   def apply[F : Field : NRoot : Order : Trig](elem0Ctx0: (SGPElems[F], Context0[F]))(implicit wgs0: SGPConstants[F]) :  SGP4Vallado[F] = {
-    val (elem, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp) = from(elem0Ctx0)
-    new SGP4Vallado(elem, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp)
+    val (elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp) = from(elem0Ctx0)
+    new SGP4Vallado(elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp)
   }
-  
-  def apply[F : Field : NRoot : Order : Trig](elem0: SGPElems[F])(implicit wgs0: SGPConstants[F]) :  SGP4Vallado[F] = {
-    val elemAndContext0 = (elem0, Context0(elem0.I, elem0.e)) 
-    val (elem, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp) = from(elemAndContext0)
-    new SGP4Vallado(elem, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp)
-  }
+//  
+//  def apply[F : Field : NRoot : Order : Trig](elem0: SGPElems[F])(implicit wgs0: SGPConstants[F]) :  SGP4Vallado[F] = {
+//    val elemAndContext0 = (elem0, Context0(elem0.I, elem0.e)) 
+//    val (elem, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp) = from(elemAndContext0)
+//    new SGP4Vallado(elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp)
+//  }
   
 }

@@ -1,9 +1,11 @@
-package predict4s
-import spire.algebra.{Trig, NRoot}
+package predict4s.refsystem
+
+import spire.algebra.Trig
 import spire.algebra.Field
 import spire.math._
 import spire.implicits._
 import spire.syntax.primitives._
+import scala.Vector
 
 trait ReferenceSystem {
 

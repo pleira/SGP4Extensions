@@ -15,6 +15,7 @@ import predict4s.tle.LaneCoefs
 class SGP4Lara[F : Field : NRoot : Order : Trig](
     elem0: SGPElems[F],
     wgs: SGPConstants[F],
+    val ctx0: Context0[F],
     val geoPot: GeoPotentialCoefs[F],
     val gctx: GeoPotentialContext[F],
     val laneCoefs : LaneCoefs[F],
@@ -43,9 +44,9 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val secularElemt = secularCorrections(t)
     val eaState = solveKeplerEq(secularElemt)
     val secularPolarNodal = delauney2PolarNodal(secularElemt, eaState)
-    val secularLaraNonSingular = polarNodal2LaraNonSingular(s, secularPolarNodal)
+    val secularLaraNonSingular = polarNodal2LaraNonSingular(ctx0.s, secularPolarNodal)
     val lppState = lppCorrections(secularLaraNonSingular)
-    val sppState = sppCorrections(s, c, `c²`, secularLaraNonSingular)
+    val sppState = sppCorrections(secularLaraNonSingular)
     val finalState = secularLaraNonSingular // FIXME apply really the corrections + lppState + sppState
     val finalPolarNodal : PolarNodalElems[F] = laraNonSingular2PolarNodal(finalState) 
      (???, ???, secularElemt, eaState)   
@@ -229,7 +230,8 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 
     import laneCoefs._
     import secularFreqs._2._ // dragSecularCoefs._ // {ωcof,delM0,sinM0,Mcof}    
-    import geoPot._        
+    import geoPot._      
+    import gctx.η 
     val `t²` : F = t**2    
  
     // It should be noted that when epoch perigee height is less than
@@ -310,6 +312,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   
   def lppCorrections(lnSingular: LaraNonSingular) : LaraNonSingular = {
     import lnSingular._
+    import ctx0._
     val `p/r` = p/r
     val δψ = 2 * ϵ3 * χ 
     val δξ = χ * δψ
@@ -320,8 +323,9 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     LaraNonSingular(δψ,δξ,δχ,δr,δR,δΘ)
   }
   
-  def sppCorrections(s: SinI, c: CosI, `c²`: CosI, lnSingular: LaraNonSingular) : LaraNonSingular = {
+  def sppCorrections(lnSingular: LaraNonSingular) : LaraNonSingular = {
     import lnSingular._
+    import ctx0._
     val `χ²` : F = χ**2
     val `ξ²` : F = ξ**2
     
@@ -339,8 +343,8 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 object SGP4Lara extends SGP4Factory {
   
   def apply[F : Field : NRoot : Order : Trig](elem0Ctx0: (SGPElems[F], Context0[F]))(implicit wgs0: SGPConstants[F]) :  SGP4Lara[F] = {
-    val (elem, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp) = from(elem0Ctx0)
-    new SGP4Lara(elem, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp)
+    val (elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp) = from(elem0Ctx0)
+    new SGP4Lara(elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp)
   }
   
 }

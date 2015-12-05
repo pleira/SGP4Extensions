@@ -75,16 +75,16 @@ case class Sgp4Result(
     
       def  ainv  : Double    = 1 / elem0.a
       def    ao  : Double    = elem0.a
-      def con41  : Double    = sgp.x3thm1   // FIXME for d
-      def con42  : Double    = sgp.con42
-      def cosio  : Double    = sgp.c // θ
-      def cosio2 : Double    = sgp.`c²` // θsq
-      def eccsq  : Double    = sgp.`e²` // e0sq 
-      def omeosq : Double    = 1 - sgp.`e²` //  β0sq
-      def  posq  : Double    = sgp.`p²` // posq
+      def con41  : Double    = sgp.ctx0.x3thm1   // FIXME for d
+      def con42  : Double    = sgp.ctx0.con42
+      def cosio  : Double    = sgp.ctx0.c // θ
+      def cosio2 : Double    = sgp.ctx0.`c²` // θsq
+      def eccsq  : Double    = sgp.ctx0.`e²` // e0sq 
+      def omeosq : Double    = 1 - sgp.ctx0.`e²` //  β0sq
+      def  posq  : Double    = sgp.ctx0.`p²` // posq
       def    rp  : Double    = sgp.rp
-      def rteosq : Double    = math.sqrt(1 - sgp.`e²`) // β0
-      def sinio  : Double    = sgp.s
+      def rteosq : Double    = math.sqrt(1 - sgp.ctx0.`e²`) // β0
+      def sinio  : Double    = sgp.ctx0.s
       def  gsto  : Double    = sgp.gsto    
       
       // ---
@@ -104,7 +104,7 @@ case class Sgp4Result(
       def      d3  : Double =  D3     
       def      d4  : Double =  D4 
       def   delmo  : Double =  secularTerms._2.delM0
-      def     eta  : Double =  sgp.η
+      def     eta  : Double =  sgp.gctx.η
       def  argpdot : Double =  secularTerms._1.ωdot 
       def   omgcof : Double =  secularTerms._2.ωcof 
       def   sinmao : Double = math.sin(elem0.M)
@@ -112,8 +112,8 @@ case class Sgp4Result(
       def   t3cof  : Double = laneCoefs.t3cof
       def   t4cof  : Double = laneCoefs.t4cof
       def   t5cof  : Double = laneCoefs.t5cof
-      def  x1mth2  : Double = sgp.x1mth2 // FIXME for d
-      def  x7thm1  : Double = sgp.x7thm1 // FIXME for d
+      def  x1mth2  : Double = sgp.ctx0.x1mth2 // FIXME for d
+      def  x7thm1  : Double = sgp.ctx0.x7thm1 // FIXME for d
       def   xlcof  : Double = secularTerms._2.xlcof // FIXME for d
       def   xmcof  : Double = secularTerms._2.Mcof
 //      def temp1 : Double = 3 * J2 / posq * no / 2  

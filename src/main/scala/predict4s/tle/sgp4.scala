@@ -21,22 +21,7 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
     ){
   
   import elem0._, wgs._
-  val `e²` : F = e**2
-  val s : SinI = sin(I)
-  val c : CosI = cos(I)
-  val `c²` : CosI = c**2
-  val `s²` : SinI = s**2
-  val p : F = a * (1 - `e²`)            // semilatus rectum , which also is G²/μ, with G as the Delauney's action, the total angular momentum
-  val `p²` = p**2
-  val `α/p` : F = α/p
-  val ϵ2 : F = -J2*(`α/p`**2) / 4
-  val ϵ3 : F = (`J2/J3`)*`α/p` / 2      // or (`C30/C20`)*`α/p` / 2 
-  val η : F = (1 - `e²`).sqrt           // eccentricity function G/L, with G as the Delauney's action, the total angular momentum , and L = √(μ a)
-  val x3thm1     = 3*`c²` - 1
-  val con41      = x3thm1
-  val con42      = 1 - 5*`c²`
-  val x1mth2     = 1 - `c²`
-  val x7thm1 : F = 7*`c²` - 1  
+
   val gsto : F = predict4s.tle.gstime(epoch + 2433281.5) 
   
   type SinI = F  // type to remember dealing with the sine   of the Inclination 

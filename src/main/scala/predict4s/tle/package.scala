@@ -1,11 +1,32 @@
 package predict4s
-import spire.algebra._
-import spire.math._
-import spire.implicits._
-import spire.syntax.primitives._
+
+import scala.Vector
+
+import spire.algebra.EuclideanRing
+import spire.algebra.Field
+import spire.algebra.Order
+import spire.implicits.DoubleAlgebra
+import spire.implicits.additiveGroupOps
+import spire.implicits.additiveSemigroupOps
+import spire.implicits.literalDoubleMultiplicativeSemigroupOps
+import spire.implicits.multiplicativeGroupOps
+import spire.implicits.multiplicativeSemigroupOps
+import spire.implicits.partialOrderOps
+import spire.math.floor
+import spire.math.pi
+import spire.syntax.primitives.DoubleAs
+import spire.syntax.primitives.IntAs
+import predict4s.refsystem.ReferenceSystem
 
 package object tle {
     
+  /**
+   *  True equator, mean equinox (TEME)
+   *  
+   *  Transformations done in this reference system.
+   */
+  object TEME extends ReferenceSystem 
+
   def revPerDay2RadPerMin[F: Field](rpd: F) : F = 2 * pi * rpd / 1440 
    
   // use old way of finding gst

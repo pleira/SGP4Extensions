@@ -71,7 +71,7 @@ assert(     no  ===     0.047206302 );
  assert(  isimp  ===               0);  assert(  aycof  ===     0.000660216 ); 
 assert(  con41  ===     1.048865088); assert(    cc1  ===     0.000000000); assert(    cc4  ===     0.000000526 ); 
 assert(    cc5  ===     0.000016465); assert(     d2  ===     0.000000000); assert(     d3  ===     0.000000000); assert(     d4  ===     0.000000000); assert(  delmo  ===     4.873084659 ); 
-//assert(    eta  ===     0.736909543); 
+assert(    eta  ===     0.736909543); 
 assert( argpdot ===     0.000054293); assert(  omgcof ===     0.000000000 ); 
 assert( sinmao  ===     0.330949230); assert(  t2cof  ===     0.000000000); assert(  t3cof  ===     0.000000000 ); 
 assert(  t4cof  ===     0.000000000); assert(  t5cof  ===     0.000000000); assert(   gsto  ===     3.469172342); assert( x1mth2  ===     0.317044971); assert( x7thm1  ===     3.780685205); assert(  xlcof  ===     0.001289058 ); 
@@ -84,7 +84,7 @@ def checkSgp4_5_0(res: Sgp4Result) = {
  //   inputs : 
  assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000660216 ); assert(  bstar  ===     0.000028098 ); assert(  con41  ===     1.048865088 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===     0.000000526 ); assert(    cc5  ===     0.000016465 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     4.873084659 ); 
- assert(   ecco  ===     0.185966700 );/* assert(    eta  ===     0.736909543 );*/ assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
+ assert(   ecco  ===     0.185966700 ); assert(    eta  ===     0.736909543 ); assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
  assert(      t  ===     0.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.317044971 ); 
  assert(  x7thm1 ===     3.780685205 ); assert(  inclo  ===     0.598092919 ); assert(     mo  ===     0.337309313 ); assert(   mdot  ===     0.047229443 ); assert(    xno  ===     0.047206302 ); assert(  nodeo  ===     6.086385471 ); 
  assert( nodedt  ===    -0.000037171 ); assert(  xlcof  ===     0.001289058 ); assert(  xmcof  ===    -0.000000000 ); assert(  nodecf ===    -0.000000000 ); 
@@ -96,7 +96,7 @@ def checkSgp4_5_360(res: Sgp4Result) = {
  //   inputs : 
  assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000660216 ); assert(  bstar  ===     0.000028098 ); assert(  con41  ===     1.048865088 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===     0.000000526 ); assert(    cc5  ===     0.000016465 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     4.873084659 ); 
- assert(   ecco  ===     0.185966700 );/* assert(    eta  ===     0.736909543 );*/ assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
+ assert(   ecco  ===     0.185966700 ); assert(    eta  ===     0.736909543 ); assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
  assert(      t  ===   360.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.317044971 ); 
  assert(  x7thm1 ===     3.780685205 ); assert(  inclo  ===     0.598092919 ); assert(     mo  ===     0.337309313 ); assert(   mdot  ===     0.047229443 ); assert(    xno  ===     0.047206302 ); assert(  nodeo  ===     6.086385471 ); 
  assert( nodedt  ===    -0.000037171 ); assert(  xlcof  ===     0.001289058 ); assert(  xmcof  ===    -0.000000000 ); assert(  nodecf ===    -0.000000000 ); 
@@ -108,7 +108,7 @@ def checkSgp4_5_720(res: Sgp4Result) = {
  //   inputs : 
  assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000660216 ); assert(  bstar  ===     0.000028098 ); assert(  con41  ===     1.048865088 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===     0.000000526 ); assert(    cc5  ===     0.000016465 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     4.873084659 ); 
- assert(   ecco  ===     0.185966700 );/* assert(    eta  ===     0.736909543 );*/ assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
+ assert(   ecco  ===     0.185966700 ); assert(    eta  ===     0.736909543 ); assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
  assert(      t  ===   720.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.317044971 ); 
  assert(  x7thm1 ===     3.780685205 ); assert(  inclo  ===     0.598092919 ); assert(     mo  ===     0.337309313 ); assert(   mdot  ===     0.047229443 ); assert(    xno  ===     0.047206302 ); assert(  nodeo  ===     6.086385471 ); 
  assert( nodedt  ===    -0.000037171 ); assert(  xlcof  ===     0.001289058 ); assert(  xmcof  ===    -0.000000000 ); assert(  nodecf ===    -0.000000000 ); 
@@ -127,7 +127,7 @@ assert(     no  ===     0.067918037 );
  assert(  isimp  ===               0);  assert(  aycof  ===     0.000994993 ); 
 assert(  con41  ===    -0.160280193); assert(    cc1  ===     0.000000003); assert(    cc4  ===     0.000005200 ); 
 assert(    cc5  ===     0.000650194); assert(     d2  ===     0.000000000); assert(     d3  ===     0.000000000); assert(     d4  ===     0.000000000); assert(  delmo  ===     0.863016906 ); 
-//assert(    eta  ===     0.063675056); 
+assert(    eta  ===     0.063675056); 
 assert( argpdot ===     0.000019407); assert(  omgcof ===    -0.000000052 ); 
 assert( sinmao  ===    -0.658497710); assert(  t2cof  ===     0.000000004); assert(  t3cof  ===     0.000000000 ); 
 assert(  t4cof  ===     0.000000000); assert(  t5cof  ===     0.000000000); assert(   gsto  ===     3.673754968); assert( x1mth2  ===     0.720093398); assert( x7thm1  ===     0.959346217); assert(  xlcof  ===     0.001836762 ); 
@@ -174,7 +174,7 @@ def sgp4CheckSat5_720(res: Sgp4Result) = {
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); 
  assert(  aycof  ===     0.000660216 ); assert(  bstar  ===     0.000028098 ); assert(  con41  ===     1.048865088 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===     0.000000526 ); assert(    cc5  ===     0.000016465 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     4.873084659 ); 
- assert(   ecco  ===     0.185966700 );/* assert(    eta  ===     0.736909543 );*/ assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
+ assert(   ecco  ===     0.185966700 ); assert(    eta  ===     0.736909543 ); assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
  assert(      t  ===   720.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.317044971 ); 
  assert(  x7thm1 ===     3.780685205 ); assert(  inclo  ===     0.598092919 ); assert(     mo  ===     0.337309313 ); assert(   mdot  ===     0.047229443 ); assert(    xno  ===     0.047206302 ); assert(  nodeo  ===     6.086385471 ); 
  assert( nodedt  ===    -0.000037171 ); assert(  xlcof  ===     0.001289058 ); assert(  xmcof  ===    -0.000000000 ); assert(  nodecf ===    -0.000000000 ); 
@@ -188,7 +188,7 @@ def sgp4CheckSat5_1080(res: Sgp4Result) = {
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); 
  assert(  aycof  ===     0.000660216 ); assert(  bstar  ===     0.000028098 ); assert(  con41  ===     1.048865088 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===     0.000000526 ); assert(    cc5  ===     0.000016465 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     4.873084659 ); 
- assert(   ecco  ===     0.185966700 );/* assert(    eta  ===     0.736909543 );*/ assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
+ assert(   ecco  ===     0.185966700 ); assert(    eta  ===     0.736909543 ); assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
  assert(      t  ===  1080.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.317044971 ); 
  assert(  x7thm1 ===     3.780685205 ); assert(  inclo  ===     0.598092919 ); assert(     mo  ===     0.337309313 ); assert(   mdot  ===     0.047229443 ); assert(    xno  ===     0.047206302 ); assert(  nodeo  ===     6.086385471 ); 
  assert( nodedt  ===    -0.000037171 ); assert(  xlcof  ===     0.001289058 ); assert(  xmcof  ===    -0.000000000 ); assert(  nodecf ===    -0.000000000 ); 
@@ -201,7 +201,7 @@ def sgp4CheckSat5_1440(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000660216 ); assert(  bstar  ===     0.000028098 ); assert(  con41  ===     1.048865088 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===     0.000000526 ); assert(    cc5  ===     0.000016465 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     4.873084659 ); 
- assert(   ecco  ===     0.185966700 );/* assert(    eta  ===     0.736909543 );*/ assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
+ assert(   ecco  ===     0.185966700 ); assert(    eta  ===     0.736909543 ); assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
  assert(      t  ===  1440.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.317044971 ); 
  assert(  x7thm1 ===     3.780685205 ); assert(  inclo  ===     0.598092919 ); assert(     mo  ===     0.337309313 ); assert(   mdot  ===     0.047229443 ); assert(    xno  ===     0.047206302 ); assert(  nodeo  ===     6.086385471 ); 
  assert( nodedt  ===    -0.000037171 ); assert(  xlcof  ===     0.001289058 ); assert(  xmcof  ===    -0.000000000 ); assert(  nodecf ===    -0.000000000 ); 
@@ -215,7 +215,7 @@ def sgp4CheckSat5_1800(res: Sgp4Result) = {
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); 
  assert(  aycof  ===     0.000660216 ); assert(  bstar  ===     0.000028098 ); assert(  con41  ===     1.048865088 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===     0.000000526 ); assert(    cc5  ===     0.000016465 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     4.873084659 ); 
- assert(   ecco  ===     0.185966700 );/* assert(    eta  ===     0.736909543 );*/ assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
+ assert(   ecco  ===     0.185966700 ); assert(    eta  ===     0.736909543 ); assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
  assert(      t  ===  1800.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.317044971 ); 
  assert(  x7thm1 ===     3.780685205 ); assert(  inclo  ===     0.598092919 ); assert(     mo  ===     0.337309313 ); assert(   mdot  ===     0.047229443 ); assert(    xno  ===     0.047206302 ); assert(  nodeo  ===     6.086385471 ); 
  assert( nodedt  ===    -0.000037171 ); assert(  xlcof  ===     0.001289058 ); assert(  xmcof  ===    -0.000000000 ); assert(  nodecf ===    -0.000000000 ); 
@@ -228,7 +228,7 @@ def sgp4CheckSat5_2160(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000660216 ); assert(  bstar  ===     0.000028098 ); assert(  con41  ===     1.048865088 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===     0.000000526 ); assert(    cc5  ===     0.000016465 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     4.873084659 ); 
- assert(   ecco  ===     0.185966700 );/* assert(    eta  ===     0.736909543 );*/ assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
+ assert(   ecco  ===     0.185966700 ); assert(    eta  ===     0.736909543 ); assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
  assert(      t  ===  2160.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.317044971 ); 
  assert(  x7thm1 ===     3.780685205 ); assert(  inclo  ===     0.598092919 ); assert(     mo  ===     0.337309313 ); assert(   mdot  ===     0.047229443 ); assert(    xno  ===     0.047206302 ); assert(  nodeo  ===     6.086385471 ); 
  assert( nodedt  ===    -0.000037171 ); assert(  xlcof  ===     0.001289058 ); assert(  xmcof  ===    -0.000000000 ); assert(  nodecf ===    -0.000000000 ); 
@@ -241,7 +241,7 @@ def sgp4CheckSat5_2520(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000660216 ); assert(  bstar  ===     0.000028098 ); assert(  con41  ===     1.048865088 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===     0.000000526 ); assert(    cc5  ===     0.000016465 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     4.873084659 ); 
- assert(   ecco  ===     0.185966700 );/* assert(    eta  ===     0.736909543 );*/ assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
+ assert(   ecco  ===     0.185966700 ); assert(    eta  ===     0.736909543 ); assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
  assert(      t  ===  2520.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.317044971 ); 
  assert(  x7thm1 ===     3.780685205 ); assert(  inclo  ===     0.598092919 ); assert(     mo  ===     0.337309313 ); assert(   mdot  ===     0.047229443 ); assert(    xno  ===     0.047206302 ); assert(  nodeo  ===     6.086385471 ); 
  assert( nodedt  ===    -0.000037171 ); assert(  xlcof  ===     0.001289058 ); assert(  xmcof  ===    -0.000000000 ); assert(  nodecf ===    -0.000000000 ); 
@@ -254,7 +254,7 @@ def sgp4CheckSat5_2880(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000660216 ); assert(  bstar  ===     0.000028098 ); assert(  con41  ===     1.048865088 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===     0.000000526 ); assert(    cc5  ===     0.000016465 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     4.873084659 ); 
- assert(   ecco  ===     0.185966700 );/* assert(    eta  ===     0.736909543 );*/ assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
+ assert(   ecco  ===     0.185966700 ); assert(    eta  ===     0.736909543 ); assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
  assert(      t  ===  2880.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.317044971 ); 
  assert(  x7thm1 ===     3.780685205 ); assert(  inclo  ===     0.598092919 ); assert(     mo  ===     0.337309313 ); assert(   mdot  ===     0.047229443 ); assert(    xno  ===     0.047206302 ); assert(  nodeo  ===     6.086385471 ); 
  assert( nodedt  ===    -0.000037171 ); assert(  xlcof  ===     0.001289058 ); assert(  xmcof  ===    -0.000000000 ); assert(  nodecf ===    -0.000000000 ); 
@@ -267,7 +267,7 @@ def sgp4CheckSat5_3240(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000660216 ); assert(  bstar  ===     0.000028098 ); assert(  con41  ===     1.048865088 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===     0.000000526 ); assert(    cc5  ===     0.000016465 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     4.873084659 ); 
- assert(   ecco  ===     0.185966700 );/* assert(    eta  ===     0.736909543 );*/ assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
+ assert(   ecco  ===     0.185966700 ); assert(    eta  ===     0.736909543 ); assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
  assert(      t  ===  3240.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.317044971 ); 
  assert(  x7thm1 ===     3.780685205 ); assert(  inclo  ===     0.598092919 ); assert(     mo  ===     0.337309313 ); assert(   mdot  ===     0.047229443 ); assert(    xno  ===     0.047206302 ); assert(  nodeo  ===     6.086385471 ); 
  assert( nodedt  ===    -0.000037171 ); assert(  xlcof  ===     0.001289058 ); assert(  xmcof  ===    -0.000000000 ); assert(  nodecf ===    -0.000000000 ); 
@@ -280,7 +280,7 @@ def sgp4CheckSat5_3600(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000660216 ); assert(  bstar  ===     0.000028098 ); assert(  con41  ===     1.048865088 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===     0.000000526 ); assert(    cc5  ===     0.000016465 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     4.873084659 ); 
- assert(   ecco  ===     0.185966700 );/* assert(    eta  ===     0.736909543 );*/ assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
+ assert(   ecco  ===     0.185966700 ); assert(    eta  ===     0.736909543 ); assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
  assert(      t  ===  3600.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.317044971 ); 
  assert(  x7thm1 ===     3.780685205 ); assert(  inclo  ===     0.598092919 ); assert(     mo  ===     0.337309313 ); assert(   mdot  ===     0.047229443 ); assert(    xno  ===     0.047206302 ); assert(  nodeo  ===     6.086385471 ); 
  assert( nodedt  ===    -0.000037171 ); assert(  xlcof  ===     0.001289058 ); assert(  xmcof  ===    -0.000000000 ); assert(  nodecf ===    -0.000000000 ); 
@@ -293,7 +293,7 @@ def sgp4CheckSat5_3960(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000660216 ); assert(  bstar  ===     0.000028098 ); assert(  con41  ===     1.048865088 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===     0.000000526 ); assert(    cc5  ===     0.000016465 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     4.873084659 ); 
- assert(   ecco  ===     0.185966700 );/* assert(    eta  ===     0.736909543 );*/ assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
+ assert(   ecco  ===     0.185966700 ); assert(    eta  ===     0.736909543 ); assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
  assert(      t  ===  3960.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.317044971 ); 
  assert(  x7thm1 ===     3.780685205 ); assert(  inclo  ===     0.598092919 ); assert(     mo  ===     0.337309313 ); assert(   mdot  ===     0.047229443 ); assert(    xno  ===     0.047206302 ); assert(  nodeo  ===     6.086385471 ); 
  assert( nodedt  ===    -0.000037171 ); assert(  xlcof  ===     0.001289058 ); assert(  xmcof  ===    -0.000000000 ); assert(  nodecf ===    -0.000000000 ); 
@@ -306,7 +306,7 @@ def sgp4CheckSat5_4320(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000660216 ); assert(  bstar  ===     0.000028098 ); assert(  con41  ===     1.048865088 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===     0.000000526 ); assert(    cc5  ===     0.000016465 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     4.873084659 ); 
- assert(   ecco  ===     0.185966700 );/* assert(    eta  ===     0.736909543 );*/ assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
+ assert(   ecco  ===     0.185966700 ); assert(    eta  ===     0.736909543 ); assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
  assert(      t  ===  4320.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.317044971 ); 
  assert(  x7thm1 ===     3.780685205 ); assert(  inclo  ===     0.598092919 ); assert(     mo  ===     0.337309313 ); assert(   mdot  ===     0.047229443 ); assert(    xno  ===     0.047206302 ); assert(  nodeo  ===     6.086385471 ); 
  assert( nodedt  ===    -0.000037171 ); assert(  xlcof  ===     0.001289058 ); assert(  xmcof  ===    -0.000000000 ); assert(  nodecf ===    -0.000000000 ); 
@@ -336,7 +336,7 @@ def sgp4CheckSat6251_0(res: Sgp4Result) = {
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); 
  assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===     0.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -351,7 +351,7 @@ def sgp4CheckSat6251_120(res: Sgp4Result) = {
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); 
  assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===   120.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -364,7 +364,7 @@ def sgp4CheckSat6251_240(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===   240.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -377,7 +377,7 @@ def sgp4CheckSat6251_360(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===   360.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -390,7 +390,7 @@ def sgp4CheckSat6251_480(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===   480.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -403,7 +403,7 @@ def sgp4CheckSat6251_600(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===   600.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -416,7 +416,7 @@ def sgp4CheckSat6251_720(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===   720.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -429,7 +429,7 @@ def sgp4CheckSat6251_840(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===   840.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -442,7 +442,7 @@ def sgp4CheckSat6251_960(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===   960.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -455,7 +455,7 @@ def sgp4CheckSat6251_1080(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===  1080.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -468,7 +468,7 @@ def sgp4CheckSat6251_1200(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===  1200.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -481,7 +481,7 @@ def sgp4CheckSat6251_1320(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===  1320.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -494,7 +494,7 @@ def sgp4CheckSat6251_1440(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===  1440.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -507,7 +507,7 @@ def sgp4CheckSat6251_1560(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===  1560.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -520,7 +520,7 @@ def sgp4CheckSat6251_1680(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===  1680.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -533,7 +533,7 @@ def sgp4CheckSat6251_1800(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===  1800.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -546,7 +546,7 @@ def sgp4CheckSat6251_1920(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===  1920.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -559,7 +559,7 @@ def sgp4CheckSat6251_2040(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===  2040.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -572,7 +572,7 @@ def sgp4CheckSat6251_2160(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===  2160.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -585,7 +585,7 @@ def sgp4CheckSat6251_2280(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===  2280.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -598,7 +598,7 @@ def sgp4CheckSat6251_2400(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===  2400.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -611,7 +611,7 @@ def sgp4CheckSat6251_2520(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===  2520.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -624,7 +624,7 @@ def sgp4CheckSat6251_2640(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===  2640.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -637,7 +637,7 @@ def sgp4CheckSat6251_2760(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===  2760.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -650,7 +650,7 @@ def sgp4CheckSat6251_2880(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.000994993 ); assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     0.863016906 ); 
- assert(   ecco  ===     0.003003500 );/* assert(    eta  ===     0.063675056 );*/ assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
+ assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===  2880.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
  assert(  x7thm1 ===     0.959346217 ); assert(  inclo  ===     1.013301512 ); assert(     mo  ===     3.860413487 ); assert(   mdot  ===     0.067910210 ); assert(    xno  ===     0.067918037 ); assert(  nodeo  ===     0.943219561 ); 
  assert( nodedt  ===    -0.000051677 ); assert(  xlcof  ===     0.001836762 ); assert(  xmcof  ===    -0.000133147 ); assert(  nodecf ===    -0.000000000 ); 
@@ -668,7 +668,7 @@ def sgp4CheckSat28057_0(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===     0.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
@@ -682,7 +682,7 @@ def sgp4CheckSat28057_120(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===   120.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
@@ -695,7 +695,7 @@ def sgp4CheckSat28057_240(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===   240.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
@@ -708,7 +708,7 @@ def sgp4CheckSat28057_360(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===   360.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
@@ -721,7 +721,7 @@ def sgp4CheckSat28057_480(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===   480.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
@@ -734,7 +734,7 @@ def sgp4CheckSat28057_600(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===   600.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
@@ -747,7 +747,7 @@ def sgp4CheckSat28057_720(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===   720.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
@@ -760,7 +760,7 @@ def sgp4CheckSat28057_840(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===   840.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
@@ -773,7 +773,7 @@ def sgp4CheckSat28057_960(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===   960.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
@@ -786,7 +786,7 @@ def sgp4CheckSat28057_1080(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===  1080.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
@@ -799,7 +799,7 @@ def sgp4CheckSat28057_1200(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===  1200.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
@@ -812,7 +812,7 @@ def sgp4CheckSat28057_1320(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===  1320.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
@@ -825,7 +825,7 @@ def sgp4CheckSat28057_1440(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===  1440.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
@@ -838,7 +838,7 @@ def sgp4CheckSat28057_1560(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===  1560.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
@@ -851,7 +851,7 @@ def sgp4CheckSat28057_1680(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===  1680.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
@@ -864,7 +864,7 @@ def sgp4CheckSat28057_1800(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===  1800.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
@@ -877,7 +877,7 @@ def sgp4CheckSat28057_1920(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===  1920.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
@@ -890,7 +890,7 @@ def sgp4CheckSat28057_2040(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===  2040.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
@@ -903,7 +903,7 @@ def sgp4CheckSat28057_2160(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===  2160.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
@@ -916,7 +916,7 @@ def sgp4CheckSat28057_2280(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===  2280.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
@@ -929,7 +929,7 @@ def sgp4CheckSat28057_2400(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===  2400.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
@@ -942,7 +942,7 @@ def sgp4CheckSat28057_2520(res: Sgp4Result) = {
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  aycof  ===     0.001159872 ); assert(  bstar  ===     0.000035940 ); assert(  con41  ===    -0.935550263 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===    -0.000000044 ); assert(    cc5  ===     0.000030313 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); assert(  delmo  ===     1.000092295 ); 
- assert(   ecco  ===     0.000088400 );/* assert(    eta  ===     0.000912426 );*/ assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
+ assert(   ecco  ===     0.000088400 ); assert(    eta  ===     0.000912426 ); assert(  argpo  ===     1.539317568 ); assert( argpdot ===    -0.000036077 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===    -0.999431425 ); 
  assert(      t  ===  2520.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.978516754 ); 
  assert(  x7thm1 ===    -0.849617280 ); assert(  inclo  ===     1.717897912 ); assert(     mo  ===     4.746112232 ); assert(   mdot  ===     0.062634526 ); assert(    xno  ===     0.062672399 ); assert(  nodeo  ===     4.323112489 ); 
  assert( nodedt  ===     0.000011840 ); assert(  xlcof  ===     0.001540606 ); assert(  xmcof  ===     0.000000000 ); assert(  nodecf ===     0.000000000 ); 
