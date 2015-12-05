@@ -7,7 +7,7 @@ trait  ValladoTLE00005GeoPotentialCheck { self :  FunSuite =>
   
   implicit def doubleEqualityTLE00005 = TolerantNumerics.tolerantDoubleEquality(1E-9)
    
-  def checkSgp4GeoPotential_5(elem0: TEME.SGPElems[Double], context0: Context0[Double], geoPot: GeoPotentialCoefs[Double], gctx: GeoPotentialContext[Double], rp: Double, perigeeHeight: Double, isImpacting: Boolean) = {
+  def checkSgp4GeoPotential_5(elem0: SGPElems[Double], context0: Context0[Double], geoPot: GeoPotentialCoefs[Double], gctx: GeoPotentialContext[Double], rp: Double, perigeeHeight: Double, isImpacting: Boolean) = {
     import geoPot._,elem0._,context0.{con41,omeosq} // rteosq
     val ωcof = C3*bStar*math.cos(ω)
    
@@ -27,7 +27,7 @@ trait  ValladoTLE06251GeoPotentialCheck { self :  FunSuite =>
 
   implicit def doubleEqualityTLE06251 = TolerantNumerics.tolerantDoubleEquality(1E-9)
 
-  def checkSgp4GeoPotential_06251(elem0: TEME.SGPElems[Double], context0: Context0[Double], geoPot: GeoPotentialCoefs[Double], gctx: GeoPotentialContext[Double], rp: Double, perigeeHeight: Double, isImpacting: Boolean) = {
+  def checkSgp4GeoPotential_06251(elem0: SGPElems[Double], context0: Context0[Double], geoPot: GeoPotentialCoefs[Double], gctx: GeoPotentialContext[Double], rp: Double, perigeeHeight: Double, isImpacting: Boolean) = {
     import geoPot._,elem0._,context0.{con41,omeosq} // rteosq
     val ωcof = C3*bStar*math.cos(ω)
     assert(  n      ===     0.067918037); assert(   a  ===     1.062338933); 
@@ -52,8 +52,8 @@ class GeoPotentialStateCheck extends FunSuite with NearTLEs with ValladoTLE00005
     val model = new SGP4Factory {
         def buildGeoPotential(tle: TLE) = {
           import spire.implicits._
-          val elemTLE : TEME.SGPElems[Double] = TEME.sgpElems(tle)
-          val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = geoPotentialCoefsAndContexts(elemTLE)
+          val elemTLE : (SGPElems[Double], Context0[Double]) = SGPElems.sgpElemsAndContext(tle)
+          val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = geoPotentialCoefsAndContexts(elemTLE, wgs)
           (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
         }
     }

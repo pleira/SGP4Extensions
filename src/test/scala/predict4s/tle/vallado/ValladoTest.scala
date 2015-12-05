@@ -32,7 +32,7 @@ trait ValladoNearTLEsTest extends NearTLEs with ValladoNearTLEsCheck with Vallad
 //  override def sgpImpl : String = "Vallado SGP4"  
 //  override def propags : List[SGP4Vallado[Double]]  = tles map {tle => 
 //    import spire.std.any.DoubleAlgebra
-//    val elem0 = TEME.sgpElems(tle); 
+//    val elem0 = SGPElems(tle); 
 //    SGP4Vallado[Double](elem0)
 //  }
 //}
@@ -44,8 +44,8 @@ class HardcodedValladoCheck extends FunSuite with NearTLEs with ValladoNearTLEsC
 
   def propags : List[SGP4Vallado[Double]] = tles map {tle => 
     import spire.std.any.DoubleAlgebra
-    val elem0 = TEME.sgpElems(tle); 
-    SGP4Vallado[Double](elem0)
+    val elem0AndCtx = SGPElems.sgpElemsAndContext(tle)
+    SGP4Vallado[Double](elem0AndCtx)
   }
   def sgpImpl : String = "Vallado SGP4"
   

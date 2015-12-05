@@ -24,17 +24,6 @@ trait ReferenceSystem {
     def trueAnomaly = ν
     override def toString = s"a: $a, e: $e, i: $i, raan: $Ω, ω: $ω, true anomaly: $trueAnomaly"
   }
-
-  case class SGPElems[F](
-        n : F, // mean motion 
-        e : F, // eccentricity
-        I : F, // inclination
-        ω : F, // argument Of perigee
-        Ω : F, // right ascension ascending node
-        M : F, // mean anomaly
-        a : F, // semimajor axis (apogee)
-        bStar : F, // atmospheric Drag Coeficient
-        epoch : F) // epoch time in days from jan 0, 1950. 0 hr 
                  
   case class CartesianElems[F](x: F, y: F, z: F, vx: F, vy: F, vz: F) {
     def pos = Vector[F](x,y,z)

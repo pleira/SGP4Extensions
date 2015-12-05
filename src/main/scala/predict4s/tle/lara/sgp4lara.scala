@@ -13,12 +13,12 @@ import predict4s.tle.LaneCoefs
 
 
 class SGP4Lara[F : Field : NRoot : Order : Trig](
-    elem0: TEME.SGPElems[F],
+    elem0: SGPElems[F],
     wgs: SGPConstants[F],
     val geoPot: GeoPotentialCoefs[F],
     val gctx: GeoPotentialContext[F],
     val laneCoefs : LaneCoefs[F],
-    val secularFreqs : SecularFrequencies[F],
+    val secularFreqs : (SecularFrequencies[F], DragSecularCoefs[F]),
     val isImpacting: Boolean,
     val rp: F
   )  extends SGP4(elem0, wgs)  {
@@ -39,7 +39,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 
  
   override def propagatePolarNodalAndContext(t: Minutes)
-      : ((F,F,F,F,F,F), LongPeriodPeriodicState, TEME.SGPElems[F], EccentricAnomalyState) = {
+      : ((F,F,F,F,F,F), LongPeriodPeriodicState, SGPElems[F], EccentricAnomalyState) = {
     val secularElemt = secularCorrections(t)
     val eaState = solveKeplerEq(secularElemt)
     val secularPolarNodal = delauney2PolarNodal(secularElemt, eaState)
@@ -95,7 +95,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
  }
   
   // Sec 4.2 Lara's personal communication (r, θ, R, Θ) −→ (F, C, S, a)
-  def delauney2PolarNodal(elem: TEME.SGPElems[F], eas : EccentricAnomalyState) : TEME.PolarNodalElems[F] = {
+  def delauney2PolarNodal(elem: SGPElems[F], eas : EccentricAnomalyState) : TEME.PolarNodalElems[F] = {
     import eas._
     import elem._
     import wgs.μ
@@ -174,10 +174,10 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
    *  This calculation updates the secular elements at epoch to the desired date given by 
    *  the time t in minutes from the epoch 
    */
-  def secularCorrections(t: Minutes): TEME.SGPElems[F] = {
+  def secularCorrections(t: Minutes): SGPElems[F] = {
     
-    import secularFreqs.{ωdot,Ωdot,mdot=>Mdot,Ωcof}
-    
+    import secularFreqs._1._ // secularFrequencies._
+    import secularFreqs._2._ // dragSecularCoefs._      
     // Gravity corrections
     // Brouwer’s gravitational corrections are applied first
     // here we are with Delaunays variables, 
@@ -205,7 +205,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
       {
         // sgp4fix to return if there is an error in eccentricity
         // FIXME: we should move to use Either
-        return TEME.SGPElems(nm, em_, I, ωm, Ωm, mp, am, bStar, epoch) 
+        return SGPElems(nm, em_, I, ωm, Ωm, mp, am, bStar, epoch) 
       }
 
     // sgp4fix fix tolerance to avoid a divide by zero
@@ -222,13 +222,13 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val ℓm      = Mm_ + ωm + Ωm
     val lm      = ℓm  % twopi
     val Mm      = (lm - ω_ - Ω_) % twopi   
-    TEME.SGPElems(nm, em, I, ω_, Ω_, Mm, am, bStar, epoch)
+    SGPElems(nm, em, I, ω_, Ω_, Mm, am, bStar, epoch)
   }
 
   def tempTerms(t: Minutes, ωdf: F, Mdf: F) : (F,F,F,F,F) = {
 
     import laneCoefs._
-    import secularFreqs.{ωcof,delM0,sinM0,Mcof}    
+    import secularFreqs._2._ // dragSecularCoefs._ // {ωcof,delM0,sinM0,Mcof}    
     import geoPot._        
     val `t²` : F = t**2    
  
@@ -246,7 +246,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val ωm_  : F = ωdf - δω - δM
        
     (1 - C1*t - D2 * `t²` - D3 * `t³` - D4 * `t⁴`, 
-     bStar*(C4*t + C5*(sin(Mpm_) - sinM0)), 
+     bStar*(C4*t + C5*(sin(Mpm_) - sin(M))), 
      t2cof*`t²` + t3cof*`t³` + `t⁴` * (t4cof + t*t5cof),
      ωm_, 
      Mpm_)
@@ -258,7 +258,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
    * where E is the eccentric anomaly.
    * We are using Delauney's elements as variables.
    */
-  def solveKeplerEq(elem : TEME.SGPElems[F]): EccentricAnomalyState = {
+  def solveKeplerEq(elem : SGPElems[F]): EccentricAnomalyState = {
        
     import elem.{e,Ω,ω,M,a}, wgs.twopi
      
@@ -271,7 +271,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val temp : F = 1 / (a * (1 - e * e))
     
     // TBC: is here LPPE added? should aycof and xlcof go away here?
-    import secularFreqs.{aycof,xlcof}
+    import secularFreqs._2._ // dragSecularCoefs._  
     val aynl : F = e * sin(ω) + temp * aycof
     val xl : F  = M + ω + Ω + temp * xlcof * axnl
      
@@ -338,8 +338,8 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 
 object SGP4Lara extends SGP4Factory {
   
-  def apply[F : Field : NRoot : Order : Trig](elemTLE: TEME.SGPElems[F])(implicit wgs0: SGPConstants[F]) : SGP4Lara[F] = {
-    val (elem, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp) = from(elemTLE)
+  def apply[F : Field : NRoot : Order : Trig](elem0Ctx0: (SGPElems[F], Context0[F]))(implicit wgs0: SGPConstants[F]) :  SGP4Lara[F] = {
+    val (elem, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp) = from(elem0Ctx0)
     new SGP4Lara(elem, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp)
   }
   

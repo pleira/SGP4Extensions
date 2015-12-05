@@ -13,12 +13,12 @@ import predict4s.tle.LaneCoefs
 
     
 class SGP4Vallado[F : Field : NRoot : Order : Trig](
-    elem0: TEME.SGPElems[F],
+    elem0: SGPElems[F],
     wgs: SGPConstants[F],
     val geoPot: GeoPotentialCoefs[F],
     val gctx: GeoPotentialContext[F],
     val laneCoefs : LaneCoefs[F],
-    val secularFreqs : SecularFrequencies[F],
+    val secularTerms : (SecularFrequencies[F], DragSecularCoefs[F]),
     val isImpacting: Boolean,
     val rp: F
   )  extends SGP4(elem0, wgs) {
@@ -28,9 +28,9 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
   import elem0._, wgs._
  
   override def propagatePolarNodalAndContext(t: Minutes)
-      : ((F,F,F,F,F,F), LongPeriodPeriodicState, TEME.SGPElems[F], EccentricAnomalyState) = {
+      : ((F,F,F,F,F,F), LongPeriodPeriodicState, SGPElems[F], EccentricAnomalyState) = {
     val secularElemt = secularCorrections(t)
-    val lppState = lppCorrections(secularElemt)
+    val lppState = lppCorrections(secularElemt, secularTerms._2) // dragSecularCoefs)
     val eaState = solveKeplerEq(secularElemt, lppState)
     val (elem, finalPolarNodal) = sppCorrections(s, c, `c²`, eaState, lppState, secularElemt)
     (finalPolarNodal, lppState, secularElemt, eaState)   
@@ -41,10 +41,10 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
    *  This calculation updates the secular elements at epoch to the desired date given by 
    *  the time t in minutes from the epoch 
    */
-  def secularCorrections(t: Minutes): TEME.SGPElems[F] = {
+  def secularCorrections(t: Minutes): SGPElems[F] = {
     
-    import secularFreqs.{ωdot,Ωdot,mdot=>Mdot,Ωcof}
-     
+    import secularTerms._1._ // secularFrequencies._  // {ωdot,Ωdot,mdot=>Mdot,Ωcof}
+    import secularTerms._2._ // dragSecularCoefs._  
     // Brouwer’s gravitational corrections are applied first
     // Note that his theory relies on Delaunays variables, 
     // ωdot is gdot, Mdot is ℓdot, and  Ωdot is hdot.
@@ -71,7 +71,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
       {
         // sgp4fix to return if there is an error in eccentricity
         // FIXME: we should move to use Either
-        return TEME.SGPElems(nm, em_, I, ωm, Ωm, mp, am, bStar, epoch) 
+        return SGPElems(nm, em_, I, ωm, Ωm, mp, am, bStar, epoch) 
       }
 
     // sgp4fix fix tolerance to avoid a divide by zero
@@ -88,13 +88,13 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     val ℓm      = Mm_ + ωm + Ωm
     val lm      = ℓm  % twopi
     val Mm      = (lm - ω_ - Ω_) % twopi   
-    TEME.SGPElems(nm, em, I, ω_, Ω_, Mm, am, bStar, epoch)
+    SGPElems(nm, em, I, ω_, Ω_, Mm, am, bStar, epoch)
   }
 
   def tempTerms(t: Minutes, ωdf: F, Mdf: F) : (F,F,F,F,F) = {
 
     import laneCoefs._
-    import secularFreqs.{ωcof,delM0,sinM0,Mcof}    
+    import secularTerms._2._ // dragSecularCoefs._ // {ωcof,delM0,sinM0,Mcof}    
     import geoPot._        
     val `t²` : F = t**2    
  
@@ -112,7 +112,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     val ωm_  : F = ωdf - δω - δM
        
     (1 - C1*t - D2 * `t²` - D3 * `t³` - D4 * `t⁴`, 
-     bStar*(C4*t + C5*(sin(Mpm_) - sinM0)), 
+     bStar*(C4*t + C5*(sin(Mpm_) - sin(M))),  // sin(M) === sin(M0) 
      t2cof*`t²` + t3cof*`t³` + `t⁴` * (t4cof + t*t5cof),
      ωm_, 
      Mpm_)
@@ -124,7 +124,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
    * where E is the eccentric anomaly.
    * TBC: We are using Delauney's elements as variables.
    */
-  def solveKeplerEq(elem : TEME.SGPElems[F], lppState: LongPeriodPeriodicState): EccentricAnomalyState = {
+  def solveKeplerEq(elem : SGPElems[F], lppState: LongPeriodPeriodicState): EccentricAnomalyState = {
        
     import elem.{e,Ω,ω,M,a}, wgs.twopi, lppState._
          
@@ -158,9 +158,9 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
      EccentricAnomalyState(eo1,coseo1,sineo1,ecosE,esinE)   
   }
   
-  def lppCorrections(secularElem : TEME.SGPElems[F]) : LongPeriodPeriodicState = {
+  def lppCorrections(secularElem : SGPElems[F], secularDragCoefs: DragSecularCoefs[F]) : LongPeriodPeriodicState = {
     import secularElem._
-    import secularFreqs.{aycof,xlcof}
+    import secularDragCoefs.{aycof,xlcof}
     val axnl = e * cos(ω)
     val temp = 1 / (a * (1 - e * e))
     
@@ -171,8 +171,8 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     LongPeriodPeriodicState(axnl, aynl, xl)
   }
   
-  def sppCorrections(s: SinI, c: CosI, `c²`: CosI, eaState: EccentricAnomalyState, lppState: LongPeriodPeriodicState, secularElem: TEME.SGPElems[F]) 
-      : (TEME.SGPElems[F], (F,F,F,F,F,F)) = { // PolarNodalElems[F]) = {
+  def sppCorrections(s: SinI, c: CosI, `c²`: CosI, eaState: EccentricAnomalyState, lppState: LongPeriodPeriodicState, secularElem: SGPElems[F]) 
+      : (SGPElems[F], (F,F,F,F,F,F)) = { // PolarNodalElems[F]) = {
     import eaState._ 
     import lppState._
     import secularElem._ // {n,e,I,ω,Ω,M,a}
@@ -210,14 +210,14 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
 
     /* -------------- update for short period gravitational periodics ------------ */
 
-    import secularFreqs._
+    import secularTerms._
     val    mrt   = rl * (1 - 1.5 * temp2 * betal * con41) + 0.5 * temp1 * x1mth2 * cos2u
     val    su    = su0 - 0.25 * temp2 * x7thm1 * sin2u
     val    xnode = Ω + 1.5 * temp2 * c * sin2u
     val    xinc  = I + 1.5 * temp2 * c * s * cos2u
     val    mvt   = rdotl - n * temp1 * x1mth2 * sin2u / KE
     val    rvdot = rvdotl + n * temp1 * (x1mth2 * cos2u + 1.5 * con41) / KE  
-    val  elem = TEME.SGPElems(n, e, xinc, ω, xnode, M, a, bStar, epoch) 
+    val  elem = SGPElems(n, e, xinc, ω, xnode, M, a, bStar, epoch) 
     val polarNodalXX = (xinc, su, xnode, mrt, mvt, rvdot)
     (elem, polarNodalXX)
   }
@@ -226,8 +226,14 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
 
 object SGP4Vallado extends SGP4Factory {
   
-  def apply[F : Field : NRoot : Order : Trig](elemTLE: TEME.SGPElems[F])(implicit wgs0: SGPConstants[F]) :  SGP4Vallado[F] = {
-    val (elem, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp) = from(elemTLE)
+  def apply[F : Field : NRoot : Order : Trig](elem0Ctx0: (SGPElems[F], Context0[F]))(implicit wgs0: SGPConstants[F]) :  SGP4Vallado[F] = {
+    val (elem, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp) = from(elem0Ctx0)
+    new SGP4Vallado(elem, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp)
+  }
+  
+  def apply[F : Field : NRoot : Order : Trig](elem0: SGPElems[F])(implicit wgs0: SGPConstants[F]) :  SGP4Vallado[F] = {
+    val elemAndContext0 = (elem0, Context0(elem0.I, elem0.e)) 
+    val (elem, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp) = from(elemAndContext0)
     new SGP4Vallado(elem, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp)
   }
   
