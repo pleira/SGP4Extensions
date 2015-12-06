@@ -1,6 +1,8 @@
-## SGP4 algorithm implementation using Lara's non singular variable set in a functional paradigm 
+## An implementation of SGP4 in non-singular variables using a functional paradigm 
 
-The SGP4 (Simplified General Perturbations 4) algorithm is a widely used orbital propagator. Current implementations are based on Brouwer's gravity solution using Lyddane's variable set. Lara has recently proposed an alternative nonsingular variable set for the calculation of the periodic terms in SGP4. This work presents new implementations of the SGP4 algorithm in Scala, one using Lara's new variable set and another one derived from the well-known Vallado's implementation as presented in his Spacetrack Revision #3 report. Scala is a hybrid functional/object oriented programming language running in the Java Virtual Machine that allows for functional features in the implementations. Validation of Lara's calculation for different orbits is performed using Vallado's results as reference. Finally, applicability for massive data processing tasks like prediction of orbital collision events and performance are discussed.
+The SGP4 (Simplified General Perturbations 4) orbit propagator is a widely used tool for the fast, short term propagation of space orbits. The algorithms in which it is based are thoroughly described in the SPACETRACK report #3, as well as in Vallado et al. update. Current implementations of SGP4 are based on Brouwer's gravity solution and Lane atmospheric model, but using Lyddane's modifications for avoiding loss of precision in the evaluation of the periodic corrections, which are, besides, notably simplified for improving evaluation efficiency. Different alternatives in the literature discuss other variable sets, either canonical or not, that can be used in the computation of periodic corrections (see Izsak, Aksnes, Hoots, or Lara).
+
+This work presents a new implementation of the SGP4 algorithm in Scala that offers a choice about the variable set used for the computation of the periodic corrections. Scala is a hybrid functional/object oriented programming language running in the Java Virtual Machine that allows for incorporating functional features in the design. Validation of the new implementations is made by carrying out different tests based on Vallado's results. Finally, applicability for massive data processing tasks like prediction of orbital collision events and performance are discussed.
 
 
 ### Rationale
@@ -21,7 +23,6 @@ For processing the TLE object catalog to find out possible collision events, met
 
 ### Goals 
 
-* Be a good base for a Debris Collision Avoidance system. 
 * Measure how fast this software can process and propagate orbits described by TLEs in the Java Virtual Machine. 
 * Describe out trade-offs related to SGP4 algorithms for orbit propagation.
 * Processing context calculated during orbit propagation is kept. That provides metadata for later on applying different kinds of filters and sieves when finding collision events. 
@@ -44,5 +45,13 @@ For processing the TLE object catalog to find out possible collision events, met
 
 ### References
 
-TBD
+1.- Hoots, FR, Roehrich, RL, Models for Propagation of the NORAD Element Sets (SPACETRACK rep. #3), 1980.
+2.- Vallado, D, Crawford, P, Hujsak, R, Kelso, TS, Revisiting Spacetrack Report #3, AIAA paper 2006-6753, 2006
+3.- Brouwer, D, Solution of the problem of artificial satellite theory without drag, Astronomical Journal, vol. 64, pp. 378-397, 1959
+4.- Lane, MH, The development of an artificial satellite theory using a power-law atmospheric density representation, AIAA paper 65-35, 1965
+5.- Lyddane, RH, Small eccentricities or inclinations in the Brouwer theory of the artificial satellite, Astronomical Journal, vol. 68, pp. 555-558, 1963
+6.- Izsak, IG, On satellite orbits with very small eccentricities, Astronomical Journal, vol. 66 pp. 129-131, 1961
+7.- Aksnes, K, On the Use of the Hill Variables in Artificial Satellite Theory, Astronomy and Astrophysics, vol. 17, pp. 70-75, 1972
+8.- Hoots, FR, Reformulation of the Brouwer geopotential theory for improved computational efficiency, Celestial Mechanics, vol. 24, pp. 367-375, 1981
+9.- Lara, M, Efficient Formulation of the Periodic Corrections in Brouwer’s Gravity Solution, Mathematical Problems in Engineering, vol. 2015, Article ID 980652, 9 pp., 2015BD
 
