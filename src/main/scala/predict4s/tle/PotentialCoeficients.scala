@@ -11,8 +11,8 @@ abstract class GeoPotentialModel extends FittingAtmosphericParameter {
       : GeoPotentialCoefs[F] = {
     import elem0.{a => a0,e => e0,n => n0,ω => ω0, bStar}
     import gctx._
-    import wgs.{J2,J3}
-    import ctx.sinI0,ctx.`θ²`,ctx.`β0²`,ctx.β0sq,ctx.θsq
+    import wgs.{J2,J3,`J3/J2`}
+    import ctx.sinI0,ctx.`θ²`,ctx.`β0²`
   
     val coef1 : F = q0ms_ξ__to4 / (`psi²`** 3.5)
   
@@ -22,7 +22,7 @@ abstract class GeoPotentialModel extends FittingAtmosphericParameter {
     val C1 : F = bStar * C2
     val `C1²`  = C1*C1
   
-    val C3 =  if (e0 > 0.0001.as[F]) -2 * q0ms_ξ__to4 * ξ * (J3/J2) * n0 * sinI0 / e0 else 0.as[F]
+    val C3 =  if (e0 > 0.0001.as[F]) -2 * q0ms_ξ__to4 * ξ * `J3/J2` * n0 * sinI0 / e0 else 0.as[F]
     val aterm = 3*(1-3*`θ²`)*(1 + 3*`η²`/2 - 2*e0η - e0η*`η²`/2) + 3*(1-`θ²`)*(2*`η²` - e0η - e0η*`η²`)*cos(2*ω0)/4
     val C4 : F = 2*a0*`β0²`*coef1*n0*((2*η*(1 + e0η) + (e0 + `η³`)/2) - J2*ξ*aterm/(a0*`psi²`))
     val C5 = 2*a0*`β0²`*coef1*(1 + 11*(`η²`+e0η)/4 + e0η*`η²`)
@@ -49,7 +49,12 @@ abstract class FittingAtmosphericParameter {
     
 case class GeoPotentialCoefs[F](C1: F, C2: F, C3: F, C4: F, C5: F, D2: F, D3: F, D4: F)
 
-case class GeoPotentialContext[F: Field: NRoot : Order: Trig](elem0 : SGPElems[F], s: F, rp: F, aE: F) {
+case class GeoPotentialContext[F: Field: NRoot : Order: Trig](
+    elem0 : SGPElems[F],   // original elements with a0 and n0 
+    s: F,                  // atmospheric coefficient
+    rp: F,                 // perigee radius (km)
+    aE: F                  // earths radius  (km)
+    ) {
   import elem0.{n => n0,e => e0, a => a0}
 
   val ξ    = 1 / (a0 - s)  // tsi

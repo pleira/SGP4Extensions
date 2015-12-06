@@ -25,9 +25,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
   )  extends SGP4(elem0, wgs) {
    
   val eValidInterval = Interval.open(0.as[F],1.as[F])
-   
-  import elem0._, wgs._
- 
+  
   override def propagatePolarNodalAndContext(t: Minutes)
       : ((F,F,F,F,F,F), LongPeriodPeriodicState, SGPElems[F], EccentricAnomalyState) = {
     val secularElemt = secularCorrections(t)
@@ -36,7 +34,6 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     val (elem, finalPolarNodal) = sppCorrections(ctx0, eaState, lppState, secularElemt)
     (finalPolarNodal, lppState, secularElemt, eaState)   
   }
-  
    
   /** 
    *  This calculation updates the secular elements at epoch to the desired date given by 
@@ -46,6 +43,8 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     
     import secularTerms._1._ // secularFrequencies._  // {ωdot,Ωdot,mdot=>Mdot,Ωcof}
     import secularTerms._2._ // dragSecularCoefs._  
+    import elem0._, wgs._
+ 
     // Brouwer’s gravitational corrections are applied first
     // Note that his theory relies on Delaunays variables, 
     // ωdot is gdot, Mdot is ℓdot, and  Ωdot is hdot.
@@ -54,16 +53,17 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     val Ωdf  : F = Ω + Ωdot*t
     val Mdf  : F = M + Mdot*t    
     
-    // Next, the secular corrections due to the atmospheric drag are incorporated;
+    // Next, the secular corrections due to the atmospheric drag are incorporated
+    // which also take long period terms from drag;
     // in particular δh, δL, δe, δℓ 
    
-    val (tempa,tempe,templ,ωm,mp) : (F,F,F,F,F) = tempTerms(t, ωdf, Mdf)
+    val (δL, δe, δℓ, ωm, mp) : (F,F,F,F,F) = dragSecularCorrections(t, ωdf, Mdf)
 
-    // Compute the secular elements (not exactly secular: they mix long-period terms from drag)
+    // Compute the secular elements (not exactly secular as they mix long-period terms from drag)
 
-    val am : F  = ((KE/n) fpow (2.0/3.0).as[F]) * tempa*tempa // a * tempa**2  
+    val am : F  = ((KE/n) fpow (2.0/3.0).as[F]) * δL * δL // a * tempa**2  
     val nm : F  = KE / (am pow 1.5)
-    val em_ : F = e - tempe
+    val em_ : F = e - δe
     val Ωm  : F = Ωdf + Ωcof*`t²` 
     
     // fix tolerance for error recognition
@@ -79,7 +79,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     // TBC:  is this needed in Lara's version
     val em = if (em_ < 1.0e-6.as[F]) 1.0e-6.as[F] else em_ 
     
-    val Mm_  = mp + n*templ
+    val Mm_  = mp + n*δℓ
      
     // modulus so that the angles are in the range 0,2pi
     val Ω_      = Ωm  % twopi
@@ -92,12 +92,13 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     SGPElems(nm, em, I, ω_, Ω_, Mm, am, bStar, epoch)
   }
 
-  def tempTerms(t: Minutes, ωdf: F, Mdf: F) : (F,F,F,F,F) = {
+  def dragSecularCorrections(t: Minutes, ωdf: F, Mdf: F): (F,F,F,F,F) = {
 
     import laneCoefs._
     import secularTerms._2._ // dragSecularCoefs._ // {ωcof,delM0,sinM0,Mcof}    
     import geoPot._ 
     import gctx.η 
+    import elem0.{bStar,M}
     
     val `t²` : F = t**2    
  
@@ -113,12 +114,12 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     val δM : F = Mcof*( (1+η*cos(Mdf))**3 - delM0)
     val Mpm_ : F = Mdf + δω + δM
     val ωm_  : F = ωdf - δω - δM
-       
-    (1 - C1*t - D2 * `t²` - D3 * `t³` - D4 * `t⁴`, 
-     bStar*(C4*t + C5*(sin(Mpm_) - sin(M))),  // sin(M) === sin(M0) 
-     t2cof*`t²` + t3cof*`t³` + `t⁴` * (t4cof + t*t5cof),
-     ωm_, 
-     Mpm_)
+    
+    val δL = 1 - C1*t - D2*`t²` - D3*`t³` - D4*`t⁴`  // (L´´/L0) 
+    val δe = bStar*(C4*t + C5*(sin(Mpm_) - sin(M)))  // sin(M) === sin(M0)
+    val δℓ =  t2cof*`t²` + t3cof*`t³` + `t⁴` * (t4cof + t*t5cof)   // (ℓ´´ - ℓj´´)/ n0
+    
+    (δL, δe, δℓ, ωm_, Mpm_)
   }
   
   /**
@@ -179,6 +180,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     import eaState._ 
     import lppState._
     import secularElem._ // {n,e,I,ω,Ω,M,a}
+    import wgs.{J2,KE}
  
     /* ------------- short period preliminary quantities ----------- */  
      // Compute polar variables
@@ -195,34 +197,41 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     // (r, θ, R, Θ) −→ (F, C, S, a)  with C' = e'cosg and  S' = e'sing
     // Note: Vallado's SGP4 uses rθdot = Θ/r instead of Θ
    
-    val    rl     = a * (1 - ecosE)                  // 4.64, change of variable to E related to r, as in 4.63
-    val    rdotl  = sqrt(a) * esinE/rl               // 4.67, simple manIpulations rdot (note missing √μ factor)
-    val    rvdotl = sqrt(pl) / rl                     // ??? 4.68, r·rdot = √(μa)* esinE 
-    val    betal  = sqrt(1 - el2)
-    val    temp0  = esinE / (1 + betal)
+    val rl     = a * (1 - ecosE)                  // 4.64, change of variable to E related to r, as in 4.63
+    val rdotl  = sqrt(a) * esinE/rl               // 4.67, simple manipulations rdot (note missing √μ factor)
+    val rvdotl = sqrt(pl) / rl                     // ??? 4.68, r·rdot = √(μa)* esinE 
+    val βl     = sqrt(1 - el2)
+    val temp0  = esinE / (1 + βl)
      
     // ???? u is the true anomaly that can be defined immediately as the polar angle = (Ox, OS), x along the semimajor axis, S sat position
-    val    sinu   = a / rl * (sineo1 - aynl - axnl * temp0)             // ??? 4.71,  y = r sinu = a * sqrt(1 − e2) * sinE
-    val    cosu   = a / rl * (coseo1 - axnl + aynl * temp0)             // ??? 4.70,  x = r cosu = a(cosE − e)
-    val    su0    = atan2(sinu, cosu)
-    val    sin2u  = (cosu + cosu) * sinu
-    val    cos2u  = 1 - 2.0 * sinu * sinu
-    val    temp   = 1/ pl
-    val    temp1  = 0.5 * J2 * temp
-    val    temp2  = temp1 * temp
+    val sinu   = a / rl * (sineo1 - aynl - axnl * temp0)             // ??? 4.71,  y = r sinu = a * sqrt(1 − e2) * sinE
+    val cosu   = a / rl * (coseo1 - axnl + aynl * temp0)             // ??? 4.70,  x = r cosu = a(cosE − e)
+    val su0    = atan2(sinu, cosu)
+    val sin2u  = 2 * cosu * sinu
+    val cos2u  = 1 - 2 * sinu * sinu
+    val temp1  = J2 / pl / 2
+    val temp2  = temp1 / pl 
 
     /* -------------- update for short period gravitational periodics ------------ */
 
     import secularTerms._
     import ctx._
-    val    mrt   = rl * (1 - 1.5 * temp2 * betal * con41) + 0.5 * temp1 * x1mth2 * cos2u
-    val    su    = su0 - 0.25 * temp2 * x7thm1 * sin2u
-    val    xnode = Ω + 1.5 * temp2 * c * sin2u
-    val    xinc  = I + 1.5 * temp2 * c * s * cos2u
-    val    mvt   = rdotl - n * temp1 * x1mth2 * sin2u / KE
-    val    rvdot = rvdotl + n * temp1 * (x1mth2 * cos2u + 1.5 * con41) / KE  
-    val  elem = SGPElems(n, e, xinc, ω, xnode, M, a, bStar, epoch) 
-    val polarNodalXX = (xinc, su, xnode, mrt, mvt, rvdot)
+    val mrt = rl * (1 - 1.5 * temp2 * βl * con41) + temp1 * x1mth2 * cos2u / 2
+    val su = su0 - temp2 * x7thm1 * sin2u / 4
+    val node = Ω + 1.5 * temp2 * c * sin2u
+    val inc = I + 1.5 * temp2 * c * s * cos2u
+    val mvt = rdotl - n * temp1 * x1mth2 * sin2u / KE
+    val rvdot = rvdotl + n * temp1 * (x1mth2 * cos2u + 1.5 * con41) / KE  
+    val elem = SGPElems(n, e, inc, ω, node, M, a, bStar, epoch) 
+    val polarNodalXX = (inc, su, node, mrt, mvt, rvdot)
+//      case class PolarNodalElems[F: Field: Trig](
+//      r : F, // the radial distance 
+//      θ : F, // the argument of latitude 
+//      ν : F, // the argument of the ascending node 
+//      R : F, // radial velocity 
+//      Θ : F, // the total angular momentum
+//      N : F  // the polar component of the angular momentum
+//  )
     (elem, polarNodalXX)
   }
 
@@ -234,11 +243,5 @@ object SGP4Vallado extends SGP4Factory {
     val (elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp) = from(elem0Ctx0)
     new SGP4Vallado(elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp)
   }
-//  
-//  def apply[F : Field : NRoot : Order : Trig](elem0: SGPElems[F])(implicit wgs0: SGPConstants[F]) :  SGP4Vallado[F] = {
-//    val elemAndContext0 = (elem0, Context0(elem0.I, elem0.e)) 
-//    val (elem, wgs, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp) = from(elemAndContext0)
-//    new SGP4Vallado(elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp)
-//  }
   
 }

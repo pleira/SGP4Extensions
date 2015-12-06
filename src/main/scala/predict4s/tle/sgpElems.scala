@@ -17,7 +17,7 @@ case class SGPElems[F](
     bStar : F, // atmospheric Drag Coeficient
     epoch : F) // epoch time in days from jan 0, 1950. 0 hr 
 
-      
+
 object SGPElems {
  
   /**
@@ -52,17 +52,17 @@ object SGPElems {
   private def calcContextAndOriginalMotionAndSemimajorAxis[F: Field: NRoot : Order: Trig](
       e: F,I: F,ω: F,Ω: F,M: F, bStar: F,epoch: F, radPerMin: F, wgs: SGPConstants[F]) 
     : (SGPElems[F], Context0[F]) = {
-  val `e²` : F = e*e
-  val s : F = sin(I)
-  val c : F = cos(I)
-  val `c²` : F = c**2
-  val x3thm1 = 3*`c²` - 1
-  val `β0²`      = 1 - `e²`
-  val β0         = `β0²`.sqrt
-  val `β0³`      = β0 * `β0²`
-  val (n, a) = calcOriginalMotionAndSemimajorAxis(radPerMin,x3thm1,`β0³`,wgs)
-  val context0 = Context0(a, `e²`,s,c,`c²`, x3thm1,β0,`β0²`,`β0³`, wgs)
-  (SGPElems[F](n,e,I,ω,Ω,M,a,bStar,epoch), context0)
+    val `e²` : F = e*e
+    val s : F = sin(I)
+    val c : F = cos(I)
+    val `c²` : F = c*c
+    val x3thm1 = 3*`c²` - 1
+    val `β0²` = 1 - `e²`
+    val β0 = `β0²`.sqrt
+    val `β0³` = β0 * `β0²`
+    val (n, a) = calcOriginalMotionAndSemimajorAxis(radPerMin,x3thm1,`β0³`,wgs)
+    val context0 = Context0(a, `e²`,s,c,`c²`, x3thm1,β0,`β0²`,`β0³`, wgs)
+    (SGPElems[F](n,e,I,ω,Ω,M,a,bStar,epoch), context0)
   }
   
   private def calcOriginalMotionAndSemimajorAxis[F: Field: NRoot : Order: Trig](n: F, x3cos2Im1: F, `β0³`: F, wgs: SGPConstants[F]) 
@@ -91,16 +91,8 @@ case class Context0[F: Field: NRoot : Trig](
   def `θ⁴`       = `cos²I0` * `cos²I0`
   def θsq        = `cos²I0`
   def sinI0      = s
-  def sinio      = s
-//    def x3thm1     = 3*`θ²` - 1
-//    def con41      = x3thm1
- //   def con42      = 1 - 5*`θ²`
-//    def x1mth2     = 1 - `θ²`
-  
-//    val `e0²`      = e*e
-//    val `β0²`      = 1 - `e0²`
-//    val β0         = `β0²`.sqrt
-//    val `β0³`      = β0 * `β0²`
+  // def sinio      = s
+
   val `β0⁴`      = `β0²`*`β0²`
   def e0sq       = e*e
   def β0sq       = `β0²`
@@ -111,8 +103,11 @@ case class Context0[F: Field: NRoot : Trig](
   def polyδ1 = poly"-134/81x^3 - x^2 - 1/3x + 1" 
     
   val `s²` : F = s*s
-  val p : F = a0 * (1 - `e²`)            // semilatus rectum , which also is G²/μ, with G as the Delauney's action, the total angular momentum
+  val p : F = a0 * `β0²` // a0 * (1 - `e²`) // semilatus rectum , which also is G²/μ, with G as the Delauney's action, the total angular momentum
   val `p²` = p*p
+  val `p⁴` = `p²`*`p²`
+  val `1/p²` = 1/`p²`
+  val `1/p⁴` = 1/`p⁴`
   import wgs.{aE=>α,J2,`J2/J3`}
   val `α/p` : F = α/p
   val ϵ2 : F = -J2*(`α/p`**2) / 4

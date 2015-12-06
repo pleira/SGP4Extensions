@@ -61,22 +61,19 @@ class SGP4Factory extends GeoPotentialModel {
   
     import gcof._,gctx._,ctx0._
     import wgs._
-    import elem.{e => e0,n => n0,a => a0,ω => ω0, M => M0,_}
+    import elem.{e => e0,n => n0,a => a0,ω => ω0, M => M0,bStar}
     
-    val gsto : F = predict4s.tle.gstime(epoch + 2433281.5) 
+    // val gsto : F = predict4s.tle.gstime(epoch + 2433281.5) 
     
-    val po   : F   = a0*`β0²`
-    val posq : F   = po*po
-    val pinvsq : F  = 1 / posq
-    val temp1  : F  = 3 * J2 * pinvsq * n0 / 2
-    val temp2 : F   = temp1 * J2 * pinvsq / 2
-    val temp3  : F  = -0.46875 * J4 * pinvsq * pinvsq * n0
+    val temp1  : F  = 3 * J2 * n0 / `p²`/ 2
+    val temp2 : F   = temp1 * J2 / `p²` / 2
+    val temp3  : F  = -0.46875 * J4 * n0 / `p⁴`
     val xhdot1 : F  = - temp1*θ 
      
     val secularFrequencies = 
       if (n0 >= 0.as[F] || `β0²` >= 0.as[F])
         SecularFrequencies(// derivative of M 
-          n0 + 0.5.as[F] * temp1 * β0 * con41 + 0.0625.as[F] * temp2 * β0 * (13 - 78 * `θ²` + 137 * `θ⁴`),
+          n0 + temp1 * β0 * con41 / 2 + 0.0625.as[F] * temp2 * β0 * (13 - 78 * `θ²` + 137 * `θ⁴`),
         // derivative of the perigee argument
         - temp1 * con42 /2 + temp2*(7 - 114*`θ²` + 395*`θ⁴`)/16 + temp3*(3 - 36*`θ²` + 49*`θ⁴`),
         // derivative of the raan
@@ -88,9 +85,9 @@ class SGP4Factory extends GeoPotentialModel {
     // sgp4fix for divide by zero with I = 180 deg, // FIXME: not valid for deep space
     val xlcof  : F  =  
       if (abs(θ+1) > 1.5e-12.as[F]) 
-        - `J3/J2` * sinio * (3 + 5*θ) / (1 + θ) / 4
+        - `J3/J2` * sinI0 * (3 + 5*θ) / (1 + θ) / 4
       else
-        - `J3/J2` * sinio * (3 + 5*θ) / 1.5e-12 / 4
+        - `J3/J2` * sinI0 * (3 + 5*θ) / 1.5e-12 / 4
     
     // other derived coeficients and variables that are used related to drag corrections
     val dragSecularCoefs = DragSecularCoefs(    
@@ -98,7 +95,7 @@ class SGP4Factory extends GeoPotentialModel {
       bStar*C3*cos(ω0),
       7 * `β0²` * xhdot1 * C1 / 2,
       xlcof,
-       - `J3/J2` * sinio / 2,
+       - `J3/J2` * sinI0 / 2,
       (1+η*cos(M0))**3)
       
     (secularFrequencies, dragSecularCoefs)

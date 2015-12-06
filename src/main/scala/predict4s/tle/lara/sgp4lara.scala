@@ -25,19 +25,6 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   )  extends SGP4(elem0, wgs)  {
   
   val eValidInterval = Interval.open(0.as[F],1.as[F])
-   
-  import elem0._, wgs._
-//  val `e²` : F = e**2
-//  val s : SinI = sin(I)
-//  val c : CosI = cos(I)
-//  val `c²` : CosI = c**2
-//  val `s²` : SinI = s**2
-//  val p : F = a * (1 - `e²`)            // semilatus rectum , which also is G²/μ, with G as the Delauney's action, the total angular momentum
-//  val `α/p` : F = α/p
-//  val ϵ2 : F = -J2*(`α/p`**2) / 4
-//  val ϵ3 : F = (`J2/J3`)*`α/p` / 2      // or (`C30/C20`)*`α/p` / 2 
-//  val η : F = (1 - `e²`).sqrt           // eccentricity function G/L, with G as the Delauney's action, the total angular momentum , and L = √(μ a)
-
  
   override def propagatePolarNodalAndContext(t: Minutes)
       : ((F,F,F,F,F,F), LongPeriodPeriodicState, SGPElems[F], EccentricAnomalyState) = {
@@ -51,29 +38,6 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val finalPolarNodal : PolarNodalElems[F] = laraNonSingular2PolarNodal(finalState) 
      (???, ???, secularElemt, eaState)   
   }
-  
-//  def propagate(t: Minutes) : SGP4State[F] = {
-//    val secularElemt = secularCorrections(t)
-//    val eaState = solveKeplerEq(secularElemt)
-//    val secularPolarNodal = delauney2PolarNodal(secularElemt, eaState)
-//    val secularLaraNonSingular = polarNodal2LaraNonSingular(s, secularPolarNodal)
-//    val lppState = lppCorrections(secularLaraNonSingular)
-//    val sppState = sppCorrections(s, c, `c²`, secularLaraNonSingular)
-//    val finalState = secularLaraNonSingular // FIXME apply really the corrections + lppState + sppState
-//    val finalPolarNodal : PolarNodalElems[F] = laraNonSingular2PolarNodal(finalState) 
-//      
-//    // unit position and velocity 
-//    import finalPolarNodal._
-//    val I: F = ???; val R: F = ???; val Ω: F = ???;  val mrt: F = ???; val mvt: F = ???; val rvdot: F = ???
-//    val uPV: TEME.CartesianElems[F] = TEME.polarNodal2UnitCartesian(I, R, Ω)
-//    
-//    // return position and velocity (in km and km/sec)
-//    val (p, v) = convertUnitVectors(uPV.pos, uPV.vel, mrt, mvt, rvdot)
-//    val posVel = TEME.CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
-//    val orbitalState = OrbitalState(t, posVel)
-//    SGP4State(orbitalState, uPV)
-//  }
-
 
   case class LaraNonSingular(ψ : F, ξ: F, χ: F, r: F, R: F, Θ: F)
 
@@ -179,7 +143,8 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     
     import secularFreqs._1._ // secularFrequencies._
     import secularFreqs._2._ // dragSecularCoefs._      
-    // Gravity corrections
+    import elem0._, wgs._
+   // Gravity corrections
     // Brouwer’s gravitational corrections are applied first
     // here we are with Delaunays variables, 
     // ωdot is gdot, Mdot is ℓdot, and  Ωdot is hdot.
@@ -232,6 +197,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     import secularFreqs._2._ // dragSecularCoefs._ // {ωcof,delM0,sinM0,Mcof}    
     import geoPot._      
     import gctx.η 
+    import elem0.{bStar,M}
     val `t²` : F = t**2    
  
     // It should be noted that when epoch perigee height is less than

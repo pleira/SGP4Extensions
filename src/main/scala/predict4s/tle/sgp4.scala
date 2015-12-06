@@ -20,9 +20,7 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
     val wgs: SGPConstants[F]
     ){
   
-  import elem0._, wgs._
-
-  val gsto : F = predict4s.tle.gstime(epoch + 2433281.5) 
+  def gsto : F = predict4s.tle.gstime(elem0.epoch + 2433281.5) 
   
   type SinI = F  // type to remember dealing with the sine   of the Inclination 
   type CosI = F  // type to remember dealing with the cosine of the Inclination 
@@ -62,15 +60,14 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
     mvt: F, 
     rvdot: F)
 
-
   /**
    * Vallado's code works with internal units of length LU (units of earth’s radius  
    * R⊕ in km) and time TU (units of the orbit’s period in min) 
-   * TU = 60 * sqrt( (R⊕ km)³ /(μ km³ /s² ) ) min
+   * TU = 60 * sqrt( (R⊕ km)³ /(μ km³ /s²) ) min
    * where μ is the earth’s gravitational constant; μ = 1 UL³/UT² in internal units.    
    */
   def convertAndScale2UnitVectors(pos : Vector[F], vel : Vector[F], mrt: F, mvt: F, rvdot: F): (Vector[F], Vector[F]) = {
-      import wgs._
+      import wgs.{aE,vkmpersec}
       ( (aE*mrt) *: pos,  vkmpersec *: (mvt *: pos + rvdot *: vel))
   }  
     
