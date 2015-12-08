@@ -47,8 +47,8 @@ trait Sgp4Near extends Sgp4Vars {
 
 case class Sgp4Result(
     sgp: SGP4Vallado[Double], 
-    statett: (TEME.CartesianElems[Double], TEME.CartesianElems[Double], (Double,Double,Double,Double,Double,Double), 
-        SGP4[Double]#LongPeriodPeriodicState, SGPElems[Double], SGP4[Double]#EccentricAnomalyState), tle: TLE, t: Double) 
+    statett: (TEME.CartesianElems[Double], TEME.CartesianElems[Double], SGP4[Double]#ShortPeriodPolarNodalContext, 
+        SGP4[Double]#LongPeriodPolarNodalContext, SGPElems[Double], SGP4[Double]#EccentricAnomalyState), tle: TLE, t: Double) 
         extends Sgp4Near {   
     val posVel = statett._1 
     val r = posVel.pos

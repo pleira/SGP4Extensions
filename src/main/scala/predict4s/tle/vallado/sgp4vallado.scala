@@ -15,128 +15,56 @@ import predict4s.tle.LaneCoefs
 class SGP4Vallado[F : Field : NRoot : Order : Trig](
     elem0: SGPElems[F],
     wgs: SGPConstants[F],
-    val ctx0: Context0[F],
-    val geoPot: GeoPotentialCoefs[F],
-    val gctx: GeoPotentialContext[F],
-    val laneCoefs : LaneCoefs[F],
-    val secularTerms : (SecularFrequencies[F], DragSecularCoefs[F]),
-    val isImpacting: Boolean,
-    val rp: F
-  )  extends SGP4(elem0, wgs) {
+    ctx0: Context0[F],
+    geoPot: GeoPotentialCoefs[F],
+    gctx: GeoPotentialContext[F],
+    laneCoefs : LaneCoefs[F],
+    secularTerms : (SecularFrequencies[F], DragSecularCoefs[F]),
+    isImpacting: Boolean,
+    rp: F
+  ) extends SGP4(elem0, wgs, ctx0, geoPot, gctx, laneCoefs, secularTerms, isImpacting, rp) {
    
-  val eValidInterval = Interval.open(0.as[F],1.as[F])
-  
-  override def propagatePolarNodalAndContext(t: Minutes)
-      : ((F,F,F,F,F,F), LongPeriodPeriodicState, SGPElems[F], EccentricAnomalyState) = {
-    val secularElemt = secularCorrections(t)
-    val lppState = lppCorrections(secularElemt, secularTerms._2) // dragSecularCoefs)
+ 
+  case class LyddaneLongPeriodPeriodicState(axnl: F, aynl: F, xl: F) {
+    def `C´´` = axnl; def `S´´` = aynl ; def `F´´` = xl
+  }
+
+  override def periodicCorrections(secularElemt : SGPElems[F], secularDragCoefs: DragSecularCoefs[F])
+      : (ShortPeriodPolarNodalContext, LongPeriodPolarNodalContext, EccentricAnomalyState) = {
+    val lppState = lppCorrections(secularElemt, secularTerms._2) // dragSecularCoefs
     val eaState = solveKeplerEq(secularElemt, lppState)
-    val (elem, finalPolarNodal) = sppCorrections(ctx0, eaState, lppState, secularElemt)
-    (finalPolarNodal, lppState, secularElemt, eaState)   
-  }
-   
-  /** 
-   *  This calculation updates the secular elements at epoch to the desired date given by 
-   *  the time t in minutes from the epoch 
-   */
-  def secularCorrections(t: Minutes): SGPElems[F] = {
-    
-    import secularTerms._1._ // secularFrequencies._  // {ωdot,Ωdot,mdot=>Mdot,Ωcof}
-    import secularTerms._2._ // dragSecularCoefs._  
-    import elem0._, wgs._
- 
-    // Brouwer’s gravitational corrections are applied first
-    // Note that his theory relies on Delaunays variables, 
-    // ωdot is gdot, Mdot is ℓdot, and  Ωdot is hdot.
-    val `t²` : F = t**2    
-    val ωdf  : F = ω + ωdot*t
-    val Ωdf  : F = Ω + Ωdot*t
-    val Mdf  : F = M + Mdot*t    
-    
-    // Next, the secular corrections due to the atmospheric drag are incorporated
-    // which also take long period terms from drag;
-    // in particular δh, δL, δe, δℓ 
-   
-    val (δL, δe, δℓ, ωm, mp) : (F,F,F,F,F) = dragSecularCorrections(t, ωdf, Mdf)
-
-    // Compute the secular elements (not exactly secular as they mix long-period terms from drag)
-
-    val am : F  = ((KE/n) fpow (2.0/3.0).as[F]) * δL * δL // a * tempa**2  
-    val nm : F  = KE / (am pow 1.5)
-    val em_ : F = e - δe
-    val Ωm  : F = Ωdf + Ωcof*`t²` 
-    
-    // fix tolerance for error recognition
-    // sgp4fix am is fixed from the previous nm check
-    if (!eValidInterval.contains(em_))
-      {
-        // sgp4fix to return if there is an error in eccentricity
-        // FIXME: we should move to use Either
-        return SGPElems(nm, em_, I, ωm, Ωm, mp, am, bStar, epoch) 
-      }
-
-    // sgp4fix fix tolerance to avoid a divide by zero
-    // TBC:  is this needed in Lara's version
-    val em = if (em_ < 1.0e-6.as[F]) 1.0e-6.as[F] else em_ 
-    
-    val Mm_  = mp + n*δℓ
-     
-    // modulus so that the angles are in the range 0,2pi
-    val Ω_      = Ωm  % twopi
-    val ω_      = ωm  % twopi
-    
-    // Lyddane's variables and back 
-    val ℓm      = Mm_ + ωm + Ωm
-    val lm      = ℓm  % twopi
-    val Mm      = (lm - ω_ - Ω_) % twopi   
-    SGPElems(nm, em, I, ω_, Ω_, Mm, am, bStar, epoch)
+    val lppPolarNodalContext = lydanne2SpecialPolarNodal(eaState, lppState, secularElemt)
+    val sppPolarNodalContext = sppCorrections(ctx0, eaState, lppPolarNodalContext, secularElemt)
+    (sppPolarNodalContext, lppPolarNodalContext, eaState)   
   }
 
-  def dragSecularCorrections(t: Minutes, ωdf: F, Mdf: F): (F,F,F,F,F) = {
-
-    import laneCoefs._
-    import secularTerms._2._ // dragSecularCoefs._ // {ωcof,delM0,sinM0,Mcof}    
-    import geoPot._ 
-    import gctx.η 
-    import elem0.{bStar,M}
-    
-    val `t²` : F = t**2    
- 
-    // It should be noted that when epoch perigee height is less than
-    // 220 kilometers, the equations for a and Lane's are truncated after the C1 term, 
-    // and the terms involving C5 , δω, and δM are dropped.    
-    if (isImpacting) 
-      return (1 - C1*t, bStar*C4*t, t2cof*`t²`, ωdf, Mdf)
-    
-    val `t³` = `t²`*t
-    val `t⁴` = `t²`*`t²`
-    val δω : F = ωcof*t
-    val δM : F = Mcof*( (1+η*cos(Mdf))**3 - delM0)
-    val Mpm_ : F = Mdf + δω + δM
-    val ωm_  : F = ωdf - δω - δM
-    
-    val δL = 1 - C1*t - D2*`t²` - D3*`t³` - D4*`t⁴`  // (L´´/L0) 
-    val δe = bStar*(C4*t + C5*(sin(Mpm_) - sin(M)))  // sin(M) === sin(M0)
-    val δℓ =  t2cof*`t²` + t3cof*`t³` + `t⁴` * (t4cof + t*t5cof)   // (ℓ´´ - ℓj´´)/ n0
-    
-    (δL, δe, δℓ, ωm_, Mpm_)
-  }
-  
   /**
-   * Solve the Kepler equation 
-   * 		ℓ = E - e sinE
-   * where E is the eccentric anomaly.
-   * TBC: We are using Delauney's elements as variables.
+   * Solve Kepler's equation expressed in Lyddane's variables 
+   * 		U = Ψ + S'cosΨ − C'sinΨ
+   * where U = F' − h' to compute the anomaly Ψ = E'+g', where E is the eccentric anomaly.
+   * The Newton-Raphson iterations start from Ψ0 = U.
    */
-  def solveKeplerEq(elem : SGPElems[F], lppState: LongPeriodPeriodicState): EccentricAnomalyState = {
+  def solveKeplerEq(elem : SGPElems[F], lppState: LyddaneLongPeriodPeriodicState): EccentricAnomalyState = {
        
     import elem.{e,Ω,ω,M,a}, wgs.twopi, lppState._
          
-    /* --------------------- solve kepler's equation  M = E - e sin E     --------------- */
-    // Nodep (or M) is the mean anomaly, E is the eccentric anomaly, and e is the eccentricity.
+    // Nodep (or Ω) is the ascending node, E is the eccentric anomaly, and e is the eccentricity.
     var ktr : Int = 1
-    val u    = Field[F].mod(xl - Ω, twopi.as[F])
-    var eo1  = u
+    
+    // U = F' - h' = M" + g"; 
+    val u = Field[F].mod(xl - Ω, twopi.as[F])  
+    
+    /*
+     *  Ψ = E"+g"
+     *  F’-h" = (E"+g") + S’*cos(E"+g") - C’*sin(E"+g")
+     *  U = Ψ + S’*cosΨ - C’*sinΨ
+     *  fun(Ψ) = U - Ψ - S’*cosΨ + C’*sinΨ = 0
+     *  fun(Ψ0 + (Ψ-Ψ0)) = fun(Ψ0)+(Ψ-Ψ0)*dfu(Ψ0) = 0
+     *                 fdot = D[fun,Ψ] = -1 + S’*sinΨ + C’*cosΨ
+     *  Ψ1 = Ψ0 - fun(Ψ0)/dfu(Ψ0)
+     *  Ψ(n+1) = Ψn - fun(Ψn)/dfu(Ψn)
+     */
+    var eo1  = u   
     var tem5 : F = 9999.9.as[F]     //   sgp4fix for kepler iteration
     var ecosE : F = 0.as[F]
     var esinE : F = 0.as[F]
@@ -149,66 +77,79 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
       coseo1 = cos(eo1)
       ecosE = axnl * coseo1 + aynl * sineo1
       esinE = axnl * sineo1 - aynl * coseo1
-
-      val fdot   = 1 - ecosE
+      
+      // (in reality) -fdot = 1 - (S’*sinΨ + C’*cosΨ)
+      val fdot = 1 - ecosE
+      // f = U + (C’*sinΨ - S’*cosΨ) - Ψ0  
       val f = (u + esinE - eo1)
-      tem5   = f / fdot  // delta value
+      tem5 = f / fdot  // delta value
       if(abs(tem5) >= 0.95.as[F]) {
           tem5 = if (tem5 > 0.as[F]) 0.95.as[F]  else -0.95.as[F]
       }
-       eo1    = eo1 + tem5
-       ktr = ktr + 1
-     }
-     EccentricAnomalyState(eo1,coseo1,sineo1,ecosE,esinE)   
+      // Ψ1 = Ψ0 - delta 
+      eo1 = eo1 + tem5
+      ktr = ktr + 1
+    }
+    EccentricAnomalyState(eo1,coseo1,sineo1,ecosE,esinE)   
   }
   
-  def lppCorrections(secularElem : SGPElems[F], secularDragCoefs: DragSecularCoefs[F]) : LongPeriodPeriodicState = {
+  def lppCorrections(secularElem : SGPElems[F], secularDragCoefs: DragSecularCoefs[F]) : LyddaneLongPeriodPeriodicState = {
     import secularElem._
     import secularDragCoefs.{aycof,xlcof}
-    val axnl = e * cos(ω)
-    val temp = 1 / (a * (1 - e * e))
     
-    // TBC: LPPE added     
+    // Brouwer long-period gravitational corrections are reformulated in Lyddane’s (F,S,C,a,h,I).
+    // At the precision of SGP4, there are only corrections for F and S.
+    
+    // C´´ = e´´ * cos(g´´), there is no long period correction for Lyddane's C term, which is defined as e*cosω
+    val axnl = e * cos(ω)
+    val temp = 1 / (a * (1 - e * e))   // 1/p´´ = 1/ (a´´ * (1 − e´´²))
+    
+    // Lyddane S' = e*sinω + 1/p´´ * (- `J3/J2`*sinI0/2)     
     val aynl : F = e * sin(ω) + temp * aycof
+    // Lyddane F' = (M´´ + g´´ + h´´) +  1/p´´*(-`J3/J2`*sinI0*(3 + 5*cosI0)/(1 + cosI0)/4)*e*cosω
     val xl: F = M + ω + Ω + temp * xlcof * axnl
-
-    LongPeriodPeriodicState(axnl, aynl, xl)
+    
+    // no more corrections, that is, L’= L",  I’= I", h’= h"
+    
+    LyddaneLongPeriodPeriodicState(axnl, aynl, xl)
   }
   
-  def sppCorrections(ctx: Context0[F], eaState: EccentricAnomalyState, lppState: LongPeriodPeriodicState, secularElem: SGPElems[F]) 
-      : (SGPElems[F], (F,F,F,F,F,F)) = { // PolarNodalElems[F]) = {
+  def lydanne2SpecialPolarNodal(eaState: EccentricAnomalyState, lppState: LyddaneLongPeriodPeriodicState, secularElem: SGPElems[F]) = {
+    import eaState._ 
+    import lppState._
+    import secularElem._ // {n,e,I,ω,Ω,M,a}
+
+    // It follows the usual transformation to polar-nodal variables
+    // (r, θ, R, Θ) −→ (F, C, S, a)  with C' = e'cosg and  S' = e'sing
+    // Note: Vallado's SGP4 uses rθdot = Θ/r instead of Θ
+    // here the l probably means long period, not Lyddane
+    val `el²` = axnl*axnl + aynl*aynl
+    val pl = a*(1 - `el²`)  // semilatus rectum , as MU=1, p=Z²
+    if (pl < 0.as[F]) throw new Exception("pl: " + pl)
+      
+    val rl     = a * (1 - ecosE)          // r´        
+    val rdotl  = sqrt(a) * esinE/rl       // R´
+    val rvdotl = sqrt(pl) / rl            // Θ’/r’ that is Θ/r 
+    val βl     = sqrt(1 - `el²`)          // y’
+    val temp0  = esinE / (1 + βl)         
+     
+    // u is the true anomaly that can be defined immediately as the polar angle θ = (Ox, OS), x along the semimajor axis, S sat position
+    val sinu   = a / rl * (sineo1 - aynl - axnl * temp0)             // sinu
+    val cosu   = a / rl * (coseo1 - axnl + aynl * temp0)             // cosu
+    val su0    = atan2(sinu, cosu)                                   // u, that is θ
+    val sin2u  = 2 * cosu * sinu
+    val cos2u  = 1 - 2 * sinu * sinu
+    LongPeriodPolarNodalContext(rl, su0, rdotl, rvdotl, `el²`, pl, βl, sin2u, cos2u)
+  }
+  
+  def sppCorrections(ctx: Context0[F], eaState: EccentricAnomalyState, lppState: LongPeriodPolarNodalContext, secularElem: SGPElems[F]) 
+      : ShortPeriodPolarNodalContext = { // PolarNodalElems[F]) = {
     import eaState._ 
     import lppState._
     import secularElem._ // {n,e,I,ω,Ω,M,a}
     import wgs.{J2,KE}
  
-    /* ------------- short period preliminary quantities ----------- */  
-     // Compute polar variables
-     // Change from Lyddane non-singular variables to polar-nodal variables
-    
-    val el2   = axnl*axnl + aynl*aynl
-    val pl    = a*(1 - el2)                          // pl is C², where replacing C² by μa(1 − e²) gives simplified eq between dt and dr.
-    if (pl < 0.as[F]) throw new Exception("pl: " + pl)
-
-    // References done to the formulas given in Handbook of Satellite Orbits, Chapter 4
-    // Consider the plane containing the position and velocity vectors of the satellite centered in the ellipse focus as our Earth)
-    
-    // It follows the usual transformation to polar-nodal variables
-    // (r, θ, R, Θ) −→ (F, C, S, a)  with C' = e'cosg and  S' = e'sing
-    // Note: Vallado's SGP4 uses rθdot = Θ/r instead of Θ
-   
-    val rl     = a * (1 - ecosE)                  // 4.64, change of variable to E related to r, as in 4.63
-    val rdotl  = sqrt(a) * esinE/rl               // 4.67, simple manipulations rdot (note missing √μ factor)
-    val rvdotl = sqrt(pl) / rl                     // ??? 4.68, r·rdot = √(μa)* esinE 
-    val βl     = sqrt(1 - el2)
-    val temp0  = esinE / (1 + βl)
-     
-    // ???? u is the true anomaly that can be defined immediately as the polar angle = (Ox, OS), x along the semimajor axis, S sat position
-    val sinu   = a / rl * (sineo1 - aynl - axnl * temp0)             // ??? 4.71,  y = r sinu = a * sqrt(1 − e2) * sinE
-    val cosu   = a / rl * (coseo1 - axnl + aynl * temp0)             // ??? 4.70,  x = r cosu = a(cosE − e)
-    val su0    = atan2(sinu, cosu)
-    val sin2u  = 2 * cosu * sinu
-    val cos2u  = 1 - 2 * sinu * sinu
+    val temp0  = esinE / (1 + βl)         
     val temp1  = J2 / pl / 2
     val temp2  = temp1 / pl 
 
@@ -216,23 +157,18 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
 
     import secularTerms._
     import ctx._
-    val mrt = rl * (1 - 1.5 * temp2 * βl * con41) + temp1 * x1mth2 * cos2u / 2
-    val su = su0 - temp2 * x7thm1 * sin2u / 4
-    val node = Ω + 1.5 * temp2 * c * sin2u
-    val inc = I + 1.5 * temp2 * c * s * cos2u
-    val mvt = rdotl - n * temp1 * x1mth2 * sin2u / KE
-    val rvdot = rvdotl + n * temp1 * (x1mth2 * cos2u + 1.5 * con41) / KE  
-    val elem = SGPElems(n, e, inc, ω, node, M, a, bStar, epoch) 
-    val polarNodalXX = (inc, su, node, mrt, mvt, rvdot)
-//      case class PolarNodalElems[F: Field: Trig](
-//      r : F, // the radial distance 
-//      θ : F, // the argument of latitude 
-//      ν : F, // the argument of the ascending node 
-//      R : F, // radial velocity 
-//      Θ : F, // the total angular momentum
-//      N : F  // the polar component of the angular momentum
-//  )
-    (elem, polarNodalXX)
+    val mrt = r * (1 - 1.5 * temp2 * βl * con41) + temp1 * x1mth2 * cos2u / 2
+    val δsu = - temp2 * x7thm1 * sin2u / 4
+    val su = su0 + δsu
+    val δΩ = 1.5 * temp2 * c * sin2u
+    val node = Ω + δΩ
+    val δI = 1.5 * temp2 * c * s * cos2u
+    val inc = I + δI 
+    val δrdot = - n * temp1 * x1mth2 * sin2u / KE
+    val mvt = rdot0 + δrdot
+    val δrvdot = n * temp1 * (x1mth2 * cos2u + 1.5 * con41) / KE  
+    val rvdot = rvdot0 + δrvdot
+    ShortPeriodPolarNodalContext(inc, su, node, mrt, mvt, rvdot, δI, δsu, δΩ, δrdot, δrvdot)
   }
 
 }

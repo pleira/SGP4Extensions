@@ -17,48 +17,72 @@ import spire.syntax.primitives._
  */
 abstract class SGP4[F : Field : NRoot : Order : Trig](
     val elem0: SGPElems[F],    
-    val wgs: SGPConstants[F]
-    ){
-  
+    val wgs: SGPConstants[F],
+    val ctx0: Context0[F],
+    val geoPot: GeoPotentialCoefs[F],
+    val gctx: GeoPotentialContext[F],
+    val laneCoefs : LaneCoefs[F],
+    val secularTerms : (SecularFrequencies[F], DragSecularCoefs[F]),
+    val isImpacting: Boolean,
+    val rp: F
+    ) {
+
+  // valid interval for eccentricity calculations
+  val eValidInterval = Interval.open(0.as[F],1.as[F])
+
   def gsto : F = predict4s.tle.gstime(elem0.epoch + 2433281.5) 
   
   type SinI = F  // type to remember dealing with the sine   of the Inclination 
   type CosI = F  // type to remember dealing with the cosine of the Inclination 
   type Minutes = F // type to remember dealing with minutes from epoch
  
-  def propagatePolarNodalAndContext(t: Minutes) : ((F,F,F,F,F,F), LongPeriodPeriodicState, SGPElems[F], EccentricAnomalyState)
+  def propagate2PolarNodalContext(t: Minutes): ((ShortPeriodPolarNodalContext, LongPeriodPolarNodalContext, EccentricAnomalyState), SGPElems[F]) = {
+    val secularElemt = secularCorrections(t)
+    (periodicCorrections(secularElemt, secularTerms._2), secularElemt)
+  }
   
-  def propagatePolarNodal(t: Minutes) = {
-    val (finalPolarNodal, _, _, _) = propagatePolarNodalAndContext(t)
+  def propagate2PolarNodal(t: Minutes) = {
+    val ((finalPolarNodal, _, _), _) = propagate2PolarNodalContext(t)
     finalPolarNodal
   }
 
-  def propagate2CartesianAndContext(t: Minutes) = {
-    val (finalPolarNodalXX, lppState, secularElemt, eaState) = propagatePolarNodalAndContext(t)
-    import finalPolarNodalXX.{_1=>I,_2=>R,_3=> Ω, _4=>mrt,_5=>mvt,_6=>rvdot}
+  def propagate2CartesianContext(t: Minutes) = {
+    val ((finalPolarNodal, lppState, eaState), secularElemt) = propagate2PolarNodalContext(t)
+    import finalPolarNodal._
     val uPV: TEME.CartesianElems[F] = TEME.polarNodal2UnitCartesian(I, R, Ω)
     val (p, v) = convertAndScale2UnitVectors(uPV.pos, uPV.vel, mrt, mvt, rvdot)
     val posVel = TEME.CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
-    (posVel, uPV, finalPolarNodalXX, lppState, secularElemt, eaState)    
+    (posVel, uPV, finalPolarNodal, lppState, secularElemt, eaState)    
   }
 
   def propagate2Cartesian(t: Minutes) : TEME.CartesianElems[F] = {  
-    val (posVel, _, _,_,_,_) = propagate2CartesianAndContext(t)
+    val (posVel, _, _,_,_,_) = propagate2CartesianContext(t)
     posVel
   }
   
-  def propagate(t: Minutes)  = propagate2CartesianAndContext(t)
+  def propagate(t: Minutes)  = propagate2CartesianContext(t)
 
-  case class LongPeriodPeriodicState(axnl: F, aynl: F, xl: F)
+  def periodicCorrections(secularElemt : SGPElems[F], secularDragCoefs: DragSecularCoefs[F]): (ShortPeriodPolarNodalContext, LongPeriodPolarNodalContext, EccentricAnomalyState)
+
   case class EccentricAnomalyState(eo1 : F, coseo1: F, sineo1: F, ecosE: F, esinE: F)  
-  case class ShortPeriodPeriodicState(
-    elem: SGPElems[F], 
-    I: F,     // inclination 
-    R: F,     // Radial velocity    
-    Ω: F,     // argument of the node
-    mrt: F, 
-    mvt: F, 
-    rvdot: F)
+  case class LongPeriodPolarNodalContext(
+      r : F, // the radial distance 
+      θ : F, 
+      R : F, // radial velocity 
+      `Θ/r` : F, // the total angular momentum/r
+      `el²`: F,   // ---- Context 
+      pl : F, 
+      βl : F,
+      sin2u: F, 
+      cos2u: F
+  ) {
+    def su0 = θ; def rdot0 = R; def rvdot0 = `Θ/r`
+  }
+
+  case class ShortPeriodPolarNodalContext(I: F, su: F, Ω: F, mrt: F, mvt: F, rvdot: F, δI: F, δsu: F, δΩ: F, δrdot: F, δrvdot: F) {
+    def R = su
+    // (`∆ψ`,`∆ξ`,`∆χ`,`∆r`,`∆R`,`∆Θ`)
+  }
 
   /**
    * Vallado's code works with internal units of length LU (units of earth’s radius  
@@ -70,7 +94,94 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
       import wgs.{aE,vkmpersec}
       ( (aE*mrt) *: pos,  vkmpersec *: (mvt *: pos + rvdot *: vel))
   }  
+
+  /** 
+   *  This calculation updates the secular elements at epoch to the desired date given by 
+   *  the time t in minutes from the epoch 
+   */
+  def secularCorrections(t: Minutes): SGPElems[F] = {
     
+    import secularTerms._1._ // secularFrequencies._  // {ωdot,Ωdot,mdot=>Mdot,Ωcof}
+    import secularTerms._2._ // dragSecularCoefs._  
+    import elem0._, wgs._
+ 
+    // Brouwer’s gravitational corrections are applied first
+    // Note that his theory relies on Delaunays variables, 
+    // ωdot is gdot, Mdot is ℓdot, and  Ωdot is hdot.
+    val `t²` : F = t**2    
+    val ωdf  : F = ω + ωdot*t
+    val Ωdf  : F = Ω + Ωdot*t
+    val Mdf  : F = M + Mdot*t    
+    
+    // Next, the secular corrections due to the atmospheric drag are incorporated
+    // which also take long period terms from drag;
+    // in particular δh, δL, δe, δℓ 
+   
+    val (δL, δe, δℓ, ωm, mp) : (F,F,F,F,F) = dragSecularCorrections(t, ωdf, Mdf)
+
+    // Compute the secular elements (not exactly secular as they mix long-period terms from drag)
+
+    val am : F  = ((KE/n) fpow (2.0/3.0).as[F]) * δL * δL // a * tempa**2  
+    val nm : F  = KE / (am pow 1.5)
+    val em_ : F = e - δe
+    val Ωm  : F = Ωdf + Ωcof*`t²` 
+    
+    // fix tolerance for error recognition
+    // sgp4fix am is fixed from the previous nm check
+    if (!eValidInterval.contains(em_))
+      {
+        // sgp4fix to return if there is an error in eccentricity
+        // FIXME: we should move to use Either
+        return SGPElems(nm, em_, I, ωm, Ωm, mp, am, bStar, epoch) 
+      }
+
+    // sgp4fix fix tolerance to avoid a divide by zero
+    // TBC:  is this needed in Lara's version
+    val em = if (em_ < 1.0e-6.as[F]) 1.0e-6.as[F] else em_ 
+    
+    val Mm_  = mp + n*δℓ
+     
+    // modulus so that the angles are in the range 0,2pi
+    val Ω_      = Ωm  % twopi
+    val ω_      = ωm  % twopi
+    
+    // Lyddane's variables and back 
+    val ℓm      = Mm_ + ωm + Ωm
+    val lm      = ℓm  % twopi
+    val Mm      = (lm - ω_ - Ω_) % twopi   
+    SGPElems(nm, em, I, ω_, Ω_, Mm, am, bStar, epoch)
+  }
+   
+  def dragSecularCorrections(t: Minutes, ωdf: F, Mdf: F): (F,F,F,F,F) = {
+
+    import laneCoefs._
+    import secularTerms._2._ // dragSecularCoefs._ // {ωcof,delM0,sinM0,Mcof}    
+    import geoPot._ 
+    import gctx.η 
+    import elem0.{bStar,M}
+    
+    val `t²` : F = t**2    
+ 
+    // It should be noted that when epoch perigee height is less than
+    // 220 kilometers, the equations for a and Lane's are truncated after the C1 term, 
+    // and the terms involving C5 , δω, and δM are dropped.    
+    if (isImpacting) 
+      return (1 - C1*t, bStar*C4*t, t2cof*`t²`, ωdf, Mdf)
+    
+    val `t³` = `t²`*t
+    val `t⁴` = `t²`*`t²`
+    val δω : F = ωcof*t
+    val δM : F = Mcof*( (1+η*cos(Mdf))**3 - delM0)
+    val Mpm_ : F = Mdf + δω + δM
+    val ωm_  : F = ωdf - δω - δM
+    
+    val δL = 1 - C1*t - D2*`t²` - D3*`t³` - D4*`t⁴`  // (L´´/L0) 
+    val δe = bStar*(C4*t + C5*(sin(Mpm_) - sin(M)))  // sin(M) === sin(M0)
+    val δℓ =  t2cof*`t²` + t3cof*`t³` + `t⁴` * (t4cof + t*t5cof)   // (ℓ´´ - ℓj´´)/ n0
+    
+    (δL, δe, δℓ, ωm_, Mpm_)
+  }
+  
 }
 
 
