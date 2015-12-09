@@ -26,18 +26,26 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   
   override def periodicCorrections(secularElemt : SGPElems[F], secularDragCoefs: DragSecularCoefs[F])
       : (ShortPeriodPolarNodalContext, LongPeriodPolarNodalContext, EccentricAnomalyState) = {
+    
+    // After computing the double-prime Delaunay/Lyddane variables from the secular terms, 
+    // the Kepler equation must be solved to find first ƒ, the true anomaly, and then θ, 
+    // the argument of latitude, in order to compute corresponding double-prime polar-nodal variables.
     val eaState = solveKeplerEq(secularElemt)
-    val secPNt = lydanne2SpecialPolarNodal(eaState, secularElemt)
+
+    val secPNt = lyddane2SpecialPolarNodal(eaState, secularElemt)
+    
     // secular state at time t in Lara Non Singular variables
     val sect = polarNodal2LaraNonSingular(ctx0.s, secPNt)  // (sinI, secularPolarNodal)
+    
     val lppc = lppCorrections(sect)
+    
     // apply long period periodic corrections at time t
-    val lppt = LaraNonSingular(sect.ψ + lppc.ψ,sect.ξ + lppc.ξ,sect.χ + lppc.χ, 
-         sect.r + lppc.r, sect.R + lppc.R, sect.Θ + lppc.Θ)
+    val lppt = LaraNonSingular(sect.ψ + lppc.ψ,sect.ξ + lppc.ξ,sect.χ + lppc.χ, sect.r + lppc.r, sect.R + lppc.R, sect.Θ + lppc.Θ)
+    
     val sppc = sppCorrections(lppt)
     // apply short period periodic corrections at time t
-    val sppt = LaraNonSingular(lppt.ψ + sppc.ψ, lppt.ξ + sppc.ξ, lppt.χ + sppc.χ, 
-         lppt.r + sppc.r, lppt.R + sppc.R, lppt.Θ + sppc.Θ)
+    val sppt = LaraNonSingular(lppt.ψ + sppc.ψ, lppt.ξ + sppc.ξ, lppt.χ + sppc.χ, lppt.r + sppc.r, lppt.R + sppc.R, lppt.Θ + sppc.Θ)
+    
     // final state in Polar Nodal coordinates at time t         
     val sppPNt : PolarNodalElems[F] = laraNonSingular2PolarNodal(sppt) 
     
@@ -54,7 +62,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   def periodicCorrectionsBis(secularElemt : SGPElems[F], secularDragCoefs: DragSecularCoefs[F])
       : (PolarNodalElems[F], LaraNonSingular, LaraNonSingular, EccentricAnomalyState) = {
     val eaState = solveKeplerEq(secularElemt)
-    val secPNt = lydanne2SpecialPolarNodal(eaState, secularElemt)
+    val secPNt = lyddane2SpecialPolarNodal(eaState, secularElemt)
     // secular state at time t in Lara Non Singular variables
     val sect = polarNodal2LaraNonSingular(ctx0.s, secPNt)  // (sinI, secularPolarNodal)
     val lppc = lppCorrections(sect)
@@ -114,10 +122,14 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   }
   
   /**
-   * Solve the Kepler equation 
-   * 		ℓ = E - e sinE
-   * where E is the eccentric anomaly.
-   * We are using Lydanne's elements as variables.
+   * Solve the Kepler equation φ = ƒ − ℓ = ƒ − u + e sinu   where 
+   * u = 2 arctan (sqrt((1-e)/(1+e))*tan(ƒ/2))
+   * e² = κ² + σ²
+   * ƒ is unambiguously computed from cosƒ = κ/e and  sinƒ = σ/e
+   * with κ = p/r - 1 and σ = p*R/Θ
+   * which are derived from 
+   * R = (G/p) e sinƒ
+   * r = p / (1 + e cosƒ)
    */
   def solveKeplerEq(elem : SGPElems[F]): EccentricAnomalyState = {
        
@@ -167,25 +179,16 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
      EccentricAnomalyState(eo1,coseo1,sineo1,ecosE,esinE)   
   }
   
+  // ν = ψ − θ and sinθ = ξ/s, cosθ = χ/s and c = N/Θ, tanθ = ξ/χ
   def laraNonSingular2PolarNodal(lnSingular: LaraNonSingular) : TEME.PolarNodalElems[F] = {
 	  import lnSingular._
-	  val `ξ²` : F = ξ**2
-	  val `χ²` : F = χ**2
-	  val `R/r` : F = R/r
-	  val `Θ/r` : F = Θ/r
-	  val N : F = ???
-	  val c : F = N/Θ
-	  val cosψ = cos(ψ)
-	  val sinψ = sin(ψ)
-	  val q = ξ * χ / (1 + c)
-	  val τ = 1 - `χ²` / (1 + c)
-	  val b = 1 - `ξ²` / (1 + c)
-	  val θ : F = ???
-	  val ν : F = ??? 
+	  val N : F = Θ*cos(elem0.I) // FIXME
+	  val θ : F = atan(ξ/χ)
+	  val ν : F = ψ - θ
     TEME.PolarNodalElems(r,θ,ν,R,Θ,N)
- }
+  }
   
-  def lydanne2SpecialPolarNodal(eaState: EccentricAnomalyState, secularElem: SGPElems[F]) = {
+  def lyddane2SpecialPolarNodal(eaState: EccentricAnomalyState, secularElem: SGPElems[F]) = {
     import eaState._ 
     import secularElem._ // {n,e,I,ω,Ω,M,a}
 
@@ -204,11 +207,11 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val temp0  = esinE / (1 + βl)         
      
     // u is the true anomaly that can be defined immediately as the polar angle θ = (Ox, OS), x along the semimajor axis, S sat position
-    val sinu : F = ??? // FIXME ?a / r * (sineo1 - aynl - axnl * temp0)             // sinu
-    val cosu : F = ??? // FIXME a / r * (coseo1 - axnl + aynl * temp0)             // cosu
-    val su0 : F  = ??? // atan2(sinu, cosu)                                   // u, that is θ
-    val sin2u : F = ??? // 2 * cosu * sinu
-    val cos2u : F = ??? // 1 - 2 * sinu * sinu
+    val sinu : F = sineo1 // FIXME ?a / r * (sineo1 - aynl - axnl * temp0)             // sinu
+    val cosu : F = coseo1 // FIXME a / r * (coseo1 - axnl + aynl * temp0)             // cosu
+    val su0 : F  = eo1    // FIXME atan2(sinu, cosu)                                   // u, that is θ
+    val sin2u : F = 2 * cosu * sinu
+    val cos2u : F = 1 - 2 * sinu * sinu
     SpecialPolarNodalContext(r, su0, rdot, rvdot, `e²`, p, βl, sin2u, cos2u)
   }
   
@@ -218,17 +221,17 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     import elem._
     import wgs.μ
     val `e²` : F = e**2
-    val β = (1 - `e²`).sqrt
-    val L = (μ*a).sqrt
+    val β = sqrt(1 - `e²`)
+    val L = sqrt(μ*a)
     val r = a*(1 - ecosE)
     val R = (L/r) * esinE 
     val Θ = L * β
-    // val sinf = 
-    val f : F = ??? // atan(β*esinE/(ecosE - `e²`))
-    val g : F =  ???
+    val `tanf/2` = sqrt((1+e)/(1-e))*tan(eo1/2)
+    val f : F = 2*atan(`tanf/2`)
+    val g : F = ω
 	  val θ : F = f + g 
-	  val ν : F = ??? 
- 	  val N : F = ??? 
+	  val ν : F = Ω   // FIXME ν is not defined if I=0 , 
+ 	  val N : F = Θ*cos(I) 
     TEME.PolarNodalElems(r,θ,ν,R,Θ,N)
   }
 
@@ -269,7 +272,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val `χ²` : F = χ**2
     val `R/r` : F = R/r
     val `Θ/r` : F = Θ/r
-    val N : F = ???
+    val N : F = Θ*cos(elem0.I) // FIXME
     val c : F = N/Θ
     val cosψ = cos(ψ)
     val sinψ = sin(ψ)
