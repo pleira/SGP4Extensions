@@ -3,6 +3,7 @@ import spire.algebra._
 import spire.math._
 import spire.implicits._
 import spire.syntax.primitives._
+import predict4s.tle.TEME._ 
 
 /** 
  * The SGP-4 theory is applied for all orbits with periods of T <= 225 min. 
@@ -35,25 +36,24 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
   type SinI = F  // type to remember dealing with the sine   of the Inclination 
   type CosI = F  // type to remember dealing with the cosine of the Inclination 
   type Minutes = F // type to remember dealing with minutes from epoch
- 
-  def propagate2PolarNodalContext(t: Minutes): ((ShortPeriodPolarNodalContext, LongPeriodPolarNodalContext, EccentricAnomalyState), SGPElems[F]) = {
+
+  type FinalState 
+  type ShortPeriodState
+  type LongPeriodState
+  type EccentricAState
+  
+  def propagate2PolarNodalContext(t: Minutes): ((FinalState, ShortPeriodState, LongPeriodState, EccentricAState), SGPElems[F]) = {
     val secularElemt = secularCorrections(t)
     (periodicCorrections(secularElemt, secularTerms._2), secularElemt)
   }
   
   def propagate2PolarNodal(t: Minutes) = {
-    val ((finalPolarNodal, _, _), _) = propagate2PolarNodalContext(t)
+    val ((finalPolarNodal, _, _, _), _) = propagate2PolarNodalContext(t)
     finalPolarNodal
   }
 
-  def propagate2CartesianContext(t: Minutes) = {
-    val ((finalPolarNodal, lppState, eaState), secularElemt) = propagate2PolarNodalContext(t)
-    import finalPolarNodal._
-    val uPV: TEME.CartesianElems[F] = TEME.polarNodal2UnitCartesian(I, R, Ω)
-    val (p, v) = convertAndScale2UnitVectors(uPV.pos, uPV.vel, mrt, mvt, rvdot)
-    val posVel = TEME.CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
-    (posVel, uPV, finalPolarNodal, lppState, secularElemt, eaState)    
-  }
+  def propagate2CartesianContext(t: Minutes) : 
+    (TEME.CartesianElems[F], TEME.CartesianElems[F], FinalState, ShortPeriodState, LongPeriodState, EccentricAState)
 
   def propagate2Cartesian(t: Minutes) : TEME.CartesianElems[F] = {  
     val (posVel, _, _,_,_,_) = propagate2CartesianContext(t)
@@ -62,27 +62,12 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
   
   def propagate(t: Minutes)  = propagate2CartesianContext(t)
 
-  def periodicCorrections(secularElemt : SGPElems[F], secularDragCoefs: DragSecularCoefs[F]): (ShortPeriodPolarNodalContext, LongPeriodPolarNodalContext, EccentricAnomalyState)
+  
+  def periodicCorrections(secularElemt : SGPElems[F], secularDragCoefs: DragSecularCoefs[F]): 
+    (FinalState, ShortPeriodState, LongPeriodState, EccentricAState)
 
   case class EccentricAnomalyState(eo1 : F, coseo1: F, sineo1: F, ecosE: F, esinE: F)  
-  case class LongPeriodPolarNodalContext(
-      r : F, // the radial distance 
-      θ : F, 
-      R : F, // radial velocity 
-      `Θ/r` : F, // the total angular momentum/r
-      `el²`: F,   // ---- Context 
-      pl : F, 
-      βl : F,
-      sin2u: F, 
-      cos2u: F
-  ) {
-    def su0 = θ; def rdot0 = R; def rvdot0 = `Θ/r`
-  }
 
-  case class ShortPeriodPolarNodalContext(I: F, su: F, Ω: F, mrt: F, mvt: F, rvdot: F, δI: F, δsu: F, δΩ: F, δrdot: F, δrvdot: F) {
-    def R = su
-    // (`∆ψ`,`∆ξ`,`∆χ`,`∆r`,`∆R`,`∆Θ`)
-  }
 
   /**
    * Vallado's code works with internal units of length LU (units of earth’s radius  

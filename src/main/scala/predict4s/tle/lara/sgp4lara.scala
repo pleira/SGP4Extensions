@@ -8,7 +8,7 @@ import spire.syntax.primitives._
 import predict4s._
 import predict4s.tle.GeoPotentialCoefs
 import predict4s.tle._
-import TEME._   
+import predict4s.tle.TEME._   
 import predict4s.tle.LaneCoefs
 
 
@@ -23,9 +23,14 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     isImpacting: Boolean,
     rp: F
   ) extends SGP4(elem0, wgs, ctx0, geoPot, gctx, laneCoefs, secularTerms, isImpacting, rp) {
+ 
+  type FinalState = PolarNodalElems[F]
+  type ShortPeriodState = LaraNonSingular
+  type LongPeriodState = LaraNonSingular
+  type EccentricAState = EccentricAnomalyState
   
   override def periodicCorrections(secularElemt : SGPElems[F], secularDragCoefs: DragSecularCoefs[F])
-      : (ShortPeriodPolarNodalContext, LongPeriodPolarNodalContext, EccentricAnomalyState) = {
+      :  (FinalState, ShortPeriodState, LongPeriodState, EccentricAState) = {
     
     // After computing the double-prime Delaunay/Lyddane variables from the secular terms, 
     // the Kepler equation must be solved to find first ƒ, the true anomaly, and then θ, 
@@ -40,44 +45,32 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val lppc = lppCorrections(sect)
     
     // apply long period periodic corrections at time t
-    val lppt = LaraNonSingular(sect.ψ + lppc.ψ,sect.ξ + lppc.ξ,sect.χ + lppc.χ, sect.r + lppc.r, sect.R + lppc.R, sect.Θ + lppc.Θ)
+    val lppt = sect + lppc 
     
     val sppc = sppCorrections(lppt)
     // apply short period periodic corrections at time t
-    val sppt = LaraNonSingular(lppt.ψ + sppc.ψ, lppt.ξ + sppc.ξ, lppt.χ + sppc.χ, lppt.r + sppc.r, lppt.R + sppc.R, lppt.Θ + sppc.Θ)
+    val sppt = lppt + sppc
     
     // final state in Polar Nodal coordinates at time t         
-    val sppPNt : PolarNodalElems[F] = laraNonSingular2PolarNodal(sppt) 
+    val finalPolarNodalt : PolarNodalElems[F] = laraNonSingular2PolarNodal(sppt) 
     
-    // conversions for comparison with Vallado's results
-    //   case class ShortPeriodPolarNodalContext(I: F, su: F, Ω: F, mrt: F, mvt: F, rvdot: F, δI: F, δsu: F, δΩ: F, δrdot: F, δrvdot: F) {
-    //   case class LongPeriodPolarNodalContext(r : F, θ : F, R : F, `Θ/r` : F, `el²`: F,  pl : F, βl : F, sin2u: F, cos2u: F)
-    val spPNC : ShortPeriodPolarNodalContext = ???
-      // ShortPeriodPolarNodalContext()
-    val lpPNC :  LongPeriodPolarNodalContext = ???
-      // LongPeriodPolarNodalContext()
-    (spPNC, lpPNC, eaState)
+    (finalPolarNodalt, sppc, lppc, eaState)
+  }
+ 
+  override def propagate2CartesianContext(t: Minutes) = {
+    val ((finalPolarNodal, sppState, lppState, eaState), secularElemt) = propagate2PolarNodalContext(t)
+    import finalPolarNodal._
+    // FIXME
+    val uPV: TEME.CartesianElems[F] = TEME.polarNodal2UnitCartesian(θ, R, ν)
+    val mrt = r ; val mvt = Θ; val rvdot = N // relations not verified, just to get this class compiled 
+    val (p, v) = convertAndScale2UnitVectors(uPV.pos, uPV.vel, mrt, mvt, rvdot)
+    val posVel = TEME.CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
+    (posVel, uPV, finalPolarNodal, sppState, lppState, eaState)    
   }
   
-  def periodicCorrectionsBis(secularElemt : SGPElems[F], secularDragCoefs: DragSecularCoefs[F])
-      : (PolarNodalElems[F], LaraNonSingular, LaraNonSingular, EccentricAnomalyState) = {
-    val eaState = solveKeplerEq(secularElemt)
-    val secPNt = lyddane2SpecialPolarNodal(eaState, secularElemt)
-    // secular state at time t in Lara Non Singular variables
-    val sect = polarNodal2LaraNonSingular(ctx0.s, secPNt)  // (sinI, secularPolarNodal)
-    val lppc = lppCorrections(sect)
-    // apply long period periodic corrections at time t
-    val lppt = LaraNonSingular(sect.ψ + lppc.ψ,sect.ξ + lppc.ξ,sect.χ + lppc.χ, 
-         sect.r + lppc.r,sect.R + lppc.R,sect.Θ + lppc.Θ)
-    val sppc = sppCorrections(lppt)
-    // apply short period periodic corrections at time t
-    val finalState = LaraNonSingular(lppt.ψ + sppc.ψ,lppt.ξ + sppc.ξ,lppt.χ + sppc.χ, 
-         lppt.r + sppc.r,lppt.R + sppc.R,lppt.Θ + sppc.Θ)
-    val finalPolarNodal : PolarNodalElems[F] = laraNonSingular2PolarNodal(finalState) 
-     (finalPolarNodal, sppc, lppc, eaState)   
+  case class LaraNonSingular(ψ : F, ξ: F, χ: F, r: F, R: F, Θ: F) {
+    def +(o: LaraNonSingular) = LaraNonSingular(ψ + o.ψ,ξ+ o.ξ,χ+ o.χ,r+ o.r,R+ o.R,Θ+ o.Θ)
   }
-  
-  case class LaraNonSingular(ψ : F, ξ: F, χ: F, r: F, R: F, Θ: F)
   // TODO: this class is identical to LongPeriodPolarNodalContext
   case class SpecialPolarNodalContext(
       r : F, // the radial distance 

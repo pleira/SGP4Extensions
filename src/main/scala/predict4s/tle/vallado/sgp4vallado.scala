@@ -24,18 +24,55 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     rp: F
   ) extends SGP4(elem0, wgs, ctx0, geoPot, gctx, laneCoefs, secularTerms, isImpacting, rp) {
    
+  type FinalState = SpecialPolarNodal
+  type ShortPeriodState = ShortPeriodPolarNodalContext
+  type LongPeriodState = LongPeriodPolarNodalContext
+  type EccentricAState = EccentricAnomalyState
+  
+  case class LongPeriodPolarNodalContext(
+      r : F, // the radial distance 
+      θ : F, 
+      R : F, // radial velocity 
+      `Θ/r` : F, // the total angular momentum/r
+      `el²`: F,   // ---- Context 
+      pl : F, 
+      βl : F,
+      sin2u: F, 
+      cos2u: F
+  ) {
+    def su0 = θ; def rdot0 = R; def rvdot0 = `Θ/r`
+  }
+
+  case class ShortPeriodPolarNodalContext(I: F, su: F, Ω: F, mrt: F, mvt: F, rvdot: F, δI: F, δsu: F, δΩ: F, δrdot: F, δrvdot: F) {
+    def R = su
+  }
+ 
+  case class SpecialPolarNodal(I: F, su: F, Ω: F, mrt: F, mvt: F, rvdot: F) {
+    def R = su
+  }
  
   case class LyddaneLongPeriodPeriodicState(axnl: F, aynl: F, xl: F) {
     def `C´´` = axnl; def `S´´` = aynl ; def `F´´` = xl
   }
-
+  
   override def periodicCorrections(secularElemt : SGPElems[F], secularDragCoefs: DragSecularCoefs[F])
-      : (ShortPeriodPolarNodalContext, LongPeriodPolarNodalContext, EccentricAnomalyState) = {
+      :  (FinalState, ShortPeriodState, LongPeriodState, EccentricAState) = {
     val lppState = lppCorrections(secularElemt, secularTerms._2) // dragSecularCoefs
     val eaState = solveKeplerEq(secularElemt, lppState)
     val lppPolarNodalContext = lydanne2SpecialPolarNodal(eaState, lppState, secularElemt)
     val sppPolarNodalContext = sppCorrections(ctx0, eaState, lppPolarNodalContext, secularElemt)
-    (sppPolarNodalContext, lppPolarNodalContext, eaState)   
+    import sppPolarNodalContext._
+    val finalPNState = SpecialPolarNodal(I, su, Ω, mrt, mvt, rvdot)
+    (finalPNState, sppPolarNodalContext, lppPolarNodalContext, eaState)
+  }
+
+  override def propagate2CartesianContext(t: Minutes) = {
+    val ((finalPolarNodal, sppState, lppState, eaState), secularElemt) = propagate2PolarNodalContext(t)
+    import finalPolarNodal._
+    val uPV: TEME.CartesianElems[F] = TEME.polarNodal2UnitCartesian(I, R, Ω)
+    val (p, v) = convertAndScale2UnitVectors(uPV.pos, uPV.vel, mrt, mvt, rvdot)
+    val posVel = TEME.CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
+    (posVel, uPV, finalPolarNodal, sppState, lppState, eaState)    
   }
 
   /**
