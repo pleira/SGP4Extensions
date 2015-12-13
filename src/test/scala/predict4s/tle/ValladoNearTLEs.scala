@@ -51,7 +51,7 @@ trait  ValladoTLE00005Check[F] { self :  FunSuite =>
                                    // ------------------after initl  :---------------
 val checkIntl5 = (ini : Initl[F]) => { implicit equ: Equality[F] =>
   import ini._
-  assert(   satn  ===               5 );  assert(   ecco  ===     0.185966700 );  assert(  epoch  === 18441.784950620 );  assert(  inclo  ===     0.598092919 ); 
+  assert(   satn  ===               5 );  assert(   ecco  ===    0.185966700 );  assert(  epoch  === 18441.784950620 );  assert(  inclo  ===     0.598092919 ); 
   //   in/out : 
   assert(     no  ===     0.047206302 ); 
   //   outputs : 
@@ -968,7 +968,7 @@ assert(  error  ===               0 ); assert(      x  === -7154.031202016 ); as
 } 
 val pvCheckSgp4_5_720 = (res: Sgp4Result[F]) => { implicit equ: Equality[F] =>
  import res._
-assert(  error  ===               0 ); assert(      x  === -7134.593401193 ); assert(      y  ===  6531.686413336 ); assert(      z  ===  3260.271864826 ); assert(   xdot  ===    -4.113793027 ); assert(   ydot  ===    -2.911922039 ); assert(   zdot  ===    -2.557327851 ); 
+assert(  error  ===               0 ); assert(      x  === -7134.593401193 ); assert(      y  ===  16531.686413336 ); assert(      z  ===  3260.271864826 ); assert(   xdot  ===    -4.113793027 ); assert(   ydot  ===    -2.911922039 ); assert(   zdot  ===    -2.557327851 ); 
 } 
 val pvCheckSgp4Init6251 = (ini: Sgp4Init[F]) => { implicit equ: Equality[F] =>
  import ini._
