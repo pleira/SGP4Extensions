@@ -70,12 +70,12 @@ object SGPElems {
     import wgs.{KE,J2}
     
     val a1   = (KE / n) fpow (2.0/3.0).as[F]  // (Ke / n0) pow 1.5   
-    val tval = (3.0/4.0) * J2 * x3cos2Im1 / `β0³`  // 3 * k2 * (3*`cos²I0` - 1) / ((1-`e0²`) pow 1.5) / 4 
+    val tval = 3 * J2 * x3cos2Im1 / `β0³` / 4  // 3 * k2 * (3*`cos²I0` - 1) / ((1-`e0²`) pow 1.5) / 4 
     val δ1   = tval / (a1*a1)
-    val a0   = a1 * (1 - δ1 * (1.0/3.0 + δ1 * (1 + 134 * δ1 / 81)))
+    val a0   = a1 * (1 - δ1 * (1.as[F]/3.as[F] + δ1 * (1 + 134 * δ1 / 81)))
     val δ0   = tval / (a0 * a0)  
     val n0dp = n   / (1 + δ0) 
-    val a0dp = (KE / n0dp) fpow (2.0/3.0).as[F]  // a0   / (1 - δ0)
+    val a0dp = (KE / n0dp) fpow (2.as[F]/3.as[F])  // a0   / (1 - δ0)
     (n0dp, a0dp)
   }
 }
@@ -108,10 +108,10 @@ case class Context0[F: Field: NRoot : Trig](
   val `p⁴` = `p²`*`p²`
   val `1/p²` = 1/`p²`
   val `1/p⁴` = 1/`p⁴`
-  import wgs.{aE=>α,J2,`J2/J3`}
+  import wgs.{aE=>α,J2,`J2/J3`,`J3/J2`}
   val `α/p` : F = α/p
   val ϵ2 : F = -J2*(`α/p`**2) / 4
-  val ϵ3 : F = (`J2/J3`)*`α/p` / 2      // or (`C30/C20`)*`α/p` / 2   
+  val ϵ3 : F = (`J3/J2`)*`α/p` / 2      // or (`C30/C20`)*`α/p` / 2   
 // FIXME  val η : F = β0  // (1 - `e²`).sqrt           // eccentricity function G/L, with G as the Delauney's action, the total angular momentum , and L = √(μ a)
 //  val x3thm1     = 3*`c²` - 1
   val con41      = x3thm1

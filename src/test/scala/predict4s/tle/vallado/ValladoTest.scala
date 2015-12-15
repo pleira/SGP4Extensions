@@ -1,7 +1,8 @@
 package predict4s.tle.vallado
+
 import org.scalatest.FunSuite
-import org.scalautils.TolerantNumerics
-import org.scalautils.Equality
+import org.scalactic.TolerantNumerics
+import org.scalactic.Equality
 import predict4s.tle.{SGP72Constants,NearTLEs,TEME}
 import predict4s.tle._
 

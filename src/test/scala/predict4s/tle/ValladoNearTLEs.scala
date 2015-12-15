@@ -1,8 +1,8 @@
 package predict4s.tle
 
 import org.scalatest.FunSuite
-import org.scalautils.TolerantNumerics
-import org.scalautils.Equality
+import org.scalactic.TolerantNumerics
+import org.scalactic.Equality
 
 trait ValladoNearTLEsCheck[F] extends ValladoTLE00005Check[F] with ValladoTLE06251Check[F] with ValladoTLE28057Check[F] { self :  FunSuite => 
 

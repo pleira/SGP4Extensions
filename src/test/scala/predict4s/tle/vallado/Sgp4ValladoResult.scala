@@ -3,7 +3,6 @@ package predict4s.tle.vallado
 import predict4s.tle.Sgp4Near
 import predict4s.tle.TEME
 import predict4s.tle.Sgp4Result
-import predict4s.tle.Sgp4Near
 import predict4s.tle.TLE
 
 case class Sgp4ValladoResult(
@@ -21,7 +20,6 @@ case class Sgp4ValladoResult(
   import sgp.geoPot._
   import sgp.isImpacting
   import sgp.{secularTerms,laneCoefs}
-  import statett._
   val error = 0
   val x = r(0); 
   val y = r(1) ; 
