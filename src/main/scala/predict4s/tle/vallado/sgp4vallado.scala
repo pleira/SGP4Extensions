@@ -25,30 +25,12 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
   ) extends SGP4(elem0, wgs, ctx0, geoPot, gctx, laneCoefs, secularTerms, isImpacting, rp) {
    
   type FinalState = SpecialPolarNodal
-  type ShortPeriodState = ShortPeriodPolarNodalContext
-  type LongPeriodState = LongPeriodPolarNodalContext
+  type ShortPeriodState = (SpecialPolarNodal, SpecialPolarNodal) // final values, corrections ShortPeriodPolarNodalContext
+  type LongPeriodState = (SpecialPolarNodal, F, F, F, F, F) // final values, context variables
   type EccentricAState = EccentricAnomalyState
   
-  case class LongPeriodPolarNodalContext(
-      r : F, // the radial distance 
-      θ : F, 
-      R : F, // radial velocity 
-      `Θ/r` : F, // the total angular momentum/r
-      `el²`: F,   // ---- Context 
-      pl : F, 
-      βl : F,
-      sin2u: F, 
-      cos2u: F
-  ) {
-    def su0 = θ; def rdot0 = R; def rvdot0 = `Θ/r`
-  }
-
-  case class ShortPeriodPolarNodalContext(I: F, su: F, Ω: F, mrt: F, mvt: F, rvdot: F, δI: F, δsu: F, δΩ: F, δrdot: F, δrvdot: F) {
-    def R = su
-  }
- 
   case class SpecialPolarNodal(I: F, su: F, Ω: F, mrt: F, mvt: F, rvdot: F) {
-    def R = su
+    def R = su; def su0 = su; def r = mrt; def rdot0 = mvt; def rvdot0 = rvdot;
   }
  
   case class LyddaneLongPeriodPeriodicState(axnl: F, aynl: F, xl: F) {
@@ -56,13 +38,12 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
   }
   
   override def periodicCorrections(secularElemt : SGPElems[F], secularDragCoefs: DragSecularCoefs[F])
-      :  (FinalState, ShortPeriodState, LongPeriodState, EccentricAState) = {
+      :  (SpecialPolarNodal, ShortPeriodState, LongPeriodState, EccentricAState) = {
     val lppState = lppCorrections(secularElemt, secularTerms._2) // dragSecularCoefs
     val eaState = solveKeplerEq(secularElemt, lppState)
     val lppPolarNodalContext = lydanne2SpecialPolarNodal(eaState, lppState, secularElemt)
     val sppPolarNodalContext = sppCorrections(ctx0, eaState, lppPolarNodalContext, secularElemt)
-    import sppPolarNodalContext._
-    val finalPNState = SpecialPolarNodal(I, su, Ω, mrt, mvt, rvdot)
+    val (finalPNState, _) = sppPolarNodalContext
     (finalPNState, sppPolarNodalContext, lppPolarNodalContext, eaState)
   }
 
@@ -176,14 +157,16 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     val su0    = atan2(sinu, cosu)                                   // u, that is θ
     val sin2u  = 2 * cosu * sinu
     val cos2u  = 1 - 2 * sinu * sinu
-    LongPeriodPolarNodalContext(rl, su0, rdotl, rvdotl, `el²`, pl, βl, sin2u, cos2u)
-  }
-  
-  def sppCorrections(ctx: Context0[F], eaState: EccentricAnomalyState, lppState: LongPeriodPolarNodalContext, secularElem: SGPElems[F]) 
-      : ShortPeriodPolarNodalContext = { // PolarNodalElems[F]) = {
+    (SpecialPolarNodal(I, su0, Ω, rl, rdotl, rvdotl), `el²`, pl, βl, sin2u, cos2u) 
+    // LongPeriodPolarNodalContext(rl, su0, rdotl, rvdotl, `el²`, pl, βl, sin2u, cos2u)
+  }    
+
+  def sppCorrections(ctx: Context0[F], eaState: EccentricAnomalyState, lppState: LongPeriodState, secularElem: SGPElems[F]) 
+      : ShortPeriodState = { // PolarNodalElems[F]) = {
     import eaState._ 
-    import lppState._
-    import secularElem._ // {n,e,I,ω,Ω,M,a}
+    import lppState.{_1 => lpp,_3 => pl,_4 => βl,_5 => sin2u,_6 => cos2u}
+    import lpp._
+    import secularElem.n // {n,e,I,ω,Ω,M,a}
     import wgs.{J2,KE}
  
     val temp0  = esinE / (1 + βl)         
@@ -205,7 +188,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     val mvt = rdot0 + δrdot
     val δrvdot = n * temp1 * (x1mth2 * cos2u + 1.5 * con41) / KE  
     val rvdot = rvdot0 + δrvdot
-    ShortPeriodPolarNodalContext(inc, su, node, mrt, mvt, rvdot, δI, δsu, δΩ, δrdot, δrvdot)
+    (SpecialPolarNodal(inc, su, node, mrt, mvt, rvdot) , SpecialPolarNodal(δI, δsu, δΩ, 0.as[F], δrdot, δrvdot))
   }
 
 }

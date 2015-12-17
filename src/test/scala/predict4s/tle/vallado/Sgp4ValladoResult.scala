@@ -8,7 +8,7 @@ import predict4s.tle.TLE
 case class Sgp4ValladoResult(
     sgp: SGP4Vallado[Double], 
     statett: (TEME.CartesianElems[Double], TEME.CartesianElems[Double], SGP4Vallado[Double]#SpecialPolarNodal, 
-        SGP4Vallado[Double]#ShortPeriodPolarNodalContext, SGP4Vallado[Double]#LongPeriodPolarNodalContext, SGP4Vallado[Double]#EccentricAnomalyState), tle: TLE, t: Double) 
+        SGP4Vallado[Double]#ShortPeriodState, SGP4Vallado[Double]#LongPeriodState, SGP4Vallado[Double]#EccentricAnomalyState), tle: TLE, t: Double) 
         extends Sgp4Result[Double] {
   val posVel = statett._1 
   val r = posVel.pos
