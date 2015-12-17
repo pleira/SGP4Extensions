@@ -67,8 +67,13 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
     (FinalState, ShortPeriodState, LongPeriodState, EccentricAState)
 
   case class EccentricAnomalyState(eo1 : F, coseo1: F, sineo1: F, ecosE: F, esinE: F)  
-
-
+  
+  case class SpecialPolarNodal(I: F, su: F, Ω: F, mrt: F, mvt: F, rvdot: F) {
+    def R = su; def su0 = su; def r = mrt; def rdot0 = mvt; def rvdot0 = rvdot;
+    // SpecialPolarNodal note: Vallado's SGP4 uses rθdot = Θ/r instead of Θ, used by Lara
+    def θ = rvdot/r; 
+  }
+  
   /**
    * Vallado's code works with internal units of length LU (units of earth’s radius  
    * R⊕ in km) and time TU (units of the orbit’s period in min) 

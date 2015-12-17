@@ -28,10 +28,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
   type ShortPeriodState = (SpecialPolarNodal, SpecialPolarNodal) // final values, corrections ShortPeriodPolarNodalContext
   type LongPeriodState = (SpecialPolarNodal, F, F, F, F, F) // final values, context variables
   type EccentricAState = EccentricAnomalyState
-  
-  case class SpecialPolarNodal(I: F, su: F, Ω: F, mrt: F, mvt: F, rvdot: F) {
-    def R = su; def su0 = su; def r = mrt; def rdot0 = mvt; def rvdot0 = rvdot;
-  }
+
  
   case class LyddaneLongPeriodPeriodicState(axnl: F, aynl: F, xl: F) {
     def `C´´` = axnl; def `S´´` = aynl ; def `F´´` = xl

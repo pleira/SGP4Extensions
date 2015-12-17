@@ -28,6 +28,19 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   type ShortPeriodState = LaraNonSingular
   type LongPeriodState = LaraNonSingular
   type EccentricAState = EccentricAnomalyState
+  type PolarNodalSecularState = (SpecialPolarNodal, F, F, F, F, F)
+//      r : F, // the radial distance 
+//      θ : F, 
+//      R : F, // radial velocity 
+//      `Θ/r` : F, // the total angular momentum/r
+//      `el²`: F,   // ---- Context 
+//      pl : F, 
+//      βl : F,
+//      sin2u: F, 
+//      cos2u: F
+//  ) {
+//    def su0 = θ; def rdot0 = R; def rvdot0 = `Θ/r`;  
+//  }
   
   override def periodicCorrections(secularElemt : SGPElems[F], secularDragCoefs: DragSecularCoefs[F])
       :  (FinalState, ShortPeriodState, LongPeriodState, EccentricAState) = {
@@ -37,7 +50,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     // the argument of latitude, in order to compute corresponding double-prime polar-nodal variables.
     val eaState = solveKeplerEq(secularElemt)
 
-    val secPNt = lyddane2SpecialPolarNodal(eaState, secularElemt)
+    val (secPNt, _,_,_,_,_)  = lyddane2SpecialPolarNodal(eaState, secularElemt)
     
     // secular state at time t in Lara Non Singular variables
     val sect = polarNodal2LaraNonSingular(ctx0.s, secPNt)  // (sinI, secularPolarNodal)
@@ -70,20 +83,6 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   
   case class LaraNonSingular(ψ : F, ξ: F, χ: F, r: F, R: F, Θ: F) {
     def +(o: LaraNonSingular) = LaraNonSingular(ψ + o.ψ,ξ+ o.ξ,χ+ o.χ,r+ o.r,R+ o.R,Θ+ o.Θ)
-  }
-  // TODO: this class is identical to LongPeriodPolarNodalContext
-  case class SpecialPolarNodalContext(
-      r : F, // the radial distance 
-      θ : F, 
-      R : F, // radial velocity 
-      `Θ/r` : F, // the total angular momentum/r
-      `el²`: F,   // ---- Context 
-      pl : F, 
-      βl : F,
-      sin2u: F, 
-      cos2u: F
-  ) {
-    def su0 = θ; def rdot0 = R; def rvdot0 = `Θ/r`;  
   }
   
   def lppCorrections(lnSingular: LaraNonSingular) : LaraNonSingular = {
@@ -181,7 +180,8 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     TEME.PolarNodalElems(r,θ,ν,R,Θ,N)
   }
   
-  def lyddane2SpecialPolarNodal(eaState: EccentricAnomalyState, secularElem: SGPElems[F]) = {
+  def lyddane2SpecialPolarNodal(eaState: EccentricAnomalyState, secularElem: SGPElems[F]) 
+      : PolarNodalSecularState = {
     import eaState._ 
     import secularElem._ // {n,e,I,ω,Ω,M,a}
 
@@ -205,7 +205,8 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val su0 : F  = eo1    // FIXME atan2(sinu, cosu)                                   // u, that is θ
     val sin2u : F = 2 * cosu * sinu
     val cos2u : F = 1 - 2 * sinu * sinu
-    SpecialPolarNodalContext(r, su0, rdot, rvdot, `e²`, p, βl, sin2u, cos2u)
+    // SpecialPolarNodalContext(r, su0, rdot, rvdot, `e²`, p, βl, sin2u, cos2u)
+    (SpecialPolarNodal(I, su0, Ω, r, rdot, rvdot), `e²`, p, βl, sin2u, cos2u)
   }
   
   // Sec 4.2 Lara's personal communication (r, θ, R, Θ) −→ (F, C, S, a)
@@ -228,13 +229,13 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     TEME.PolarNodalElems(r,θ,ν,R,Θ,N)
   }
 
-  def polarNodal2LaraNonSingular(s: SinI, polarNodal: SpecialPolarNodalContext) : LaraNonSingular = {
+  def polarNodal2LaraNonSingular(s: SinI, polarNodal: SpecialPolarNodal) : LaraNonSingular = {
     import polarNodal._ 
     import elem0.{Ω=>ν} // FIXME: TBC
     val ψ = ν + θ
     val ξ = s * sin(θ)
     val χ = s * cos(θ)
-    val Θ = `Θ/r`*r
+    val Θ =  rvdot  // `Θ/r`*r  check
     LaraNonSingular(ψ, ξ, χ, r, R, Θ) 
   }
   
