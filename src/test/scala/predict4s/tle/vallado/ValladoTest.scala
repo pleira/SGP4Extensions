@@ -3,7 +3,7 @@ package predict4s.tle.vallado
 import org.scalatest.FunSuite
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
-import predict4s.tle.{SGP72Constants,NearTLEs,TEME}
+import predict4s.tle.{SGP72Constants,NearTLEs}
 import predict4s.tle._
 
 trait ValladoNearTLEsTest extends NearTLEs with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] { self : FunSuite => 

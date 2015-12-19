@@ -8,9 +8,9 @@ import spire.syntax.primitives._
 import predict4s._
 import predict4s.tle.GeoPotentialCoefs
 import predict4s.tle._
-import TEME._   
 import predict4s.tle.LaneCoefs
-
+import predict4s.coord.CartesianElems
+import predict4s.coord.CoordTransformation._
     
 class SGP4Vallado[F : Field : NRoot : Order : Trig](
     elem0: SGPElems[F],
@@ -47,9 +47,9 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
   override def propagate2CartesianContext(t: Minutes) = {
     val ((finalPolarNodal, sppState, lppState, eaState), secularElemt) = propagate2PolarNodalContext(t)
     import finalPolarNodal._
-    val uPV: TEME.CartesianElems[F] = TEME.polarNodal2UnitCartesian(I, R, Ω)
+    val uPV: CartesianElems[F] = polarNodal2UnitCartesian(I, R, Ω)
     val (p, v) = convertAndScale2UnitVectors(uPV.pos, uPV.vel, mrt, mvt, rvdot)
-    val posVel = TEME.CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
+    val posVel = CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
     (posVel, uPV, finalPolarNodal, sppState, lppState, eaState)    
   }
 

@@ -1,13 +1,13 @@
 package predict4s.tle.vallado
 
 import predict4s.tle.Sgp4Near
-import predict4s.tle.TEME
+import predict4s.coord.CartesianElems
 import predict4s.tle.Sgp4Result
 import predict4s.tle.TLE
 
 case class Sgp4ValladoResult(
     sgp: SGP4Vallado[Double], 
-    statett: (TEME.CartesianElems[Double], TEME.CartesianElems[Double], SGP4Vallado[Double]#SpecialPolarNodal, 
+    statett: (CartesianElems[Double], CartesianElems[Double], SGP4Vallado[Double]#SpecialPolarNodal, 
         SGP4Vallado[Double]#ShortPeriodState, SGP4Vallado[Double]#LongPeriodState, SGP4Vallado[Double]#EccentricAnomalyState), tle: TLE, t: Double) 
         extends Sgp4Result[Double] {
   val posVel = statett._1 

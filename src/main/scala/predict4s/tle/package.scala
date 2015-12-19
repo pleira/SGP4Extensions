@@ -16,7 +16,7 @@ import spire.math.floor
 import spire.math.pi
 import spire.syntax.primitives.DoubleAs
 import spire.syntax.primitives.IntAs
-import predict4s.refsystem.ReferenceSystem
+
 
 package object tle {
     
@@ -25,7 +25,7 @@ package object tle {
    *  
    *  Transformations done in this reference system.
    */
-  object TEME extends ReferenceSystem 
+ // object TEME extends ReferenceSystem 
 
   def revPerDay2RadPerMin[F: Field](rpd: F) : F = 2 * pi * rpd / 1440 
    

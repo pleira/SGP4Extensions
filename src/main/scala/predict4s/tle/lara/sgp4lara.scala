@@ -8,9 +8,10 @@ import spire.syntax.primitives._
 import predict4s._
 import predict4s.tle.GeoPotentialCoefs
 import predict4s.tle._
-import predict4s.tle.TEME._   
 import predict4s.tle.LaneCoefs
-
+import predict4s.coord.PolarNodalElems
+import predict4s.coord.CartesianElems
+import predict4s.coord.CoordTransformation._
 
 class SGP4Lara[F : Field : NRoot : Order : Trig](
     elem0: SGPElems[F],
@@ -74,10 +75,10 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val ((finalPolarNodal, sppState, lppState, eaState), secularElemt) = propagate2PolarNodalContext(t)
     import finalPolarNodal._
     // FIXME
-    val uPV: TEME.CartesianElems[F] = TEME.polarNodal2UnitCartesian(θ, R, ν)
+    val uPV: CartesianElems[F] = polarNodal2UnitCartesian(θ, R, ν)
     val mrt = r ; val mvt = Θ; val rvdot = N // relations not verified, just to get this class compiled 
     val (p, v) = convertAndScale2UnitVectors(uPV.pos, uPV.vel, mrt, mvt, rvdot)
-    val posVel = TEME.CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
+    val posVel = CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
     (posVel, uPV, finalPolarNodal, sppState, lppState, eaState)    
   }
   
@@ -172,12 +173,12 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   }
   
   // ν = ψ − θ and sinθ = ξ/s, cosθ = χ/s and c = N/Θ, tanθ = ξ/χ
-  def laraNonSingular2PolarNodal(lnSingular: LaraNonSingular) : TEME.PolarNodalElems[F] = {
+  def laraNonSingular2PolarNodal(lnSingular: LaraNonSingular) : PolarNodalElems[F] = {
 	  import lnSingular._
 	  val N : F = Θ*cos(elem0.I) // FIXME
 	  val θ : F = atan(ξ/χ)
 	  val ν : F = ψ - θ
-    TEME.PolarNodalElems(r,θ,ν,R,Θ,N)
+    PolarNodalElems(r,θ,ν,R,Θ,N)
   }
   
   def lyddane2SpecialPolarNodal(eaState: EccentricAnomalyState, secularElem: SGPElems[F]) 
@@ -210,7 +211,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   }
   
   // Sec 4.2 Lara's personal communication (r, θ, R, Θ) −→ (F, C, S, a)
-  def lyddane2PolarNodal(elem: SGPElems[F], eas : EccentricAnomalyState): TEME.PolarNodalElems[F] = {
+  def lyddane2PolarNodal(elem: SGPElems[F], eas : EccentricAnomalyState): PolarNodalElems[F] = {
     import eas._
     import elem._
     import wgs.μ
@@ -226,7 +227,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 	  val θ : F = f + g 
 	  val ν : F = Ω   // FIXME ν is not defined if I=0 , 
  	  val N : F = Θ*cos(I) 
-    TEME.PolarNodalElems(r,θ,ν,R,Θ,N)
+    PolarNodalElems(r,θ,ν,R,Θ,N)
   }
 
   def polarNodal2LaraNonSingular(s: SinI, polarNodal: SpecialPolarNodal) : LaraNonSingular = {
@@ -239,7 +240,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     LaraNonSingular(ψ, ξ, χ, r, R, Θ) 
   }
   
-  def cartesian2LaraNonSingular(pv: TEME.CartesianElems[F]) : LaraNonSingular = {
+  def cartesian2LaraNonSingular(pv: CartesianElems[F]) : LaraNonSingular = {
     import pv._
     // (x,y,z) position, (X,Y,Z) velocity
     val r : F = (x**2 + y**2 + z**2).sqrt 

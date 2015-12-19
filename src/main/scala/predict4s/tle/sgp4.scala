@@ -3,7 +3,8 @@ import spire.algebra._
 import spire.math._
 import spire.implicits._
 import spire.syntax.primitives._
-import predict4s.tle.TEME._ 
+import predict4s.coord.CartesianElems
+ 
 
 /** 
  * The SGP-4 theory is applied for all orbits with periods of T <= 225 min. 
@@ -53,9 +54,9 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
   }
 
   def propagate2CartesianContext(t: Minutes) : 
-    (TEME.CartesianElems[F], TEME.CartesianElems[F], FinalState, ShortPeriodState, LongPeriodState, EccentricAState)
+    (CartesianElems[F], CartesianElems[F], FinalState, ShortPeriodState, LongPeriodState, EccentricAState)
 
-  def propagate2Cartesian(t: Minutes) : TEME.CartesianElems[F] = {  
+  def propagate2Cartesian(t: Minutes) : CartesianElems[F] = {  
     val (posVel, _, _,_,_,_) = propagate2CartesianContext(t)
     posVel
   }
