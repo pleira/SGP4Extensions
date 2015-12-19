@@ -11,25 +11,18 @@ import predict4s.tle._
 import predict4s.tle.LaneCoefs
 import predict4s.coord.PolarNodalElems
 import predict4s.coord.CartesianElems
+import predict4s.coord.SpecialPolarNodal
 import predict4s.coord.CoordTransformation._
 
 class SGP4Lara[F : Field : NRoot : Order : Trig](
-    elem0: SGPElems[F],
-    wgs: SGPConstants[F],
-    ctx0: Context0[F],
-    geoPot: GeoPotentialCoefs[F],
-    gctx: GeoPotentialContext[F],
-    laneCoefs : LaneCoefs[F],
-    secularTerms : (SecularFrequencies[F], DragSecularCoefs[F]),
-    isImpacting: Boolean,
-    rp: F
-  ) extends SGP4(elem0, wgs, ctx0, geoPot, gctx, laneCoefs, secularTerms, isImpacting, rp) {
+ sec : BrouwerLaneSecularCorrections[F]
+  ) extends SGP4(sec) {
  
   type FinalState = PolarNodalElems[F]
   type ShortPeriodState = LaraNonSingular
   type LongPeriodState = LaraNonSingular
   type EccentricAState = EccentricAnomalyState
-  type PolarNodalSecularState = (SpecialPolarNodal, F, F, F, F, F)
+  type PolarNodalSecularState = (SpecialPolarNodal[F], F, F, F, F, F)
 //      r : F, // the radial distance 
 //      θ : F, 
 //      R : F, // radial velocity 
@@ -43,7 +36,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 //    def su0 = θ; def rdot0 = R; def rvdot0 = `Θ/r`;  
 //  }
   
-  override def periodicCorrections(secularElemt : SGPElems[F], secularDragCoefs: DragSecularCoefs[F])
+  override def periodicCorrections(secularElemt : SGPElems[F])
       :  (FinalState, ShortPeriodState, LongPeriodState, EccentricAState) = {
     
     // After computing the double-prime Delaunay/Lyddane variables from the secular terms, 
@@ -54,7 +47,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val (secPNt, _,_,_,_,_)  = lyddane2SpecialPolarNodal(eaState, secularElemt)
     
     // secular state at time t in Lara Non Singular variables
-    val sect = polarNodal2LaraNonSingular(ctx0.s, secPNt)  // (sinI, secularPolarNodal)
+    val sect = specialPolarNodal2LaraNonSingular(sec.ctx0.s, secPNt)  // (sinI, secularPolarNodal)
     
     val lppc = lppCorrections(sect)
     
@@ -88,7 +81,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   
   def lppCorrections(lnSingular: LaraNonSingular) : LaraNonSingular = {
     import lnSingular._
-    import ctx0._
+    import sec.ctx0._
     val `p/r` = p/r
     val δψ = 2 * ϵ3 * χ 
     val δξ = χ * δψ
@@ -101,7 +94,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   
   def sppCorrections(lnSingular: LaraNonSingular) : LaraNonSingular = {
     import lnSingular._
-    import ctx0._
+    import sec.ctx0._
     val `χ²` : F = χ**2
     val `ξ²` : F = ξ**2
     
@@ -126,7 +119,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
    */
   def solveKeplerEq(elem : SGPElems[F]): EccentricAnomalyState = {
        
-    import elem.{e,Ω,ω,M,a}, wgs.twopi
+    import elem.{e,Ω,ω,M,a}, sec.wgs.twopi
      
     //---------------------------------------------------------------------------------------
     // CONFIRM
@@ -136,7 +129,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val axn : F = e * cos(ω)
     val temp : F = 1 / (a * (1 - e * e))
     
-    import secularTerms._2._ // dragSecularCoefs._  
+    import sec.dragCoefs._  
     val ayn : F = e * sin(ω) + temp * aycof
     val xl : F  = M + ω + Ω + temp * xlcof * axn
      
@@ -146,36 +139,36 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     var ktr : Int = 1
     // U = F' - h' = M" + g"; 
     val u    = Field[F].mod(xl - Ω, twopi.as[F])
-    var eo1  = u
+    var E  = u
     var tem5 : F = 9999.9.as[F]     //   sgp4fix for kepler iteration
     var ecosE : F = 0.as[F]
     var esinE : F = 0.as[F]
-    var coseo1 : F = 0.as[F]
-    var sineo1 : F = 0.as[F]
+    var cosE : F = 0.as[F]
+    var sinE : F = 0.as[F]
 
     //   the following iteration needs better limits on corrections
     while ((abs(tem5) >= 1e-12.as[F]) && (ktr <= 10)) {
-       sineo1 = sin(eo1)
-       coseo1 = cos(eo1)
-       ecosE = axn * coseo1 + ayn * sineo1
-       esinE = axn * sineo1 - ayn * coseo1
+       sinE = sin(E)
+       cosE = cos(E)
+       ecosE = axn * cosE + ayn * sinE
+       esinE = axn * sinE - ayn * cosE
 
        val fdot = 1 - ecosE
-       val f = (u + esinE - eo1)
+       val f = (u + esinE - E)
        tem5 = f / fdot  // delta value
        if(abs(tem5) >= 0.95.as[F])
            tem5 = if (tem5 > 0.as[F]) 0.95.as[F]  else -0.95.as[F] 
-       eo1 = eo1 + tem5
+       E = E + tem5
        ktr = ktr + 1
      }
      
-     EccentricAnomalyState(eo1,coseo1,sineo1,ecosE,esinE)   
+     EccentricAnomalyState(E,cosE,sinE,ecosE,esinE)   
   }
   
   // ν = ψ − θ and sinθ = ξ/s, cosθ = χ/s and c = N/Θ, tanθ = ξ/χ
   def laraNonSingular2PolarNodal(lnSingular: LaraNonSingular) : PolarNodalElems[F] = {
 	  import lnSingular._
-	  val N : F = Θ*cos(elem0.I) // FIXME
+	  val N : F = Θ*cos(sec.elem0.I) // FIXME
 	  val θ : F = atan(ξ/χ)
 	  val ν : F = ψ - θ
     PolarNodalElems(r,θ,ν,R,Θ,N)
@@ -201,9 +194,9 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val temp0  = esinE / (1 + βl)         
      
     // u is the true anomaly that can be defined immediately as the polar angle θ = (Ox, OS), x along the semimajor axis, S sat position
-    val sinu : F = sineo1 // FIXME ?a / r * (sineo1 - aynl - axnl * temp0)             // sinu
-    val cosu : F = coseo1 // FIXME a / r * (coseo1 - axnl + aynl * temp0)             // cosu
-    val su0 : F  = eo1    // FIXME atan2(sinu, cosu)                                   // u, that is θ
+    val sinu : F = sinE // FIXME ?a / r * (sinE - aynl - axnl * temp0)             // sinu
+    val cosu : F = cosE // FIXME a / r * (cosE - axnl + aynl * temp0)             // cosu
+    val su0 : F  = E    // FIXME atan2(sinu, cosu)                                   // u, that is θ
     val sin2u : F = 2 * cosu * sinu
     val cos2u : F = 1 - 2 * sinu * sinu
     // SpecialPolarNodalContext(r, su0, rdot, rvdot, `e²`, p, βl, sin2u, cos2u)
@@ -214,14 +207,14 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   def lyddane2PolarNodal(elem: SGPElems[F], eas : EccentricAnomalyState): PolarNodalElems[F] = {
     import eas._
     import elem._
-    import wgs.μ
+    import sec.wgs.μ
     val `e²` : F = e**2
     val β = sqrt(1 - `e²`)
     val L = sqrt(μ*a)
     val r = a*(1 - ecosE)
     val R = (L/r) * esinE 
     val Θ = L * β
-    val `tanf/2` = sqrt((1+e)/(1-e))*tan(eo1/2)
+    val `tanf/2` = sqrt((1+e)/(1-e))*tan(E/2)
     val f : F = 2*atan(`tanf/2`)
     val g : F = ω
 	  val θ : F = f + g 
@@ -230,13 +223,23 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     PolarNodalElems(r,θ,ν,R,Θ,N)
   }
 
-  def polarNodal2LaraNonSingular(s: SinI, polarNodal: SpecialPolarNodal) : LaraNonSingular = {
+  def specialPolarNodal2LaraNonSingular(s: SinI, polarNodal: SpecialPolarNodal[F]) : LaraNonSingular = {
     import polarNodal._ 
-    import elem0.{Ω=>ν} // FIXME: TBC
+    import sec.elem0.{Ω=>ν,I=>θ,ω=>R} // FIXME: just wrong
     val ψ = ν + θ
     val ξ = s * sin(θ)
     val χ = s * cos(θ)
     val Θ =  rvdot  // `Θ/r`*r  check
+    LaraNonSingular(ψ, ξ, χ, r, R, Θ) 
+  }
+  
+  def polarNodal2LaraNonSingular(s: SinI, polarNodal: PolarNodalElems[F]) : LaraNonSingular = {
+    import polarNodal._ 
+    import sec.elem0.{Ω=>ν} // FIXME: TBC
+    val ψ = ν + θ
+    val ξ = s * sin(θ)
+    val χ = s * cos(θ)
+    //val Θ =  rvdot  // `Θ/r`*r  check
     LaraNonSingular(ψ, ξ, χ, r, R, Θ) 
   }
   
@@ -267,7 +270,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val `χ²` : F = χ**2
     val `R/r` : F = R/r
     val `Θ/r` : F = Θ/r
-    val N : F = Θ*cos(elem0.I) // FIXME
+    val N : F = Θ*cos(sec.elem0.I) // FIXME
     val c : F = N/Θ
     val cosψ = cos(ψ)
     val sinψ = sin(ψ)
@@ -290,12 +293,9 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 
 }
 
-object SGP4Lara extends SGP4Factory {
+object SGP4Lara {
   
-  def apply[F : Field : NRoot : Order : Trig](elem0Ctx0: (SGPElems[F], Context0[F]))(implicit wgs0: SGPConstants[F]) :  SGP4Lara[F] = {
-    val (elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp) = from(elem0Ctx0)
-    new SGP4Lara(elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, isImpacting, rp)
-  }
-  
+  def apply[F : Field : NRoot : Order : Trig](sec: BrouwerLaneSecularCorrections[F]) :  SGP4Lara[F] = new SGP4Lara(sec)
+
 }
 

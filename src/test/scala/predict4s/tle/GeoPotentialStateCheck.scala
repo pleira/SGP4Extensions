@@ -10,7 +10,7 @@ class GeoPotentialStateCheck extends FunSuite with NearTLEs  {
   def sgpImpl : String = "Vallado SGP4"
   
   def fixture = new {
-    val model = new SGP4Factory {
+    val model = new SecularCorrectionsFactory {
         def buildGeoPotential(tle: TLE) = {
           import spire.implicits._
           val elemTLE : (SGPElems[Double], Context0[Double]) = SGPElems.sgpElemsAndContext(tle)

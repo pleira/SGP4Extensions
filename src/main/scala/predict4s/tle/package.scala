@@ -20,12 +20,8 @@ import spire.syntax.primitives.IntAs
 
 package object tle {
     
-  /**
-   *  True equator, mean equinox (TEME)
-   *  
-   *  Transformations done in this reference system.
-   */
- // object TEME extends ReferenceSystem 
+
+ 
 
   def revPerDay2RadPerMin[F: Field](rpd: F) : F = 2 * pi * rpd / 1440 
    

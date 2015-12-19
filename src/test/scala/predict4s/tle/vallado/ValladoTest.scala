@@ -38,7 +38,7 @@ class HardcodedValladoCheck extends FunSuite with NearTLEs with ValladoNearTLEsC
   def propags : List[SGP4Vallado[Double]] = tles map {tle => 
     import spire.std.any.DoubleAlgebra
     val elem0AndCtx = SGPElems.sgpElemsAndContext(tle)
-    SGP4Vallado[Double](elem0AndCtx)
+    SGP4Vallado[Double](BrouwerLaneSecularCorrections(elem0AndCtx))
   }
   def sgpImpl : String = "Vallado SGP4"
   
