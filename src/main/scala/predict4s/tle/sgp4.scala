@@ -71,7 +71,7 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
   case class SpecialPolarNodal(I: F, su: F, Ω: F, mrt: F, mvt: F, rvdot: F) {
     def R = su; def su0 = su; def r = mrt; def rdot0 = mvt; def rvdot0 = rvdot;
     // SpecialPolarNodal note: Vallado's SGP4 uses rθdot = Θ/r instead of Θ, used by Lara
-    def θ = rvdot/r; 
+    def θ = rvdot*r; 
   }
   
   /**
