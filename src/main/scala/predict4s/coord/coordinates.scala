@@ -66,15 +66,18 @@ case class PolarNodalElems[F: Field: Trig](
   
 case class SpecialPolarNodal[F: Field: Trig](
     I: F,  // the orbital inclination 
-    su: F, // TBC the argument of latitude?
+    θ: F, // TBC the argument of latitude
     Ω: F,  // the argument of the node
-    mrt: F, // the radial distance
-    mvt: F, // TBC the angular velocity ?
-    rvdot: F  // TBC related to the total angular momentum
+    r: F, // the radial distance
+    R: F, // the radial velocity 
+    `Θ/r` : F  // related to the total angular momentum
   ) {
-  def su0 = su; def r = mrt; def rdot0 = mvt; def rvdot0 = rvdot;
-  // SpecialPolarNodal note: Vallado's SGP4 uses rθdot = Θ/r instead of Θ, used by Lara
-  def Θ = rvdot*r; 
+  def su = θ; def su0 = su; def mrt = r; def mvt = R; def rdot0 = mvt; 
+  // Note: Vallado's SGP4 uses rθdot = Θ/r instead of Θ, used by Lara
+  def rvdot = `Θ/r`;
+  def Θ = rvdot*r;
+  def rθdot = Θ/r
+  def +(o: SpecialPolarNodal[F]) = SpecialPolarNodal(I+o.I,θ+o.θ,Ω+o.Ω,r+o.r,R+o.R,`Θ/r`+o.`Θ/r`)
 }
   
 object CoordTransformation  {

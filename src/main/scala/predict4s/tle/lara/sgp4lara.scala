@@ -117,7 +117,45 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
    * R = (G/p) e sinƒ
    * r = p / (1 + e cosƒ)
    */
-  def solveKeplerEq(elem : SGPElems[F]): EccentricAnomalyState = {
+  def solveKeplerEq(secularElem : SGPElems[F]) : EccentricAnomalyState  = {
+    import secularElem.{e,Ω,ω,M,a}, sec.wgs.twopi   
+    // U = F' - h' = M" + g"; 
+    //---------------------------------------------------------------------------------------
+    // CONFIRM
+    //---------------------------------------------------------------------------------------
+    
+    // Lydanne's Transformation
+    val axnl : F = e * cos(ω)
+    val temp : F = 1 / (a * (1 - e * e))
+    
+    import sec.dragCoefs._  
+    val aynl : F = e * sin(ω) + temp * aycof
+    val xl : F  = M + ω + Ω + temp * xlcof * axnl
+    val u = Field[F].mod(xl - Ω, twopi.as[F])  
+
+    def loop(E: F, remainingIters: Int) : EccentricAnomalyState = {
+      val sinE = sin(E)
+      val cosE = cos(E)
+      val ecosE = axnl * cosE + aynl * sinE
+      val esinE = axnl * sinE - aynl * cosE
+      val fdot = 1 - ecosE
+      val f = (u + esinE - E)
+      val tem : F = f / fdot  
+      val incr =
+        if (abs(tem) >= 0.95.as[F]) {
+          if (tem > 0.as[F]) 0.95.as[F] else -0.95.as[F]
+        } else tem
+      val En = E+incr
+      if (remainingIters <= 0 || abs(incr) < 1e-12.as[F]) {
+        EccentricAnomalyState(En,cosE,sinE,ecosE,esinE)   
+      } else {
+        loop(En, remainingIters - 1)
+      }
+    }
+    loop(u, 10)
+  }
+  
+  def solveKeplerEqOld(elem : SGPElems[F]): EccentricAnomalyState = {
        
     import elem.{e,Ω,ω,M,a}, sec.wgs.twopi
      
