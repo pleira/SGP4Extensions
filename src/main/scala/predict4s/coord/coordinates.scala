@@ -2,6 +2,7 @@ package predict4s.coord
 
 import spire.algebra.Trig
 import spire.algebra.Field
+import spire.algebra.NRoot
 import spire.math._
 import spire.implicits._
 import spire.syntax.primitives._
@@ -18,7 +19,7 @@ case class CartesianElems[F](x: F, y: F, z: F, vx: F, vy: F, vz: F) {
 
 // Naming of the elements after "Efficient formulation of the periodic corrections in
 // Brouwer’s gravity solution" by Martin Lara
-case class PolarNodalElems[F: Field: Trig](
+case class PolarNodalElems[F: Field: NRoot: Trig](
     r : F, // the radial distance 
     θ : F, // the argument of latitude 
     ν : F, // the argument of the ascending node 
@@ -33,12 +34,12 @@ case class PolarNodalElems[F: Field: Trig](
 	* velocity vectors in the orbital frame. Thus R3 (−ν) ◦ R1 (−I) ◦ R3 (−θ) 
 	* with I the orbital inclination where R1 , R3 , are the usual rotation matrices
 	*/
-  def polarNodal2Cartesian(I : F) : CartesianElems[F] = {
+  def polarNodal2Cartesian() : CartesianElems[F] = {
      // After replacing ν = ψ − θ and sinθ = ξ/s, cosθ = χ/s, the
      // transformation from nonsingular to Cartesian variables can be obtained from the sequence
      // (s and c are abbreviations for the sine and cosine of the inclination)
-     val s = sin(I)
-     val c = cos(I)
+     val c = N/Θ
+     val s = sqrt(1 - c*c)
      val ψ = ν + θ
      val ξ = s * sin(θ)
      val χ = s * cos(θ)
@@ -60,11 +61,17 @@ case class PolarNodalElems[F: Field: Trig](
          R * uy - Θ / r * (q * sinψ - τ * cosψ),
          R * uz + Θ / r * χ )
   }
+  
+  /*
+   * The cosI is given instead of the I
+   */
+  def polarNodal2SpecialPolarNodal() : SpecialPolarNodal[F] = SpecialPolarNodal(N/Θ,θ,ν,r,R,r*Θ)
+  
 
 }
 
   
-case class SpecialPolarNodal[F: Field: Trig](
+case class SpecialPolarNodal[F: Field: NRoot: Trig](
     I: F,  // the orbital inclination 
     θ: F, // TBC the argument of latitude
     Ω: F,  // the argument of the node
@@ -78,6 +85,8 @@ case class SpecialPolarNodal[F: Field: Trig](
   def Θ = rvdot*r;
   def rθdot = Θ/r
   def +(o: SpecialPolarNodal[F]) = SpecialPolarNodal(I+o.I,θ+o.θ,Ω+o.Ω,r+o.r,R+o.R,`Θ/r`+o.`Θ/r`)
+
+  def specialPolarNodal2PolarNodal() =  PolarNodalElems(r,θ,Ω,R,Θ,Θ*cos(I))
 }
   
 object CoordTransformation  {
