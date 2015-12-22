@@ -21,7 +21,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   type FinalState = PolarNodalElems[F]
   type ShortPeriodState = LaraNonSingular
   type LongPeriodState = LaraNonSingular
-  type EccentricAState = EccentricAnomalyState
+  type EccentricAState = EccentricAnomalyState[F]
   type PolarNodalSecularState = (SpecialPolarNodal[F], F, F, F, F, F)
 //      r : F, // the radial distance 
 //      θ : F, 
@@ -108,6 +108,38 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   }
   
   /**
+   * Solve Kepler's equation expressed in Delauney's variables 
+   * 		M = E − e sinE
+   * to compute E the eccentric anomaly.
+   * The Newton-Raphson iterations start from E0 = M = (l in Delauneys).
+   */
+  def solveKeplerEq(elem : SGPElems[F]): EccentricAnomalyState[F] = {
+       
+    import elem.{e,M}, sec.wgs.twopi
+    
+    def loop(E: F, remainingIters: Int) : EccentricAnomalyState[F] = {
+      val sinE = sin(E)
+      val cosE = cos(E)
+      val ecosE = e*cosE 
+      val esinE = e*sinE
+      val fdot = 1 - ecosE
+      val f = M - (E - esinE)
+      val tem : F = f / fdot  
+      val incr =
+        if (abs(tem) >= 0.95.as[F]) {
+          if (tem > 0.as[F]) 0.95.as[F] else -0.95.as[F]
+        } else tem
+      val En = E+incr
+      if (remainingIters <= 0 || abs(incr) < 1e-12.as[F]) {
+        EccentricAnomalyState(En,cosE,sinE,ecosE,esinE)   
+      } else {
+        loop(En, remainingIters - 1)
+      }
+    }
+    loop(M, 10)
+  }
+  
+  /**
    * Solve the Kepler equation φ = ƒ − ℓ = ƒ − u + e sinu   where 
    * u = 2 arctan (sqrt((1-e)/(1+e))*tan(ƒ/2))
    * e² = κ² + σ²
@@ -117,7 +149,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
    * R = (G/p) e sinƒ
    * r = p / (1 + e cosƒ)
    */
-  def solveKeplerEq(secularElem : SGPElems[F]) : EccentricAnomalyState  = {
+  def solveKeplerOld(secularElem : SGPElems[F]) : EccentricAnomalyState[F]  = {
     import secularElem.{e,Ω,ω,M,a}, sec.wgs.twopi   
     // U = F' - h' = M" + g"; 
     //---------------------------------------------------------------------------------------
@@ -133,7 +165,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val xl : F  = M + ω + Ω + temp * xlcof * axnl
     val u = Field[F].mod(xl - Ω, twopi.as[F])  
 
-    def loop(E: F, remainingIters: Int) : EccentricAnomalyState = {
+    def loop(E: F, remainingIters: Int) : EccentricAnomalyState[F] = {
       val sinE = sin(E)
       val cosE = cos(E)
       val ecosE = axnl * cosE + aynl * sinE
@@ -155,7 +187,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     loop(u, 10)
   }
   
-  def solveKeplerEqOld(elem : SGPElems[F]): EccentricAnomalyState = {
+  def solveKeplerEqOld(elem : SGPElems[F]): EccentricAnomalyState[F] = {
        
     import elem.{e,Ω,ω,M,a}, sec.wgs.twopi
      
@@ -212,7 +244,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     PolarNodalElems(r,θ,ν,R,Θ,N)
   }
   
-  def lyddane2SpecialPolarNodal(eaState: EccentricAnomalyState, secularElem: SGPElems[F]) 
+  def lyddane2SpecialPolarNodal(eaState: EccentricAnomalyState[F], secularElem: SGPElems[F]) 
       : PolarNodalSecularState = {
     import eaState._ 
     import secularElem._ // {n,e,I,ω,Ω,M,a}
@@ -242,7 +274,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   }
   
   // Sec 4.2 Lara's personal communication (r, θ, R, Θ) −→ (F, C, S, a)
-  def lyddane2PolarNodal(elem: SGPElems[F], eas : EccentricAnomalyState): PolarNodalElems[F] = {
+  def lyddane2PolarNodal(elem: SGPElems[F], eas : EccentricAnomalyState[F]): PolarNodalElems[F] = {
     import eas._
     import elem._
     import sec.wgs.μ

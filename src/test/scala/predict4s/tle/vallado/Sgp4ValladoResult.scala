@@ -8,7 +8,7 @@ import predict4s.tle.TLE
 case class Sgp4ValladoResult(
     sgp: SGP4Vallado[Double], 
     statett: (CartesianElems[Double], CartesianElems[Double], SGP4Vallado[Double]#FinalState, 
-        SGP4Vallado[Double]#ShortPeriodState, SGP4Vallado[Double]#LongPeriodState, SGP4Vallado[Double]#EccentricAnomalyState), tle: TLE, t: Double) 
+        SGP4Vallado[Double]#ShortPeriodState, SGP4Vallado[Double]#LongPeriodState, SGP4Vallado[Double]#EccentricAState), tle: TLE, t: Double) 
         extends Sgp4Result[Double] {
   val posVel = statett._1 
   val r = posVel.pos
@@ -70,10 +70,10 @@ case class Sgp4ValladoResult(
   def  argpdot : Double =  secularFreqs.ωdot 
   def   omgcof : Double =  dragCoefs.ωcof 
   def   sinmao : Double = math.sin(elem0.M)
-  def   t2cof  : Double = laneCoefs.t2cof
-  def   t3cof  : Double = laneCoefs.t3cof
-  def   t4cof  : Double = laneCoefs.t4cof
-  def   t5cof  : Double = laneCoefs.t5cof
+  def   t2cof  : Double = laneCoefs.T2
+  def   t3cof  : Double = laneCoefs.T3
+  def   t4cof  : Double = laneCoefs.T4
+  def   t5cof  : Double = laneCoefs.T5
   def  x1mth2  : Double = ctx0.x1mth2 // FIXME for d
   def  x7thm1  : Double = ctx0.x7thm1 // FIXME for d
   def   xlcof  : Double = dragCoefs.xlcof // FIXME for d

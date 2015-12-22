@@ -21,7 +21,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
   type FinalState = SpecialPolarNodal[F]
   type ShortPeriodState = (SpecialPolarNodal[F], ShortPeriodCorrections) // final values, corrections ShortPeriodPolarNodalContext
   type LongPeriodState = (SpecialPolarNodal[F], F, F, F, F, F, F) // final values, context variables
-  type EccentricAState = EccentricAnomalyState
+  type EccentricAState = EccentricAnomalyState[F]
 
   
   override def periodicCorrections(secularElemt : SGPElems[F])
@@ -55,12 +55,12 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
    * where U = F' − h' to compute the anomaly Ψ = E'+g', where E is the eccentric anomaly.
    * The Newton-Raphson iterations start from Ψ0 = U.
    */
-  def solveKeplerEq(lylppState: LyddaneLongPeriodPeriodicState) : EccentricAnomalyState  = {
+  def solveKeplerEq(lylppState: LyddaneLongPeriodPeriodicState) : EccentricAnomalyState[F]  = {
     import sec.wgs.twopi, lylppState._   
     // U = F' - h' = M" + g"; 
     val u = Field[F].mod(xl - Ω, twopi.as[F])  
 
-    def loop(E: F, remainingIters: Int) : EccentricAnomalyState = {
+    def loop(E: F, remainingIters: Int) : EccentricAnomalyState[F] = {
       val sinE = sin(E)
       val cosE = cos(E)
       val ecosE = axnl * cosE + aynl * sinE
@@ -103,7 +103,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     LyddaneLongPeriodPeriodicState(n, I, a, Ω, axnl, aynl, xl)
   }
   
-  def lyddane2SpecialPolarNodal(eaState: EccentricAnomalyState, lylppState: LyddaneLongPeriodPeriodicState) = {
+  def lyddane2SpecialPolarNodal(eaState: EccentricAnomalyState[F], lylppState: LyddaneLongPeriodPeriodicState) = {
     import eaState._ 
     import lylppState._
 

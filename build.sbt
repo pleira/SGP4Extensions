@@ -11,6 +11,7 @@ libraryDependencies ++= Seq(
     "org.scalatest"   %% "scalatest"    % "2.2.4"       % "test,it",
     "org.scalacheck"  %% "scalacheck"   % "1.12.5"      % "test,it",
     "org.scalactic"   %% "scalactic"    % "2.2.4"       % "test,it",
+    "com.github.pathikrit" %% "better-files" % "2.14.0" % "test,it",
     "org.spire-math"  %% "spire"        % "0.11.0"
 )
 

@@ -5,7 +5,6 @@ import spire.implicits._
 import spire.syntax.primitives._
 import predict4s.coord.CartesianElems
   
-
   
 class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig]( 
     val elem0: SGPElems[F],    
@@ -23,6 +22,8 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
   // valid interval for eccentricity calculations
   val eValidInterval = Interval.open(0.as[F],1.as[F])
 
+  // In SGP4, Delauney Action Variables (L,G,H) are never computed
+  // and the software uses n, e and I instead (a and n are related)
   case class DelauneyMixedVars(l: F, g: F, h: F, a: F, e: F, I: F) {
     def M = l; def ω = g; def Ω = h;
   }
@@ -35,25 +36,12 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
     DelauneyMixedVars(ℓ,g,h,el.a,el.e,el.I)
   }    
  
-
-  case class DelauneyVars(l: F, g: F, h: F, L: F, G: F, H: F) {
-    def sgpelem2Delauney(elem : SGPElems[F]) = {
-      import elem._
-      val ℓ = M  // mean anomaly
-      val g = ω  // argument of the periapsis
-      val h = Ω  // RAAN
-      val L = sqrt(a)  // Delaunay action, in reality sqrt(nu*a) but nu is taken out to be added later
-      val G = L * sqrt(1 - e*e)
-      val H = G * cos(I)
-      DelauneyVars(ℓ,g,h,L,G,H)
-    }    
-  }  
- 
+  
   case class LyddaneVars(F: F, S: F, C: F, L: F, h: F, cosI: CosI) {
     def a = L*L
   }
   
-  def delauney2Lyddane(vars: DelauneyVars) = {
+  def delauney2Lyddane(vars: DelauneyVars[F]) = {
       import vars._
       val F = l + g + h
       val S = e*sin(g)
@@ -61,60 +49,7 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
       val cosI : CosI = H/G
       LyddaneVars(F,S,C,L,h,cosI)      
   } 
-  
-  /**
-   * Secular terms in SGP4 are computed in Delauney variables, that is, we obtain ℓ, 𝘨, 𝘩, 𝐿, 	𝘎, 𝐻
-   * but we use DelauneyMixedVars ℓ, 𝘨, 𝘩, a, e, I
-   */
-//  def delauneySecularCorrections(t: Minutes): DelauneyMixedVars = {
-//    import secularFreqs._  // {ωdot,Ωdot,mdot=>Mdot,Ωcof}
-//    import dragCoefs._  
-//    import elem0._, wgs._
-// 
-//    // Brouwer’s gravitational corrections are applied first
-//    // ωdot is gdot, Mdot is ℓdot, and  Ωdot is hdot. 
-//    val ωdf  : F = ω + ωdot*t
-//    val Ωdf  : F = Ω + Ωdot*t
-//    val Mdf  : F = M + Mdot*t    
-//    
-//    // Next, the secular corrections due to the atmospheric drag are incorporated
-//    // which also take long period terms from drag;
-//    // in particular δh, δL, δe, δℓ 
-//   
-//    val (δL, δe, δℓ, ωm, δM) : (F,F,F,F,F) = dragSecularCorrections(t, ωdf, Mdf)
-//    val `t²` : F = t**2
-// 
-//    // Compute the secular elements (not exactly secular as they mix long-period terms from drag)
-//    val am : F  = ((KE/n) fpow (2.0/3.0).as[F]) * δL * δL // a * tempa**2    
-//    val em_ : F = e - δe
-//    val Ωm  : F = Ωdf + Ωcof*`t²` 
-//    
-//    // fix tolerance for error recognition
-//    // sgp4fix am is fixed from the previous nm check
-//    if (!eValidInterval.contains(em_))
-//      {
-//        // sgp4fix to return if there is an error in eccentricity
-//        // FIXME: we should move to use Either
-//        // return SGPElems(nm, em_, I, ωm, Ωm, mp, am, bStar, epoch) 
-//        DelauneyMixedVars(δM,ωm,Ωm,am,em_,I) 
-//      }
-//
-//    // sgp4fix fix tolerance to avoid a divide by zero
-//    val em = if (em_ < 1.0e-6.as[F]) 1.0e-6.as[F] else em_ 
-//    
-//    val Mm_  = δM + n*δℓ
-//     
-//    // modulus so that the angles are in the range 0,2pi
-//    val Ω_ = Ωm  % twopi
-//    val ω_ = ωm  % twopi
-//    
-//    // Lyddane's variables and back 
-//    val ℓm = Mm_ + ωm + Ωm
-//    val lm = ℓm  % twopi
-//    val Mm = (lm - ω_ - Ω_) % twopi   
-//    DelauneyMixedVars(Mm,ω_,Ω_,am,em,I)  
-//  }
-  
+     
   override def secularCorrections(t: Minutes): SGPElems[F] = {
     
     import secularFreqs._  // {ωdot,Ωdot,mdot=>Mdot,Ωcof}
@@ -132,14 +67,14 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
     // which also take long period terms from drag;
     // in particular δh, δL, δe, δℓ 
    
-    val (δL, δe, δℓ, ωm, mp) : (F,F,F,F,F) = dragSecularCorrections(t, ωdf, Mdf)
+    val (δL, δe, δℓ, ωm, xMp, xΩm) : (F,F,F,F,F,F) = dragSecularCorrections(t, ωdf, Mdf, Ωdf)
+    val Ωm = xΩm  // it seems Scala has some trouble with certain variable names
+    val Mp = xMp
 
-    val `t²` : F = t**2
     // Compute the secular elements (not exactly secular as they mix long-period terms from drag)
     val am : F  = ((KE/n) fpow (2.0/3.0).as[F]) * δL * δL // a * tempa**2  
     val nm : F  = KE / (am pow 1.5)
     val em_ : F = e - δe
-    val Ωm  : F = Ωdf + Ωcof*`t²` 
     
     // fix tolerance for error recognition
     // sgp4fix am is fixed from the previous nm check
@@ -147,26 +82,32 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
       {
         // sgp4fix to return if there is an error in eccentricity
         // FIXME: we should move to use Either
-        return SGPElems(nm, em_, I, ωm, Ωm, mp, am, bStar, epoch) 
+        return SGPElems(nm, em_, I, ωm, Ωm, Mp, am, bStar, epoch) 
       }
 
     // sgp4fix fix tolerance to avoid a divide by zero
     val em = if (em_ < 1.0e-6.as[F]) 1.0e-6.as[F] else em_ 
     
-    val Mm_  = mp + n*δℓ
+    val Mm_ = Mp + n*δℓ
      
     // modulus so that the angles are in the range 0,2pi
-    val Ω_      = Ωm  % twopi
-    val ω_      = ωm  % twopi
+    val Ω_ = Ωm  % twopi
+    val ω_ = ωm  % twopi
     
     // Lyddane's variables and back 
-    val ℓm      = Mm_ + ωm + Ωm
-    val lm      = ℓm  % twopi
-    val Mm      = (lm - ω_ - Ω_) % twopi   
+    val ℓm = Mm_ + ωm + Ωm
+    val lm = ℓm  % twopi
+    val Mm = (lm - ω_ - Ω_) % twopi   
     SGPElems(nm, em, I, ω_, Ω_, Mm, am, bStar, epoch)
   }
-   
-  def dragSecularCorrections(t: Minutes, ωdf: F, Mdf: F): (F,F,F,F,F) = {
+  
+  /*
+   * The secular corrections due to atmospheric drag are calculated
+   * by Brouwer/Lane in Delauneys variables. All the necessary constants and coefficients
+   * have been evaluated at the initialization stage.
+   * δL,δe,δℓ,δh	
+   */
+  def dragSecularCorrections(t: Minutes, ωdf: F, Mdf: F, Ωdf: F): (F,F,F,F,F,F) = {
 
     import laneCoefs._
     import dragCoefs._ // {ωcof,delM0,sinM0,Mcof}    
@@ -175,12 +116,13 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
     import elem0.{bStar,M}
     
     val `t²` : F = t**2    
+    val Ωm  : F = Ωdf + Ωcof*`t²` 
  
     // It should be noted that when epoch perigee height is less than
     // 220 kilometers, the equations for a and Lane's are truncated after the C1 term, 
     // and the terms involving C5 , δω, and δM are dropped.    
     if (isImpacting) 
-      return (1 - C1*t, bStar*C4*t, t2cof*`t²`, ωdf, Mdf)
+      return (1 - C1*t, bStar*C4*t, T2*`t²`, ωdf, Mdf, Ωm)
     
     val `t³` = `t²`*t
     val `t⁴` = `t²`*`t²`
@@ -191,9 +133,9 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
     
     val δL = 1 - C1*t - D2*`t²` - D3*`t³` - D4*`t⁴`  // (L´´/L0) 
     val δe = bStar*(C4*t + C5*(sin(Mpm_) - sin(M)))  // sin(M) === sin(M0)
-    val δℓ =  t2cof*`t²` + t3cof*`t³` + `t⁴` * (t4cof + t*t5cof)   // (ℓ´´ - ℓj´´)/ n0
-    
-    (δL, δe, δℓ, ωm_, Mpm_)
+    val δℓ =  T2*`t²` + T3*`t³` + `t⁴` * (T4 + t*T5) // (ℓ´´ - ℓj´´)/ n0
+
+    (δL, δe, δℓ, ωm_, Mpm_, Ωm)
   }
 
 }
@@ -202,8 +144,13 @@ case class SecularFrequencies[F](Mdot: F, ωdot: F, Ωdot: F)
 
 case class DragSecularCoefs[F](Mcof: F, ωcof: F, Ωcof: F, xlcof: F, aycof: F, delM0: F)
 
-case class LaneCoefs[F](t2cof: F, t3cof: F, t4cof: F, t5cof: F)
+case class LaneCoefs[F](T2: F, T3: F, T4: F, T5: F)
 
+case class DelauneyVars[F](l: F, g: F, h: F, L: F, G: F, H: F)
+
+case class ContextD[F](c: F, s: F, p: F, κ: F, σ: F) {
+  def cosI = c; def sinI = s;
+}
 
 object BrouwerLaneSecularCorrections extends SecularCorrectionsFactory {
   
@@ -211,5 +158,42 @@ object BrouwerLaneSecularCorrections extends SecularCorrectionsFactory {
     val (elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, dragCoefs, isImpacting, rp) = from(elem0Ctx0)
     new BrouwerLaneSecularCorrections(elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, dragCoefs, isImpacting, rp)
   }
+
+  def sgpelem2Delauney[F : Field : NRoot : Order : Trig](elem : SGPElems[F]) = {
+    import elem._
+    val ℓ = M  // mean anomaly
+    val g = ω  // argument of the periapsis
+    val h = Ω  // RAAN
+    val L = sqrt(a)  // Delaunay action, in reality sqrt(nu*a) but nu is taken out to be added later
+    val G = L * sqrt(1 - e*e)
+    val H = G * cos(I)
+    DelauneyVars(ℓ,g,h,L,G,H)
+  }    
+
+  def sgpelem2DelauneyCtx[F : Field : NRoot : Order : Trig](elem : SGPElems[F]) = {
+    import elem._
+    val cosI = cos(I)
+    val `e²` = e*e
+//    val p = a*(1 - `e²`)
+//    if (p < 0.as[F]) throw new Exception("p: " + p)
+//    val `√p` = sqrt(p) 
+    val β = sqrt(1 - `e²`)  
+    val ℓ = M  // mean anomaly
+    val g = ω  // argument of the periapsis
+    val h = Ω  // RAAN
+    val L = sqrt(a)  // Delaunay action, in reality sqrt(nu*a) but nu is taken out to be added later
+    val G = L * β
+    val H = G * cosI
+    DelauneyVars(ℓ,g,h,L,G,H)
+  }
   
+  def secularCtx2Delauney[F : Field : NRoot : Order : Trig](M: F, ω: F, Ω : F, a : F, e : F, cosI: F) = {
+    val ℓ = M  // mean anomaly
+    val g = ω  // argument of the periapsis
+    val h = Ω  // RAAN
+    val L = sqrt(a)  // Delaunay action, in reality sqrt(nu*a) but nu is taken out to be multiplied later
+    val G = L * sqrt(1 - e*e)
+    val H = G * cosI
+    DelauneyVars(ℓ,g,h,L,G,H)
+  }    
 }
