@@ -25,7 +25,7 @@ object ValladoFileReport {
     f << "# Vallado SGP4 algorithm\n"
     
     f << "\n\n#### Input TLE\n"
-    lines foreach (f << "  " + _ )
+    lines foreach (f << "  " + _ + "\n")
         
     f << "\n\n#### propagation times in min " 
     f << times.toString() < "\n"  
