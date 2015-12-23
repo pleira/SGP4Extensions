@@ -44,10 +44,10 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     // the argument of latitude, in order to compute corresponding double-prime polar-nodal variables.
     val eaState = solveKeplerEq(secularElemt)
 
-    val (secPNt, _,_,_,_,_)  = lyddane2SpecialPolarNodal(eaState, secularElemt)
+    val secPNt = delauney2PolarNodal(secularElemt, eaState)
     
     // secular state at time t in Lara Non Singular variables
-    val sect = specialPolarNodal2LaraNonSingular(sec.ctx0.s, secPNt)  // (sinI, secularPolarNodal)
+    val sect = polarNodal2LaraNonSingular(sec.ctx0.s, secPNt)  // (sinI, secularPolarNodal)
     
     val lppc = lppCorrections(sect)
     
@@ -129,110 +129,14 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
         if (abs(tem) >= 0.95.as[F]) {
           if (tem > 0.as[F]) 0.95.as[F] else -0.95.as[F]
         } else tem
-      val En = E+incr
-      if (remainingIters <= 0 || abs(incr) < 1e-12.as[F]) {
+      val En = E-incr
+      if (abs(incr) < 1e-12.as[F]) {
         EccentricAnomalyState(En,cosE,sinE,ecosE,esinE)   
       } else {
         loop(En, remainingIters - 1)
       }
     }
     loop(M, 10)
-  }
-  
-  /**
-   * Solve the Kepler equation φ = ƒ − ℓ = ƒ − u + e sinu   where 
-   * u = 2 arctan (sqrt((1-e)/(1+e))*tan(ƒ/2))
-   * e² = κ² + σ²
-   * ƒ is unambiguously computed from cosƒ = κ/e and  sinƒ = σ/e
-   * with κ = p/r - 1 and σ = p*R/Θ
-   * which are derived from 
-   * R = (G/p) e sinƒ
-   * r = p / (1 + e cosƒ)
-   */
-  def solveKeplerOld(secularElem : SGPElems[F]) : EccentricAnomalyState[F]  = {
-    import secularElem.{e,Ω,ω,M,a}, sec.wgs.twopi   
-    // U = F' - h' = M" + g"; 
-    //---------------------------------------------------------------------------------------
-    // CONFIRM
-    //---------------------------------------------------------------------------------------
-    
-    // Lydanne's Transformation
-    val axnl : F = e * cos(ω)
-    val temp : F = 1 / (a * (1 - e * e))
-    
-    import sec.dragCoefs._  
-    val aynl : F = e * sin(ω) + temp * aycof
-    val xl : F  = M + ω + Ω + temp * xlcof * axnl
-    val u = Field[F].mod(xl - Ω, twopi.as[F])  
-
-    def loop(E: F, remainingIters: Int) : EccentricAnomalyState[F] = {
-      val sinE = sin(E)
-      val cosE = cos(E)
-      val ecosE = axnl * cosE + aynl * sinE
-      val esinE = axnl * sinE - aynl * cosE
-      val fdot = 1 - ecosE
-      val f = (u + esinE - E)
-      val tem : F = f / fdot  
-      val incr =
-        if (abs(tem) >= 0.95.as[F]) {
-          if (tem > 0.as[F]) 0.95.as[F] else -0.95.as[F]
-        } else tem
-      val En = E+incr
-      if (remainingIters <= 0 || abs(incr) < 1e-12.as[F]) {
-        EccentricAnomalyState(En,cosE,sinE,ecosE,esinE)   
-      } else {
-        loop(En, remainingIters - 1)
-      }
-    }
-    loop(u, 10)
-  }
-  
-  def solveKeplerEqOld(elem : SGPElems[F]): EccentricAnomalyState[F] = {
-       
-    import elem.{e,Ω,ω,M,a}, sec.wgs.twopi
-     
-    //---------------------------------------------------------------------------------------
-    // CONFIRM
-    //---------------------------------------------------------------------------------------
-    
-    // Lydanne's Transformation
-    val axn : F = e * cos(ω)
-    val temp : F = 1 / (a * (1 - e * e))
-    
-    import sec.dragCoefs._  
-    val ayn : F = e * sin(ω) + temp * aycof
-    val xl : F  = M + ω + Ω + temp * xlcof * axn
-     
-    //---------------------------------------------------------------------------------------
-    
-    // Ω is the ascending node, E is the eccentric anomaly, and e is the eccentricity.
-    var ktr : Int = 1
-    // U = F' - h' = M" + g"; 
-    val u    = Field[F].mod(xl - Ω, twopi.as[F])
-    var E  = u
-    var tem5 : F = 9999.9.as[F]     //   sgp4fix for kepler iteration
-    var ecosE : F = 0.as[F]
-    var esinE : F = 0.as[F]
-    var cosE : F = 0.as[F]
-    var sinE : F = 0.as[F]
-
-    //   the following iteration needs better limits on corrections
-    while ((abs(tem5) >= 1e-12.as[F]) && (ktr <= 10)) {
-       sinE = sin(E)
-       cosE = cos(E)
-       ecosE = axn * cosE + ayn * sinE
-       esinE = axn * sinE - ayn * cosE
-
-       val fdot = 1 - ecosE
-       val f = (u + esinE - E)
-       tem5 = f / fdot  // delta value
-       if(abs(tem5) >= 0.95.as[F])
-           tem5 = if (tem5 > 0.as[F]) 0.95.as[F]  else -0.95.as[F] 
-       E = E + tem5
-       ktr = ktr + 1
-     }
-     
-     EccentricAnomalyState(E,cosE,sinE,ecosE,esinE)   
   }
   
   // ν = ψ − θ and sinθ = ξ/s, cosθ = χ/s and c = N/Θ, tanθ = ξ/χ
@@ -244,37 +148,37 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     PolarNodalElems(r,θ,ν,R,Θ,N)
   }
   
-  def lyddane2SpecialPolarNodal(eaState: EccentricAnomalyState[F], secularElem: SGPElems[F]) 
-      : PolarNodalSecularState = {
-    import eaState._ 
-    import secularElem._ // {n,e,I,ω,Ω,M,a}
-
-    // It follows the usual transformation to polar-nodal variables
-    // (r, θ, R, Θ) −→ (F, C, S, a)  with C' = e'cosg and  S' = e'sing
-    // Note: Vallado's SGP4 uses rθdot = Θ/r instead of Θ
-
-    val `e²` : F = e**2
-    val p = a*(1 - `e²`)  // semilatus rectum , as MU=1, p=Z²
-    if (p < 0.as[F]) throw new Exception("p: " + p)
-      
-    val r     = a * (1 - ecosE)          // r´        
-    val rdot  = sqrt(a) * esinE/r       // R´
-    val rvdot = sqrt(p) / r            // Θ’/r’ that is Θ/r 
-    val βl     = sqrt(1 - `e²`)          // y’
-    val temp0  = esinE / (1 + βl)         
-     
-    // u is the true anomaly that can be defined immediately as the polar angle θ = (Ox, OS), x along the semimajor axis, S sat position
-    val sinu : F = sinE // FIXME ?a / r * (sinE - aynl - axnl * temp0)             // sinu
-    val cosu : F = cosE // FIXME a / r * (cosE - axnl + aynl * temp0)             // cosu
-    val su0 : F  = E    // FIXME atan2(sinu, cosu)                                   // u, that is θ
-    val sin2u : F = 2 * cosu * sinu
-    val cos2u : F = 1 - 2 * sinu * sinu
-    // SpecialPolarNodalContext(r, su0, rdot, rvdot, `e²`, p, βl, sin2u, cos2u)
-    (SpecialPolarNodal(I, su0, Ω, r, rdot, rvdot), `e²`, p, βl, sin2u, cos2u)
-  }
+//  def lyddane2SpecialPolarNodal(eaState: EccentricAnomalyState[F], secularElem: SGPElems[F]) 
+//      : PolarNodalSecularState = {
+//    import eaState._ 
+//    import secularElem._ // {n,e,I,ω,Ω,M,a}
+//
+//    // It follows the usual transformation to polar-nodal variables
+//    // (r, θ, R, Θ) −→ (F, C, S, a)  with C' = e'cosg and  S' = e'sing
+//    // Note: Vallado's SGP4 uses rθdot = Θ/r instead of Θ
+//
+//    val `e²` : F = e**2
+//    val p = a*(1 - `e²`)  // semilatus rectum , as MU=1, p=Z²
+//    if (p < 0.as[F]) throw new Exception("p: " + p)
+//      
+//    val r     = a * (1 - ecosE)          // r´        
+//    val rdot  = sqrt(a) * esinE/r       // R´
+//    val rvdot = sqrt(p) / r            // Θ’/r’ that is Θ/r 
+//    val βl     = sqrt(1 - `e²`)          // y’
+//    val temp0  = esinE / (1 + βl)         
+//     
+//    // u is the true anomaly that can be defined immediately as the polar angle θ = (Ox, OS), x along the semimajor axis, S sat position
+//    val sinu : F = sinE // FIXME ?a / r * (sinE - aynl - axnl * temp0)             // sinu
+//    val cosu : F = cosE // FIXME a / r * (cosE - axnl + aynl * temp0)             // cosu
+//    val su0 : F  = E    // FIXME atan2(sinu, cosu)                                   // u, that is θ
+//    val sin2u : F = 2 * cosu * sinu
+//    val cos2u : F = 1 - 2 * sinu * sinu
+//    // SpecialPolarNodalContext(r, su0, rdot, rvdot, `e²`, p, βl, sin2u, cos2u)
+//    (SpecialPolarNodal(I, su0, Ω, r, rdot, rvdot), `e²`, p, βl, sin2u, cos2u)
+//  }
   
   // Sec 4.2 Lara's personal communication (r, θ, R, Θ) −→ (F, C, S, a)
-  def lyddane2PolarNodal(elem: SGPElems[F], eas : EccentricAnomalyState[F]): PolarNodalElems[F] = {
+  def delauney2PolarNodal(elem: SGPElems[F], eas : EccentricAnomalyState[F]): PolarNodalElems[F] = {
     import eas._
     import elem._
     import sec.wgs.μ
@@ -293,25 +197,25 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     PolarNodalElems(r,θ,ν,R,Θ,N)
   }
 
-  def specialPolarNodal2LaraNonSingular(s: SinI, polarNodal: SpecialPolarNodal[F]) : LaraNonSingular = {
+  def polarNodal2LaraNonSingular(s: SinI, polarNodal: PolarNodalElems[F]) : LaraNonSingular = {
     import polarNodal._ 
-    import sec.elem0.{Ω=>ν,I=>θ,ω=>R} // FIXME: just wrong
+    //import sec.elem0.{Ω=>ν,I=>θ,ω=>R} // FIXME: just wrong
     val ψ = ν + θ
     val ξ = s * sin(θ)
     val χ = s * cos(θ)
-    val Θ =  rvdot  // `Θ/r`*r  check
+    // val Θ =  rvdot  // `Θ/r`*r  check
     LaraNonSingular(ψ, ξ, χ, r, R, Θ) 
   }
   
-  def polarNodal2LaraNonSingular(s: SinI, polarNodal: PolarNodalElems[F]) : LaraNonSingular = {
-    import polarNodal._ 
-    import sec.elem0.{Ω=>ν} // FIXME: TBC
-    val ψ = ν + θ
-    val ξ = s * sin(θ)
-    val χ = s * cos(θ)
-    //val Θ =  rvdot  // `Θ/r`*r  check
-    LaraNonSingular(ψ, ξ, χ, r, R, Θ) 
-  }
+//  def polarNodal2LaraNonSingular(s: SinI, polarNodal: PolarNodalElems[F]) : LaraNonSingular = {
+//    import polarNodal._ 
+//    import sec.elem0.{Ω=>ν} // FIXME: TBC
+//    val ψ = ν + θ
+//    val ξ = s * sin(θ)
+//    val χ = s * cos(θ)
+//    //val Θ =  rvdot  // `Θ/r`*r  check
+//    LaraNonSingular(ψ, ξ, χ, r, R, Θ) 
+//  }
   
   def cartesian2LaraNonSingular(pv: CartesianElems[F]) : LaraNonSingular = {
     import pv._
