@@ -660,8 +660,7 @@ val sgp4CheckSat6251_2880 = (res: Sgp4Result[F]) => { implicit equ: Equality[F] 
 }
 
 trait ValladoTLE28057Check[F] { self :  FunSuite => 
-  implicit def doubleEqualityTLE28057[F] = TolerantNumerics.tolerantDoubleEquality(1E-9)
-
+  
   //                                     ------------------after sgp4   :---------------
 val sgp4CheckSat28057_0 = (res: Sgp4Result[F]) => { implicit equ: Equality[F] =>
  import res._

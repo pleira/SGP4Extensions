@@ -129,7 +129,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
         if (abs(tem) >= 0.95.as[F]) {
           if (tem > 0.as[F]) 0.95.as[F] else -0.95.as[F]
         } else tem
-      val En = E-incr
+      val En = E+incr
       if (abs(incr) < 1e-12.as[F]) {
         EccentricAnomalyState(En,cosE,sinE,ecosE,esinE)   
       } else {
