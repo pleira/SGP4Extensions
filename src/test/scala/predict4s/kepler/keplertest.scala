@@ -9,7 +9,7 @@ import spire.math._
 import spire.implicits._
 import scala.{ specialized => spec }
 import spire.syntax.primitives._
-import predict4s.tle.EccentricAnomalyState
+import predict4s.sgp.EccentricAnomalyState
 
 // Test the same algorithm as used in solving Kepler's equation 
 object KeplerEquationSolver {
@@ -85,14 +85,14 @@ class KeplerAndTrueAnomalyTest extends FunSuite  {
     val `e²` = e*e
     val β = sqrt(1 - `e²`) 
     val listM = List(0.0, 20, 90, 180, 270, 360) // , 450, -20, -90, -180, -270, -360, -450)
-    val ListE = List(0, 20.399423333349958, 91.1456865064012, 180, 268.8543134935988, 360) // , 451.1456865064012,
+    val listE = List(0, 20.399423333349958, 91.1456865064012, 180, 268.8543134935988, 360) // , 451.1456865064012,
                         // -20.399423333349958, -91.1456865064012, -180, -268.8543134935988, -360.0, -451.1456865064012)
-    val Listf = List(0, 20.802664870651377, 92.2912203675837, 180, -92.29122036758375, 0)  
+    val listf = List(0, 20.802664870651377, 92.2912203675837, 180, -92.29122036758375, 0)  
     
     // note: precision is 2E-3 here, if not E-12
     val Listr = List(9800.0, 9812.542900454288, 10004, 10200, 10004, 9800)
     val a = 10000;
-    val l3 = (listM, ListE, Listf).zipped.toList 
+    val l3 = (listM, listE, listf).zipped.toList 
     val all = l3 zip Listr map { case ((a,b,c), d) => (a,b,c,d) }
     all foreach { p =>
       val eas = solveKeplerAndCheck1(e, p._1, p._2)

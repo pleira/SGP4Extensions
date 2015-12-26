@@ -1,13 +1,13 @@
 package predict4s.report
-import predict4s.tle.HelperTypes
-import predict4s.tle.TLE
+import predict4s.sgp.HelperTypes
+import predict4s.coord.TLE
 import better.files._
 import java.io.{File => JFile}
 import predict4s.coord.SpecialPolarNodal
-import predict4s.tle.SGPElems
-import predict4s.tle.SGP4
-import predict4s.tle.vallado.SGP4Vallado
-import predict4s.tle.EccentricAnomalyState
+import predict4s.coord.SGPElems
+import predict4s.sgp.SGP4
+import predict4s.sgp.vallado.SGP4Vallado
+import predict4s.sgp.EccentricAnomalyState
 
 object ValladoFileReport {
 

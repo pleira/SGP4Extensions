@@ -8,6 +8,19 @@ import spire.implicits._
 import spire.syntax.primitives._
 import scala.Vector
 
+
+case class SGPElems[F](
+    n : F, // mean motion 
+    e : F, // eccentricity
+    I : F, // inclination
+    ω : F, // argument Of perigee
+    Ω : F, // right ascension ascending node
+    M : F, // mean anomaly
+    a : F, // semimajor axis (apogee)
+    bStar : F, // atmospheric Drag Coeficient
+    epoch : F) // epoch time in days from jan 0, 1950. 0 hr 
+    
+    
 case class CartesianElems[F](x: F, y: F, z: F, vx: F, vy: F, vz: F) {
   def pos = Vector[F](x,y,z)
   def vel = Vector[F](vx,vy,vz)
@@ -21,9 +34,9 @@ case class CartesianElems[F](x: F, y: F, z: F, vx: F, vy: F, vz: F) {
 // Brouwer’s gravity solution" by Martin Lara
 case class PolarNodalElems[F: Field: NRoot: Trig](
     r : F, // the radial distance 
-    θ : F, // the argument of latitude 
-    ν : F, // the argument of the ascending node 
-    R : F, // radial velocity 
+    θ : F, // the argument of latitude of the satellite measured from the ascending node
+    ν : F, // the argument of the longitude of the ascending node 
+    R : F, // radial velocity, dr/dt 
     Θ : F, // the total angular momentum
     N : F  // the polar component of the angular momentum
 ) {
