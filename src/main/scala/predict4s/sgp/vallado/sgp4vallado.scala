@@ -53,7 +53,8 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
   /**
    * Solve Kepler's equation expressed in Lyddane's variables 
    * 		U = Ψ + S'cosΨ − C'sinΨ
-   * where U = F' − h' to compute the anomaly Ψ = E'+g', where E is the eccentric anomaly.
+   * where U = F' − h' to compute the anomaly Ψ = E'+g', where E is the eccentric anomaly 
+   * and g is the argument of the perigee (ω).
    * The Newton-Raphson iterations start from Ψ0 = U.
    */
   def solveKeplerEq(lylppState: LyddaneLongPeriodPeriodicState) : EccentricAnomalyState[F]  = {
@@ -122,7 +123,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     val βl     = sqrt(1 - `el²`)          // y’
     val temp0  = esinE / (1 + βl)         
      
-    // TBC: u is the argument of the latitude
+    // u is the argument of the latitude measured from the ascending node
     val sinu = a / rl * (sinE - aynl - axnl * temp0)
     val cosu = a / rl * (cosE - axnl + aynl * temp0)
     val u = atan2(sinu, cosu)
