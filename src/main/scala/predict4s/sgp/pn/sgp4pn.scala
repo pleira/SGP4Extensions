@@ -128,7 +128,7 @@ class SGP4PN[F : Field : NRoot : Order : Trig](
   def delauney2PolarNodal(eaState: EccentricAnomalyState[F], delauney : DelauneyVars[F], secularElem : SGPElems[F]) = {
     import eaState._ 
     import delauney._
-    import secularElem.{a,I,e, n}
+    import secularElem.{a,I,e,n}
     val `e²` = e*e
     val p = a*(1 - `e²`)  // semilatus rectum , as MU=1, p=Z²
     if (p < 0.as[F]) throw new Exception("p: " + p)
@@ -143,9 +143,12 @@ class SGP4PN[F : Field : NRoot : Order : Trig](
 //    val f = atan2(sinf, cosf)
     val numer = β * sinE
     val denom = (cosE - e)
-    val f = atan2(numer, denom)
-    val ecosf = e*a/r*denom
-    val esinf = e*a/r*numer
+//    val f = atan2(numer, denom)
+    val sinf = a/r*numer
+    val cosf = a/r*denom
+    val esinf = e*sinf
+    val ecosf = e*cosf
+    val f = atan2(sinf, cosf)    
     val θ = f + g
     val ν = h
     val N = H
@@ -154,8 +157,8 @@ class SGP4PN[F : Field : NRoot : Order : Trig](
     // do check
     {
     import av._
-    assert(abs(κ - (av.p/r - 1)) < 1E-6.as[F] ) 
-    assert(abs(σ - (av.p*R/Θ)) < 1E-6.as[F])
+    assert(abs(κ - (av.p/r - 1)) < 1E-8.as[F] ) 
+    assert(abs(σ - (av.p*R/Θ)) < 1E-8.as[F])
     }
     
     (PolarNodalElems(r,θ,ν,R,Θ,N), av) 
@@ -192,7 +195,7 @@ class SGP4PN[F : Field : NRoot : Order : Trig](
   def lppCorrections(pn: (PolarNodalElems[F], AuxVariables)) : (PolarNodalElems[F],PolarNodalElems[F]) = {
     import pn._1._,pn._2._,sec.wgs._
     val `p/r` = p/r
-    val ϵ3 = `J3/J2`*α/p/2
+    val ϵ3 = `J3/J2`/p/2
     val sinθ = sin(θ)
     val cosθ = cos(θ)
     val δr = ϵ3 * p * s * sinθ
