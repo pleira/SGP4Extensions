@@ -26,8 +26,8 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 {
     for (t <- 0 to 360 by 20;
       secularElemt = vsgp4.secularCorrections(t);
       (_, _, pnlpps, pneas) = pnsgp4.periodicCorrections(secularElemt);
-      (_, _, vlpps, leas) = vsgp4.periodicCorrections(secularElemt);
-      vE = leas.E - secularElemt.ω     // Vallado's solved kepler equation on Lyddane variables => E = u - ω
+      (_, _, vlpps, veas) = vsgp4.periodicCorrections(secularElemt);
+      vE = veas.E - secularElemt.ω     // Vallado's solved kepler equation on Lyddane variables => E = u - ω
      ) yield ((pnlpps, vlpps), (pneas.E, vE))
   
   val r2 = results.unzip
@@ -45,8 +45,8 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 {
       assert(vspn.R === pn.R)
       assert(vspn.Ω === pn.ν)
       assert(vspn.`Θ/r` === pn.Θ/pn.r)
-// FIXME     assert(vspn.`Θ/r`*scala.math.cos(vspn.I) === pn.N)
-// FIXME     assert(vspn.θ === pn.θ)
+      assert(vspn.`Θ/r`*scala.math.cos(vspn.I) === pn.N/pn.r)
+      assert(vspn.θ === pn.θ)
     }
   }
   test("Eccentric anomaly comparison") {  

@@ -22,9 +22,7 @@ trait SecularCorrections[F] extends HelperTypes[F] {
   def secularCorrections(t: Minutes): SGPElems[F]
 }
   
-case class EccentricAnomalyState[F](E : F, cosE: F, sinE: F, ecosE: F, esinE: F) {
-  def eccentricAnomaly = E
-}
+case class EccentricAnomalyState[F](E : F, cosE: F, sinE: F, ecosE: F, esinE: F) 
 
 /** 
  * The SGP-4 theory is applied for all orbits with periods of T <= 225 min. 
