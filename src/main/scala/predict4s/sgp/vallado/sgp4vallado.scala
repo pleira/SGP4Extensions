@@ -31,7 +31,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     val eaState = solveKeplerEq(lylppState)
     val lppPNContext = lyddane2SpecialPolarNodal(eaState, lylppState)
     val sppPolarNodalContext = sppCorrections(lppPNContext)
-    val (finalPNState, _) = sppPolarNodalContext
+    val finalPNState = sppPolarNodalContext._1
     (finalPNState, sppPolarNodalContext, lppPNContext, eaState)
   }
   
@@ -136,7 +136,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     import lppState.{_1 => lppPN,_3 => pl,_4 => βl,_5 => sin2u,_6 => cos2u, _7 => n}
     import lppPN._
     import sec.wgs.{J2,KE}
-    import sec.ctx0._
+    import sec.ctx0.{c,s,x7thm1,x1mth2,con41}
  
     val temp1  = J2 / pl / 2
     val temp2  = temp1 / pl 

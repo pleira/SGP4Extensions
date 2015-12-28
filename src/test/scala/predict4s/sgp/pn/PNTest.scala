@@ -37,6 +37,7 @@ class HardcodedPNCheck extends FunSuite with NearTLEs with ValladoNearTLEsCheck[
  
   implicit val wgs = SGP72Constants.tleDoubleConstants
   val toMinus9 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1E-9)
+  val to1 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1)
 
   def propags : List[SGP4PN[Double]] = tles map {tle => 
     import spire.std.any.DoubleAlgebra
@@ -71,9 +72,9 @@ class HardcodedPNCheck extends FunSuite with NearTLEs with ValladoNearTLEsCheck[
 
   test(s"${sgpImpl}: compare Position/Velocity Propagation Results with Vallado's cpp implementation for near TLEs") {
     // call the checks for the corresponding result
-    pvCheck00005 zip results00005 foreach { p => p._1(p._2)(toMinus9) }
-    pvCheck06251 zip results06251 foreach { p => p._1(p._2)(toMinus9) }
-    pvCheck28057 zip results28057 foreach { p => p._1(p._2)(toMinus9) }   
+    pvCheck00005 zip results00005 foreach { p => p._1(p._2)(to1) }
+    pvCheck06251 zip results06251 foreach { p => p._1(p._2)(to1) }
+    pvCheck28057 zip results28057 foreach { p => p._1(p._2)(to1) }   
   }
 } 
 

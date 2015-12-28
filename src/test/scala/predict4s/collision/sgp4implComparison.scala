@@ -25,32 +25,51 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 {
   val results = 
     for (t <- 0 to 360 by 20;
       secularElemt = vsgp4.secularCorrections(t);
-      (_, _, pnlpps, pneas) = pnsgp4.periodicCorrections(secularElemt);
-      (_, _, vlpps, veas) = vsgp4.periodicCorrections(secularElemt);
+      (_, pnspps, pnlpps, pneas) = pnsgp4.periodicCorrections(secularElemt);
+      (_, vspps, vlpps, veas) = vsgp4.periodicCorrections(secularElemt);
       vE = veas.E - secularElemt.ω     // Vallado's solved kepler equation on Lyddane variables => E = u - ω
-     ) yield ((pnlpps, vlpps), (pneas.E, vE))
+     ) yield ((pnspps, vspps), (pnlpps, vlpps), (pneas.E, vE))
   
-  val r2 = results.unzip
-  val resLpp = r2._1
-  val resEcc = r2._2
+  val r2 = results.unzip3
+  val resSpp = r2._1
+  val resLpp = r2._2
+  val resEcc = r2._3
 
   val resL = resLpp.unzip  // now PN and SPN
-  test("polar nodals comparison")
+  test("long period periodic Vallado/Polar Nodals comparison")
   {  
     implicit val toMinus5 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1.2E-5)
     resLpp foreach { result =>
-      val ((pn, _), v) = result
+      val (pnspn, v) = result
+      val pn = pnspn._1
       val vspn = v._1
       assert(vspn.r === pn.r)
       assert(vspn.R === pn.R)
-      assert(vspn.Ω === pn.ν)
-      assert(vspn.`Θ/r` === pn.Θ/pn.r)
-      assert(vspn.`Θ/r`*scala.math.cos(vspn.I) === pn.N/pn.r)
+      assert(vspn.Ω === pn.Ω)
+      assert(vspn.`Θ/r` === pn.`Θ/r`)
+      assert(vspn.I === pn.I)
+      //assert(vspn.`Θ/r`*scala.math.cos(vspn.I) === pn.N/pn.r)
+      assert(vspn.θ === pn.θ)
+    }
+  }
+  test("Short period periodic Vallado/Polar Nodals comparison")
+  {  
+    implicit val toMinus5 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1E-3)
+    resSpp foreach { result =>
+      val (pnspn, v) = result
+      val pn = pnspn._1
+      val vspn = v._1
+      assert(vspn.r === pn.r)
+      assert(vspn.R === pn.R)
+      assert(vspn.Ω === pn.Ω)
+      assert(vspn.`Θ/r` === pn.`Θ/r`)
+      assert(vspn.I === pn.I)
+      //assert(vspn.`Θ/r`*scala.math.cos(vspn.I) === pn.N/pn.r)
       assert(vspn.θ === pn.θ)
     }
   }
   test("Eccentric anomaly comparison") {  
-    implicit val toMinus3 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1.1E-3)
+    implicit val toMinus3 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1.5E-3)
     resEcc foreach { result =>
       val (pnE, vE) = result
       assert(vE === pnE)

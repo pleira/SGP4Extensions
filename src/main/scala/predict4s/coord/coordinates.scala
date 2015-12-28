@@ -78,7 +78,7 @@ case class PolarNodalElems[F: Field: NRoot: Trig](
   /*
    * The cosI is given instead of the I
    */
-  def polarNodal2SpecialPolarNodal() : SpecialPolarNodal[F] = SpecialPolarNodal(N/Θ,θ,ν,r,R,r*Θ)
+  def polarNodal2SpecialPolarNodal() : SpecialPolarNodal[F] = SpecialPolarNodal(acos(N/Θ),θ,ν,r,R,r*Θ)
   
 
 }
@@ -129,5 +129,3 @@ object CoordTransformation  {
   }
 
 }
-
-
