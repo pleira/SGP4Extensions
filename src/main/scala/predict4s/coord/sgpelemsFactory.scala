@@ -97,8 +97,8 @@ case class Context0[F: Field: NRoot : Trig](
   val `1/p⁴` = 1/`p⁴`
   import wgs.{aE=>α,J2,`J2/J3`,`J3/J2`}
   val `α/p` : F = α/p
-  val ϵ2 : F = -J2*(`α/p`**2) / 4
-  val ϵ3 : F = (`J3/J2`)*`α/p` / 2      // or (`C30/C20`)*`α/p` / 2   
+//  val ϵ2 : F = -J2*(`α/p`**2) / 4
+//  val ϵ3 : F = (`J3/J2`)*`α/p` / 2      // or (`C30/C20`)*`α/p` / 2   
 // FIXME  val η : F = β0  // (1 - `e²`).sqrt           // eccentricity function G/L, with G as the Delauney's action, the total angular momentum , and L = √(μ a)
 //  val x3thm1     = 3*`c²` - 1
   val con41      = x3thm1

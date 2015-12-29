@@ -82,20 +82,19 @@ case class PolarNodalElems[F: Field: NRoot: Trig](
   
 
 }
-
   
 case class SpecialPolarNodal[F: Field: NRoot: Trig](
     I: F,  // the orbital inclination 
-    θ: F, // TBC the argument of latitude
+    θ: F,  // the argument of latitude from the ascending node
     Ω: F,  // the argument of the node
-    r: F, // the radial distance
-    R: F, // the radial velocity 
+    r: F,  // the radial distance
+    R: F,  // the radial velocity 
     `Θ/r` : F  // related to the total angular momentum
   ) {
   def su = θ; def su0 = su; def mrt = r; def mvt = R; def rdot0 = mvt; 
   // Note: Vallado's SGP4 uses rθdot = Θ/r instead of Θ, used by Lara
   def rvdot = `Θ/r`;
-  def Θ = rvdot*r;
+  def Θ = `Θ/r`*r;
   def rθdot = Θ/r
   def +(o: SpecialPolarNodal[F]) = SpecialPolarNodal(I+o.I,θ+o.θ,Ω+o.Ω,r+o.r,R+o.R,`Θ/r`+o.`Θ/r`)
 
@@ -111,21 +110,22 @@ object CoordTransformation  {
    *  Mathematically involves matrix multiplication  R3(−h) R1(−I) R3(−θ)
    *  where R1 and R3 are the usual rotation matrices about the x and z axes, respectively
    */
-  def polarNodal2UnitCartesian[F: Field: Trig](I: F, R: F, Ω: F) = {
+  def polarNodal2UnitCartesian[F: Field: Trig](spn: SpecialPolarNodal[F]) = {
+    import spn._
     val sinI  =  sin(I); val cosI  =  cos(I)
-    val sinR  =  sin(R); val cosR  =  cos(R)
+    val sinθ  =  sin(θ); val cosθ  =  cos(θ)
     val sinΩ  =  sin(Ω); val cosΩ  =  cos(Ω)
     val xmx   = -sinΩ * cosI
     val xmy   =  cosΩ * cosI
-    val ux    =  xmx * sinR + cosΩ * cosR
-    val uy    =  xmy * sinR + sinΩ * cosR
-    val uz    =  sinI * sinR
-    val vx    =  xmx * cosR - cosΩ * sinR
-    val vy    =  xmy * cosR - sinΩ * sinR
-    val vz    =  sinI * cosR
+    val ux    =  xmx * sinθ + cosΩ * cosθ
+    val uy    =  xmy * sinθ + sinΩ * cosθ
+    val uz    =  sinI * sinθ
+    val vx    =  xmx * cosθ - cosΩ * sinθ
+    val vy    =  xmy * cosθ - sinΩ * sinθ
+    val vz    =  sinI * cosθ
 
     // return unit vectors position and velocity
     CartesianElems(ux,uy,uz,vx,vy,vz)
   }
-
+  
 }

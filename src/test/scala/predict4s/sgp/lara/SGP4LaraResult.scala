@@ -2,13 +2,14 @@ package predict4s.sgp.lara
 
 import predict4s.coord.CartesianElems
 import predict4s.coord.PolarNodalElems
+import predict4s.coord.SpecialPolarNodal
 import predict4s.coord.TLE
 import predict4s.sgp.Sgp4Result
 
 case class Sgp4LaraResult(
     sgp: SGP4Lara[Double], 
-    statett: (CartesianElems[Double], CartesianElems[Double], PolarNodalElems[Double], 
-        SGP4Lara[Double]#LaraNonSingular, SGP4Lara[Double]#LaraNonSingular, SGP4Lara[Double]#EccentricAState), tle: TLE, t: Double) 
+    statett: (CartesianElems[Double], CartesianElems[Double], SpecialPolarNodal[Double], 
+        LaraNonSingular[Double], LaraNonSingular[Double], SGP4Lara[Double]#EccentricAState), tle: TLE, t: Double) 
         extends Sgp4Result[Double] {
     val posVel = statett._1 
     val r = posVel.pos

@@ -5,13 +5,15 @@ import spire.implicits._
 import spire.syntax.primitives._
 import predict4s.coord.CartesianElems
 import predict4s.coord.SGPElems  
+import predict4s.coord.SpecialPolarNodal  
 import predict4s.coord.TimeUtils
+import predict4s.coord.CoordTransformation._
 
 trait HelperTypes[F] {  
   type SinI = F  // type to remember dealing with the sine of the Inclination 
   type CosI = F  // type to remember dealing with the cosine of the Inclination 
   type Minutes = F // type to remember dealing with minutes from epoch
-  type FinalState 
+  type FinalState = SpecialPolarNodal[F]
   type ShortPeriodState
   type LongPeriodState
   type EccentricAState
@@ -23,6 +25,7 @@ trait SecularCorrections[F] extends HelperTypes[F] {
 }
   
 case class EccentricAnomalyState[F](E : F, cosE: F, sinE: F, ecosE: F, esinE: F) 
+case class AuxVariables[F](s: F, c: F, p: F, κ: F, σ: F, n: F, β: F, sin2f: F, cos2f: F)
 
 /** 
  * The SGP-4 theory is applied for all orbits with periods of T <= 225 min. 
@@ -43,7 +46,7 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
 
   def gsto : F = TimeUtils.gstime(sec.elem0.epoch + 2433281.5) 
   
-  def propagate2PolarNodalContext(t: Minutes): ((FinalState, ShortPeriodState, LongPeriodState, EccentricAState), SecularElems) = {
+  def propagate2PolarNodalContext(t: Minutes) = {
     val secularElemt = secularCorrections(t)
     (periodicCorrections(secularElemt), secularElemt)
   }
@@ -52,10 +55,14 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
     val ((finalPolarNodal, _, _, _), _) = propagate2PolarNodalContext(t)
     finalPolarNodal
   }
-
-  def propagate2CartesianContext(t: Minutes) : 
-    (CartesianElems[F], CartesianElems[F], FinalState, ShortPeriodState, LongPeriodState, EccentricAState)
-
+  
+  def propagate2CartesianContext(t: Minutes) = {
+    val ((finalPolarNodal, sppState, lppState, eaState), secularElemt) = propagate2PolarNodalContext(t)
+    val uPV: CartesianElems[F] = polarNodal2UnitCartesian(finalPolarNodal)
+    val posVel = scale2CartesianElems(uPV, finalPolarNodal)
+    (posVel, uPV, finalPolarNodal, sppState, lppState, eaState)    
+  }
+   
   def propagate2Cartesian(t: Minutes) : CartesianElems[F] = {  
     val (posVel, _, _,_,_,_) = propagate2CartesianContext(t)
     posVel
@@ -78,8 +85,19 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
   def convertAndScale2UnitVectors(pos : Vector[F], vel : Vector[F], mrt: F, mvt: F, rvdot: F): (Vector[F], Vector[F]) = {
       import sec.wgs.{aE,vkmpersec}
       ( (aE*mrt) *: pos,  vkmpersec *: (mvt *: pos + rvdot *: vel))
+  }
+  
+  def convertAndScale2UnitVectors(pos : Vector[F], vel : Vector[F], spn: SpecialPolarNodal[F]): (Vector[F], Vector[F]) = {
+      import sec.wgs.{aE,vkmpersec}, spn._
+      ( (aE*r) *: pos,  vkmpersec *: (R *: pos + `Θ/r` *: vel))
   }  
-
+ 
+  def scale2CartesianElems(unitElems: CartesianElems[F], spn: SpecialPolarNodal[F]): CartesianElems[F] = {
+      import sec.wgs.{aE,vkmpersec}, spn._, unitElems._
+      val (p, v) = ( (aE*r) *: pos,  vkmpersec *: (R *: pos + `Θ/r` *: vel))
+      CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
+  }  
+  
 }
 
 

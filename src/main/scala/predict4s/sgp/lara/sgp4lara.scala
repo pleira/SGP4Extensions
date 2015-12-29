@@ -5,23 +5,26 @@ import spire.math._
 import spire.implicits._
 import scala.{ specialized => spec }
 import spire.syntax.primitives._
-import predict4s._
-import predict4s.sgp.GeoPotentialCoefs
 import predict4s.sgp._
-import predict4s.sgp.LaneCoefs
 import predict4s.coord.PolarNodalElems
 import predict4s.coord.CartesianElems
 import predict4s.coord.SpecialPolarNodal
 import predict4s.coord.CoordTransformation._
 import predict4s.coord.SGPElems
+import predict4s.sgp.pn.DelauneyVars
+
+  
+case class LaraNonSingular[F: Field](ψ : F, ξ: F, χ: F, r: F, R: F, Θ: F) {
+  def +(o: LaraNonSingular[F]) = LaraNonSingular(ψ + o.ψ,ξ+ o.ξ,χ+ o.χ,r+ o.r,R+ o.R,Θ+ o.Θ)
+}
+
 
 class SGP4Lara[F : Field : NRoot : Order : Trig](
  sec : BrouwerLaneSecularCorrections[F]
-  ) extends SGP4(sec) {
+  ) extends SGP4(sec) with SimpleKeplerEq {
  
-  type FinalState = PolarNodalElems[F]
-  type ShortPeriodState = LaraNonSingular
-  type LongPeriodState = LaraNonSingular
+  type ShortPeriodState = LaraNonSingular[F]
+  type LongPeriodState = LaraNonSingular[F]
   type EccentricAState = EccentricAnomalyState[F]
   type PolarNodalSecularState = (SpecialPolarNodal[F], F, F, F, F, F)
 //      r : F, // the radial distance 
@@ -45,44 +48,43 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     // the argument of latitude, in order to compute corresponding double-prime polar-nodal variables.
     val eaState = solveKeplerEq(secularElemt)
 
-    val secPNt = delauney2PolarNodal(secularElemt, eaState)
+//    val secPNt = delauney2PolarNodal(secularElemt, eaState)
+    val delauney = DelauneyVars.sgpelem2Delauney(secularElemt) // NOTE: MU=1
+    val pnContext = delauney2PolarNodal(eaState, delauney, secularElemt)
     
     // secular state at time t in Lara Non Singular variables
-    val sect = polarNodal2LaraNonSingular(sec.ctx0.s, secPNt)  // (sinI, secularPolarNodal)
+    val sect = polarNodal2LaraNonSingular(pnContext)  // (sinI, secularPolarNodal)
     
-    val lppc = lppCorrections(sect)
+    val lppc = lppCorrections(sect, pnContext._2)
     
     // apply long period periodic corrections at time t
     val lppt = sect + lppc 
     
-    val sppc = sppCorrections(lppt)
+    val sppc = sppCorrections(lppt, pnContext._2)
     // apply short period periodic corrections at time t
     val sppt = lppt + sppc
     
     // final state in Polar Nodal coordinates at time t         
-    val finalPolarNodalt : PolarNodalElems[F] = laraNonSingular2PolarNodal(sppt) 
+    val finalPolarNodalt = laraNonSingular2SpecialPolarNodal(sppt, secularElemt.I) 
     
-    (finalPolarNodalt, sppc, lppc, eaState)
+    (finalPolarNodalt, sppt, lppt, eaState)
   }
  
-  override def propagate2CartesianContext(t: Minutes) = {
-    val ((finalPolarNodal, sppState, lppState, eaState), secularElemt) = propagate2PolarNodalContext(t)
-    import finalPolarNodal._
-    // FIXME
-    val uPV: CartesianElems[F] = polarNodal2UnitCartesian(θ, R, ν)
-    val mrt = r ; val mvt = Θ; val rvdot = N // relations not verified, just to get this class compiled 
-    val (p, v) = convertAndScale2UnitVectors(uPV.pos, uPV.vel, mrt, mvt, rvdot)
-    val posVel = CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
-    (posVel, uPV, finalPolarNodal, sppState, lppState, eaState)    
-  }
+//  override def propagate2CartesianContext(t: Minutes) = {
+//    val ((finalPolarNodal, sppState, lppState, eaState), secularElemt) = propagate2PolarNodalContext(t)
+//    import finalPolarNodal._
+//    val uPV: CartesianElems[F] = polarNodal2UnitCartesian(I, su, Ω)
+//    val (p, v) = convertAndScale2UnitVectors(uPV.pos, uPV.vel, mrt, mvt, rvdot)
+//    val posVel = CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
+//    (posVel, uPV, finalPolarNodal, sppState, lppState, eaState)    
+//  }
+
   
-  case class LaraNonSingular(ψ : F, ξ: F, χ: F, r: F, R: F, Θ: F) {
-    def +(o: LaraNonSingular) = LaraNonSingular(ψ + o.ψ,ξ+ o.ξ,χ+ o.χ,r+ o.r,R+ o.R,Θ+ o.Θ)
-  }
-  
-  def lppCorrections(lnSingular: LaraNonSingular) : LaraNonSingular = {
-    import lnSingular._
-    import sec.ctx0._
+  def lppCorrections(lnSingular: LaraNonSingular[F], aux: AuxVariables[F]) : LaraNonSingular[F] = {
+    import lnSingular._,sec.wgs._
+    import aux.p
+    //import sec.ctx0._
+    val ϵ3 = `J3/J2`/p/2
     val `p/r` = p/r
     val δψ = 2 * ϵ3 * χ 
     val δξ = χ * δψ
@@ -93,12 +95,14 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     LaraNonSingular(δψ,δξ,δχ,δr,δR,δΘ)
   }
   
-  def sppCorrections(lnSingular: LaraNonSingular) : LaraNonSingular = {
+  def sppCorrections(lnSingular: LaraNonSingular[F], aux: AuxVariables[F]) : LaraNonSingular[F] = {
     import lnSingular._
-    import sec.ctx0._
+    import sec.wgs.J2, aux.{c,s,p}
+    val `c²` = c*c
+    val ϵ2 : F = -J2/ (p**2) / 4
+    
     val `χ²` : F = χ**2
     val `ξ²` : F = ξ**2
-    
     val `∆ψ` : F  = - ϵ2 * ((1+7*c)/(1+c)) * ξ * χ 
     val `∆ξ` : F  = - ϵ2 * (`χ²` - 3 * `c²`) * ξ
     val `∆χ` : F  = - ϵ2 * (`ξ²` - 3 * `c²`) * χ
@@ -108,45 +112,21 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     LaraNonSingular(`∆ψ`,`∆ξ`,`∆χ`,`∆r`,`∆R`,`∆Θ`)
   }
   
-  /**
-   * Solve Kepler's equation expressed in Delauney's variables 
-   * 		M = E − e sinE
-   * to compute E the eccentric anomaly.
-   * The Newton-Raphson iterations start from E0 = M = (l in Delauneys).
-   */
-  def solveKeplerEq(elem : SGPElems[F]): EccentricAnomalyState[F] = {
-       
-    import elem.{e,M}, sec.wgs.twopi
-    
-    def loop(E: F, remainingIters: Int) : EccentricAnomalyState[F] = {
-      val sinE = sin(E)
-      val cosE = cos(E)
-      val ecosE = e*cosE 
-      val esinE = e*sinE
-      val fdot = 1 - ecosE
-      val f = M - (E - esinE)
-      val tem : F = f / fdot  
-      val incr =
-        if (abs(tem) >= 0.95.as[F]) {
-          if (tem > 0.as[F]) 0.95.as[F] else -0.95.as[F]
-        } else tem
-      val En = E+incr
-      if (abs(incr) < 1e-12.as[F]) {
-        EccentricAnomalyState(En,cosE,sinE,ecosE,esinE)   
-      } else {
-        loop(En, remainingIters - 1)
-      }
-    }
-    loop(M, 10)
-  }
-  
   // ν = ψ − θ and sinθ = ξ/s, cosθ = χ/s and c = N/Θ, tanθ = ξ/χ
-  def laraNonSingular2PolarNodal(lnSingular: LaraNonSingular) : PolarNodalElems[F] = {
+  def laraNonSingular2PolarNodal(lnSingular: LaraNonSingular[F], I: F) : PolarNodalElems[F] = {
 	  import lnSingular._
-	  val N : F = Θ*cos(sec.elem0.I) // FIXME
+	  val N : F = Θ*cos(I) 
 	  val θ : F = atan(ξ/χ)
 	  val ν : F = ψ - θ
     PolarNodalElems(r,θ,ν,R,Θ,N)
+  }
+  
+  // ν = ψ − θ and sinθ = ξ/s, cosθ = χ/s and c = N/Θ, tanθ = ξ/χ
+  def laraNonSingular2SpecialPolarNodal(lnSingular: LaraNonSingular[F], I: F) : SpecialPolarNodal[F] = {
+	  import lnSingular._
+	  val θ : F = atan(ξ/χ)
+	  val ν : F = ψ - θ
+    SpecialPolarNodal(I,θ,ν,r,R,Θ/r)
   }
   
 //  def lyddane2SpecialPolarNodal(eaState: EccentricAnomalyState[F], secularElem: SGPElems[F]) 
@@ -178,6 +158,48 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 //    (SpecialPolarNodal(I, su0, Ω, r, rdot, rvdot), `e²`, p, βl, sin2u, cos2u)
 //  }
   
+
+  def delauney2PolarNodal(eaState: EccentricAnomalyState[F], delauney : DelauneyVars[F], secularElem : SGPElems[F]) = {
+    import eaState._ 
+    import delauney._
+    import secularElem.{a,I,e,n}
+    import sec.wgs.twopi
+    
+    val `e²` = e*e
+    val p = a*(1 - `e²`)  // semilatus rectum , as MU=1, p=Z²
+    if (p < 0.as[F]) throw new Exception("p: " + p)
+    val `√p` = sqrt(p)  
+
+    val r = a * (1 - ecosE)        // r´        
+    val R = L /r * esinE     // R´ = L/r *esinE, L=sqrt(nu*a), MU=1 in SGP4 variables, later applied
+    val Θ = G             // MU=1 
+    val β = sqrt(1 - `e²`)     // β’ = G/L
+    val numer = β * sinE
+    val denom = (cosE - e)
+    val sinf = a/r*numer
+    val cosf = a/r*denom
+    val esinf = e*sinf
+    val ecosf = e*cosf
+    val f = atan2(sinf, cosf)
+    //val f = trueAnomaly(eaState, e)
+    val θ0to2pi = f + g
+    val θ = if (θ0to2pi > pi.as[F])  θ0to2pi - twopi else θ0to2pi 
+    val ν = h
+    val N = H
+    val sin2f = 2 * cosf * sinf
+    val cos2f = 1 - 2 * sinf * sinf
+    val av = AuxVariables(sin(I), cos(I), p, ecosf, esinf, n, β, sin2f, cos2f)
+    
+    // do check
+//    {
+//    import av._
+//    assert(abs(κ - (av.p/r - 1)) < 1E-10.as[F] ) 
+//    assert(abs(σ - (av.p*R/Θ)) < 1E-10.as[F])
+//    }
+//    PolarNodalElems(r,θ,ν,R,Θ,N)
+    (PolarNodalElems(r,θ,ν,R,Θ,N), av) 
+  }
+  
   // Sec 4.2 Lara's personal communication (r, θ, R, Θ) −→ (F, C, S, a)
   def delauney2PolarNodal(elem: SGPElems[F], eas : EccentricAnomalyState[F]): PolarNodalElems[F] = {
     import eas._
@@ -193,32 +215,20 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val f : F = 2*atan(`tanf/2`)
     val g : F = ω
 	  val θ : F = f + g 
-	  val ν : F = Ω   // FIXME ν is not defined if I=0 , 
+	  val ν : F = Ω   
  	  val N : F = Θ*cos(I) 
     PolarNodalElems(r,θ,ν,R,Θ,N)
   }
 
-  def polarNodal2LaraNonSingular(s: SinI, polarNodal: PolarNodalElems[F]) : LaraNonSingular = {
-    import polarNodal._ 
-    //import sec.elem0.{Ω=>ν,I=>θ,ω=>R} // FIXME: just wrong
+  def polarNodal2LaraNonSingular(all : (PolarNodalElems[F], AuxVariables[F]) ) : LaraNonSingular[F] = {
+    import all._1._ ,all._2.s
     val ψ = ν + θ
     val ξ = s * sin(θ)
     val χ = s * cos(θ)
-    // val Θ =  rvdot  // `Θ/r`*r  check
     LaraNonSingular(ψ, ξ, χ, r, R, Θ) 
   }
   
-//  def polarNodal2LaraNonSingular(s: SinI, polarNodal: PolarNodalElems[F]) : LaraNonSingular = {
-//    import polarNodal._ 
-//    import sec.elem0.{Ω=>ν} // FIXME: TBC
-//    val ψ = ν + θ
-//    val ξ = s * sin(θ)
-//    val χ = s * cos(θ)
-//    //val Θ =  rvdot  // `Θ/r`*r  check
-//    LaraNonSingular(ψ, ξ, χ, r, R, Θ) 
-//  }
-  
-  def cartesian2LaraNonSingular(pv: CartesianElems[F]) : LaraNonSingular = {
+  def cartesian2LaraNonSingular(pv: CartesianElems[F]) : LaraNonSingular[F] = {
     import pv._
     // (x,y,z) position, (X,Y,Z) velocity
     val r : F = (x**2 + y**2 + z**2).sqrt 
@@ -239,7 +249,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     LaraNonSingular(ψ, ξ, χ, r, R, Θ)
   }
   
-  def laraNonSingular2Cartesian(lnSingular: LaraNonSingular) : CartesianElems[F] = {
+  def laraNonSingular2Cartesian(lnSingular: LaraNonSingular[F]) : CartesianElems[F] = {
     import lnSingular._
     val `ξ²` : F = ξ**2
     val `χ²` : F = χ**2

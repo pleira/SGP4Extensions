@@ -13,13 +13,19 @@ import predict4s.coord.CartesianElems
 import predict4s.coord.SpecialPolarNodal
 import predict4s.coord.CoordTransformation._
 import predict4s.coord.SGPElems
-    
+
+  
+// n: mean motion, I: inclination, a: semimajor axis, Ω: ascending node argument
+// the 
+case class LyddaneLongPeriodPeriodicState[F](n: F, I: F, a: F, Ω: F, axnl: F, aynl: F, xl: F) {
+  def `C´´` = axnl; def `S´´` = aynl ; def `F´´` = xl
+}
+
 class SGP4Vallado[F : Field : NRoot : Order : Trig](
   sec : BrouwerLaneSecularCorrections[F]
-  ) extends SGP4(sec) {
+  ) extends SGP4(sec) with TwoTermsKeplerEq {
   
   type ShortPeriodCorrections = SpecialPolarNodal[F]
-  type FinalState = SpecialPolarNodal[F]
   type ShortPeriodState = (SpecialPolarNodal[F], ShortPeriodCorrections) // final values, corrections ShortPeriodPolarNodalContext
   type LongPeriodState = (SpecialPolarNodal[F], F, F, F, F, F, F) // final values, context variables
   type EccentricAState = EccentricAnomalyState[F]
@@ -35,56 +41,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     (finalPNState, sppPolarNodalContext, lppPNContext, eaState)
   }
   
-  override def propagate2CartesianContext(t: Minutes) = {
-    val ((finalPolarNodal, sppState, lppState, eaState), secularElemt) = propagate2PolarNodalContext(t)
-    import finalPolarNodal._
-    val uPV: CartesianElems[F] = polarNodal2UnitCartesian(I, su, Ω)
-    val (p, v) = convertAndScale2UnitVectors(uPV.pos, uPV.vel, mrt, mvt, rvdot)
-    val posVel = CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
-    (posVel, uPV, finalPolarNodal, sppState, lppState, eaState)    
-  }
-  
-  // n: mean motion, I: inclination, a: semimajor axis, Ω: ascending node argument
-  // the 
-  case class LyddaneLongPeriodPeriodicState(n: F, I: F, a: F, Ω: F, axnl: F, aynl: F, xl: F) {
-    def `C´´` = axnl; def `S´´` = aynl ; def `F´´` = xl
-  }
- 
-  /**
-   * Solve Kepler's equation expressed in Lyddane's variables 
-   * 		U = Ψ + S'cosΨ − C'sinΨ
-   * where U = F' − h' to compute the anomaly Ψ = E'+g', where E is the eccentric anomaly 
-   * and g is the argument of the perigee (ω).
-   * The Newton-Raphson iterations start from Ψ0 = U.
-   */
-  def solveKeplerEq(lylppState: LyddaneLongPeriodPeriodicState) : EccentricAnomalyState[F]  = {
-    import sec.wgs.twopi, lylppState._   
-    // U = F' - h' = M" + g"; 
-    val u = Field[F].mod(xl - Ω, twopi.as[F])  
-
-    def loop(E: F, remainingIters: Int) : EccentricAnomalyState[F] = {
-      val sinE = sin(E)
-      val cosE = cos(E)
-      val ecosE = axnl * cosE + aynl * sinE
-      val esinE = axnl * sinE - aynl * cosE
-      val fdot = 1 - ecosE
-      val f = (u + esinE - E)
-      val tem : F = f / fdot  
-      val incr =
-        if (abs(tem) >= 0.95.as[F]) {
-          if (tem > 0.as[F]) 0.95.as[F] else -0.95.as[F]
-        } else tem
-      val En = E+incr
-      if (remainingIters <= 0 || abs(incr) < 1e-12.as[F]) {
-        EccentricAnomalyState(En,cosE,sinE,ecosE,esinE)   
-      } else {
-        loop(En, remainingIters - 1)
-      }
-    }
-    loop(u, 10)
-  }
-  
-  def lylppCorrections(secularElem : SGPElems[F]) : LyddaneLongPeriodPeriodicState = {
+  def lylppCorrections(secularElem : SGPElems[F]) : LyddaneLongPeriodPeriodicState[F] = {
     import secularElem._
     import sec.dragCoefs.{aycof,xlcof}
     
@@ -105,7 +62,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     LyddaneLongPeriodPeriodicState(n, I, a, Ω, axnl, aynl, xl)
   }
   
-  def lyddane2SpecialPolarNodal(eaState: EccentricAnomalyState[F], lylppState: LyddaneLongPeriodPeriodicState) = {
+  def lyddane2SpecialPolarNodal(eaState: EccentricAnomalyState[F], lylppState: LyddaneLongPeriodPeriodicState[F]) = {
     import eaState._ 
     import lylppState._
 
@@ -123,30 +80,30 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     val βl     = sqrt(1 - `el²`)          // y’
     val temp0  = esinE / (1 + βl)         
      
-    // u is the argument of the latitude measured from the ascending node
-    val sinu = a / rl * (sinE - aynl - axnl * temp0)
-    val cosu = a / rl * (cosE - axnl + aynl * temp0)
-    val u = atan2(sinu, cosu)
-    val sin2u = 2 * cosu * sinu
-    val cos2u = 1 - 2 * sinu * sinu
-    (SpecialPolarNodal(I, u, Ω, rl, rdotl, rvdotl), `el²`, pl, βl, sin2u, cos2u, n) 
+    // θ is the argument of the latitude measured from the ascending node
+    val sinθ = a / rl * (sinE - aynl - axnl * temp0)
+    val cosθ = a / rl * (cosE - axnl + aynl * temp0)
+    val θ = atan2(sinθ, cosθ)
+    val sin2θ = 2 * cosθ * sinθ
+    val cos2θ = 1 - 2 * sinθ * sinθ
+    (SpecialPolarNodal(I, θ, Ω, rl, rdotl, rvdotl), `el²`, pl, βl, sin2θ, cos2θ, n) 
   }    
 
   def sppCorrections(lppState: LongPeriodState) : ShortPeriodState = {
-    import lppState.{_1 => lppPN,_3 => pl,_4 => βl,_5 => sin2u,_6 => cos2u, _7 => n}
+    import lppState.{_1 => lppPN,_3 => pl,_4 => βl,_5 => sin2θ,_6 => cos2θ, _7 => n}
     import lppPN._
     import sec.wgs.{J2,KE}
     import sec.ctx0.{c,s,x7thm1,x1mth2,con41}
  
     val temp1  = J2 / pl / 2
     val temp2  = temp1 / pl 
-    val δI = 1.5 * temp2 * c * s * cos2u
-    val δsu = - temp2 * x7thm1 * sin2u / 4
-    val δΩ = 1.5 * temp2 * c * sin2u
-    val δr =  - r * 1.5 * temp2 * βl * con41 + temp1 * x1mth2 * cos2u / 2
-    val δrdot = - n * temp1 * x1mth2 * sin2u / KE
-    val δrvdot = n * temp1 * (x1mth2 * cos2u + 1.5 * con41) / KE 
-    val δspp = SpecialPolarNodal(δI,δsu,δΩ,δr,δrdot,δrvdot)
+    val δI = 1.5 * temp2 * c * s * cos2θ
+    val δθ = - temp2 * x7thm1 * sin2θ / 4
+    val δΩ = 1.5 * temp2 * c * sin2θ
+    val δr =  - r * 1.5 * temp2 * βl * con41 + temp1 * x1mth2 * cos2θ / 2
+    val δR = - n * temp1 * x1mth2 * sin2θ / KE  // rdot, angular velocity
+    val δrvdot = n * temp1 * (x1mth2 * cos2θ + 1.5 * con41) / KE 
+    val δspp = SpecialPolarNodal(δI,δθ,δΩ,δr,δR,δrvdot)
     val finalPN = lppPN + δspp
     (finalPN, δspp)
   }
