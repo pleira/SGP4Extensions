@@ -54,10 +54,11 @@ object ValladoFileReport {
     }
     
     f << "\n\n#### Anomaly calculation \n"
-    f << "| E | cosE | sinE | ecosE | esinE" 
-    f << "| ----------------------- | -----------------------  | --------- | ------------------- | ------------------- | ----- "
+    f << "| E " 
+    f << "| ----------------------- "
     pnr foreach { p => 
-      f << p._1._4.toString().replaceAll(",|EccentricAnomalyState\\(|\\)|\\(", "|")            
+      val vE = p._1._4.E - p._2.ω // Vallado's solved kepler equation on Lyddane variables => E = u - ω
+      f << s"|${vE}|"             
     }
     
     f << "\n\n#### Orbital elements with secular corrections \n" 
