@@ -15,11 +15,8 @@ trait SimpleKeplerEq {
    * to compute E the eccentric anomaly.
    * The Newton-Raphson iterations start from E0 = M = (l in Delauneys).
    */
-  def solveKeplerEq[F: Field: Trig: Order](elem : SGPElems[F]): EccentricAnomalyState[F] = {
-       
-    import elem.{e,M}
-    
-    def loop(E: F, remainingIters: Int) : EccentricAnomalyState[F] = {
+   def solveKeplerEq[F: Field: Trig: Order](e: F, M : F): EccentricAnomalyState[F] = {
+     def loop(E: F, remainingIters: Int) : EccentricAnomalyState[F] = {
       val sinE = sin(E)
       val cosE = cos(E)
       val ecosE = e*cosE 
@@ -38,7 +35,10 @@ trait SimpleKeplerEq {
         loop(En, remainingIters - 1)
       }
     }
-    loop(M, 10)
-  }     
+    loop(M, 10)  
+   }
+   
+   def solveKeplerEq[F: Field: Trig: Order](elem : SGPElems[F]): EccentricAnomalyState[F] = 
+    solveKeplerEq(elem.e, elem.M)
   
 }

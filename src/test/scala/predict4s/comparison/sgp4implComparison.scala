@@ -1,17 +1,16 @@
-package predict4s.collision
+package predict4s.comparison
 
 import org.scalatest.FunSuite
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
-import predict4s.sgp.{NearTLEs}
 import predict4s.coord.SGP72Constants
 import predict4s.sgp._
-import predict4s.coord.SGPElems
 import predict4s.coord.SGPElemsFactory
 import predict4s.sgp.vallado.SGP4Vallado
 import predict4s.sgp.pn.SGP4PN
-import predict4s.coord.PolarNodalElems
-import predict4s.coord.SpecialPolarNodal
+import predict4s.collision.TLE22675
+import predict4s.collision.TLE24946
+import spire.std.any
 
 class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00005  with TLE06251 with TLE28057 {
  
