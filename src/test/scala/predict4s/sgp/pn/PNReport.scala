@@ -1,4 +1,4 @@
-package predict4s.sgp.vallado
+package predict4s.sgp.pn
 
 import org.scalatest.FunSuite
 import org.scalactic.TolerantNumerics
@@ -6,23 +6,22 @@ import org.scalactic.Equality
 import predict4s.sgp.{NearTLEs}
 import predict4s.coord.SGP72Constants
 import predict4s.sgp._
-import predict4s.report.ValladoFileReport
+import predict4s.report.PolarNodalFileReport
 import predict4s.coord.SGPElems
 import predict4s.coord.SGPElemsFactory
 import org.scalatest.Ignore
 
 @Ignore
-class HardcodedValladoReport extends FunSuite with NearTLEs with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] {
+class HardcodedPNReport extends FunSuite with NearTLEs with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] {
  
   implicit val wgs = SGP72Constants.tleDoubleConstants
-  val toMinus9 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1E-9)
 
-  def propags : List[SGP4Vallado[Double]] = tles map {tle => 
+  def propags : List[SGP4PN[Double]] = tles map {tle => 
     import spire.std.any.DoubleAlgebra
     val elem0AndCtx = SGPElemsFactory.sgpElemsAndContext(tle)
-    SGP4Vallado[Double](BrouwerLaneSecularCorrections(elem0AndCtx))
+    SGP4PN[Double](BrouwerLaneSecularCorrections(elem0AndCtx))
   }
-  def sgpImpl : String = "Vallado SGP4"
+  def sgpImpl : String = "PN SGP4"
   
   val sgps     = propags
   
@@ -34,9 +33,9 @@ class HardcodedValladoReport extends FunSuite with NearTLEs with ValladoNearTLEs
   val results06251 = for (t <- times06251) yield sgp06251.propagate2PolarNodalContext(t)
   val results28057 = for (t <- times28057) yield sgp28057.propagate2PolarNodalContext(t)
   
-  ValladoFileReport.save(results00005, tle00005, lines(0), times00005)
-  ValladoFileReport.save(results06251, tle06251, lines(1), times06251)
-  ValladoFileReport.save(results28057, tle28057, lines(2), times28057)
+  PolarNodalFileReport.save(results00005, tle00005, lines(0), times00005)
+  PolarNodalFileReport.save(results06251, tle06251, lines(1), times06251)
+  PolarNodalFileReport.save(results28057, tle28057, lines(2), times28057)
 } 
 
 
