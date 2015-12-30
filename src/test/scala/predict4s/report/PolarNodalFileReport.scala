@@ -1,16 +1,17 @@
 package predict4s.report
-import predict4s.sgp.HelperTypes
-import predict4s.coord.TLE
+
+import java.io.{ File => JFile }
+
 import better.files._
-import java.io.{File => JFile}
-import predict4s.coord.SpecialPolarNodal
 import predict4s.coord.SGPElems
-import predict4s.sgp.SGP4
-import predict4s.sgp.vallado.SGP4Vallado
+import predict4s.coord.SpecialPolarNodal
+import predict4s.coord.TLE
 import predict4s.sgp.EccentricAnomalyState
+import predict4s.sgp.HelperTypes
+import predict4s.sgp.SGP4
 
-object PolarNodalFileReport {
-
+abstract class FileReport {
+    
   type F = Double
   // Hardcode the type at the moment
   type ShortPeriodCorrections = SpecialPolarNodal[F]
@@ -18,11 +19,15 @@ object PolarNodalFileReport {
   type ShortPeriodState = (SpecialPolarNodal[F], ShortPeriodCorrections) // final values, corrections ShortPeriodPolarNodalContext
   type LongPeriodState = (SpecialPolarNodal[F], F, F, F, F, F, F) // final values, context variables
   type EccentricAState = EccentricAnomalyState[F]
-
+  
+  def path(tle: TLE) = s"doc/reports/${propagator}_${tle.satelliteNumber}_${tle.year}_${tle.epoch}.md"
+  
+  def propagator: String
+  
   def save(pnr: IndexedSeq[((FinalState, ShortPeriodState, LongPeriodState, EccentricAState), SGPElems[F])], tle: TLE, lines: List[String], times : IndexedSeq[Int]) = {
-    val f = File("doc/reports/sgp4pn_"+tle.satelliteNumber + "_" + tle.year + "_" + tle.epoch + ".md")
+    val f = File(path(tle))
     implicit val oo = File.OpenOptions.append
-    f << "# PolarNodal SGP4 algorithm\n"
+    f << s"# ${propagator} algorithm\n"
     
     f << "\n\n#### Input TLE\n"
     lines foreach (f << "  " + _ + "\n")
@@ -66,7 +71,16 @@ object PolarNodalFileReport {
     pnr foreach { p => 
       f << p._2.toString().replaceAll(",|SGPElems\\(|\\)|\\(", "|")  
     }
-
   }  
-  
+}
+
+object PolarNodalFileReport extends FileReport {
+
+   def propagator: String = "sgp4pn"
+}
+
+
+object LaraFileReport extends FileReport {
+
+   def propagator: String = "sgp4lara"
 }

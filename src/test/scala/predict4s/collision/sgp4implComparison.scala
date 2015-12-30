@@ -13,12 +13,12 @@ import predict4s.sgp.pn.SGP4PN
 import predict4s.coord.PolarNodalElems
 import predict4s.coord.SpecialPolarNodal
 
-class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE00005  with TLE06251 with TLE28057 {
+class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00005  with TLE06251 with TLE28057 {
  
   implicit val wgs = SGP72Constants.tleDoubleConstants
   
   import spire.std.any.DoubleAlgebra
-  val tles = List(tle22675,tle00005,tle06251,tle28057)
+  val tles = List(tle22675,tle24946,tle00005,tle06251,tle28057)
   for (tle <- tles) {
     val elem0AndCtx = SGPElemsFactory.sgpElemsAndContext(tle)
     val model = BrouwerLaneSecularCorrections(elem0AndCtx)

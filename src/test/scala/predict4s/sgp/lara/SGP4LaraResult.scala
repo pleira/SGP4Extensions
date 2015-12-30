@@ -9,7 +9,7 @@ import predict4s.sgp.Sgp4Result
 case class Sgp4LaraResult(
     sgp: SGP4Lara[Double], 
     statett: (CartesianElems[Double], CartesianElems[Double], SpecialPolarNodal[Double], 
-        LaraNonSingular[Double], LaraNonSingular[Double], SGP4Lara[Double]#EccentricAState), tle: TLE, t: Double) 
+        SpecialPolarNodal[Double], SpecialPolarNodal[Double], SGP4Lara[Double]#EccentricAState), tle: TLE, t: Double) 
         extends Sgp4Result[Double] {
     val posVel = statett._1 
     val r = posVel.pos

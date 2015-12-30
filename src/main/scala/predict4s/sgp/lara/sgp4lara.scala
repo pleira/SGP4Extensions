@@ -23,53 +23,84 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
  sec : BrouwerLaneSecularCorrections[F]
   ) extends SGP4(sec) with SimpleKeplerEq {
  
-  type ShortPeriodState = LaraNonSingular[F]
-  type LongPeriodState = LaraNonSingular[F]
+//  type ShortPeriodState = LaraNonSingular[F]
+//  type LongPeriodState = LaraNonSingular[F]
+//  type EccentricAState = EccentricAnomalyState[F]
+//  type PolarNodalSecularState = (SpecialPolarNodal[F], F, F, F, F, F)
+  type ShortPeriodCorrections = SpecialPolarNodal[F]
+  type ShortPeriodState = SpecialPolarNodal[F] // , ShortPeriodCorrections) // final values, corrections ShortPeriodPolarNodalContext
+  type LongPeriodState = SpecialPolarNodal[F] // , F, F, F, F, F, F) // final values, context variables
   type EccentricAState = EccentricAnomalyState[F]
-  type PolarNodalSecularState = (SpecialPolarNodal[F], F, F, F, F, F)
-//      r : F, // the radial distance 
-//      θ : F, 
-//      R : F, // radial velocity 
-//      `Θ/r` : F, // the total angular momentum/r
-//      `el²`: F,   // ---- Context 
-//      pl : F, 
-//      βl : F,
-//      sin2u: F, 
-//      cos2u: F
-//  ) {
-//    def su0 = θ; def rdot0 = R; def rvdot0 = `Θ/r`;  
-//  }
   
   override def periodicCorrections(secularElemt : SGPElems[F])
       :  (FinalState, ShortPeriodState, LongPeriodState, EccentricAState) = {
     
     // After computing the double-prime Delaunay/Lyddane variables from the secular terms, 
-    // the Kepler equation must be solved to find first ƒ, the true anomaly, and then θ, 
+    // the Kepler equation must be solved to find first the eccentric anomaly, then ƒ, the true anomaly, and then θ, 
     // the argument of latitude, in order to compute corresponding double-prime polar-nodal variables.
     val eaState = solveKeplerEq(secularElemt)
-
-//    val secPNt = delauney2PolarNodal(secularElemt, eaState)
-    val delauney = DelauneyVars.sgpelem2Delauney(secularElemt) // NOTE: MU=1
-    val pnContext = delauney2PolarNodal(eaState, delauney, secularElemt)
+    val spnSecularContext = sgpelems2SpecialPolarNodal(eaState, secularElemt)
     
     // secular state at time t in Lara Non Singular variables
-    val sect = polarNodal2LaraNonSingular(pnContext)  // (sinI, secularPolarNodal)
+    val sect = specialPolarNodal2LaraNonSingular(spnSecularContext)  // (sinI, secularPolarNodal)
     
-    val lppc = lppCorrections(sect, pnContext._2)
+    val lppc = lppCorrections(sect, spnSecularContext._2)
     
     // apply long period periodic corrections at time t
     val lppt = sect + lppc 
     
-    val sppc = sppCorrections(lppt, pnContext._2)
+    val sppc = sppCorrections(lppt, spnSecularContext._2)
     // apply short period periodic corrections at time t
     val sppt = lppt + sppc
     
     // final state in Polar Nodal coordinates at time t         
     val finalPolarNodalt = laraNonSingular2SpecialPolarNodal(sppt, secularElemt.I) 
+    val spnSppc = laraNonSingular2SpecialPolarNodal(sppc, secularElemt.I)
+    val spnLppc = laraNonSingular2SpecialPolarNodal(lppt, secularElemt.I)
     
-    (finalPolarNodalt, sppt, lppt, eaState)
+    (finalPolarNodalt, spnSppc, spnLppc, eaState)
   }
- 
+   
+  def sgpelems2SpecialPolarNodal(eaState: EccentricAnomalyState[F], secularElem : SGPElems[F]) = {
+    import eaState._ 
+    import secularElem.{a,I,e,n,ω,Ω}
+    import sec.wgs.twopi
+    
+    val `e²` = e*e
+    val p = a*(1 - `e²`)  // semilatus rectum , as MU=1, p=Z²
+    val β = sqrt(1 - `e²`) 
+    if (p < 0.as[F]) throw new Exception("p: " + p)
+    val `√p` = sqrt(p)  
+    val `√a` = sqrt(a)
+
+    val r = a * (1 - ecosE)        // r´        
+    val R = `√a` / r * esinE     // R´ = L/r *esinE, L=sqrt(nu*a), MU=1 in SGP4 variables, later applied
+    val Θ = `√a` * β            // MU=1 
+    val numer = β * sinE
+    val denom = (cosE - e)
+    val sinf = a/r*numer
+    val cosf = a/r*denom
+    val esinf = e*sinf
+    val ecosf = e*cosf
+    val f = atan2(sinf, cosf)
+    //val f = trueAnomaly(eaState, e)
+    val θ0to2pi = f + ω 
+    val θ = if (θ0to2pi > pi.as[F])  θ0to2pi - twopi else θ0to2pi 
+    //val N = H
+    val sin2f = 2 * cosf * sinf
+    val cos2f = 1 - 2 * sinf * sinf
+    val av = AuxVariables(sin(I), cos(I), p, ecosf, esinf, n, β, sin2f, cos2f)
+    
+    // do check
+//    {
+//    import av._
+//    assert(abs(κ - (av.p/r - 1)) < 1E-10.as[F] ) 
+//    assert(abs(σ - (av.p*R/Θ)) < 1E-10.as[F])
+//    }
+    
+    (SpecialPolarNodal(I,θ,Ω,r,R,Θ/r), av) 
+  }
+   
 //  override def propagate2CartesianContext(t: Minutes) = {
 //    val ((finalPolarNodal, sppState, lppState, eaState), secularElemt) = propagate2PolarNodalContext(t)
 //    import finalPolarNodal._
@@ -81,7 +112,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 
   
   def lppCorrections(lnSingular: LaraNonSingular[F], aux: AuxVariables[F]) : LaraNonSingular[F] = {
-    import lnSingular._,sec.wgs._
+    import lnSingular._,sec.wgs.`J3/J2`
     import aux.p
     //import sec.ctx0._
     val ϵ3 = `J3/J2`/p/2
@@ -128,6 +159,14 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 	  val ν : F = ψ - θ
     SpecialPolarNodal(I,θ,ν,r,R,Θ/r)
   }
+
+  def specialPolarNodal2LaraNonSingular(all : (SpecialPolarNodal[F], AuxVariables[F]) ) : LaraNonSingular[F] = {
+    import all._1._ ,all._2.s
+    val ψ = Ω + θ
+    val ξ = s * sin(θ)
+    val χ = s * cos(θ)
+    LaraNonSingular(ψ, ξ, χ, r, R, Θ) 
+  }
   
 //  def lyddane2SpecialPolarNodal(eaState: EccentricAnomalyState[F], secularElem: SGPElems[F]) 
 //      : PolarNodalSecularState = {
@@ -157,68 +196,68 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 //    // SpecialPolarNodalContext(r, su0, rdot, rvdot, `e²`, p, βl, sin2u, cos2u)
 //    (SpecialPolarNodal(I, su0, Ω, r, rdot, rvdot), `e²`, p, βl, sin2u, cos2u)
 //  }
-  
-
-  def delauney2PolarNodal(eaState: EccentricAnomalyState[F], delauney : DelauneyVars[F], secularElem : SGPElems[F]) = {
-    import eaState._ 
-    import delauney._
-    import secularElem.{a,I,e,n}
-    import sec.wgs.twopi
-    
-    val `e²` = e*e
-    val p = a*(1 - `e²`)  // semilatus rectum , as MU=1, p=Z²
-    if (p < 0.as[F]) throw new Exception("p: " + p)
-    val `√p` = sqrt(p)  
-
-    val r = a * (1 - ecosE)        // r´        
-    val R = L /r * esinE     // R´ = L/r *esinE, L=sqrt(nu*a), MU=1 in SGP4 variables, later applied
-    val Θ = G             // MU=1 
-    val β = sqrt(1 - `e²`)     // β’ = G/L
-    val numer = β * sinE
-    val denom = (cosE - e)
-    val sinf = a/r*numer
-    val cosf = a/r*denom
-    val esinf = e*sinf
-    val ecosf = e*cosf
-    val f = atan2(sinf, cosf)
-    //val f = trueAnomaly(eaState, e)
-    val θ0to2pi = f + g
-    val θ = if (θ0to2pi > pi.as[F])  θ0to2pi - twopi else θ0to2pi 
-    val ν = h
-    val N = H
-    val sin2f = 2 * cosf * sinf
-    val cos2f = 1 - 2 * sinf * sinf
-    val av = AuxVariables(sin(I), cos(I), p, ecosf, esinf, n, β, sin2f, cos2f)
-    
-    // do check
-//    {
-//    import av._
-//    assert(abs(κ - (av.p/r - 1)) < 1E-10.as[F] ) 
-//    assert(abs(σ - (av.p*R/Θ)) < 1E-10.as[F])
-//    }
+//  
+//
+//  def delauney2PolarNodal(eaState: EccentricAnomalyState[F], delauney : DelauneyVars[F], secularElem : SGPElems[F]) = {
+//    import eaState._ 
+//    import delauney._
+//    import secularElem.{a,I,e,n}
+//    import sec.wgs.twopi
+//    
+//    val `e²` = e*e
+//    val p = a*(1 - `e²`)  // semilatus rectum , as MU=1, p=Z²
+//    if (p < 0.as[F]) throw new Exception("p: " + p)
+//    val `√p` = sqrt(p)  
+//
+//    val r = a * (1 - ecosE)        // r´        
+//    val R = L /r * esinE     // R´ = L/r *esinE, L=sqrt(nu*a), MU=1 in SGP4 variables, later applied
+//    val Θ = G             // MU=1 
+//    val β = sqrt(1 - `e²`)     // β’ = G/L
+//    val numer = β * sinE
+//    val denom = (cosE - e)
+//    val sinf = a/r*numer
+//    val cosf = a/r*denom
+//    val esinf = e*sinf
+//    val ecosf = e*cosf
+//    val f = atan2(sinf, cosf)
+//    //val f = trueAnomaly(eaState, e)
+//    val θ0to2pi = f + g
+//    val θ = if (θ0to2pi > pi.as[F])  θ0to2pi - twopi else θ0to2pi 
+//    val ν = h
+//    val N = H
+//    val sin2f = 2 * cosf * sinf
+//    val cos2f = 1 - 2 * sinf * sinf
+//    val av = AuxVariables(sin(I), cos(I), p, ecosf, esinf, n, β, sin2f, cos2f)
+//    
+//    // do check
+////    {
+////    import av._
+////    assert(abs(κ - (av.p/r - 1)) < 1E-10.as[F] ) 
+////    assert(abs(σ - (av.p*R/Θ)) < 1E-10.as[F])
+////    }
+////    PolarNodalElems(r,θ,ν,R,Θ,N)
+//    (PolarNodalElems(r,θ,ν,R,Θ,N), av) 
+//  }
+//  
+//  // Sec 4.2 Lara's personal communication (r, θ, R, Θ) −→ (F, C, S, a)
+//  def delauney2PolarNodal(elem: SGPElems[F], eas : EccentricAnomalyState[F]): PolarNodalElems[F] = {
+//    import eas._
+//    import elem._
+//    import sec.wgs.μ
+//    val `e²` : F = e**2
+//    val β = sqrt(1 - `e²`)
+//    val L = sqrt(μ*a)
+//    val r = a*(1 - ecosE)
+//    val R = (L/r) * esinE 
+//    val Θ = L * β
+//    val `tanf/2` = sqrt((1+e)/(1-e))*tan(E/2)
+//    val f : F = 2*atan(`tanf/2`)
+//    val g : F = ω
+//	  val θ : F = f + g 
+//	  val ν : F = Ω   
+// 	  val N : F = Θ*cos(I) 
 //    PolarNodalElems(r,θ,ν,R,Θ,N)
-    (PolarNodalElems(r,θ,ν,R,Θ,N), av) 
-  }
-  
-  // Sec 4.2 Lara's personal communication (r, θ, R, Θ) −→ (F, C, S, a)
-  def delauney2PolarNodal(elem: SGPElems[F], eas : EccentricAnomalyState[F]): PolarNodalElems[F] = {
-    import eas._
-    import elem._
-    import sec.wgs.μ
-    val `e²` : F = e**2
-    val β = sqrt(1 - `e²`)
-    val L = sqrt(μ*a)
-    val r = a*(1 - ecosE)
-    val R = (L/r) * esinE 
-    val Θ = L * β
-    val `tanf/2` = sqrt((1+e)/(1-e))*tan(E/2)
-    val f : F = 2*atan(`tanf/2`)
-    val g : F = ω
-	  val θ : F = f + g 
-	  val ν : F = Ω   
- 	  val N : F = Θ*cos(I) 
-    PolarNodalElems(r,θ,ν,R,Θ,N)
-  }
+//  }
 
   def polarNodal2LaraNonSingular(all : (PolarNodalElems[F], AuxVariables[F]) ) : LaraNonSingular[F] = {
     import all._1._ ,all._2.s
