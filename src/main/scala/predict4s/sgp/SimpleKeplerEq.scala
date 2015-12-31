@@ -28,11 +28,10 @@ trait SimpleKeplerEq {
         if (abs(tem) > 0.95.as[F]) {
           if (tem > 0.as[F]) 0.95.as[F] else -0.95.as[F]
         } else tem
-      val En = E+incr
       if (remainingIters <= 0 || abs(incr) < 1e-12.as[F]) {
-        EccentricAnomalyState(En,cosE,sinE,ecosE,esinE)   
+        EccentricAnomalyState(E,cosE,sinE,ecosE,esinE)   
       } else {
-        loop(En, remainingIters - 1)
+        loop(E+incr, remainingIters - 1)
       }
     }
     loop(M, 10)  

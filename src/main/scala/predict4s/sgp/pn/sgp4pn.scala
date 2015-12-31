@@ -58,16 +58,15 @@ class SGP4PN[F : Field : NRoot : Order : Trig](
     val θ0to2pi = f + ω 
     val θ = if (θ0to2pi > pi.as[F])  θ0to2pi - twopi else θ0to2pi 
     //val N = H
-    val sin2f = 2 * cosf * sinf
-    val cos2f = 1 - 2 * sinf * sinf
-    val av = AuxVariables(sin(I), cos(I), p, ecosf, esinf, n, β, sin2f, cos2f)
-    
+//    val av = AuxVariables(sin(I), cos(I), p, ecosf, esinf, n, β, sin2f, cos2f)
+    val av = AuxVariables(sin(I), cos(I), p, ecosf, esinf, n, β, 0.as[F], 0.as[F])
+        
     // do check
-//    {
-//    import av._
-//    assert(abs(κ - (av.p/r - 1)) < 1E-10.as[F] ) 
-//    assert(abs(σ - (av.p*R/Θ)) < 1E-10.as[F])
-//    }
+    {
+    import av._
+    assert(abs(κ - (av.p/r - 1)) < 1E-12.as[F] ) 
+    assert(abs(σ - (av.p*R/Θ)) < 1E-12.as[F])
+    }
     
     (SpecialPolarNodal(I,θ,Ω,r,R,Θ/r), av) 
   }
@@ -75,6 +74,7 @@ class SGP4PN[F : Field : NRoot : Order : Trig](
    
   def lppCorrections(pn: (SpecialPolarNodal[F], AuxVariables[F]), secElemt: SGPElems[F]) : (SpecialPolarNodal[F], F, F, F, F, F, F) = {
     import pn._1._,pn._2._,sec.wgs.`J3/J2`, secElemt.n
+    //(s: F, c: F, p: F, κ: F, σ: F, n: F, β: F, sin2f: F, cos2f: F)
     val ϵ3 = `J3/J2`/p/2
     val sinθ = sin(θ)
     val cosθ = cos(θ)
@@ -83,7 +83,9 @@ class SGP4PN[F : Field : NRoot : Order : Trig](
     val δR = ϵ3 * `Θ/r` * (1+κ) * s * cosθ
     val δΘ = ϵ3 * Θ * s * (κ*sinθ - σ * cosθ)
     val rl = r+δr
-    (SpecialPolarNodal(I,θ+δθ, Ω, rl, R+δR, (Θ+δΘ)/rl), 0.as[F], p, β, sin2f, cos2f, n)
+    val sin2θ = 2 * cosθ * sinθ
+    val cos2θ = 1 - 2 * sinθ * sinθ
+    (SpecialPolarNodal(I,θ+δθ, Ω, rl, R+δR, (Θ+δΘ)/rl), 0.as[F], p, β, sin2θ, cos2θ, n)
   }
   
  // def sppCorrections(lppState: LongPeriodState, aux: AuxVariables) : ShortPeriodState = {
