@@ -1,4 +1,4 @@
-name := "sgp4s"
+name := "sgp4s_11"
 
 organization := "com.github.sgp4s"
 
