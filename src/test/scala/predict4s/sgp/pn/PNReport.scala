@@ -11,7 +11,7 @@ import predict4s.coord.SGPElems
 import predict4s.coord.SGPElemsFactory
 import org.scalatest.Ignore
 
-@Ignore
+//@Ignore
 class HardcodedPNReport extends FunSuite with NearTLEs with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] {
  
   implicit val wgs = SGP72Constants.tleDoubleConstants

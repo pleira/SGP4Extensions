@@ -29,25 +29,25 @@ object ValladoFileReport {
         
     f << "\n\n#### propagation times in min " 
     f << times.toString() < "\n"  
-    //f < "# " < tle.satelliteNumber.toString() < " " < tle.year.toString() < " " < tle.epoch < "\n"
+    f << "\n\nUnits: radians for the angles, normalized Earth's radius (aE=1) and MU (MU=1)" 
     
     f << "\n\n#### Computed Final State in Special Polar Nodal coordinates\n"  
-    f << "| the orbital inclination | the argument of latitude | the node  | the radial distance | the radial velocity | `Θ/r` "
-    f << "| ----------------------- | -----------------------  | --------- | ------------------- | ------------------- | ----- "
+    f << "| inclination | argument of latitude | ascending node | radial distance (aE=1) | radial velocity | `Θ/r` "
+    f << "| ----------- | -------------------  | -------------- | ---------------------- | --------------- | ----- "
     pnr foreach { p => 
       f << p._1._1.toString().replaceAll(",|SpecialPolarNodal\\(|\\)|\\(", "|")    
     }
     
     f << "\n\n#### Short period corrections in Special Polar Nodal coordinates\n"  
-    f << "| the orbital inclination | the argument of latitude | the node | the radial distance | the radial velocity | `Θ/r` "
-    f << "| ----------------------- | -----------------------  | --------- | ------------------- | ------------------- | ----- "
+    f << "| inclination | argument of latitude | ascending node | radial distance (aE=1) | radial velocity | `Θ/r` "
+    f << "| ----------- | -------------------  | -------------- | ---------------------- | --------------- | ----- "
    pnr foreach { p => 
       f << p._1._2._2.toString().replaceAll(",|SpecialPolarNodal\\(|\\)|\\(", "|")          
     }
     
     f << "\n\n#### Long period state in Special Polar Nodal coordinates\n"  
-    f << "| the orbital inclination | the argument of latitude | the node | the radial distance | the radial velocity | `Θ/r` "
-    f << "| ----------------------- | -----------------------  | --------- | ------------------- | ------------------- | ----- "
+    f << "| inclination | argument of latitude | ascending node | radial distance (aE=1) | radial velocity | `Θ/r` "
+    f << "| ----------- | -------------------  | -------------- | ---------------------- | --------------- | ----- "
  
     pnr foreach { p => 
       f << p._1._3._1.toString().replaceAll(",|SpecialPolarNodal\\(|\\)|\\(", "|")      
@@ -55,7 +55,7 @@ object ValladoFileReport {
     
     f << "\n\n#### Anomaly calculation \n"
     f << "| E " 
-    f << "| ----------------------- "
+    f << "| --- "
     pnr foreach { p => 
       val vE = p._1._4.E - p._2.ω // Vallado's solved kepler equation on Lyddane variables => E = u - ω
       f << s"|${vE}|"             
@@ -63,7 +63,7 @@ object ValladoFileReport {
     
     f << "\n\n#### Orbital elements with secular corrections \n" 
     f << "| mean motion | eccentricity | inclination | argument Of perigee | ascending node | mean anomaly | semimajor axis | atmospheric Drag | epoch time in days from jan 0 1950. 0 hr"
-    f << "| ----------- | -----------  | --------- | ------------------- | ------------------- | --------- | ---------      | ---------        | --------------   "
+    f << "| ----------- | -----------  | --------- | ------------------- | ------------------- | --------- | ---------      | ---------        | -------------- "
     pnr foreach { p => 
       f << p._2.toString().replaceAll(",|SGPElems\\(|\\)|\\(", "|")  
     }
