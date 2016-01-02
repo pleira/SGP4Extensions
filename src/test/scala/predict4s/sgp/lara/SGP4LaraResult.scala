@@ -35,7 +35,7 @@ case class Sgp4LaraResult(
   def  ainv  : Double    = 1 / elem0.a
   def    ao  : Double    = elem0.a
   def con41  : Double    = ctx0.x3thm1   // FIXME for d
-  def con42  : Double    = ctx0.con42
+  def con42  : Double    = ctx0.`1-5c²`
   def cosio  : Double    = ctx0.c // θ
   def cosio2 : Double    = ctx0.`c²` // θsq
   def eccsq  : Double    = ctx0.`e²` // e0sq 

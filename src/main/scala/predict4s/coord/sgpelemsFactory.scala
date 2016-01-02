@@ -68,7 +68,7 @@ object SGPElemsFactory {
 }
 
 case class Context0[F: Field: NRoot : Trig](
-    a0: F, `e²`: F,s: F,c: F,`c²`: F, x3thm1: F,β0: F,`β0²`: F,`β0³`: F, private val wgs: SGPConstants[F]) {
+    a0: F, `e²`: F,s: F,c: F,`c²`: F, `3c²-1`: F,β0: F,`β0²`: F,`β0³`: F, private val wgs: SGPConstants[F]) {
 
   def cosI0      = c 
   def `cos²I0`   = `c²`
@@ -101,8 +101,11 @@ case class Context0[F: Field: NRoot : Trig](
 //  val ϵ3 : F = (`J3/J2`)*`α/p` / 2      // or (`C30/C20`)*`α/p` / 2   
 // FIXME  val η : F = β0  // (1 - `e²`).sqrt           // eccentricity function G/L, with G as the Delauney's action, the total angular momentum , and L = √(μ a)
 //  val x3thm1     = 3*`c²` - 1
-  val con41      = x3thm1
-  val con42      = 1 - 5*`c²`
-  val x1mth2     = 1 - `c²`
-  val x7thm1 : F = 7*`c²` - 1     
+  def con41 = `3c²-1` // depends on the inclination 
+  val `1-5c²` = 1 - 5*`c²`
+  val x1mth2 = 1 - `c²`
+  val x7thm1 = 7*`c²` - 1   
+  val x3thm1     = `3c²-1`   
+  val `1-c²`   = 1 - `c²`
+  val `7c²-1`  = 7*`c²` - 1   
 }

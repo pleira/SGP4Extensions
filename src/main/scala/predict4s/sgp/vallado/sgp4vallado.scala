@@ -50,12 +50,12 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     
     // C´´ = e´´ * cos(g´´), there is no long period correction for Lyddane's C term, which is defined as e*cosω
     val axnl = e * cos(ω)
-    val temp = 1 / (a * (1 - e * e))   // 1/p´´ = 1/ (a´´ * (1 − e´´²))
+    val p = a * (1 - e * e)   // 1/p´´ = 1/ (a´´ * (1 − e´´²))
     
-    // Lyddane S' = e*sinω + 1/p´´ * (- `J3/J2`*sinI0/2)     
-    val aynl : F = e * sin(ω) + temp * aycof
+    // Lyddane S' = e*sinω + (-`J3/J2`*sinI0/2)/p´´ =  e*sinω - `J3/J2`/p/2 * s = e*sinω - ϵ3*s
+    val aynl : F = e * sin(ω) + aycof / p
     // Lyddane F' = (M´´ + g´´ + h´´) +  1/p´´*(-`J3/J2`*sinI0*(3 + 5*cosI0)/(1 + cosI0)/4)*e*cosω
-    val xl: F = M + ω + Ω + temp * xlcof * axnl
+    val xl: F = M + ω + Ω + xlcof * axnl / p
     
     // no more corrections, that is, L’= L",  I’= I", h’= h"
     
@@ -84,7 +84,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     val sinθ = a / rl * (sinE - aynl - axnl * temp0)
     val cosθ = a / rl * (cosE - axnl + aynl * temp0)
     val θ = atan2(sinθ, cosθ)
-    val sin2θ = 2 * cosθ * sinθ
+    val sin2θ = 2 * cosθ * sinθ // FIXME
     val cos2θ = 1 - 2 * sinθ * sinθ
     (SpecialPolarNodal(I, θ, Ω, rl, rdotl, rvdotl), `el²`, pl, βl, sin2θ, cos2θ, n) 
   }    
@@ -93,16 +93,16 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     import lppState.{_1 => lppPN,_3 => pl,_4 => βl,_5 => sin2θ,_6 => cos2θ, _7 => n}
     import lppPN._
     import sec.wgs.{J2,KE}
-    import sec.ctx0.{c,s,x7thm1,x1mth2,con41}
+    import sec.ctx0.{c,s,`7c²-1`,`1-c²`,`3c²-1`}
  
-    val temp1  = J2 / pl / 2
-    val temp2  = temp1 / pl 
-    val δI = 1.5 * temp2 * c * s * cos2θ
-    val δθ = - temp2 * x7thm1 * sin2θ / 4
-    val δΩ = 1.5 * temp2 * c * sin2θ
-    val δr =  - r * 1.5 * temp2 * βl * con41 + temp1 * x1mth2 * cos2θ / 2
-    val δR = - n * temp1 * x1mth2 * sin2θ / KE  // rdot, angular velocity
-    val δrvdot = n * temp1 * (x1mth2 * cos2θ + 1.5 * con41) / KE 
+    val `J2/p/2` = J2 / pl / 2
+    val ϵ2 = - `J2/p/2` / pl / 2
+    val δI = - 3 * ϵ2 * c * s * cos2θ
+    val δθ =       ϵ2 * `7c²-1` * sin2θ / 2
+    val δΩ = - 3 * ϵ2 * c * sin2θ
+    val δr =   3 * ϵ2 * r * βl * `3c²-1` + `J2/p/2` * `1-c²` * cos2θ / 2
+    val δR = - n * `J2/p/2` * `1-c²` * sin2θ / KE  // rdot, angular velocity
+    val δrvdot = n * `J2/p/2` * (`1-c²` * cos2θ + 1.5 * `3c²-1`) / KE 
     val δspp = SpecialPolarNodal(δI,δθ,δΩ,δr,δR,δrvdot)
     val finalPN = lppPN + δspp
     (finalPN, δspp)

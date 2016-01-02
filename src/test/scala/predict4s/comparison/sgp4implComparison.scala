@@ -17,14 +17,14 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
   implicit val wgs = SGP72Constants.tleDoubleConstants
   
   import spire.std.any.DoubleAlgebra
-  val tles = List(tle22675,tle24946,tle00005,tle06251,tle28057)
+  val tles = List(tle00005,tle06251,tle22675,tle24946,tle28057)
   for (tle <- tles) {
     val elem0AndCtx = SGPElemsFactory.sgpElemsAndContext(tle)
     val model = BrouwerLaneSecularCorrections(elem0AndCtx)
     val vsgp4 = SGP4Vallado[Double](model)
     val pnsgp4 = SGP4PN[Double](model)
     val results = 
-      for (t <- 0 to 1360 by 20;
+      for (t <- 0 to 360 by 1;
         secularElemt = vsgp4.secularCorrections(t);
         (_, pnspps, pnlpps, pneas) = pnsgp4.periodicCorrections(secularElemt);
         (_, vspps, vlpps, veas) = vsgp4.periodicCorrections(secularElemt);
@@ -39,7 +39,7 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
     val resL = resLpp.unzip 
     test(s"TLE ${tle.satelliteNumber} : long period periodic Vallado/Polar Nodals comparison")
     {  
-      implicit val toMinus5 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(2E-5)
+      implicit val toMinus5 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(3.4E-4)
       resLpp foreach { result =>
         val (pnspn, v) = result
         val pn = pnspn._1
@@ -50,12 +50,24 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
         assert(vspn.`Θ/r` === pn.`Θ/r`)
         assert(vspn.I === pn.I)
         //assert(vspn.`Θ/r`*scala.math.cos(vspn.I) === pn.N/pn.r)
- //       assert(vspn.θ === pn.θ)  // FIXME
+        assert(vspn.θ === pn.θ)
+        // check auxiliary variables `el²`, pl, βl, sin2θ, cos2θ
+        assert(v._2 === pnspn._2)
+        assert(v._3 === pnspn._3)
+        assert(v._4 === pnspn._4)
+        if (v._5 > 0 && pnspn._5 < 0 ||
+            v._5 < 0 && pnspn._5 > 0 ||
+            !(v._5 === pnspn._5) || 
+            !(v._6 === pnspn._6)) {
+          Console.print(s"vallado: ${v.toString()}\npnspn:   ${pnspn.toString()}\n")
+        }
+//        assert(v._5 === pnspn._5)  // FIXME
+//        assert(v._6 === pnspn._6)        
       }
     }
     test(s"TLE ${tle.satelliteNumber} : short period periodic Vallado/Polar Nodals comparison")
     {  
-      implicit val toMinus3 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1E-3)
+      implicit val toMinus3 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1E-4)
       resSpp foreach { result =>
         val (pnspn, v) = result
         val pn = pnspn._1

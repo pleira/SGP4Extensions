@@ -24,10 +24,11 @@ trait SimpleKeplerEq {
       val fdot = 1 - ecosE
       val f = M - (E - esinE)
       val tem : F = f / fdot  
-      val incr =
-        if (abs(tem) > 0.95.as[F]) {
-          if (tem > 0.as[F]) 0.95.as[F] else -0.95.as[F]
-        } else tem
+      val incr = tem
+      // does this Kepler equation need these lines?
+//        if (abs(tem) > 0.95.as[F]) {
+//          if (tem > 0.as[F]) 0.95.as[F] else -0.95.as[F]
+//        } else tem
       if (remainingIters <= 0 || abs(incr) < 1e-12.as[F]) {
         EccentricAnomalyState(E,cosE,sinE,ecosE,esinE)   
       } else {

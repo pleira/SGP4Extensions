@@ -8,6 +8,8 @@ import predict4s.coord.SGPElems
 import predict4s.coord.Context0
 import predict4s.coord.SGPConstants
 
+// The notation used in the formulas here correspond to that used in SPACETRACK Report n 3, Hoots.
+
 abstract class GeoPotentialModel extends FittingAtmosphericParameter {
 
   def geoPotentialCoefs[F: Field : NRoot : Order : Trig](elem0: SGPElems[F], ctx: Context0[F], gctx: GeoPotentialContext[F], aE: F, wgs: SGPConstants[F]) 
@@ -17,24 +19,24 @@ abstract class GeoPotentialModel extends FittingAtmosphericParameter {
     import wgs.{J2,J3,`J3/J2`}
     import ctx.sinI0,ctx.`θ²`,ctx.`β0²`
   
-    val coef1 : F = q0ms_ξ__to4 / (`psi²`** 3.5)
+    val coef1 : F = `ξ⁴(q0-s)⁴` / (`1-η²`** 3.5)
   
-    val C2 : F = coef1 * n0 *(a0 * (1 + 1.5*`η²` + e0η*(4 + `η²`)) + 0.375*J2*ξ / `psi²` * (3*`θ²` - 1) * (8 + 3*`η²`*(8 + `η²`)))
+    val C2 : F = coef1 * n0 *(a0 * (1 + 1.5*`η²` + e0η*(4 + `η²`)) + 0.375*J2*ξ / `1-η²` * (3*`θ²` - 1) * (8 + 3*`η²`*(8 + `η²`)))
       // coef1 * n0 *(a0 * (1 + 1.5*`η²` + e0η*(4 + `η²`)) + 3*J2*ξ / 2 / psisq * (3*`θ²` - 1) / 2 * (8 + 3*`η²`*(8 + `η²`)))
     
     val C1 : F = bStar * C2
     val `C1²`  = C1*C1
   
-    val C3 =  if (e0 > 0.0001.as[F]) -2 * q0ms_ξ__to4 * ξ * `J3/J2` * n0 * sinI0 / e0 else 0.as[F]
+    val C3 =  if (e0 > 0.0001.as[F]) -2 * `ξ⁴(q0-s)⁴` * ξ * `J3/J2` * n0 * sinI0 / e0 else 0.as[F]
     val aterm = 3*(1-3*`θ²`)*(1 + 3*`η²`/2 - 2*e0η - e0η*`η²`/2) + 3*(1-`θ²`)*(2*`η²` - e0η - e0η*`η²`)*cos(2*ω0)/4
-    val C4 : F = 2*a0*`β0²`*coef1*n0*((2*η*(1 + e0η) + (e0 + `η³`)/2) - J2*ξ*aterm/(a0*`psi²`))
+    val C4 = 2*a0*`β0²`*coef1*n0*((2*η*(1 + e0η) + (e0 + `η³`)/2) - J2*ξ*aterm/(a0*`1-η²`))
     val C5 = 2*a0*`β0²`*coef1*(1 + 11*(`η²`+e0η)/4 + e0η*`η²`)
     val D2 = 4*a0*`C1²`*ξ
     val D3 = D2*(17*a0+s)*C1*ξ/3
     val D4 = D2*D2*ξ*(221*a0+31*s)/24
     GeoPotentialCoefs(C1,C2,C3,C4,C5,D2,D3,D4)
   }
-
+  
 }
 
 abstract class FittingAtmosphericParameter {
@@ -60,25 +62,21 @@ case class GeoPotentialContext[F: Field: NRoot : Order: Trig](
     ) {
   import elem0.{n => n0,e => e0, a => a0}
 
-  val ξ    = 1 / (a0 - s)  // tsi
+  val ξ = 1 / (a0 - s)  // tsi
   val `ξ²` = ξ*ξ
   val `ξ³` = ξ*`ξ²`
   val `ξ⁴` = `ξ²`*`ξ²`
 
-  val η  : F  = a0*e0*ξ   // eta
+  val η = a0*e0*ξ   // eta
   val `η²` = η*η
   val `η³` = η*`η²`
   val `η⁴` = `η²`*`η²`
   
-  val e0η : F  = e0*η      // eeta 
-  val `psi²` : F = abs[F](1-`η²`)  // Vallado uses fabs
-  
+  val e0η = e0*η      // eeta 
+  val `1-η²` = abs[F](1-`η²`) 
   // The parameter q0 is the geocentric reference altitude, 
   // a constant equal to 120 km plus one Earth radius 
   val q0   = 1 + 120/aE 
-  val q0ms_to4 = (q0 - s)**4 
-  
-  // q0 minus s ξ  all to 4 
-  val q0ms_ξ__to4 = q0ms_to4*(ξ**4)  
-
+  val `(q0-s)⁴` = (q0 - s)**4 
+  val `ξ⁴(q0-s)⁴` = `(q0-s)⁴` * `ξ⁴`
 }

@@ -60,7 +60,7 @@ class SGP4PN[F : Field : NRoot : Order : Trig](
     //val N = H
 //    val av = AuxVariables(sin(I), cos(I), p, ecosf, esinf, n, β, sin2f, cos2f)
     val av = AuxVariables(sin(I), cos(I), p, ecosf, esinf, n, β, 0.as[F], 0.as[F])
-        
+    
     // do check
     {
     import av._
@@ -73,9 +73,12 @@ class SGP4PN[F : Field : NRoot : Order : Trig](
   
    
   def lppCorrections(pn: (SpecialPolarNodal[F], AuxVariables[F]), secElemt: SGPElems[F]) : (SpecialPolarNodal[F], F, F, F, F, F, F) = {
-    import pn._1._,pn._2._,sec.wgs.`J3/J2`, secElemt.n
+    import pn._1._,pn._2.{p,s,c},sec.wgs.`J3/J2`, secElemt.n,sec.wgs.twopi
     //(s: F, c: F, p: F, κ: F, σ: F, n: F, β: F, sin2f: F, cos2f: F)
     val ϵ3 = `J3/J2`/p/2
+    val σ = p*R/Θ
+    val κ = p/r - 1
+    //val nθ = if (θ > 0) θ else (θ + pi.as[F]) 
     val sinθ = sin(θ)
     val cosθ = cos(θ)
     val δr = ϵ3 * p * s * sinθ
@@ -83,9 +86,26 @@ class SGP4PN[F : Field : NRoot : Order : Trig](
     val δR = ϵ3 * `Θ/r` * (1+κ) * s * cosθ
     val δΘ = ϵ3 * Θ * s * (κ*sinθ - σ * cosθ)
     val rl = r+δr
-    val sin2θ = 2 * cosθ * sinθ
-    val cos2θ = 1 - 2 * sinθ * sinθ
-    (SpecialPolarNodal(I,θ+δθ, Ω, rl, R+δR, (Θ+δΘ)/rl), 0.as[F], p, β, sin2θ, cos2θ, n)
+    val Rl = R+δR
+    val Θl = Θ+δΘ // angular momentum
+    val θl = θ+δθ 
+    //val θl = if (θ<0 && abs(δθ)>abs(θ)) θ-δθ else θ+δθ
+
+    //val absθl = abs(θ)+abs(δθ)  // if (θ>0) θ+δθ else θ-δθ // argument latitude
+//    val θlt = θ+δθ // if (θ>0) absθl else - absθl
+//    val θl = if (θlt > pi.as[F])  pi - θlt  else θlt 
+    // val θf = if (θl > pi.as[F])  θl - twopi else θl    
+    // recalculate the "state" variables here
+    val sin2θ = sin(2*θl) // 2 * cos(θl) * sin(θl)
+    val cos2θ = cos(2*θl) // 1 - 2 * sin(θl) * sin(θl)
+    // val a = rl /(1 - ecosE) 
+    val pl = Θl*Θl // MU=1
+    // note:    e² = κ² + σ²
+    val κl = pl/rl - 1
+    val σl = pl*Rl/Θl
+    val `el²` = κl*κl + σl*σl
+    val βl = sqrt(1 - `el²`)
+    (SpecialPolarNodal(I, θl, Ω, rl, Rl, Θl/rl), `el²`, pl, βl, sin2θ, cos2θ, n)
   }
   
  // def sppCorrections(lppState: LongPeriodState, aux: AuxVariables) : ShortPeriodState = {
@@ -93,16 +113,16 @@ class SGP4PN[F : Field : NRoot : Order : Trig](
     import lppState.{_1 => lppPN,_3 => pl,_4 => βl,_5 => sin2θ,_6 => cos2θ, _7 => n}
     import lppPN._
     import sec.wgs.{J2,KE}
-    import sec.ctx0.{c,s,x7thm1,x1mth2,con41}
+    import sec.ctx0.{c,s,`7c²-1`,`1-c²`,`3c²-1`}
  
-    val temp1  = J2 / pl / 2
-    val temp2  = temp1 / pl 
-    val δI = 1.5 * temp2 * c * s * cos2θ
-    val δθ = - temp2 * x7thm1 * sin2θ / 4
-    val δΩ = 1.5 * temp2 * c * sin2θ
-    val δr =  - r * 1.5 * temp2 * βl * con41 + temp1 * x1mth2 * cos2θ / 2
-    val δR = - n * temp1 * x1mth2 * sin2θ / KE  // rdot, angular velocity
-    val δrvdot = n * temp1 * (x1mth2 * cos2θ + 1.5 * con41) / KE 
+    val `J2/p/2` = J2 / pl / 2
+    val ϵ2 = - `J2/p/2` / pl / 2
+    val δI = - 3 * ϵ2 * c * s * cos2θ
+    val δθ =       ϵ2 * `7c²-1` * sin2θ / 2
+    val δΩ = - 3 * ϵ2 * c * sin2θ
+    val δr =   3 * ϵ2 * r * βl * `3c²-1` + `J2/p/2` * `1-c²` * cos2θ / 2
+    val δR = - n * `J2/p/2` * `1-c²` * sin2θ / KE  // rdot, angular velocity
+    val δrvdot = n * `J2/p/2` * (`1-c²` * cos2θ + 1.5 * `3c²-1`) / KE 
     val δspp = SpecialPolarNodal(δI,δθ,δΩ,δr,δR,δrvdot)
     val finalPN = lppPN + δspp
     (finalPN, δspp)
