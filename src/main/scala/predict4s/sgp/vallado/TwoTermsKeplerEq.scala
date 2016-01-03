@@ -4,8 +4,7 @@ import spire.math._
 import spire.implicits._
 import scala.{ specialized => spec }
 import spire.syntax.primitives._
-import predict4s.coord.SGPElems
-import predict4s.sgp.EccentricAnomalyState
+import predict4s.coord.{SGPElems,AnomalyState}
 
 trait TwoTermsKeplerEq {
    
@@ -16,12 +15,12 @@ trait TwoTermsKeplerEq {
    * and g is the argument of the perigee (ω).
    * The Newton-Raphson iterations start from Ψ0 = U.
    */
-  def solveKeplerEq[F: Field: Trig: Order](lylppState: LyddaneLongPeriodPeriodicState[F]) : EccentricAnomalyState[F]  = {
+  def solveKeplerEq[F: Field: Trig: Order](lylppState: LyddaneLongPeriodPeriodicState[F]) : AnomalyState[F]  = {
     import lylppState._   
     // U = F' - h' = M" + g"; 
     val u = Field[F].mod(xl - Ω, 2.as[F]*pi)  
 
-    def loop(U: F, remainingIters: Int) : EccentricAnomalyState[F] = {
+    def loop(U: F, remainingIters: Int) : AnomalyState[F] = {
       val sinU = sin(U)
       val cosU = cos(U)
       val ecosU = axnl * cosU + aynl * sinU
@@ -36,7 +35,7 @@ trait TwoTermsKeplerEq {
       val Un = U+incr
       if (remainingIters <= 0 || abs(incr) < 1e-12.as[F]) {
         // NOTE: as we have Lyddane's variables here, the eccentric anomaly is U - ω when comparing 
-        EccentricAnomalyState(Un,cosU,sinU,ecosU,esinU)   
+        AnomalyState(Un,cosU,sinU,ecosU,esinU)   
       } else {
         loop(Un, remainingIters - 1)
       }

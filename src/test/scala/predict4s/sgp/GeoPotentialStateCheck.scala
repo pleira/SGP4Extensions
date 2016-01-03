@@ -4,9 +4,10 @@ import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
 import predict4s.coord.TLE
 import predict4s.coord.SGPElems
-import predict4s.coord.SGPElemsFactory
+import predict4s.coord.SGPElemsConversions
 import predict4s.coord.Context0
 import predict4s.coord.SGP72Constants
+import predict4s.coord.Context0
 
 class GeoPotentialStateCheck extends FunSuite with NearTLEs  {
   
@@ -18,7 +19,7 @@ class GeoPotentialStateCheck extends FunSuite with NearTLEs  {
         import spire.implicits._
         val factory = new Factory2ndOrderSecularCorrectionsTerms[Double](wgs) {
           def buildGeoPotential(tle: TLE) = {
-            val elemTLE : (SGPElems[Double], Context0[Double]) = SGPElemsFactory.sgpElemsAndContext(tle)
+            val elemTLE : (SGPElems[Double], Context0[Double]) = SGPElemsConversions.sgpElemsAndContext(tle, wgs)
             val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = geoPotentialCoefsAndContexts(elemTLE)
             (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
         }

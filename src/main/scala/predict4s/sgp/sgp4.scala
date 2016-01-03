@@ -3,29 +3,26 @@ import spire.algebra._
 import spire.math._
 import spire.implicits._
 import spire.syntax.primitives._
-import predict4s.coord.CartesianElems
-import predict4s.coord.SGPElems  
-import predict4s.coord.SpecialPolarNodal  
-import predict4s.coord.TimeUtils
-import predict4s.coord.CoordTransformation._
+import predict4s.coord._
+import predict4s.coord.CoordinatesConversions._
 
 trait HelperTypes[F] {  
   type SinI = F  // type to remember dealing with the sine of the Inclination 
   type CosI = F  // type to remember dealing with the cosine of the Inclination 
   type Minutes = F // type to remember dealing with minutes from epoch
-  type FinalState = SpecialPolarNodal[F]
-  type ShortPeriodState
-  type LongPeriodState
-  type EccentricAState
+  type FinalState[F] = SpecialPolarNodal[F]
+  type ShortPeriodCorrections[F] = SpecialPolarNodal[F]
+  type ShortPeriodState[F] = (SpecialPolarNodal[F], ShortPeriodCorrections[F]) // final values, corrections ShortPeriodPolarNodalContext
+  type LongPeriodState[F] = (SpecialPolarNodal[F], LongPeriodContext[F]) // final values, context variables
   type SecularElems = SGPElems[F]
 }
-  
+
 trait SecularCorrections[F] extends HelperTypes[F] {
   def secularCorrections(t: Minutes): SGPElems[F]
 }
   
-case class EccentricAnomalyState[F](E : F, cosE: F, sinE: F, ecosE: F, esinE: F) 
-case class AuxVariables[F](s: F, c: F, p: F, κ: F, σ: F, n: F, β: F, sin2f: F, cos2f: F)
+case class LongPeriodContext[F](`el²`: F, pl: F, βl: F, sin2θ: F, cos2θ: F, n: F)
+
 
 /** 
  * The SGP-4 theory is applied for all orbits with periods of T <= 225 min. 
@@ -41,7 +38,7 @@ case class AuxVariables[F](s: F, c: F, p: F, κ: F, σ: F, n: F, β: F, sin2f: F
 abstract class SGP4[F : Field : NRoot : Order : Trig](
     val sec : BrouwerLaneSecularCorrections[F]
     ) extends HelperTypes[F] {
-  
+
   def propagate(t: Minutes)  = propagate2CartesianContext(t)
 
   def gsto : F = TimeUtils.gstime(sec.elem0.epoch + 2433281.5) 
@@ -73,7 +70,7 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
    */
   def secularCorrections(t: Minutes): SGPElems[F] = sec.secularCorrections(t)  
   
-  def periodicCorrections(secularElemt : SGPElems[F]): (FinalState, ShortPeriodState, LongPeriodState, EccentricAState)
+  def periodicCorrections(secularElemt : SGPElems[F]): (FinalState[F], ShortPeriodState[F], LongPeriodState[F], AnomalyState[F])
 
   
   /**

@@ -6,11 +6,9 @@ import spire.implicits._
 import scala.{ specialized => spec }
 import spire.syntax.primitives._
 import predict4s.sgp._
-import predict4s.coord.PolarNodalElems
-import predict4s.coord.CartesianElems
-import predict4s.coord.SpecialPolarNodal
-import predict4s.coord.CoordTransformation._
-import predict4s.coord.SGPElems
+import predict4s.coord._
+import predict4s.coord.CoordinatesConversions._
+import predict4s.coord.{SGPElems,AnomalyState}
 import predict4s.sgp.pn.DelauneyVars
 
   
@@ -23,17 +21,9 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
  sec : BrouwerLaneSecularCorrections[F]
   ) extends SGP4(sec) with SimpleKeplerEq {
  
-//  type ShortPeriodState = LaraNonSingular[F]
-//  type LongPeriodState = LaraNonSingular[F]
-//  type EccentricAState = EccentricAnomalyState[F]
-//  type PolarNodalSecularState = (SpecialPolarNodal[F], F, F, F, F, F)
-  type ShortPeriodCorrections = SpecialPolarNodal[F]
-  type ShortPeriodState = SpecialPolarNodal[F] // , ShortPeriodCorrections) // final values, corrections ShortPeriodPolarNodalContext
-  type LongPeriodState = SpecialPolarNodal[F] // , F, F, F, F, F, F) // final values, context variables
-  type EccentricAState = EccentricAnomalyState[F]
   
   override def periodicCorrections(secularElemt : SGPElems[F])
-      :  (FinalState, ShortPeriodState, LongPeriodState, EccentricAState) = {
+      :  (FinalState[F], ShortPeriodState[F], LongPeriodState[F], AnomalyState[F]) = {
     
     // After computing the double-prime Delaunay/Lyddane variables from the secular terms, 
     // the Kepler equation must be solved to find first the eccentric anomaly, then ƒ, the true anomaly, and then θ, 
@@ -58,10 +48,10 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val spnSppc = laraNonSingular2SpecialPolarNodal(sppc, secularElemt.I)
     val spnLppc = laraNonSingular2SpecialPolarNodal(lppt, secularElemt.I)
     
-    (finalPolarNodalt, spnSppc, spnLppc, eaState)
+    (finalPolarNodalt, (spnSppc, ???), (spnLppc,???), eaState)
   }
    
-  def sgpelems2SpecialPolarNodal(eaState: EccentricAnomalyState[F], secularElem : SGPElems[F]) = {
+  def sgpelems2SpecialPolarNodal(eaState: AnomalyState[F], secularElem : SGPElems[F]) = {
     import eaState._ 
     import secularElem.{a,I,e,n,ω,Ω}
     import sec.wgs.twopi
@@ -168,7 +158,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     LaraNonSingular(ψ, ξ, χ, r, R, Θ) 
   }
   
-//  def lyddane2SpecialPolarNodal(eaState: EccentricAnomalyState[F], secularElem: SGPElems[F]) 
+//  def lyddane2SpecialPolarNodal(eaState: AnomalyState[F], secularElem: SGPElems[F]) 
 //      : PolarNodalSecularState = {
 //    import eaState._ 
 //    import secularElem._ // {n,e,I,ω,Ω,M,a}
@@ -198,7 +188,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 //  }
 //  
 //
-//  def delauney2PolarNodal(eaState: EccentricAnomalyState[F], delauney : DelauneyVars[F], secularElem : SGPElems[F]) = {
+//  def delauney2PolarNodal(eaState: AnomalyState[F], delauney : DelauneyVars[F], secularElem : SGPElems[F]) = {
 //    import eaState._ 
 //    import delauney._
 //    import secularElem.{a,I,e,n}
@@ -240,7 +230,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 //  }
 //  
 //  // Sec 4.2 Lara's personal communication (r, θ, R, Θ) −→ (F, C, S, a)
-//  def delauney2PolarNodal(elem: SGPElems[F], eas : EccentricAnomalyState[F]): PolarNodalElems[F] = {
+//  def delauney2PolarNodal(elem: SGPElems[F], eas : AnomalyState[F]): PolarNodalElems[F] = {
 //    import eas._
 //    import elem._
 //    import sec.wgs.μ

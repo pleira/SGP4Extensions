@@ -1,30 +1,24 @@
 package predict4s.report
 
 import java.io.{ File => JFile }
-
 import better.files._
 import predict4s.coord.SGPElems
 import predict4s.coord.SpecialPolarNodal
 import predict4s.coord.TLE
-import predict4s.sgp.EccentricAnomalyState
+import predict4s.coord.AnomalyState
 import predict4s.sgp.HelperTypes
 import predict4s.sgp.SGP4
+import predict4s.sgp.LongPeriodContext
 
 abstract class FileReport {
     
   type F = Double
-  // Hardcode the type at the moment
-  type ShortPeriodCorrections = SpecialPolarNodal[F]
-  type FinalState = SpecialPolarNodal[F]
-  type ShortPeriodState = (SpecialPolarNodal[F], ShortPeriodCorrections) // final values, corrections ShortPeriodPolarNodalContext
-  type LongPeriodState = (SpecialPolarNodal[F], F, F, F, F, F, F) // final values, context variables
-  type EccentricAState = EccentricAnomalyState[F]
   
   def path(tle: TLE) = s"doc/reports/${propagator}_${tle.satelliteNumber}_${tle.year}_${tle.epoch}.md"
   
   def propagator: String
   
-  def save(pnr: IndexedSeq[((FinalState, ShortPeriodState, LongPeriodState, EccentricAState), SGPElems[F])], tle: TLE, lines: List[String], times : IndexedSeq[Int]) = {
+  def save(pnr: IndexedSeq[((SpecialPolarNodal[F], (SpecialPolarNodal[F],SpecialPolarNodal[F]), (SpecialPolarNodal[F], LongPeriodContext[F]), AnomalyState[F]), SGPElems[F])], tle: TLE, lines: List[String], times : IndexedSeq[Int]) = {
     val f = File(path(tle))
     implicit val oo = File.OpenOptions.append
     f << s"# ${propagator} algorithm\n"
@@ -62,7 +56,7 @@ abstract class FileReport {
     f << "| E   | cosE | sinE | ecosE | esinE" 
     f << "| --- | ---  | ---- | ----- | ---"
     pnr foreach { p => 
-      f << p._1._4.toString().replaceAll(",|EccentricAnomalyState\\(|\\)|\\(", "|")            
+      f << p._1._4.toString().replaceAll(",|AnomalyState\\(|\\)|\\(", "|")            
     }
     
     f << "\n\n#### Orbital elements with secular corrections \n" 

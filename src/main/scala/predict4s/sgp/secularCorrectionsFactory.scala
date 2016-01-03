@@ -7,6 +7,7 @@ import spire.syntax.primitives._
 import predict4s.coord.SGPElems
 import predict4s.coord.Context0
 import predict4s.coord.SGPConstants
+import predict4s.coord.Context0
 
 
 class Factory2ndOrderSecularCorrectionsTerms[F : Field : NRoot : Order : Trig](wgs: SGPConstants[F]) extends GeoPotentialAndAtmosphere2ndOrderModel with FittingAtmosphericParameter[F] { 

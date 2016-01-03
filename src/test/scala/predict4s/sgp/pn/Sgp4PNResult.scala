@@ -3,11 +3,14 @@ package predict4s.sgp.pn
 import predict4s.coord.CartesianElems
 import predict4s.sgp.Sgp4Result
 import predict4s.coord.TLE
+import predict4s.coord.SpecialPolarNodal
+import predict4s.sgp.LongPeriodContext
+import predict4s.coord.AnomalyState
 
 case class Sgp4PNResult(
     sgp: SGP4PN[Double], 
-    statett: (CartesianElems[Double], CartesianElems[Double], SGP4PN[Double]#FinalState, 
-        SGP4PN[Double]#ShortPeriodState, SGP4PN[Double]#LongPeriodState, SGP4PN[Double]#EccentricAState), tle: TLE, t: Double) 
+    statett: (CartesianElems[Double], CartesianElems[Double], SpecialPolarNodal[Double], 
+        (SpecialPolarNodal[Double], SpecialPolarNodal[Double]), (SpecialPolarNodal[Double], LongPeriodContext[Double]), AnomalyState[Double]), tle: TLE, t: Double) 
         extends Sgp4Result[Double] {
   val posVel = statett._1 
   val r = posVel.pos

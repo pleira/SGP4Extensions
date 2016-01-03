@@ -3,13 +3,19 @@ import spire.algebra._
 import spire.math._
 import spire.implicits._
 import spire.syntax.primitives._
-import predict4s.coord.CartesianElems
-import predict4s.sgp.pn.DelauneyVars
-import predict4s.coord.SGPElems
-import predict4s.coord.Context0
-import predict4s.coord.SGPConstants
+import predict4s.coord._
 
-  
+
+case class SecularFrequencies[F](Mdot: F, ωdot: F, Ωdot: F)
+
+case class DragSecularCoefs[F](Mcof: F, ωcof: F, Ωcof: F, xlcof: F, aycof: F, delM0: F)
+
+case class LaneCoefs[F](T2: F, T3: F, T4: F, T5: F)
+
+case class ContextD[F](c: F, s: F, p: F, κ: F, σ: F) {
+  def cosI = c; def sinI = s;
+}
+
 class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig]( 
     val elem0: SGPElems[F],    
     val wgs: SGPConstants[F],
@@ -28,31 +34,31 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
 
   // In SGP4, Delauney Action Variables (L,G,H) are never computed
   // and the software uses n, e and I instead (a and n are related)
-  case class DelauneyMixedVars(l: F, g: F, h: F, a: F, e: F, I: F) {
-    def M = l; def ω = g; def Ω = h;
-  }
- 
-  def sgpelem2MixedVars(el : SGPElems[F]) = {
-    import el._
-    val ℓ = M  // mean anomaly
-    val g = ω  // argument of the periapsis
-    val h = Ω  // RAAN
-    DelauneyMixedVars(ℓ,g,h,el.a,el.e,el.I)
-  }    
- 
+//  case class DelauneyMixedVars(l: F, g: F, h: F, a: F, e: F, I: F) {
+//    def M = l; def ω = g; def Ω = h;
+//  }
+// 
+//  def sgpelem2MixedVars(el : SGPElems[F]) = {
+//    import el._
+//    val ℓ = M  // mean anomaly
+//    val g = ω  // argument of the periapsis
+//    val h = Ω  // RAAN
+//    DelauneyMixedVars(ℓ,g,h,el.a,el.e,el.I)
+//  }    
+// 
+//  
+//  case class LyddaneVars(F: F, S: F, C: F, L: F, h: F, cosI: CosI) {
+//    def a = L*L
+//  }
   
-  case class LyddaneVars(F: F, S: F, C: F, L: F, h: F, cosI: CosI) {
-    def a = L*L
-  }
-  
-  def delauney2Lyddane(vars: DelauneyVars[F]) = {
-      import vars._
-      val F = l + g + h
-      val S = e*sin(g)
-      val C = e*cos(g)
-      val cosI : CosI = H/G
-      LyddaneVars(F,S,C,L,h,cosI)      
-  } 
+//  def delauney2Lyddane(vars: DelauneyVars[F]) = {
+//      import vars._
+//      val F = l + g + h
+//      val S = e*sin(g)
+//      val C = e*cos(g)
+//      val cosI : CosI = H/G
+//      LyddaneVars(F,S,C,L,h,cosI)      
+//  } 
      
   override def secularCorrections(t: Minutes): SGPElems[F] = {
     
@@ -144,21 +150,16 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
 
 }
 
-case class SecularFrequencies[F](Mdot: F, ωdot: F, Ωdot: F)
-
-case class DragSecularCoefs[F](Mcof: F, ωcof: F, Ωcof: F, xlcof: F, aycof: F, delM0: F)
-
-case class LaneCoefs[F](T2: F, T3: F, T4: F, T5: F)
-
-case class ContextD[F](c: F, s: F, p: F, κ: F, σ: F) {
-  def cosI = c; def sinI = s;
-}
-
 object BrouwerLaneSecularCorrections {
   
-  def apply[F : Field : NRoot : Order : Trig](elem0Ctx0: (SGPElems[F], Context0[F]))(implicit wgs0: SGPConstants[F]) :  BrouwerLaneSecularCorrections[F] = {
+  def apply[F : Field : NRoot : Order : Trig](elem0Ctx0: (SGPElems[F], Context0[F]), wgs0: SGPConstants[F]) :  BrouwerLaneSecularCorrections[F] = {
     val factory : Factory2ndOrderSecularCorrectionsTerms[F] = new Factory2ndOrderSecularCorrectionsTerms(wgs0)
     val (elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, dragCoefs, isImpacting, rp) = factory.from(elem0Ctx0)
     new BrouwerLaneSecularCorrections(elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, dragCoefs, isImpacting, rp)
   }
+  
+  def apply[F : Field : NRoot : Order : Trig](tle: TLE, wgs: SGPConstants[F]) :  BrouwerLaneSecularCorrections[F] =  {
+    val elem0AndCtx = SGPElemsConversions.sgpElemsAndContext(tle, wgs)
+    BrouwerLaneSecularCorrections(elem0AndCtx, wgs)
+  }    
 }

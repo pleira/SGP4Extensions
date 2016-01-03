@@ -7,7 +7,7 @@ import predict4s.sgp.{NearTLEs}
 import predict4s.coord.SGP72Constants
 import predict4s.sgp._
 import predict4s.coord.SGPElems
-import predict4s.coord.SGPElemsFactory
+import predict4s.coord.SGPElemsConversions
 
 trait ValladoNearTLEsTest extends NearTLEs with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] { self : FunSuite => 
 
@@ -35,15 +35,14 @@ trait ValladoNearTLEsTest extends NearTLEs with ValladoNearTLEsCheck[Double] wit
 
 class HardcodedPNCheck extends FunSuite with NearTLEs with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] {
  
-  implicit val wgs = SGP72Constants.tleDoubleConstants
+  val wgs = SGP72Constants.tleDoubleConstants
   val toMinus9 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1E-9)
   val toMinus2 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1E-2)
   val to1 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(2)
 
   def propags : List[SGP4PN[Double]] = tles map {tle => 
     import spire.std.any.DoubleAlgebra
-    val elem0AndCtx = SGPElemsFactory.sgpElemsAndContext(tle)
-    SGP4PN[Double](BrouwerLaneSecularCorrections(elem0AndCtx))
+    SGP4PN[Double](tle, wgs)
   }
   def sgpImpl : String = "Polar Nodal SGP4"
   

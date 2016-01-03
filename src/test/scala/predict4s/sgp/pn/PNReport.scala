@@ -8,18 +8,17 @@ import predict4s.coord.SGP72Constants
 import predict4s.sgp._
 import predict4s.report.PolarNodalFileReport
 import predict4s.coord.SGPElems
-import predict4s.coord.SGPElemsFactory
+import predict4s.coord.SGPElemsConversions
 import org.scalatest.Ignore
 
 @Ignore
 class HardcodedPNReport extends FunSuite with NearTLEs with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] {
  
-  implicit val wgs = SGP72Constants.tleDoubleConstants
+  val wgs = SGP72Constants.tleDoubleConstants
 
   def propags : List[SGP4PN[Double]] = tles map {tle => 
     import spire.std.any.DoubleAlgebra
-    val elem0AndCtx = SGPElemsFactory.sgpElemsAndContext(tle)
-    SGP4PN[Double](BrouwerLaneSecularCorrections(elem0AndCtx))
+    SGP4PN[Double](tle, wgs)
   }
   def sgpImpl : String = "PN SGP4"
   

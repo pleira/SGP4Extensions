@@ -5,11 +5,12 @@ import predict4s.coord.PolarNodalElems
 import predict4s.coord.SpecialPolarNodal
 import predict4s.coord.TLE
 import predict4s.sgp.Sgp4Result
+import predict4s.coord.AnomalyState
 
 case class Sgp4LaraResult(
     sgp: SGP4Lara[Double], 
     statett: (CartesianElems[Double], CartesianElems[Double], SpecialPolarNodal[Double], 
-        SpecialPolarNodal[Double], SpecialPolarNodal[Double], SGP4Lara[Double]#EccentricAState), tle: TLE, t: Double) 
+        SpecialPolarNodal[Double], SpecialPolarNodal[Double], AnomalyState[Double]), tle: TLE, t: Double) 
         extends Sgp4Result[Double] {
     val posVel = statett._1 
     val r = posVel.pos

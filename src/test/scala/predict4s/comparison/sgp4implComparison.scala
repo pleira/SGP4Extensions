@@ -5,7 +5,7 @@ import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
 import predict4s.coord.SGP72Constants
 import predict4s.sgp._
-import predict4s.coord.SGPElemsFactory
+import predict4s.coord.SGPElemsConversions
 import predict4s.sgp.vallado.SGP4Vallado
 import predict4s.sgp.pn.SGP4PN
 import predict4s.collision.TLE22675
@@ -19,8 +19,8 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
   import spire.std.any.DoubleAlgebra
   val tles = List(tle00005,tle06251,tle22675,tle24946,tle28057)
   for (tle <- tles) {
-    val elem0AndCtx = SGPElemsFactory.sgpElemsAndContext(tle)
-    val model = BrouwerLaneSecularCorrections(elem0AndCtx)
+    val elem0AndCtx = SGPElemsConversions.sgpElemsAndContext(tle, wgs)
+    val model = BrouwerLaneSecularCorrections(elem0AndCtx,wgs)
     val vsgp4 = SGP4Vallado[Double](model)
     val pnsgp4 = SGP4PN[Double](model)
     val results = 
@@ -52,13 +52,15 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
         //assert(vspn.`Θ/r`*scala.math.cos(vspn.I) === pn.N/pn.r)
         assert(vspn.θ === pn.θ)
         // check auxiliary variables `el²`, pl, βl, sin2θ, cos2θ
-        assert(v._2 === pnspn._2)
-        assert(v._3 === pnspn._3)
-        assert(v._4 === pnspn._4)
-        if (v._5 > 0 && pnspn._5 < 0 ||
-            v._5 < 0 && pnspn._5 > 0 ||
-            !(v._5 === pnspn._5) || 
-            !(v._6 === pnspn._6)) {
+        import v._2._
+        import pnspn.{_2 => aux}
+        assert(`el²` === aux.`el²`)
+        assert(pl === aux.pl)
+        assert(βl === aux.βl)
+        if (sin2θ > 0 && aux.sin2θ < 0 ||
+            sin2θ < 0 && aux.sin2θ > 0 ||
+            !(sin2θ === aux.sin2θ) || 
+            !(cos2θ === aux.cos2θ)) {
           Console.print(s"vallado: ${v.toString()}\npnspn:   ${pnspn.toString()}\n")
         }
 //        assert(v._5 === pnspn._5)  // FIXME

@@ -7,6 +7,7 @@ import spire.syntax.primitives._
 import predict4s.coord.SGPElems
 import predict4s.coord.Context0
 import predict4s.coord.SGPConstants
+import predict4s.coord.Context0
 
 // The notation used in the formulas here correspond to that used in SPACETRACK Report n 3, Hoots.
 

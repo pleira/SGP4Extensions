@@ -9,7 +9,7 @@ import spire.math._
 import spire.implicits._
 import scala.{ specialized => spec }
 import spire.syntax.primitives._
-import predict4s.sgp.EccentricAnomalyState
+import predict4s.coord.AnomalyState
 import predict4s.sgp.SimpleKeplerEq
 
 // Tests of the algorithm used in solving Kepler's equation 
