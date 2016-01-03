@@ -89,7 +89,7 @@ case class Context0[F: Field: NRoot : Trig](
   def omeosq     = β0sq
   def polyδ1 = poly"-134/81x^3 - x^2 - 1/3x + 1" 
     
-  val `s²` : F = s*s
+  val `s²` = s*s
   val p : F = a0 * `β0²` // a0 * (1 - `e²`) // semilatus rectum , which also is G²/μ, with G as the Delauney's action, the total angular momentum
   val `p²` = p*p
   val `p⁴` = `p²`*`p²`

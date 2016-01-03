@@ -10,9 +10,9 @@ import predict4s.coord.SGPConstants
 
 // The notation used in the formulas here correspond to that used in SPACETRACK Report n 3, Hoots.
 
-abstract class GeoPotentialModel extends FittingAtmosphericParameter {
+trait GeoPotentialAndAtmosphere2ndOrderModel {
 
-  def geoPotentialCoefs[F: Field : NRoot : Order : Trig](elem0: SGPElems[F], ctx: Context0[F], gctx: GeoPotentialContext[F], aE: F, wgs: SGPConstants[F]) 
+  def geoPotentialCoefs[F: Field : NRoot : Order : Trig](elem0: SGPElems[F], ctx: Context0[F], gctx: GeoPotentialContext[F], wgs: SGPConstants[F]) 
       : GeoPotentialCoefs[F] = {
     import elem0.{a => a0,e => e0,n => n0,ω => ω0, bStar}
     import gctx._
@@ -39,19 +39,21 @@ abstract class GeoPotentialModel extends FittingAtmosphericParameter {
   
 }
 
-abstract class FittingAtmosphericParameter {
+trait FittingAtmosphericParameter[F] {
   
-    def S_above156[F: Field](aE: F) : F =  (1 + 78/aE)
-    def hs[F: Field](perigeeHeight: F)  : F =  perigeeHeight - 78   // interpolation, being a number bigger than 20, and smaller that 78
-    def S_between_98_156[F: Field](perigeeHeight: F, aE: F) : F =  (1 + hs(perigeeHeight)/aE)
-    def S_below98[F: Field](aE: F) : F =  (1 + 20/aE)
+  val aE : F
+  def S_above156(implicit ev: Field[F]) : F = 1 + 78/aE
+  def hs(perigeeHeight: F)(implicit ev: Field[F]) : F =  perigeeHeight - 78   // interpolation, being a number bigger than 20, and smaller that 78
+  def S_between_98_156(perigeeHeight: F)(implicit ev: Field[F]) : F =  (1 + hs(perigeeHeight)/aE)
+  def S_below98(implicit ev: Field[F]) : F =  (1 + 20/aE)
   
-    def fittingAtmosphericParameter[F: Field : Order](perigeeHeight: F, aE: F) : F = 
-       if (perigeeHeight >= 156)       S_above156(aE)
-       else if (perigeeHeight >= 98)   S_between_98_156(perigeeHeight,aE)
-       else                            S_below98(aE)    
+  def fittingAtmosphericParameter(perigeeHeight: F)(implicit ev: Field[F], o: Order[F]) : F =
+       if (perigeeHeight >= 156)       S_above156
+       else if (perigeeHeight >= 98)   S_between_98_156(perigeeHeight)
+       else                            S_below98
+
 }
-    
+
 case class GeoPotentialCoefs[F](C1: F, C2: F, C3: F, C4: F, C5: F, D2: F, D3: F, D4: F)
 
 case class GeoPotentialContext[F: Field: NRoot : Order: Trig](

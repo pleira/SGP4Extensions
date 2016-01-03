@@ -84,7 +84,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     val sinθ = a / rl * (sinE - aynl - axnl * temp0)
     val cosθ = a / rl * (cosE - axnl + aynl * temp0)
     val θ = atan2(sinθ, cosθ)
-    val sin2θ = 2 * cosθ * sinθ // FIXME
+    val sin2θ = 2 * cosθ * sinθ
     val cos2θ = 1 - 2 * sinθ * sinθ
     (SpecialPolarNodal(I, θ, Ω, rl, rdotl, rvdotl), `el²`, pl, βl, sin2θ, cos2θ, n) 
   }    
@@ -93,16 +93,17 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
     import lppState.{_1 => lppPN,_3 => pl,_4 => βl,_5 => sin2θ,_6 => cos2θ, _7 => n}
     import lppPN._
     import sec.wgs.{J2,KE}
-    import sec.ctx0.{c,s,`7c²-1`,`1-c²`,`3c²-1`}
+    import sec.ctx0.{c,s,`7c²-1`,`s²`,`3c²-1`}
  
     val `J2/p/2` = J2 / pl / 2
     val ϵ2 = - `J2/p/2` / pl / 2
     val δI = - 3 * ϵ2 * c * s * cos2θ
     val δθ =       ϵ2 * `7c²-1` * sin2θ / 2
     val δΩ = - 3 * ϵ2 * c * sin2θ
-    val δr =   3 * ϵ2 * r * βl * `3c²-1` + `J2/p/2` * `1-c²` * cos2θ / 2
-    val δR = - n * `J2/p/2` * `1-c²` * sin2θ / KE  // rdot, angular velocity
-    val δrvdot = n * `J2/p/2` * (`1-c²` * cos2θ + 1.5 * `3c²-1`) / KE 
+    val δr =       ϵ2 * (3 * r * βl * `3c²-1` - pl* `s²` * cos2θ)   
+      
+    val δR = - n * `J2/p/2` * `s²` * sin2θ / KE  // rdot, angular velocity
+    val δrvdot = n * `J2/p/2` * (`s²` * cos2θ + 1.5 * `3c²-1`) / KE 
     val δspp = SpecialPolarNodal(δI,δθ,δΩ,δr,δR,δrvdot)
     val finalPN = lppPN + δspp
     (finalPN, δspp)

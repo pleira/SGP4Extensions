@@ -73,16 +73,17 @@ class SGP4PN[F : Field : NRoot : Order : Trig](
   
    
   def lppCorrections(pn: (SpecialPolarNodal[F], AuxVariables[F]), secElemt: SGPElems[F]) : (SpecialPolarNodal[F], F, F, F, F, F, F) = {
-    import pn._1._,pn._2.{p,s,c},sec.wgs.`J3/J2`, secElemt.n,sec.wgs.twopi
+    import pn._1._,pn._2.{p,s,c},sec.wgs.{KE,`J3/J2`}, secElemt.n,sec.wgs.twopi
     //(s: F, c: F, p: F, κ: F, σ: F, n: F, β: F, sin2f: F, cos2f: F)
-    val ϵ3 = `J3/J2`/p/2
+    val ϵ3 = `J3/J2`/p/2 // ϵ3 = 1/2 aE/p C30/C20 in Lara's
+    
     val σ = p*R/Θ
     val κ = p/r - 1
     //val nθ = if (θ > 0) θ else (θ + pi.as[F]) 
     val sinθ = sin(θ)
     val cosθ = cos(θ)
     val δr = ϵ3 * p * s * sinθ
-    val δθ = ϵ3 * ( (2*s + κ/s)*cosθ + (1/s - s)* σ * sinθ)
+    val δθ = ϵ3 * ( (2*s + κ/s)*cosθ + (1/s - s)* σ * sinθ) 
     val δR = ϵ3 * `Θ/r` * (1+κ) * s * cosθ
     val δΘ = ϵ3 * Θ * s * (κ*sinθ - σ * cosθ)
     val rl = r+δr
@@ -100,7 +101,7 @@ class SGP4PN[F : Field : NRoot : Order : Trig](
     val cos2θ = cos(2*θl) // 1 - 2 * sin(θl) * sin(θl)
     // val a = rl /(1 - ecosE) 
     val pl = Θl*Θl // MU=1
-    // note:    e² = κ² + σ²
+    // note: e² = κ² + σ²
     val κl = pl/rl - 1
     val σl = pl*Rl/Θl
     val `el²` = κl*κl + σl*σl
@@ -113,16 +114,20 @@ class SGP4PN[F : Field : NRoot : Order : Trig](
     import lppState.{_1 => lppPN,_3 => pl,_4 => βl,_5 => sin2θ,_6 => cos2θ, _7 => n}
     import lppPN._
     import sec.wgs.{J2,KE}
-    import sec.ctx0.{c,s,`7c²-1`,`1-c²`,`3c²-1`}
+    import sec.ctx0.{c,s,`7c²-1`,`s²`,`3c²-1`}
  
     val `J2/p/2` = J2 / pl / 2
-    val ϵ2 = - `J2/p/2` / pl / 2
+    val ϵ2 = - `J2/p/2` / pl / 2 // note missing aE² as in Lara's
     val δI = - 3 * ϵ2 * c * s * cos2θ
     val δθ =       ϵ2 * `7c²-1` * sin2θ / 2
     val δΩ = - 3 * ϵ2 * c * sin2θ
-    val δr =   3 * ϵ2 * r * βl * `3c²-1` + `J2/p/2` * `1-c²` * cos2θ / 2
-    val δR = - n * `J2/p/2` * `1-c²` * sin2θ / KE  // rdot, angular velocity
-    val δrvdot = n * `J2/p/2` * (`1-c²` * cos2θ + 1.5 * `3c²-1`) / KE 
+    val δr =       ϵ2 * pl *(3 * r * βl * `3c²-1` / pl - `s²` * cos2θ)
+    // 3*r*βl*`3c²-1`/pl = 3rβ(2c2 - s2)/pl = (2-3s2)3rβ/pl
+    // (2-3s²)3β/(1 + κ) + s²(1-2s²)
+    // 3rβ/pl = 3β/(1 + κ)  
+    
+    val δR = - n * `J2/p/2` * `s²` * sin2θ / KE  // rdot, angular velocity
+    val δrvdot = n * `J2/p/2` * (`s²` * cos2θ + 1.5 * `3c²-1`) / KE 
     val δspp = SpecialPolarNodal(δI,δθ,δΩ,δr,δR,δrvdot)
     val finalPN = lppPN + δspp
     (finalPN, δspp)

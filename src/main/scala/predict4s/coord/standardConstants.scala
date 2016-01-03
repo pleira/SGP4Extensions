@@ -21,7 +21,7 @@ trait WGSConstants[F] {
   /** J3 spherical harmonic value */
   def J4: F  
   def CK2: F = K2 // = 5.413080E-4.as[F] // 1/2 J2aE
-  def CK4: F = K4  // = -3*J4* aE * aE * aE * aE / 8
+  def CK4: F = K4  // = -3*J4* aE⁴ / 8
   def K2: F 
   def K4: F 
   def A30 : F
@@ -30,7 +30,7 @@ trait WGSConstants[F] {
 }
 
 abstract class WGS[F: Field]() extends WGSConstants[F] {
-  def K2    = J2 * aE  / 2 // We use Vallado's, in reality J2 * aE * aE / 2
+  def K2    = J2 * aE  / 2 // We use Vallado's, in reality J2 * aE² / 2
   def K4    = -3*J4* aE * aE * aE * aE / 8
   def A3OVK2 = - J3 / K2
   def A30    = - J3 * aE * aE * aE
@@ -42,7 +42,7 @@ abstract class WGS[F: Field]() extends WGSConstants[F] {
 class WGS721Constants[F: Field]() extends WGS[F] {
   val MU     =   398600.8.as[F]
   val aE     =   6378.135.as[F]
-  val KE     =   0.0743669161.as[F] 
+  val KE     =   0.0743669161.as[F] // units 1/min = 60/sqrt(aE³/μ)
   val J2     =   0.001082616.as[F]
   val J3     =  -0.00000253881.as[F]
   val J4     =  -0.00000165597.as[F]
@@ -56,7 +56,7 @@ class WGS721Constants[F: Field]() extends WGS[F] {
 class WGS72Constants[F: Field]() extends WGS[F] {
   val MU     =   398600.79964.as[F] 
   val aE     =   6378.135.as[F]
-  val KE     =   0.07436691613317.as[F]       //   60 / (aE* aE * aE/ MU).sqrt  // /min
+  val KE     =   0.07436691613317.as[F]       //   60 / (aE³/ MU).sqrt  // /min
   val J2     =   0.001082616.as[F]
   val J3     =  -0.00000253881.as[F]
   val J4     =  -0.00000165597.as[F]
@@ -64,14 +64,13 @@ class WGS72Constants[F: Field]() extends WGS[F] {
   override val K4     =   super.K4
   val `J2/J3` : F = J2/J3
   val `J3/J2` : F = J3/J2
-  val α : F = aE                        // Earth's equatorial radius
-  
+  val α : F = aE                        // Earth's equatorial radius  
 }
 
 class WGS84Constants[F: Field]() extends WGS[F] {
   val MU     =   398600.5.as[F]            
   val aE     =   6378.137.as[F]
-  val KE     =   0.07436685316871.as[F]   //   60 / (aE* aE * aE/ MU).sqrt   //  /min
+  val KE     =   0.07436685316871.as[F]   //   60 / (aE³/ MU).sqrt   //  /min
   val J2     =   0.00108262998905.as[F]
   val J3     =  -0.00000253215306.as[F]
   val J4     =  -0.00000161098761.as[F]
@@ -111,7 +110,7 @@ trait SGPConstants[F] {
   def μ : F
   def twopi = 2*pi
 //  def CK2: F = wgs.K2 // = 5.413080E-4.as[F] // 1/2 J2aE
-//  def CK4: F = wgs.K4  // = -3*J4* aE * aE * aE * aE / 8
+//  def CK4: F = wgs.K4  // = -3*J4* aE⁴ / 8
 //  def K2: F =  wgs.K2
 //  def K4: F = wgs.K4 
 //  def A30 : F = wgs.A30

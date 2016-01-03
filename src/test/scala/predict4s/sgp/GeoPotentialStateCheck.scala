@@ -15,21 +15,19 @@ class GeoPotentialStateCheck extends FunSuite with NearTLEs  {
   def sgpImpl : String = "Vallado SGP4"
   
   def fixture = new {
-    val model = new SecularCorrectionsFactory {
-        def buildGeoPotential(tle: TLE) = {
-
-
-          import spire.implicits._
-          val elemTLE : (SGPElems[Double], Context0[Double]) = SGPElemsFactory.sgpElemsAndContext(tle)
-          val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = geoPotentialCoefsAndContexts(elemTLE, wgs)
-          (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
+        import spire.implicits._
+        val factory = new Factory2ndOrderSecularCorrectionsTerms[Double](wgs) {
+          def buildGeoPotential(tle: TLE) = {
+            val elemTLE : (SGPElems[Double], Context0[Double]) = SGPElemsFactory.sgpElemsAndContext(tle)
+            val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = geoPotentialCoefsAndContexts(elemTLE)
+            (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
         }
     }
   }
   
   test(s"${sgpImpl}: compare GeoPotentialState for 00005 when t=0") {
     val f = fixture
-    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = f.model.buildGeoPotential(tle00005)
+    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = f.factory.buildGeoPotential(tle00005)
     assert(isImpacting == false)
     //assert(isDeepSpace == false)
     checkSgp4GeoPotential_5(elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
@@ -37,7 +35,7 @@ class GeoPotentialStateCheck extends FunSuite with NearTLEs  {
   
   test(s"${sgpImpl}: compare GeoPotentialState for 06251 when t=0") {
     val f = fixture
-    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = f.model.buildGeoPotential(tle06251)
+    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = f.factory.buildGeoPotential(tle06251)
     assert(isImpacting == false)
     //assert(gps.dps.isDeepSpace == false)
     checkSgp4GeoPotential_06251(elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)

@@ -9,16 +9,18 @@ import predict4s.coord.Context0
 import predict4s.coord.SGPConstants
 
 
-class SecularCorrectionsFactory extends GeoPotentialModel { 
+class Factory2ndOrderSecularCorrectionsTerms[F : Field : NRoot : Order : Trig](wgs: SGPConstants[F]) extends GeoPotentialAndAtmosphere2ndOrderModel with FittingAtmosphericParameter[F] { 
+  
+  val aE = wgs.aE
   
   /**
    * Factory method to produce all inputs needed to create the propagator for SecularCorrections.
    * Here we are starting with a SGP Elements directly obtained from a TLE. 
    */
-  def from[F : Field : NRoot : Order : Trig](elem0Ctx0: (SGPElems[F], Context0[F]))(implicit wgs: SGPConstants[F]) = {
-    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = geoPotentialCoefsAndContexts(elem0Ctx0, wgs)    
+  def from(elem0Ctx0: (SGPElems[F], Context0[F])) = {
+    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = geoPotentialCoefsAndContexts(elem0Ctx0)    
     val laneCoefs = calcLaneCoefs(geoPot)
-    val (secularFreqs, dragCoefs) = calcSecularFrequenciesAndCoefs(elem0, context0, geoPot, gctx, wgs)
+    val (secularFreqs, dragCoefs) = calcSecularFrequenciesAndCoefs(elem0, context0, geoPot, gctx)
     (elem0, wgs, context0, geoPot, gctx, laneCoefs, secularFreqs, dragCoefs, isImpacting, rp)
   }
   
@@ -26,18 +28,18 @@ class SecularCorrectionsFactory extends GeoPotentialModel {
    * Factory method to produce all inputs needed to create the propagator for SecularCorrections.
    * Here we are starting with a SGP Elements directly obtained from a TLE. 
    */
-  def calcSecularTerms[F : Field : NRoot : Order : Trig](elem0Ctx0: (SGPElems[F], Context0[F]))(implicit wgs: SGPConstants[F]) = {
-    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = geoPotentialCoefsAndContexts(elem0Ctx0, wgs)    
+  def calcSecularTerms(elem0Ctx0: (SGPElems[F], Context0[F])) = {
+    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = geoPotentialCoefsAndContexts(elem0Ctx0)    
     val laneCoefs = calcLaneCoefs(geoPot)
-    val (secularFreqs, dragCoefs) = calcSecularFrequenciesAndCoefs(elem0, context0, geoPot, gctx, wgs)
+    val (secularFreqs, dragCoefs) = calcSecularFrequenciesAndCoefs(elem0, context0, geoPot, gctx)
     (elem0, wgs, geoPot, gctx, laneCoefs, secularFreqs, dragCoefs, isImpacting, rp)
   }
   
-  def geoPotentialCoefsAndContexts[F : Field : NRoot : Order : Trig](elem0Ctx0: (SGPElems[F], Context0[F]), wgs: SGPConstants[F]) 
+  def geoPotentialCoefsAndContexts(elem0Ctx0: (SGPElems[F], Context0[F])) 
       : (SGPElems[F], Context0[F], GeoPotentialCoefs[F], GeoPotentialContext[F], F, F, Boolean) = {
     //val (elem0, context0) = originalElemsAndContext(elemTLE)
     import elem0Ctx0.{_1 => elem0, _2 => context0}
-    import elem0.{a,e},wgs.aE
+    import elem0.{a,e}
     
     // radius of perigee
     val rp : F = a*(1-e)
@@ -45,34 +47,34 @@ class SecularCorrectionsFactory extends GeoPotentialModel {
       
     // perigee height, altitude relative to the earth's surface, so perige instead of perigee 
     val perigeeHeight =  (rp - 1) * aE
-    val isImpacting : Boolean    = rp < (220/aE + 1) 
-    val s = fittingAtmosphericParameter(perigeeHeight, aE)
+    val isImpacting : Boolean = rp < (220/aE + 1) 
+    val s = fittingAtmosphericParameter(perigeeHeight)
     val gctx = GeoPotentialContext(elem0, s, rp, aE)
 
-    val geoPot  = geoPotentialCoefs(elem0, context0, gctx, aE, wgs)
+    val geoPot  = geoPotentialCoefs(elem0, context0, gctx, wgs)
     (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
   }  
   
-  def calcSecularFrequencies[F : Field : NRoot : Order : Trig] (elem: SGPElems[F], ctx0: Context0[F], gcof : GeoPotentialCoefs[F], gctx : GeoPotentialContext[F], wgs: SGPConstants[F])
+  def calcSecularFrequencies(elem: SGPElems[F], ctx0: Context0[F], gcof : GeoPotentialCoefs[F], gctx : GeoPotentialContext[F])
       : (SecularFrequencies[F], F) = {
   
     import gcof._,gctx._,ctx0._
     import wgs._
     import elem.{e => e0,n => n0,a => a0,ω => ω0, M => M0,bStar}
     
-    val temp1  : F  = 3 * J2 * n0 / `p²`/ 2
-    val temp2 : F   = temp1 * J2 / `p²` / 2
-    val temp3  : F  = -0.46875 * J4 * n0 / `p⁴`
-    val hdot : F  = - temp1*θ 
-     
+    val ϵ2 = - J2/`p²`/ 4  // note missing aE² as in Lara's
+    val temp3 = -0.46875 * J4 * n0 / `p⁴`
+    val `3n0ϵ2` = 3*ϵ2*n0
+    val hdot =  2*`3n0ϵ2`*θ 
     val secularFrequencies = 
       if (n0 >= 0.as[F] || `β0²` >= 0.as[F])
         SecularFrequencies(// derivative of M 
-          n0 + temp1 * β0 * `3c²-1` / 2 + 0.0625.as[F] * temp2 * β0 * (13 - 78 * `θ²` + 137 * `θ⁴`),
+          n0 - `3n0ϵ2` * β0 * (`3c²-1` - ϵ2 * (13 - 78 * `θ²` + 137 * `θ⁴`) / 4),
         // derivative of the perigee argument
-        - temp1 * `1-5c²` /2 + temp2*(7 - 114*`θ²` + 395*`θ⁴`)/16 + temp3*(3 - 36*`θ²` + 49*`θ⁴`),
+        `3n0ϵ2` * (`1-5c²` + ϵ2*(7 - 114*`θ²` + 395*`θ⁴`)/4) + temp3*(3 - 36*`θ²` + 49*`θ⁴`),
         // derivative of the raan
-        hdot + (temp2 * (4 - 19*`θ²`)/2 + 2*temp3 * (3 - 7*`θ²`))*θ
+        //(2* `3n0ϵ2` * (1 + (ϵ2*(4 - 19*`θ²`)) + 2*temp3 * (3 - 7*`θ²`)))*θ
+        hdot + ϵ2*hdot* (4 - 19*`θ²`) + 2*temp3*θ* (3 - 7*`θ²`)
         )
       else 
         SecularFrequencies(0.as[F],0.as[F],0.as[F])
@@ -80,7 +82,7 @@ class SecularCorrectionsFactory extends GeoPotentialModel {
     (secularFrequencies, hdot)
   }
   
-  def calcSecularDragCoefs[F : Field : NRoot : Order : Trig] (hdot: F, elem: SGPElems[F], ctx0: Context0[F], gcof : GeoPotentialCoefs[F], gctx : GeoPotentialContext[F], wgs: SGPConstants[F])
+  def calcSecularDragCoefs(hdot: F, elem: SGPElems[F], ctx0: Context0[F], gcof : GeoPotentialCoefs[F], gctx : GeoPotentialContext[F])
       : DragSecularCoefs[F] = {
     
     import gcof._,gctx._,ctx0._
@@ -103,10 +105,10 @@ class SecularCorrectionsFactory extends GeoPotentialModel {
       (1+η*cos(M0))**3)    
   }
   
-  def calcSecularFrequenciesAndCoefs[F : Field : NRoot : Order : Trig] (elem: SGPElems[F], ctx0: Context0[F], gcof : GeoPotentialCoefs[F], gctx : GeoPotentialContext[F], wgs: SGPConstants[F])
+  def calcSecularFrequenciesAndCoefs(elem: SGPElems[F], ctx0: Context0[F], gcof : GeoPotentialCoefs[F], gctx : GeoPotentialContext[F])
       : (SecularFrequencies[F], DragSecularCoefs[F]) = {
-    val (secularFrequencies, hdot) = calcSecularFrequencies(elem, ctx0, gcof, gctx, wgs)
-    val dragSecularCoefs = calcSecularDragCoefs(hdot, elem, ctx0, gcof, gctx, wgs)
+    val (secularFrequencies, hdot) = calcSecularFrequencies(elem, ctx0, gcof, gctx)
+    val dragSecularCoefs = calcSecularDragCoefs(hdot, elem, ctx0, gcof, gctx)
     (secularFrequencies, dragSecularCoefs)
   }
   

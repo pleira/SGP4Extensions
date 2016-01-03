@@ -154,10 +154,11 @@ case class ContextD[F](c: F, s: F, p: F, κ: F, σ: F) {
   def cosI = c; def sinI = s;
 }
 
-object BrouwerLaneSecularCorrections extends SecularCorrectionsFactory {
+object BrouwerLaneSecularCorrections {
   
   def apply[F : Field : NRoot : Order : Trig](elem0Ctx0: (SGPElems[F], Context0[F]))(implicit wgs0: SGPConstants[F]) :  BrouwerLaneSecularCorrections[F] = {
-    val (elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, dragCoefs, isImpacting, rp) = from(elem0Ctx0)
+    val factory : Factory2ndOrderSecularCorrectionsTerms[F] = new Factory2ndOrderSecularCorrectionsTerms(wgs0)
+    val (elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, dragCoefs, isImpacting, rp) = factory.from(elem0Ctx0)
     new BrouwerLaneSecularCorrections(elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, dragCoefs, isImpacting, rp)
   }
 }
