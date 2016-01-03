@@ -8,7 +8,7 @@ import predict4s.coord._
 
 case class SecularFrequencies[F](Mdot: F, ωdot: F, Ωdot: F)
 
-case class DragSecularCoefs[F](Mcof: F, ωcof: F, Ωcof: F, xlcof: F, aycof: F, delM0: F)
+case class DragSecularCoefs[F](Mcof: F, ωcof: F, Ωcof: F, delM0: F)
 
 case class LaneCoefs[F](T2: F, T3: F, T4: F, T5: F)
 

@@ -5,85 +5,35 @@ import spire.math._
 import spire.implicits._
 import scala.{ specialized => spec }
 import spire.syntax.primitives._
-import predict4s._
-import predict4s.sgp.GeoPotentialCoefs
 import predict4s.sgp._
-import predict4s.sgp.LaneCoefs
 import predict4s.coord._
-//import predict4s.coord.CoordinatesConversions._
-
-  
-// n: mean motion, I: inclination, a: semimajor axis, Ω: ascending node argument
-case class LyddaneLongPeriodPeriodicState[F](n: F, I: F, a: F, Ω: F, axnl: F, aynl: F, xl: F) {
-  def `C´´` = axnl; def `S´´` = aynl ; def `F´´` = xl
-}
 
 class SGP4Vallado[F : Field : NRoot : Order : Trig](
   sec : BrouwerLaneSecularCorrections[F]
-  ) extends SGP4(sec) with TwoTermsKeplerEq with ShortPeriodPolarNodalCorrections[F] {
+  ) extends SGP4(sec) with LyddaneLongPeriodCorrections[F] with ShortPeriodPolarNodalCorrections[F] {
  
   val wgs = sec.wgs
   val ctx0 = sec.ctx0
+  import ctx0._,wgs.`J3/J2`
+
+  // sgp4fix for divide by zero with I = 180 deg, // FIXME: not valid for deep space
+  val xlcof  : F  =  
+      if (abs(θ+1) > 1.5e-12.as[F]) 
+        - `J3/J2` * sinI0 * (3 + 5*θ) / (1 + θ) / 4
+      else
+        - `J3/J2` * sinI0 * (3 + 5*θ) / 1.5e-12 / 4
+  
+
+  val aycof = - `J3/J2` * sinI0 / 2
   
   override def periodicCorrections(secularElemt : SGPElems[F])
-      :  (FinalState[F], ShortPeriodState[F], LongPeriodState[F], AnomalyState[F]) = {
-    val lylppState = lylppCorrections(secularElemt)
-    val eaState = solveKeplerEq(lylppState)
-    val lppPNContext = lyddane2SpecialPolarNodal(eaState, lylppState)
-    val sppPolarNodalContext = sppCorrections(lppPNContext)
+      :  (FinalState[F], ShortPeriodState[F], LongPeriodState[F]) = {
+    val lppSPNContext = lppCorrections(secularElemt)
+    val sppPolarNodalContext = sppCorrections(lppSPNContext)
     val finalPNState = sppPolarNodalContext._1
-    (finalPNState, sppPolarNodalContext, lppPNContext, eaState)
+    (finalPNState, sppPolarNodalContext, lppSPNContext)
   }
   
-  def lylppCorrections(secularElem : SGPElems[F]) : LyddaneLongPeriodPeriodicState[F] = {
-    import secularElem._
-    import sec.dragCoefs.{aycof,xlcof}
-    
-    // Brouwer long-period gravitational corrections are reformulated in Lyddane’s (F,S,C,a,h,I).
-    // At the precision of SGP4, there are only corrections for F and S.
-    
-    // C´´ = e´´ * cos(g´´), there is no long period correction for Lyddane's C term, which is defined as e*cosω
-    val axnl = e * cos(ω)
-    val p = a * (1 - e * e)   // 1/p´´ = 1/ (a´´ * (1 − e´´²))
-    
-    // Lyddane S' = e*sinω + (-`J3/J2`*sinI0/2)/p´´ =  e*sinω - `J3/J2`/p/2 * s = e*sinω - ϵ3*s
-    val aynl : F = e * sin(ω) + aycof / p
-    // Lyddane F' = (M´´ + g´´ + h´´) +  1/p´´*(-`J3/J2`*sinI0*(3 + 5*cosI0)/(1 + cosI0)/4)*e*cosω
-    val xl: F = M + ω + Ω + xlcof * axnl / p
-    
-    // no more corrections, that is, L’= L",  I’= I", h’= h"
-    
-    LyddaneLongPeriodPeriodicState(n, I, a, Ω, axnl, aynl, xl)
-  }
-  
-  def lyddane2SpecialPolarNodal(eaState: AnomalyState[F], lylppState: LyddaneLongPeriodPeriodicState[F]) = {
-    import eaState._ 
-    import lylppState._
-
-    // It follows the usual transformation to polar-nodal variables
-    // (r, θ, R, Θ) −→ (F, C, S, a)  with C' = e'cosg and  S' = e'sing
-    // Note: Vallado's SGP4 uses rθdot = Θ/r instead of Θ
-    // here the l probably means long period, not Lyddane
-    val `el²` = axnl*axnl + aynl*aynl
-    val pl = a*(1 - `el²`)  // semilatus rectum , as MU=1, p=Z²
-    if (pl < 0.as[F]) throw new Exception("pl: " + pl)
-      
-    val rl     = a * (1 - ecosE)          // r´        
-    val rdotl  = sqrt(a) * esinE/rl       // R´
-    val rvdotl = sqrt(pl) / rl            // Θ’/r’ that is Θ/r 
-    val βl     = sqrt(1 - `el²`)          // y’
-    val temp0  = esinE / (1 + βl)         
-     
-    // θ is the argument of the latitude measured from the ascending node
-    val sinθ = a / rl * (sinE - aynl - axnl * temp0)
-    val cosθ = a / rl * (cosE - axnl + aynl * temp0)
-    val θ = atan2(sinθ, cosθ)
-    val sin2θ = 2 * cosθ * sinθ
-    val cos2θ = 1 - 2 * sinθ * sinθ
-
-    (SpecialPolarNodal(I, θ, Ω, rl, rdotl, rvdotl), LongPeriodContext(`el²`, pl, βl, sin2θ, cos2θ, n)) 
-  }    
-
 }
 
 object SGP4Vallado  {

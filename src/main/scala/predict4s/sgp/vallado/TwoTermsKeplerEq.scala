@@ -32,12 +32,11 @@ trait TwoTermsKeplerEq {
         if (abs(tem) >= 0.95.as[F]) {
           if (tem > 0.as[F]) 0.95.as[F] else -0.95.as[F]
         } else tem
-      val Un = U+incr
       if (remainingIters <= 0 || abs(incr) < 1e-12.as[F]) {
         // NOTE: as we have Lyddane's variables here, the eccentric anomaly is U - ω when comparing 
-        AnomalyState(Un,cosU,sinU,ecosU,esinU)   
+        AnomalyState(U,cosU,sinU,ecosU,esinU)   
       } else {
-        loop(Un, remainingIters - 1)
+        loop(U + incr, remainingIters - 1)
       }
     }
     loop(u, 10)

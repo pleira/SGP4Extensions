@@ -26,15 +26,14 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
     val results = 
       for (t <- 0 to 360 by 1;
         secularElemt = vsgp4.secularCorrections(t);
-        (_, pnspps, pnlpps, pneas) = pnsgp4.periodicCorrections(secularElemt);
-        (_, vspps, vlpps, veas) = vsgp4.periodicCorrections(secularElemt);
-        vE = veas.E - secularElemt.ω     // Vallado's solved kepler equation on Lyddane variables => E = u - ω
-       ) yield ((pnspps, vspps), (pnlpps, vlpps), (pneas.E, vE))
+        (_, pnspps, pnlpps) = pnsgp4.periodicCorrections(secularElemt);
+        (_, vspps, vlpps) = vsgp4.periodicCorrections(secularElemt)
+        // vE = veas.E - secularElemt.ω     // Vallado's solved kepler equation on Lyddane variables => E = u - ω
+       ) yield ((pnspps, vspps), (pnlpps, vlpps))
     
-    val r2 = results.unzip3
+    val r2 = results.unzip
     val resSpp = r2._1
     val resLpp = r2._2
-    val resEcc = r2._3
   
     val resL = resLpp.unzip 
     test(s"TLE ${tle.satelliteNumber} : long period periodic Vallado/Polar Nodals comparison")
@@ -83,13 +82,13 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
         assert(vspn.θ === pn.θ)
       }
     }
-    test(s"TLE ${tle.satelliteNumber} : Eccentric anomaly comparison") {  
-      implicit val toMinus3 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1.5E-3)
-      resEcc foreach { result =>
-        val (pnE, vE) = result
-        assert(vE === pnE)
-      }
-    }
+//    test(s"TLE ${tle.satelliteNumber} : Eccentric anomaly comparison") {  
+//      implicit val toMinus3 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1.5E-3)
+//      resEcc foreach { result =>
+//        val (pnE, vE) = result
+//        assert(vE === pnE)
+//      }
+//    }
   }
 //    val pn : PolarNodalElems[Double] = pnlpps._1
 //    val v : SpecialPolarNodal[Double] = vlpps._1

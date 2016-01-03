@@ -13,7 +13,7 @@ object ValladoFileReport {
 
   type F = Double
 
-  def save(pnr: IndexedSeq[((SpecialPolarNodal[F], (SpecialPolarNodal[F],SpecialPolarNodal[F]), (SpecialPolarNodal[F], LongPeriodContext[F]), AnomalyState[F]), SGPElems[F])], tle: TLE, lines: List[String], times : IndexedSeq[Int]) = {
+  def save(pnr: IndexedSeq[((SpecialPolarNodal[F], (SpecialPolarNodal[F],SpecialPolarNodal[F]), (SpecialPolarNodal[F], LongPeriodContext[F])), SGPElems[F])], tle: TLE, lines: List[String], times : IndexedSeq[Int]) = {
     val f = File("doc/reports/sgp4vallado_"+tle.satelliteNumber + "_" + tle.year + "_" + tle.epoch + ".md")
     implicit val oo = File.OpenOptions.append
     f << "# Vallado SGP4 algorithm\n"
@@ -47,13 +47,13 @@ object ValladoFileReport {
       f << p._1._3._1.toString().replaceAll(",|SpecialPolarNodal\\(|\\)|\\(", "|")      
     }
     
-    f << "\n\n#### Anomaly calculation \n"
-    f << "| E " 
-    f << "| --- "
-    pnr foreach { p => 
-      val vE = p._1._4.E - p._2.ω // Vallado's solved kepler equation on Lyddane variables => E = u - ω
-      f << s"|${vE}|"             
-    }
+//    f << "\n\n#### Anomaly calculation \n"
+//    f << "| E " 
+//    f << "| --- "
+//    pnr foreach { p => 
+//      val vE = p._1._4.E - p._2.ω // Vallado's solved kepler equation on Lyddane variables => E = u - ω
+//      f << s"|${vE}|"             
+//    }
     
     f << "\n\n#### Orbital elements with secular corrections \n" 
     f << "| mean motion | eccentricity | inclination | argument Of perigee | ascending node | mean anomaly | semimajor axis | atmospheric Drag | epoch time in days from jan 0 1950. 0 hr"

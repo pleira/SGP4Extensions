@@ -23,7 +23,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
  
   
   override def periodicCorrections(secularElemt : SGPElems[F])
-      :  (FinalState[F], ShortPeriodState[F], LongPeriodState[F], AnomalyState[F]) = {
+      :  (FinalState[F], ShortPeriodState[F], LongPeriodState[F]) = {
     
     // After computing the double-prime Delaunay/Lyddane variables from the secular terms, 
     // the Kepler equation must be solved to find first the eccentric anomaly, then ƒ, the true anomaly, and then θ, 
@@ -48,7 +48,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val spnSppc = laraNonSingular2SpecialPolarNodal(sppc, secularElemt.I)
     val spnLppc = laraNonSingular2SpecialPolarNodal(lppt, secularElemt.I)
     
-    (finalPolarNodalt, (spnSppc, ???), (spnLppc,???), eaState)
+    (finalPolarNodalt, (spnSppc, ???), (spnLppc,???))
   }
    
   def sgpelems2SpecialPolarNodal(eaState: AnomalyState[F], secularElem : SGPElems[F]) = {

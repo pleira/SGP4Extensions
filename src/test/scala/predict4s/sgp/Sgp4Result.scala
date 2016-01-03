@@ -30,7 +30,6 @@ trait Sgp4Result[F] extends Sgp4Near[F] {
   def   argpo  : F 
   def      mo  : F 
   def   isimp  : Int    
-  def   aycof  : F 
   def    cc1   : F    
   def     cc4  : F  
   def     cc5  : F    
@@ -48,7 +47,6 @@ trait Sgp4Result[F] extends Sgp4Near[F] {
   def   t5cof  : F 
   def  x1mth2  : F 
   def  x7thm1  : F 
-  def   xlcof  : F 
   def   xmcof  : F 
 //      def temp1 : F = 3 * J2 / posq * no / 2  
 //      def temp2 : F = J2/ posq *temp1 / 2

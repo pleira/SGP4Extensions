@@ -56,7 +56,6 @@ case class Sgp4LaraResult(
                                   if (isImpacting) 1 else 0
                                 // FIXME: should be if (isImpacting || isDeepSpace) 1 else 0
                           else 0
-  def   aycof  : Double = dragCoefs.aycof // FIXME for d
   def    cc1   : Double =  C1   
   def     cc4  : Double =  C4 
   def     cc5  : Double =  C5   
@@ -74,7 +73,6 @@ case class Sgp4LaraResult(
   def   t5cof  : Double = laneCoefs.T5
   def  x1mth2  : Double = ctx0.x1mth2 // FIXME for d
   def  x7thm1  : Double = ctx0.x7thm1 // FIXME for d
-  def   xlcof  : Double = dragCoefs.xlcof // FIXME for d
   def   xmcof  : Double = dragCoefs.Mcof
 //      def temp1 : Double = 3 * J2 / posq * no / 2  
 //      def temp2 : Double = J2/ posq *temp1 / 2

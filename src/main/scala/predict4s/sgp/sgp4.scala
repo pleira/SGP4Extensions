@@ -2,6 +2,8 @@ package predict4s.sgp
 import spire.algebra._
 import spire.math._
 import spire.implicits._
+import spire.implicits._
+import scala.{ specialized => spec }
 import spire.syntax.primitives._
 import predict4s.coord._
 import predict4s.coord.CoordinatesConversions._
@@ -48,30 +50,34 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
     (periodicCorrections(secularElemt), secularElemt)
   }
   
-  def propagate2PolarNodal(t: Minutes) = {
-    val ((finalPolarNodal, _, _, _), _) = propagate2PolarNodalContext(t)
-    finalPolarNodal
-  }
+//  def propagate2PolarNodal(t: Minutes) = {
+//    val ((finalPolarNodal, _, _), _) = propagate2PolarNodalContext(t)
+//    finalPolarNodal
+//  }
   
   def propagate2CartesianContext(t: Minutes) = {
-    val ((finalPolarNodal, sppState, lppState, eaState), secularElemt) = propagate2PolarNodalContext(t)
-    val uPV: CartesianElems[F] = polarNodal2UnitCartesian(finalPolarNodal)
+    val ((finalPolarNodal, sppState, lppState), secularElemt) = propagate2PolarNodalContext(t)
+    val uPV = polarNodal2UnitCartesian(finalPolarNodal)
     val posVel = scale2CartesianElems(uPV, finalPolarNodal)
-    (posVel, uPV, finalPolarNodal, sppState, lppState, eaState)    
+    (posVel, uPV, finalPolarNodal, sppState, lppState)    
   }
    
-  def propagate2Cartesian(t: Minutes) : CartesianElems[F] = {  
-    val (posVel, _, _,_,_,_) = propagate2CartesianContext(t)
-    posVel
-  }
+//  def propagate2Cartesian(t: Minutes) : CartesianElems[F] = {  
+//    val (posVel, _, _,_,_) = propagate2CartesianContext(t)
+//    posVel
+//  }
   
   /** 
    *  Calculates the new secular elements at time t in minutes from the epoch of the initial elements 
    */
   def secularCorrections(t: Minutes): SGPElems[F] = sec.secularCorrections(t)  
   
-  def periodicCorrections(secularElemt : SGPElems[F]): (FinalState[F], ShortPeriodState[F], LongPeriodState[F], AnomalyState[F])
-
+  def periodicCorrections(secularElemt : SGPElems[F])
+      :  (FinalState[F], ShortPeriodState[F], LongPeriodState[F]) 
+  
+//  def lppCorrections(secularElemt : SGPElems[F]) : LongPeriodState[F]
+//  def sppCorrections(lppSPNContext : LongPeriodState[F]) : ShortPeriodState[F]  
+  
   
   /**
    * Vallado's code works with internal units of length LU (units of earth’s radius  

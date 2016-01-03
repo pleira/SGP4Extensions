@@ -29,14 +29,13 @@ class Sgp4ImplComparison2 extends FunSuite with TLE24946 with TLE22675 with TLE0
     val results = 
       for (t <- 0 to 360 by 20;
         secularElemt = lsgp4.secularCorrections(t);
-        (_, pnspps, pnlpps, pneas) = pnsgp4.periodicCorrections(secularElemt);
-        (lfinalspn, _, llpps, leas) = lsgp4.periodicCorrections(secularElemt)
-       ) yield ((pnspps, lfinalspn), (pnlpps, llpps), (pneas.E, leas.E))
+        (_, pnspps, pnlpps) = pnsgp4.periodicCorrections(secularElemt);
+        (lfinalspn, _, llpps) = lsgp4.periodicCorrections(secularElemt)
+       ) yield ((pnspps, lfinalspn), (pnlpps, llpps))
     
-    val r2 = results.unzip3
+    val r2 = results.unzip
     val resSpp = r2._1
     val resLpp = r2._2
-    val resEcc = r2._3
   
     val resL = resLpp.unzip  // now PN and SPN
     test(s"TLE ${tle.satelliteNumber} long period periodic Lara/Polar Nodals comparison")
@@ -70,13 +69,13 @@ class Sgp4ImplComparison2 extends FunSuite with TLE24946 with TLE22675 with TLE0
   //      assert(lspn.θ === pn.θ)
   //    }
 //    }
-    test(s"TLE ${tle.satelliteNumber} Eccentric anomaly comparison") {  
-      implicit val toMinus12 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1E-12)
-      resEcc foreach { result =>
-        val (pnE, lE) = result
-        assert(lE === pnE)
-      }
-    }  
+//    test(s"TLE ${tle.satelliteNumber} Eccentric anomaly comparison") {  
+//      implicit val toMinus12 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1E-12)
+//      resEcc foreach { result =>
+//        val (pnE, lE) = result
+//        assert(lE === pnE)
+//      }
+//    }  
  }
 //    val pn : PolarNodalElems[Double] = pnlpps._1
 //    val v : SpecialPolarNodal[Double] = vlpps._1

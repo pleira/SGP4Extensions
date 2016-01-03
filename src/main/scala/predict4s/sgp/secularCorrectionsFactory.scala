@@ -89,20 +89,12 @@ class Factory2ndOrderSecularCorrectionsTerms[F : Field : NRoot : Order : Trig](w
     import gcof._,gctx._,ctx0._
     import wgs._
     import elem.{e => e0,n => n0,a => a0,ω => ω0, M => M0,bStar}
-     // sgp4fix for divide by zero with I = 180 deg, // FIXME: not valid for deep space
-    val xlcof  : F  =  
-      if (abs(θ+1) > 1.5e-12.as[F]) 
-        - `J3/J2` * sinI0 * (3 + 5*θ) / (1 + θ) / 4
-      else
-        - `J3/J2` * sinI0 * (3 + 5*θ) / 1.5e-12 / 4
     
     // other derived coeficients and variables that are used related to drag corrections
     DragSecularCoefs(    
       if (e0 > 0.0001.as[F]) - 2*`ξ⁴(q0-s)⁴` * bStar / e0η / 3 else 0.as[F],
       bStar*C3*cos(ω0),
       7 * `β0²` * hdot * C1 / 2,
-      xlcof,
-       - `J3/J2` * sinI0 / 2,
       (1+η*cos(M0))**3)    
   }
   

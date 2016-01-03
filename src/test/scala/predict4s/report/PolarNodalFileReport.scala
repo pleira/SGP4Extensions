@@ -18,7 +18,7 @@ abstract class FileReport {
   
   def propagator: String
   
-  def save(pnr: IndexedSeq[((SpecialPolarNodal[F], (SpecialPolarNodal[F],SpecialPolarNodal[F]), (SpecialPolarNodal[F], LongPeriodContext[F]), AnomalyState[F]), SGPElems[F])], tle: TLE, lines: List[String], times : IndexedSeq[Int]) = {
+  def save(pnr: IndexedSeq[((SpecialPolarNodal[F], (SpecialPolarNodal[F],SpecialPolarNodal[F]), (SpecialPolarNodal[F], LongPeriodContext[F])), SGPElems[F])], tle: TLE, lines: List[String], times : IndexedSeq[Int]) = {
     val f = File(path(tle))
     implicit val oo = File.OpenOptions.append
     f << s"# ${propagator} algorithm\n"
@@ -52,12 +52,12 @@ abstract class FileReport {
       f << p._1._3._1.toString().replaceAll(",|SpecialPolarNodal\\(|\\)|\\(", "|")      
     }
     
-    f << "\n\n#### Anomaly calculation \n"
-    f << "| E   | cosE | sinE | ecosE | esinE" 
-    f << "| --- | ---  | ---- | ----- | ---"
-    pnr foreach { p => 
-      f << p._1._4.toString().replaceAll(",|AnomalyState\\(|\\)|\\(", "|")            
-    }
+//    f << "\n\n#### Anomaly calculation \n"
+//    f << "| E   | cosE | sinE | ecosE | esinE" 
+//    f << "| --- | ---  | ---- | ----- | ---"
+//    pnr foreach { p => 
+//      f << p._1._4.toString().replaceAll(",|AnomalyState\\(|\\)|\\(", "|")            
+//    }
     
     f << "\n\n#### Orbital elements with secular corrections \n" 
     f << "| mean motion | eccentricity | inclination | argument Of perigee | ascending node | mean anomaly | semimajor axis | atmospheric Drag | epoch time in days from jan 0 1950. 0 hr"
