@@ -5,7 +5,11 @@ import spire.math._
 import spire.implicits._
 import spire.syntax.primitives._
 
-case class AnomalyState[F](E : F, cosE: F, sinE: F, ecosE: F, esinE: F) 
+case class AnomalyState[F](E : F, cosE: F, sinE: F, ecosE: F, esinE: F) {
+  // define alternative methods to allow expressing a different Anomaly U (not the Eccentric Anomaly)
+  def U = E; def cosU: F = cosE; def sinU: F = sinE; def ecosU: F = ecosE; def esinU: F = esinE;
+}
+
 case class AuxVariables[F](s: F, c: F, p: F, κ: F, σ: F, n: F, β: F, sin2f: F, cos2f: F)
 
 object SGPElemsConversions {

@@ -38,7 +38,7 @@ class HardcodedPNCheck extends FunSuite with NearTLEs with ValladoNearTLEsCheck[
   val wgs = SGP72Constants.tleDoubleConstants
   val toMinus9 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1E-9)
   val toMinus2 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1E-2)
-  val to1 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(2)
+  val to1 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1.3)
 
   def propags : List[SGP4PN[Double]] = tles map {tle => 
     import spire.std.any.DoubleAlgebra

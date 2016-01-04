@@ -1,11 +1,7 @@
 package predict4s.sgp.pn
 
-import predict4s.coord.CartesianElems
 import predict4s.sgp.Sgp4Result
-import predict4s.coord.TLE
-import predict4s.coord.SpecialPolarNodal
-import predict4s.sgp.LongPeriodContext
-import predict4s.coord.AnomalyState
+import predict4s.coord._
 
 case class Sgp4PNResult(
     sgp: SGP4PN[Double], 

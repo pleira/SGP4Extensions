@@ -2,18 +2,12 @@ package predict4s.report
 
 import java.io.{ File => JFile }
 import better.files._
-import predict4s.coord.SGPElems
-import predict4s.coord.SpecialPolarNodal
-import predict4s.coord.TLE
-import predict4s.coord.AnomalyState
 import predict4s.sgp.HelperTypes
 import predict4s.sgp.SGP4
-import predict4s.sgp.LongPeriodContext
+import predict4s.coord._
 
-abstract class FileReport {
+abstract class FileReport[F] {
     
-  type F = Double
-  
   def path(tle: TLE) = s"doc/reports/${propagator}_${tle.satelliteNumber}_${tle.year}_${tle.epoch}.md"
   
   def propagator: String
@@ -68,13 +62,26 @@ abstract class FileReport {
   }  
 }
 
-object PolarNodalFileReport extends FileReport {
+object PolarNodalFileReport extends FileReport[Double] {
 
    def propagator: String = "sgp4pn"
 }
 
 
-object LaraFileReport extends FileReport {
+object LaraFileReport extends FileReport[Double] {
 
    def propagator: String = "sgp4lara"
 }
+
+object ValladoLongFileReport extends FileReport[Double] {
+
+   def propagator: String = "sgp4valladoLong"
+}
+
+
+object ValladoSimpleFileReport extends FileReport[Double] {
+
+   def propagator: String = "sgp4vallado"
+}
+
+

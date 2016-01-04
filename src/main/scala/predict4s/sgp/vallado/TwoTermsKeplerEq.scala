@@ -4,7 +4,7 @@ import spire.math._
 import spire.implicits._
 import scala.{ specialized => spec }
 import spire.syntax.primitives._
-import predict4s.coord.{SGPElems,AnomalyState}
+import predict4s.coord._
 
 trait TwoTermsKeplerEq {
    
@@ -15,7 +15,7 @@ trait TwoTermsKeplerEq {
    * and g is the argument of the perigee (ω).
    * The Newton-Raphson iterations start from Ψ0 = U.
    */
-  def solveKeplerEq[F: Field: Trig: Order](lylppState: LyddaneLongPeriodPeriodicState[F]) : AnomalyState[F]  = {
+  def solveKeplerEq[F: Field: Trig: Order](lylppState: LyddaneElems[F]) : AnomalyState[F]  = {
     import lylppState._   
     // U = F' - h' = M" + g"; 
     val u = Field[F].mod(xl - Ω, 2.as[F]*pi)  
@@ -23,8 +23,8 @@ trait TwoTermsKeplerEq {
     def loop(U: F, remainingIters: Int) : AnomalyState[F] = {
       val sinU = sin(U)
       val cosU = cos(U)
-      val ecosU = axnl * cosU + aynl * sinU
-      val esinU = axnl * sinU - aynl * cosU
+      val ecosU = `C´` * cosU + `S´` * sinU
+      val esinU = `C´` * sinU - `S´` * cosU
       val fdot = 1 - ecosU
       val f = (u + esinU - U)
       val tem : F = f / fdot  

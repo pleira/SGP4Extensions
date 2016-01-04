@@ -19,8 +19,9 @@ trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
   // this method uses Lara's Non Singular variables useful for the calculation of the corrections
   def periodicCorrectionsNative(secularElemt : SGPElems[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
       : ((LaraNonSingular[F],LaraNonSingular[F]), (LaraNonSingular[F], LongPeriodContext[F])) = {
-
+      
     val eaState = solveKeplerEq(secularElemt)
+    // TODO: check note from 4 Jan 2016
     val spnSecularContext = sgpelems2SpecialPolarNodal(eaState, secularElemt, wgs)
     
     // secular state at time t in Lara Non Singular variables
@@ -32,7 +33,7 @@ trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
     (sppt, lppt)
   }
     
-  def lppCorrections(lnSingular: LaraNonSingular[F], aux: AuxVariables[F])(implicit ev: Field[F])
+  def lppCorrectionsOld(lnSingular: LaraNonSingular[F], aux: AuxVariables[F])(implicit ev: Field[F])
       : (LaraNonSingular[F],LongPeriodContext[F]) = {
     import lnSingular._,wgs.`J3/J2`
     import aux.p
@@ -45,6 +46,34 @@ trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
     val δr = ϵ3 * ξ * p
     val δR = ϵ3 * (Θ/r) * `p/r` * χ
     val δΘ = ϵ3 * Θ * ((`p/r` - 1) * ξ - p*R*χ/Θ)
+    
+        // recalculate the "state" variables here
+    // val a = rl /(1 - ecosE) 
+    val Θl=δΘ+Θ
+    val Rl=R+δR
+    val rl = r+δr
+    val pl = Θl*Θl // MU=1
+    (LaraNonSingular(ψ+δψ,ξ+δξ,χ+δχ,rl,Rl,Θl), LongPeriodContext(0.as[F], pl, 0.as[F], 0.as[F], 0.as[F], 0.as[F]))
+  }
+    
+  // This implementation includes more terms with respect lppCorrectionsOld
+  def lppCorrections(lnSingular: LaraNonSingular[F], aux: AuxVariables[F])(implicit ev: Field[F])
+      : (LaraNonSingular[F],LongPeriodContext[F]) = {
+    import lnSingular._,wgs.`J3/J2`
+    import aux.{p,σ,κ,c,s}
+
+    val `χ²` : F = χ**2
+    val `ξ²` : F = ξ**2   
+    val ϵ3 = `J3/J2`/p/2
+    val `p/r` = p/r
+    val `c²` = c*c
+    
+    val δψ =  ϵ3 * (2*χ + (κ*χ - c*ξ*σ)/(1+c))
+    val δξ =  ϵ3 * (2*`χ²` + κ*(1 - `ξ²`))
+    val δχ = -ϵ3 *(`c²` * σ + (2 + κ)*χ*ξ)
+    val δr = ϵ3 * ξ * p
+    val δR = ϵ3 * (Θ/r) * `p/r` * χ
+    val δΘ = ϵ3 * Θ * (κ*ξ - σ*χ)
     
         // recalculate the "state" variables here
     // val a = rl /(1 - ecosE) 

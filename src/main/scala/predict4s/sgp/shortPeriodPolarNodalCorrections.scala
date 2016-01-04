@@ -4,10 +4,7 @@ import spire.algebra._
 import spire.math._
 import spire.implicits._
 import spire.syntax.primitives._
-import predict4s.coord.SpecialPolarNodal
-import predict4s.coord.Context0
-import predict4s.coord.SGPConstants
-import predict4s.coord.Context0
+import predict4s.coord._
 
 trait ShortPeriodPolarNodalCorrections[F] {
   
@@ -28,8 +25,8 @@ trait ShortPeriodPolarNodalCorrections[F] {
     val δΩ = - 3 * ϵ2 * c * sin2θ
     val δr =       ϵ2 * (3 * r * βl * `3c²-1` - pl* `s²` * cos2θ)   
       
-    val δR = - n * `J2/p/2` * `s²` * sin2θ / KE  // rdot, angular velocity
-    val δrvdot = n * `J2/p/2` * (`s²` * cos2θ + 1.5 * `3c²-1`) / KE 
+    val δR = - `J2/p/2` * `s²` * sin2θ * n / KE  // rdot, angular velocity
+    val δrvdot =  `J2/p/2` * (`s²` * cos2θ + 1.5 * `3c²-1`) * n / KE 
     val δspp = SpecialPolarNodal(δI,δθ,δΩ,δr,δR,δrvdot)
     val finalPN = lppPN + δspp
     (finalPN, δspp)

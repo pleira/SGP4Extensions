@@ -3,11 +3,8 @@ import predict4s.sgp.HelperTypes
 import predict4s.coord.TLE
 import better.files._
 import java.io.{File => JFile}
-import predict4s.coord.SpecialPolarNodal
-import predict4s.coord.SGPElems
-import predict4s.sgp._
 import predict4s.sgp.vallado.SGP4Vallado
-import predict4s.coord.AnomalyState
+import predict4s.coord._
 
 object ValladoFileReport {
 

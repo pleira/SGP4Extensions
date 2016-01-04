@@ -4,10 +4,8 @@ import predict4s.sgp.Sgp4Near
 import predict4s.coord.CartesianElems
 import predict4s.sgp.Sgp4Result
 import predict4s.coord.AnomalyState
-import predict4s.coord.TLE
 import predict4s.sgp.HelperTypes
-import predict4s.coord.SpecialPolarNodal
-import predict4s.sgp.LongPeriodContext
+import predict4s.coord._
 
 case class Sgp4ValladoResult(
     sgp: SGP4Vallado[Double], 

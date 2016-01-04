@@ -7,12 +7,8 @@ import scala.{ specialized => spec }
 import spire.syntax.primitives._
 import predict4s.sgp._
 import predict4s.coord._
+import predict4s.coord.LyddaneConversions._
 
-  
-// n: mean motion, I: inclination, a: semimajor axis, Ω: ascending node argument
-case class LyddaneLongPeriodPeriodicState[F](n: F, I: F, a: F, Ω: F, ecosω: F, aynl: F, xl: F) {
-  def `C´´` = axnl; def `S´´` = aynl ; def `F´´` = xl; def axnl = ecosω
-}
 
 trait LyddaneLongPeriodCorrections[F] extends TwoTermsKeplerEq {
    
@@ -30,7 +26,7 @@ trait LyddaneLongPeriodCorrections[F] extends TwoTermsKeplerEq {
     lyddane2SpecialPolarNodal(eaState, lylppState)
   }
   
-  def lylppCorrections(secularElem : SGPElems[F])(implicit ev: Field[F], trig: Trig[F], nr: NRoot[F]) : LyddaneLongPeriodPeriodicState[F] = {
+  def lylppCorrections(secularElem : SGPElems[F])(implicit ev: Field[F], trig: Trig[F], nr: NRoot[F]) : LyddaneElems[F] = {
     import secularElem._
     
     // Brouwer long-period gravitational corrections are reformulated in Lyddane’s (F,S,C,a,h,I).
@@ -51,38 +47,7 @@ trait LyddaneLongPeriodCorrections[F] extends TwoTermsKeplerEq {
     
     // no more corrections, that is, L’= L",  I’= I", h’= h"
     
-    LyddaneLongPeriodPeriodicState(n, I, a, Ω, ecosω, aynl, xl)
+    LyddaneElems(n, I, a, Ω, ecosω, aynl, xl)
   }
-  
-  def lyddane2SpecialPolarNodal(eaState: AnomalyState[F], lylppState: LyddaneLongPeriodPeriodicState[F]) 
-      (implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
-      : (SpecialPolarNodal[F], LongPeriodContext[F]) = {
-    import eaState._ 
-    import lylppState._
-
-    // It follows the usual transformation to polar-nodal variables
-    // (r, θ, R, Θ) −→ (F, C, S, a)  with C' = e'cosg and  S' = e'sing
-    // Note: Vallado's SGP4 uses rθdot = Θ/r instead of Θ
-    // here the l probably means Lyddane, and the E is not the eccentric anomaly.
-    // the relation is U = E + ω
-    val `el²` = ecosω*ecosω + aynl*aynl
-    val pl = a*(1 - `el²`)  // semilatus rectum , as MU=1, p=Z²
-    if (pl < 0.as[F]) throw new Exception("pl: " + pl)
-      
-    val rl     = a * (1 - ecosE)          // r´        
-    val rdotl  = sqrt(a) * esinE/rl       // R´
-    val rvdotl = sqrt(pl) / rl            // Θ’/r’ that is Θ/r 
-    val βl     = sqrt(1 - `el²`)          // y’
-    val temp0  = esinE / (1 + βl)         
-     
-    // θ is the argument of the latitude measured from the ascending node
-    val sinθ = a / rl * (sinE - aynl - ecosω * temp0)
-    val cosθ = a / rl * (cosE - ecosω + aynl * temp0)
-    val θ = atan2(sinθ, cosθ)
-    val sin2θ = 2 * cosθ * sinθ
-    val cos2θ = 1 - 2 * sinθ * sinθ
-
-    (SpecialPolarNodal(I, θ, Ω, rl, rdotl, rvdotl), LongPeriodContext(`el²`, pl, βl, sin2θ, cos2θ, n)) 
-  }    
   
 }

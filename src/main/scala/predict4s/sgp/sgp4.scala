@@ -22,8 +22,6 @@ trait HelperTypes[F] {
 trait SecularCorrections[F] extends HelperTypes[F] {
   def secularCorrections(t: Minutes): SGPElems[F]
 }
-  
-case class LongPeriodContext[F](`el²`: F, pl: F, βl: F, sin2θ: F, cos2θ: F, n: F)
 
 
 /** 
