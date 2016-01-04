@@ -69,7 +69,6 @@ case class Sgp4ValladoResult(
   def      d2  : Double =  D2
   def      d3  : Double =  D3     
   def      d4  : Double =  D4 
-  def   delmo  : Double =  dragCoefs.delM0
   def     eta  : Double =  sgp.sec.gctx.η
   def  argpdot : Double =  secularFreqs.ωdot 
   def   omgcof : Double =  dragCoefs.ωcof 

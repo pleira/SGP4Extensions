@@ -36,7 +36,6 @@ trait Sgp4Result[F] extends Sgp4Near[F] {
   def      d2  : F 
   def      d3  : F      
   def      d4  : F  
-  def   delmo  : F 
   def     eta  : F 
   def  argpdot : F  
   def   omgcof : F  

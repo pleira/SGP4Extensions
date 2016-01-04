@@ -8,7 +8,7 @@ import predict4s.coord._
 
 case class SecularFrequencies[F](Mdot: F, ωdot: F, Ωdot: F)
 
-case class DragSecularCoefs[F](Mcof: F, ωcof: F, Ωcof: F, delM0: F)
+case class DragSecularCoefs[F](Mcof: F, ωcof: F, Ωcof: F)
 
 case class LaneCoefs[F](T2: F, T3: F, T4: F, T5: F)
 
@@ -31,34 +31,6 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
 
   // valid interval for eccentricity calculations
   val eValidInterval = Interval.open(0.as[F],1.as[F])
-
-  // In SGP4, Delauney Action Variables (L,G,H) are never computed
-  // and the software uses n, e and I instead (a and n are related)
-//  case class DelauneyMixedVars(l: F, g: F, h: F, a: F, e: F, I: F) {
-//    def M = l; def ω = g; def Ω = h;
-//  }
-// 
-//  def sgpelem2MixedVars(el : SGPElems[F]) = {
-//    import el._
-//    val ℓ = M  // mean anomaly
-//    val g = ω  // argument of the periapsis
-//    val h = Ω  // RAAN
-//    DelauneyMixedVars(ℓ,g,h,el.a,el.e,el.I)
-//  }    
-// 
-//  
-//  case class LyddaneVars(F: F, S: F, C: F, L: F, h: F, cosI: CosI) {
-//    def a = L*L
-//  }
-  
-//  def delauney2Lyddane(vars: DelauneyVars[F]) = {
-//      import vars._
-//      val F = l + g + h
-//      val S = e*sin(g)
-//      val C = e*cos(g)
-//      val cosI : CosI = H/G
-//      LyddaneVars(F,S,C,L,h,cosI)      
-//  } 
      
   override def secularCorrections(t: Minutes): SGPElems[F] = {
     
@@ -136,6 +108,7 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
     
     val `t³` = `t²`*t
     val `t⁴` = `t²`*`t²`
+    val delM0 = (1+η*cos(M))**3
     val δω : F = ωcof*t
     val δM : F = Mcof*( (1+η*cos(Mdf))**3 - delM0)
     val Mpm_ : F = Mdf + δω + δM
@@ -147,7 +120,7 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
 
     (δL, δe, δℓ, ωm_, Mpm_, Ωm)
   }
-
+    
 }
 
 object BrouwerLaneSecularCorrections {

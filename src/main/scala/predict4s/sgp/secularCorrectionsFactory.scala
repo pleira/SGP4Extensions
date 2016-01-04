@@ -88,14 +88,13 @@ class Factory2ndOrderSecularCorrectionsTerms[F : Field : NRoot : Order : Trig](w
     
     import gcof._,gctx._,ctx0._
     import wgs._
-    import elem.{e => e0,n => n0,a => a0,ω => ω0, M => M0,bStar}
+    import elem.{e => e0,n => n0,a => a0,ω => ω0, bStar}
     
     // other derived coeficients and variables that are used related to drag corrections
     DragSecularCoefs(    
       if (e0 > 0.0001.as[F]) - 2*`ξ⁴(q0-s)⁴` * bStar / e0η / 3 else 0.as[F],
       bStar*C3*cos(ω0),
-      7 * `β0²` * hdot * C1 / 2,
-      (1+η*cos(M0))**3)    
+      7 * `β0²` * hdot * C1 / 2 )    
   }
   
   def calcSecularFrequenciesAndCoefs(elem: SGPElems[F], ctx0: Context0[F], gcof : GeoPotentialCoefs[F], gctx : GeoPotentialContext[F])
