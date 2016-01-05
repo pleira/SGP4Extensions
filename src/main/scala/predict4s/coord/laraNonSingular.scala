@@ -13,18 +13,18 @@ case class LaraNonSingular[F: Field](ψ : F, ξ: F, χ: F, r: F, R: F, Θ: F) {
 object LaraConversions {
   
   // ν = ψ − θ and sinθ = ξ/s, cosθ = χ/s and c = N/Θ, tanθ = ξ/χ
-  def laraNonSingular2PolarNodal[F: Field: NRoot: Trig](lnSingular: LaraNonSingular[F], I: F) : PolarNodalElems[F] = {
+  def laraNonSingular2PolarNodal[F: Field: NRoot: Trig](lnSingular: LaraNonSingular[F], N: F) : PolarNodalElems[F] = {
 	  import lnSingular._
-	  val N : F = Θ*cos(I) 
 	  val θ : F = atan(ξ/χ)
 	  val ν : F = ψ - θ
     PolarNodalElems(r,θ,ν,R,Θ,N)
   }
   
   // ν = ψ − θ and sinθ = ξ/s, cosθ = χ/s and c = N/Θ, tanθ = ξ/χ
-  def laraNonSingular2SpecialPolarNodal[F: Field: NRoot: Trig](lnSingular: LaraNonSingular[F], I: F) : SpecialPolarNodal[F] = {
+  def laraNonSingular2SpecialPolarNodal[F: Field: NRoot: Trig](lnSingular: LaraNonSingular[F], N: F) : SpecialPolarNodal[F] = {
 	  import lnSingular._
-	  val θ : F = atan(ξ/χ)
+	  val θ = atan(ξ/χ)
+	  val I = acos(N/Θ)
 	  val ν : F = ψ - θ
     SpecialPolarNodal(I,θ,ν,r,R,Θ/r)
   }
@@ -66,14 +66,13 @@ object LaraConversions {
     LaraNonSingular(ψ, ξ, χ, r, R, Θ)
   }
   
-  def laraNonSingular2Cartesian[F: Field: NRoot: Trig](lnSingular: LaraNonSingular[F], I : F) : CartesianElems[F] = {
+  def laraNonSingular2Cartesian[F: Field: NRoot: Trig](lnSingular: LaraNonSingular[F], N : F) : CartesianElems[F] = {
     import lnSingular._
-    val `ξ²` : F = ξ**2
-    val `χ²` : F = χ**2
+    val `ξ²` = ξ*ξ
+    val `χ²` = χ*χ
     val `R/r` : F = R/r
     val `Θ/r` : F = Θ/r
-    val N : F = Θ*cos(I) // FIXME?
-    val c : F = N/Θ
+    val c = N/Θ
     val cosψ = cos(ψ)
     val sinψ = sin(ψ)
     val q = ξ * χ / (1 + c)
@@ -91,6 +90,28 @@ object LaraConversions {
       R * ux - `Θ/r` * (q * cosψ + τ * sinψ),
       R * uy - `Θ/r` * (q * sinψ - τ * cosψ),
       R * uz + `Θ/r` * χ)
+    }
+  
+  def laraNonSingular2UnitPositionCartesian[F: Field: NRoot: Trig](lnSingular: LaraNonSingular[F], N : F) : CartesianElems[F] = {
+    import lnSingular._
+    val `ξ²` = ξ*ξ
+    val `χ²` = χ*χ
+    val c = N/Θ
+    val cosψ = cos(ψ)
+    val sinψ = sin(ψ)
+    val q = ξ * χ / (1 + c)
+    val τ = 1 - `χ²` / (1 + c)
+    val b = 1 - `ξ²` / (1 + c)
+    
+    val ux = (b * cosψ + q * sinψ)
+    val uy = (b * sinψ - q * cosψ)
+    val uz = ξ
+
+    CartesianElems(
+      ux, uy, uz,
+      R * ux - Θ * (q * cosψ + τ * sinψ),
+      R * uy - Θ * (q * sinψ - τ * cosψ),
+      R * uz + Θ * χ)
     }
   
 }

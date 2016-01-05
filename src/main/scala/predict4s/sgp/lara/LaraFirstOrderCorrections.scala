@@ -49,8 +49,8 @@ trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
     
         // recalculate the "state" variables here
     // val a = rl /(1 - ecosE) 
-    val Θl=δΘ+Θ
-    val Rl=R+δR
+    val Θl = δΘ+Θ
+    val Rl = R+δR
     val rl = r+δr
     val pl = Θl*Θl // MU=1
     (LaraNonSingular(ψ+δψ,ξ+δξ,χ+δχ,rl,Rl,Θl), LongPeriodContext(0.as[F], pl, 0.as[F], 0.as[F], 0.as[F], 0.as[F]))
@@ -62,8 +62,8 @@ trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
     import lnSingular._,wgs.`J3/J2`
     import aux.{p,σ,κ,c,s}
 
-    val `χ²` : F = χ**2
-    val `ξ²` : F = ξ**2   
+    val `χ²` = χ**2
+    val `ξ²` = ξ**2   
     val ϵ3 = `J3/J2`/p/2
     val `p/r` = p/r
     val `c²` = c*c
@@ -77,8 +77,8 @@ trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
     
         // recalculate the "state" variables here
     // val a = rl /(1 - ecosE) 
-    val Θl=δΘ+Θ
-    val Rl=R+δR
+    val Θl = δΘ+Θ
+    val Rl = R+δR
     val rl = r+δr
     val pl = Θl*Θl // MU=1
     (LaraNonSingular(ψ+δψ,ξ+δξ,χ+δχ,rl,Rl,Θl), LongPeriodContext(0.as[F], pl, 0.as[F], 0.as[F], 0.as[F], 0.as[F]))
@@ -89,16 +89,16 @@ trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
     import lppState.{_1=>lns,_2=>lctx}
     import wgs.J2, ctx0.{c,s},lctx.{pl=>p}, lns._
     val `c²` = c*c
-    val ϵ2 : F = -J2/ (p**2) / 4
+    val ϵ2 = -J2/ (p**2) / 4
     
-    val `χ²` : F = χ**2
-    val `ξ²` : F = ξ**2
-    val δψ : F  = - ϵ2 * ((1+7*c)/(1+c)) * ξ * χ 
-    val δξ : F  = - ϵ2 * (`χ²` - 3 * `c²`) * ξ
-    val δχ : F  = - ϵ2 * (`ξ²` - 3 * `c²`) * χ
-    val δr : F  = ϵ2 * r * (`ξ²` - `χ²` - 3 + 9 * `c²`)
-    val δR : F  = ϵ2 * 4 * (Θ/r) * ξ * χ
-    val δΘ : F  = ϵ2 * 3 * Θ * (`ξ²` - `χ²`)
+    val `χ²` = χ**2
+    val `ξ²` = ξ**2
+    val δψ = - ϵ2 * ((1+7*c)/(1+c)) * ξ * χ 
+    val δξ = - ϵ2 * (`χ²` - 3 * `c²`) * ξ
+    val δχ = - ϵ2 * (`ξ²` - 3 * `c²`) * χ
+    val δr = ϵ2 * r * (`ξ²` - `χ²` - 3 + 9 * `c²`)
+    val δR = ϵ2 * 4 * (Θ/r) * ξ * χ
+    val δΘ = ϵ2 * 3 * Θ * (`ξ²` - `χ²`)
     (LaraNonSingular(ψ+δψ,ξ+δξ,χ+δχ,r+δr,R+δR,Θ+δΘ),LaraNonSingular(δψ,δξ,δχ,δr,δR,δΘ))
   }
   

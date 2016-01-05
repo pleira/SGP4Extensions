@@ -34,11 +34,13 @@ trait  Sgp4Init[F] {
   def     t  : F     ; def   nodeo  : F     ; 
 }
 
-//trait Sgp4Vars[F] extends Initl[F]  with Sgp4Init[F] 
-
-trait Sgp4Near[F] extends Initl[F] {
-  def xno : F ;
+//trait Sgp4Vars[F] extends Initl[F]  with Sgp4Init[F]
+trait PosVel[F] {
   def error: Int; def x : F; def y : F; def z: F; def xdot: F ; def ydot : F; def zdot: F;
+}
+
+trait Sgp4Near[F] extends Initl[F] with PosVel[F] {
+  def xno : F ;
   def atime: F; 
   def satn: Int; def      yr  : Int      ; def   bstar  : F; def    ecco  : F; def   epoch  : F; def   argpo  : F; 
   def inclo  : F     ; def      mo  : F   ; 

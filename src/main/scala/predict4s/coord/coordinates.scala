@@ -28,6 +28,7 @@ case class CartesianElems[F](x: F, y: F, z: F, vx: F, vy: F, vz: F) {
   def X = vx
   def Y = vy
   def Z = vz
+  def xdot = vx; def ydot = vy ; def zdot = vz;
 }
 
 // Naming of the elements after "Efficient formulation of the periodic corrections in
