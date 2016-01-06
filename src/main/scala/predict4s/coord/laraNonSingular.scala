@@ -21,10 +21,9 @@ object LaraConversions {
   }
   
   // ν = ψ − θ and sinθ = ξ/s, cosθ = χ/s and c = N/Θ, tanθ = ξ/χ
-  def laraNonSingular2SpecialPolarNodal[F: Field: NRoot: Trig](lnSingular: LaraNonSingular[F], N: F) : SpecialPolarNodal[F] = {
+  def laraNonSingular2SpecialPolarNodal[F: Field: NRoot: Trig](lnSingular: LaraNonSingular[F], I: F) : SpecialPolarNodal[F] = {
 	  import lnSingular._
 	  val θ = atan(ξ/χ)
-	  val I = acos(N/Θ)
 	  val ν : F = ψ - θ
     SpecialPolarNodal(I,θ,ν,r,R,Θ/r)
   }

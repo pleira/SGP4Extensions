@@ -25,8 +25,11 @@ class HardcodedLaraCheck extends FunSuite with NearTLEs with ValladoNearTLEsChec
   def sgp06251 = sgps(1)
   def sgp28057 = sgps(2)
   
-  val results00005 = times00005.map(sgp00005.propagate2Cartesian(_))
+//   No SPN intermediaries, results converted from Lara's non singular to cartesian   
+//   val results00005 = times00005.map(sgp00005.propagate2Cartesian(_))
   
+   val results00005 = times00005.map(sgp00005.propagate(_)._1) // just return the first CartesianElem inside the map
+   
 //  val results00005 = for (t <- times00005)  yield Sgp4LaraResult(sgps(0), sgp00005.propagate(t), tle00005, t)
 //  val results06251 = for (t <- times06251)  yield Sgp4LaraResult(sgps(1), sgp06251.propagate(t), tle06251, t)
 //  val results28057 = for (t <- times28057)  yield Sgp4LaraResult(sgps(2), sgp28057.propagate(t), tle28057, t)

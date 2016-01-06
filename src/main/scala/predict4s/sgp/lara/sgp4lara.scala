@@ -29,11 +29,15 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     // Remark that the N Polar Nodal variable is an integral of the zonal problem
     // and, therefore, its value is always known from given initial conditions
     // H´´ = G´´cosI = N 
-    val N = sqrt(1 - e*e) * cos(secularElemt.I)
+    import secularElemt.{I,e,n}
+    val `e²` = e*e
+    val N : F = sqrt(1 - `e²`) / (n pow 0.33333333) * cos(I)
     
-    val finalPolarNodalt = laraNonSingular2SpecialPolarNodal(pcLara._1._1, N) 
-    val spnSppc = laraNonSingular2SpecialPolarNodal(pcLara._1._2, N)
-    val spnLppc = laraNonSingular2SpecialPolarNodal(pcLara._2._1, N)
+    val finalPolarNodalt = laraNonSingular2SpecialPolarNodal(pcLara._1._1, I) 
+    
+    // FIXME: is correct to pass I here?
+    val spnSppc = laraNonSingular2SpecialPolarNodal(pcLara._1._2, I)
+    val spnLppc = laraNonSingular2SpecialPolarNodal(pcLara._2._1, I)
     
     // final state in Polar Nodal coordinates at time t     
     (finalPolarNodalt, (finalPolarNodalt, spnSppc), (spnLppc,pcLara._2._2))
