@@ -58,3 +58,18 @@ case class SpecialPolarNodal[F: Field](
   def +(o: SpecialPolarNodal[F]) = SpecialPolarNodal(I+o.I,θ+o.θ,Ω+o.Ω,r+o.r,R+o.R,`Θ/r`+o.`Θ/r`)
 
 }
+
+case class CSpecialPolarNodal[F: Field](
+    cosI: F, //  CosI, related to the orbital inclination 
+    θ: F,  // the argument of latitude from the ascending node
+    Ω: F,  // the argument of the node
+    r: F,  // the radial distance
+    R: F,  // the radial velocity 
+    `Θ/r` : F  // related to the total angular momentum
+  ) {
+  def su = θ; def su0 = su; def mrt = r; def mvt = R; def rdot0 = mvt; 
+  // Note: Vallado's SGP4 uses rθdot = Θ/r instead of Θ, used by Lara
+  def rvdot = `Θ/r`;
+  def Θ = `Θ/r`*r;
+  def rθdot = Θ/r
+}

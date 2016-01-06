@@ -25,8 +25,7 @@ trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
     val spnSecularContext = sgpelems2SpecialPolarNodal(eaState, secularElemt, wgs)
     
     // secular state at time t in Lara Non Singular variables
-    val sect = specialPolarNodal2LaraNonSingular(spnSecularContext)  // (sinI, secularPolarNodal)
-    
+    val sect = specialPolarNodal2LaraNonSingular(spnSecularContext)    
     val lppt = lppCorrections(sect, spnSecularContext._2)
     
     val sppt = sppCorrections(lppt)

@@ -30,16 +30,16 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     // and, therefore, its value is always known from given initial conditions
     // H´´ = G´´cosI = N 
     import secularElemt.{I,e,n}
-    val `e²` = e*e
-    val N : F = sqrt(1 - `e²`) / (n pow 0.33333333) * cos(I)
-    
+//    val `e²` = e*e
+//    val N : F = sqrt(1 - `e²`) / (n pow 0.33333333) * cos(I)
+//    if (pcLara._1._1.Θ < N) throw new Exception(s"Θ < N  ${pcLara._1._1.Θ} , ${N}") 
     val finalPolarNodalt = laraNonSingular2SpecialPolarNodal(pcLara._1._1, I) 
     
-    // FIXME: is correct to pass I here?
+    // FIXME: is it better to pass N instead of I here 
     val spnSppc = laraNonSingular2SpecialPolarNodal(pcLara._1._2, I)
     val spnLppc = laraNonSingular2SpecialPolarNodal(pcLara._2._1, I)
     
-    // final state in Polar Nodal coordinates at time t     
+    // final state in Polar Nodal coordinates at time t and with cosI instead of I    
     (finalPolarNodalt, (finalPolarNodalt, spnSppc), (spnLppc,pcLara._2._2))
   }
 

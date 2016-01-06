@@ -11,7 +11,7 @@ import org.scalatest.Ignore
 class HardcodedLaraCheck extends FunSuite with NearTLEs with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] {
  
   implicit val wgs = SGP72Constants.tleDoubleConstants
-  val toMinus9 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1)
+  val toMinus : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(2.2)
 
   def propags : List[SGP4Lara[Double]] = tles map {tle => 
     import spire.std.any.DoubleAlgebra
@@ -25,15 +25,16 @@ class HardcodedLaraCheck extends FunSuite with NearTLEs with ValladoNearTLEsChec
   def sgp06251 = sgps(1)
   def sgp28057 = sgps(2)
   
-//   No SPN intermediaries, results converted from Lara's non singular to cartesian   
-//   val results00005 = times00005.map(sgp00005.propagate2Cartesian(_))
+//   No SPN intermediaries, results converted from Lara's non singular to cartesian
+// FIXME  
+//  val results00005c = times00005.map(sgp00005.propagate2Cartesian(_))
+//  val results06251c = times06251.map(sgp06251.propagate2Cartesian(_))
+//  val results28057c = times28057.map(sgp28057.propagate2Cartesian(_))
   
-   val results00005 = times00005.map(sgp00005.propagate(_)._1) // just return the first CartesianElem inside the map
+  val results00005 = times00005.map(sgp00005.propagate(_)._1) // just return the first CartesianElem inside the map
+  val results06251 = times06251.map(sgp06251.propagate(_)._1)
+  val results28057 = times28057.map(sgp28057.propagate(_)._1)
    
-//  val results00005 = for (t <- times00005)  yield Sgp4LaraResult(sgps(0), sgp00005.propagate(t), tle00005, t)
-//  val results06251 = for (t <- times06251)  yield Sgp4LaraResult(sgps(1), sgp06251.propagate(t), tle06251, t)
-//  val results28057 = for (t <- times28057)  yield Sgp4LaraResult(sgps(2), sgp28057.propagate(t), tle28057, t)
-//
   implicit def cartesianToPosVel(pv : CartesianElems[Double]) = new PosVel[Double] {
     def x = pv.x
     def y = pv.y
@@ -46,10 +47,17 @@ class HardcodedLaraCheck extends FunSuite with NearTLEs with ValladoNearTLEsChec
   
   test(s"${sgpImpl}: compare Position/Velocity Propagation Results with Vallado's cpp implementation for near TLEs") {
     // call the checks for the corresponding result
-    pvCheck00005 zip results00005 foreach { p => p._1(p._2)(toMinus9) }
-//    pvCheck06251 zip results06251 foreach { p => p._1(p._2)(toMinus9) }
-//    pvCheck28057 zip results28057 foreach { p => p._1(p._2)(toMinus9) }   
+    pvCheck00005 zip results00005 foreach { p => p._1(p._2)(toMinus) }
+    pvCheck06251 zip results06251 foreach { p => p._1(p._2)(toMinus) }
+    pvCheck28057 zip results28057 foreach { p => p._1(p._2)(toMinus) }   
   }
+  
+//  test(s"${sgpImpl}: compare native Lara to Cartesian Position/Velocity Propagation Results with Vallado's cpp implementation for near TLEs") {
+//    // call the checks for the corresponding result
+//    pvCheck00005 zip results00005c foreach { p => p._1(p._2)(toMinus) }
+//    pvCheck06251 zip results06251c foreach { p => p._1(p._2)(toMinus) }
+//    pvCheck28057 zip results28057c foreach { p => p._1(p._2)(toMinus) }   
+//  }  
 } 
 
 
