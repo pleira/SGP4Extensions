@@ -30,6 +30,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     // and, therefore, its value is always known from given initial conditions
     // H´´ = G´´cosI = N 
     import secularElemt.{I,e,n}
+    // FIXME
 //    val `e²` = e*e
 //    val N : F = sqrt(1 - `e²`) / (n pow 0.33333333) * cos(I)
 //    if (pcLara._1._1.Θ < N) throw new Exception(s"Θ < N  ${pcLara._1._1.Θ} , ${N}") 

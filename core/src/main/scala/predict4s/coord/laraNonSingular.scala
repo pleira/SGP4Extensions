@@ -15,7 +15,7 @@ object LaraConversions {
   // ν = ψ − θ and sinθ = ξ/s, cosθ = χ/s and c = N/Θ, tanθ = ξ/χ
   def laraNonSingular2PolarNodal[F: Field: NRoot: Trig](lnSingular: LaraNonSingular[F], N: F) : PolarNodalElems[F] = {
 	  import lnSingular._
-	  val θ : F = atan(ξ/χ)
+	  val θ = atan2(ξ,χ)
 	  val ν : F = ψ - θ
     PolarNodalElems(r,θ,ν,R,Θ,N)
   }
