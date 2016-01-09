@@ -1,21 +1,15 @@
 package predict4s.sgp.vallado
 
-import org.scalatest.FunSuite
-import org.scalactic.TolerantNumerics
-import org.scalactic.Equality
-import predict4s.sgp.{NearTLEs}
-import predict4s.coord.SGP72Constants
 import predict4s.sgp._
 import predict4s.report.ValladoFileReport
-import predict4s.coord.SGPElems
-import predict4s.coord.SGPElemsConversions
-import org.scalatest.Ignore
+import predict4s.coord._
 
-@Ignore
-class HardcodedValladoReport extends FunSuite with NearTLEs with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] {
+object HardcodedValladoReport extends App with NearTLEs {
  
   val wgs = SGP72Constants.tleDoubleConstants
-  val toMinus9 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1E-9)
+  val times00005 = for (i <- 0 until 13; j = i*360) yield j // times in minutes 
+  val times06251 = for (i <- 0 until 25; j = i*120) yield j // times in minutes
+  val times28057 = for (i <- 0 until 25; j = i*120) yield j // times in minutes
 
   def propags : List[SGP4Vallado[Double]] = tles map {tle => 
     import spire.std.any.DoubleAlgebra

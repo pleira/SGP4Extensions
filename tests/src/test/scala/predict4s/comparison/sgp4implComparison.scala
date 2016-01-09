@@ -60,7 +60,7 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
             sin2θ < 0 && aux.sin2θ > 0 ||
             !(sin2θ === aux.sin2θ) || 
             !(cos2θ === aux.cos2θ)) {
-          Console.print(s"vallado: ${v.toString()}\npnspn:   ${pnspn.toString()}\n")
+        //  Console.print(s"vallado: ${v.toString()}\npnspn:   ${pnspn.toString()}\n")
         }
 //        assert(v._5 === pnspn._5)  // FIXME
 //        assert(v._6 === pnspn._6)        

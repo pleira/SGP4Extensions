@@ -30,7 +30,7 @@ lazy val noPublish = Seq(
 
 lazy val root = project.in(file("."))
   .aggregate(
-    coreJVM, testsJVM
+    coreJVM, testsJVM, coreJS, testsJS, reports
   )
   .settings(name := "root")
   .settings(commonSettings: _*)
@@ -47,15 +47,15 @@ lazy val tests = crossProject.crossType(CrossType.Pure).in(file("tests"))
   .dependsOn(core)
 
 lazy val reports = project.in(file("reports"))
-  .settings(name := "reports")
+  .settings(name := "sgp4s_11-reports")
   .settings(commonSettings:_*)
-  .dependsOn(coreJVM)
+  .dependsOn(coreJVM,testsJVM)
   .settings(libraryDependencies +=
     "com.github.pathikrit" %% "better-files" % "2.14.0") 
   .settings(noPublish: _*)
 
 lazy val thymeBenchmarks = project.in(file("thymeBenchmarks"))
-  .settings(name := "thymeBenchmarks")
+  .settings(name := "sgp4s_11-thymeBenchmarks")
   .settings(commonSettings:_*)
   .dependsOn(coreJVM)
   .settings(libraryDependencies +=

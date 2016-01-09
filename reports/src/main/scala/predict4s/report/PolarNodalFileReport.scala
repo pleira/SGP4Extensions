@@ -8,7 +8,7 @@ import predict4s.coord._
 
 abstract class FileReport[F] {
     
-  def path(tle: TLE) = s"doc/reports/${propagator}_${tle.satelliteNumber}_${tle.year}_${tle.epoch}.md"
+  def path(tle: TLE) = s"../doc/reports/${propagator}_${tle.satelliteNumber}_${tle.year}_${tle.epoch}.md"
   
   def propagator: String
   

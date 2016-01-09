@@ -1,16 +1,10 @@
 package predict4s.sgp.lara
 
-import org.scalatest.FunSuite
-import org.scalactic.TolerantNumerics
-import org.scalactic.Equality
-import predict4s.sgp.{NearTLEs}
-import predict4s.coord.SGP72Constants
-import predict4s.sgp._
 import predict4s.report.LaraFileReport
-import predict4s.coord.SGPElems
-import predict4s.coord.SGPElemsConversions
+import predict4s.sgp._
+import predict4s.coord._
 
-class HardcodedLaraReport extends FunSuite with NearTLEs with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] {
+object HardcodedLaraReport extends App with NearTLEs {
  
 //  implicit val wgs = SGP72Constants.tleDoubleConstants
 //  val toMinus9 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1E-9)
