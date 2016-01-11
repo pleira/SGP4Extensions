@@ -9,7 +9,7 @@ import predict4s.coord.Context0
 import predict4s.coord.SGP72Constants
 import predict4s.coord.Context0
 
-class GeoPotentialStateCheck extends FunSuite with NearTLEs  {
+class GeoPotentialStateCheck extends FunSuite with TLE00005 with TLE06251  {
   
   implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(1E-9)
   implicit val wgs = SGP72Constants.tleDoubleConstants

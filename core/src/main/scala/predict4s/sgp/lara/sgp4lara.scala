@@ -55,7 +55,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     // H´´ = G´´cosI = N 
     import secularElemt.{I,e,n}
     val `e²` = e*e
-    val N : F = sqrt(1 - `e²`) / (n pow 0.33333333) * cos(I)
+    val N : F = sqrt(1 - `e²`) / (n nroot 3) * cos(I)
     
     val unscaledCartesian = laraNonSingular2Cartesian(pcLara._1._1, N)
     val finalCartesian = scale2CartesianElems(unscaledCartesian)
