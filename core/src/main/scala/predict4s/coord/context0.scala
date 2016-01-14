@@ -21,22 +21,17 @@ case class Context0[F: Field: NRoot : Trig](
   // def sinio      = s
 
   val `β0⁴`      = `β0²`*`β0²`
-  def e0sq       = e*e
-  def β0sq       = `β0²`
-  def β0to3      = `β0³`
-  def β0to4      = `β0⁴`
   // def rteosq     = β0sq
-  def omeosq     = β0sq
-  def polyδ1 = poly"-134/81x^3 - x^2 - 1/3x + 1" 
+  def omeosq     = `β0²`
     
   val `s²` = s*s
   val p : F = a0 * `β0²` // a0 * (1 - `e²`) // semilatus rectum , which also is G²/μ, with G as the Delauney's action, the total angular momentum
   val `p²` = p*p
   val `p⁴` = `p²`*`p²`
-  val `1/p²` = 1/`p²`
-  val `1/p⁴` = 1/`p⁴`
-  import wgs.{aE=>α,J2,`J2/J3`,`J3/J2`}
-  val `α/p` : F = α/p
+//  val `1/p²` = 1/`p²`
+//  val `1/p⁴` = 1/`p⁴`
+//  import wgs.{aE=>α,J2,`J2/J3`,`J3/J2`}
+//  val `α/p` : F = α/p
 //  val ϵ2 : F = -J2*(`α/p`**2) / 4
 //  val ϵ3 : F = (`J3/J2`)*`α/p` / 2      // or (`C30/C20`)*`α/p` / 2   
 // FIXME  val η : F = β0  // (1 - `e²`).sqrt           // eccentricity function G/L, with G as the Delauney's action, the total angular momentum , and L = √(μ a)

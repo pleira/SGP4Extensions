@@ -27,12 +27,12 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
     val dragCoefs : DragSecularCoefs[F],
     val isImpacting: Boolean,
     val rp: F
-    ) extends HelperTypes[F] with SecularCorrections[F] {
+    ) extends HelperTypes[F] {
 
   // valid interval for eccentricity calculations
   val eValidInterval = Interval.open(0.as[F],1.as[F])
      
-  override def secularCorrections(t: Minutes): SGPElems[F] = {
+  def secularCorrections(t: Minutes): SGPElems[F] = { // : Either[String, SGPElems[F]] = {
     
     import secularFreqs._  // {ωdot,Ωdot,mdot=>Mdot,Ωcof}
     import dragCoefs._  
@@ -63,8 +63,8 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
     if (!eValidInterval.contains(em_))
       {
         // sgp4fix to return if there is an error in eccentricity
-        // FIXME: we should move to use Either
-        return SGPElems(nm, em_, I, ωm, Ωm, Mp, am, bStar, epoch) 
+        // return Left(s"Secular eccentricity $e outside valid range")
+        return SGPElems(nm, em_, I, ωm, Ωm, Mp, am, bStar, epoch)
       }
 
     // sgp4fix fix tolerance to avoid a divide by zero
@@ -79,8 +79,10 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
     // Lyddane's variables and back 
     val ℓm = Mm_ + ωm + Ωm
     val lm = ℓm  % twopi
-    val Mm = (lm - ω_ - Ω_) % twopi   
-    SGPElems(nm, em, I, ω_, Ω_, Mm, am, bStar, epoch)
+    val Mm = (lm - ω_ - Ω_) % twopi
+    val elems = SGPElems(nm, em, I, ω_, Ω_, Mm, am, bStar, epoch)
+    // Right(elems)
+    elems
   }
   
   /*
@@ -97,7 +99,7 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
     import gctx.η 
     import elem0.{bStar,M}
     
-    val `t²` : F = t**2    
+    val `t²` : F = t*t    
     val Ωm  : F = Ωdf + Ωcof*`t²` 
  
     // It should be noted that when epoch perigee height is less than

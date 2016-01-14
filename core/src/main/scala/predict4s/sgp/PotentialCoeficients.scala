@@ -44,8 +44,8 @@ trait FittingAtmosphericParameter[F] {
   
   val aE : F
   def S_above156(implicit ev: Field[F]) : F = 1 + 78/aE
-  def hs(perigeeHeight: F)(implicit ev: Field[F]) : F =  perigeeHeight - 78   // interpolation, being a number bigger than 20, and smaller that 78
-  def S_between_98_156(perigeeHeight: F)(implicit ev: Field[F]) : F =  (1 + hs(perigeeHeight)/aE)
+  // def hs(perigeeHeight: F)(implicit ev: Field[F]) : F =  perigeeHeight - 78   // interpolation, being a number bigger than 20, and smaller that 78
+  def S_between_98_156(perigeeHeight: F)(implicit ev: Field[F]) : F =  (1 + (perigeeHeight - 78)/aE)
   def S_below98(implicit ev: Field[F]) : F =  (1 + 20/aE)
   
   def fittingAtmosphericParameter(perigeeHeight: F)(implicit ev: Field[F], o: Order[F]) : F =
@@ -60,26 +60,19 @@ case class GeoPotentialCoefs[F](C1: F, C2: F, C3: F, C4: F, C5: F, D2: F, D3: F,
 case class GeoPotentialContext[F: Field: NRoot : Order: Trig](
     elem0 : SGPElems[F],   // original elements with a0 and n0 
     s: F,                  // atmospheric coefficient
-    rp: F,                 // perigee radius (km)
     aE: F                  // earths radius  (km)
     ) {
   import elem0.{n => n0,e => e0, a => a0}
 
   val ξ = 1 / (a0 - s)  // tsi
-  val `ξ²` = ξ*ξ
-  val `ξ³` = ξ*`ξ²`
-  val `ξ⁴` = `ξ²`*`ξ²`
-
   val η = a0*e0*ξ   // eta
   val `η²` = η*η
   val `η³` = η*`η²`
-  val `η⁴` = `η²`*`η²`
   
   val e0η = e0*η      // eeta 
   val `1-η²` = abs[F](1-`η²`) 
   // The parameter q0 is the geocentric reference altitude, 
   // a constant equal to 120 km plus one Earth radius 
-  val q0   = 1 + 120/aE 
-  val `(q0-s)⁴` = (q0 - s)**4 
-  val `ξ⁴(q0-s)⁴` = `(q0-s)⁴` * `ξ⁴`
+  val q0 = 1 + 120/aE 
+  val `ξ⁴(q0-s)⁴` = (ξ*(q0 - s))**4 
 }

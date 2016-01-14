@@ -46,7 +46,7 @@ trait LyddaneExtraLongPeriodCorrections[T] extends TwoTermsKeplerEq {
           
     val Scof = (`η²` + 2*`ecosω²`)*s - `ecosω²`/s
     
-    val F = M + ω + Ω + ϵ3 * ecosω * Fcof * s    // Lyddane F' = (M´´ + g´´ + h´´) +  ...
+    val F = M + ω + Ω - ϵ3 * ecosω * Fcof * s    // Lyddane F' = (M´´ + g´´ + h´´) +  ...
     val S = esinω - ϵ3*Scof
     val C = ecosω*(1 - ϵ3*esinω*(1/s - 2*s))
     val h = Ω - ϵ3*ecosω*c/s

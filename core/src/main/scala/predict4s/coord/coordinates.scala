@@ -56,7 +56,7 @@ case class SpecialPolarNodal[F: Field](
   def Θ = `Θ/r`*r;
   def rθdot = Θ/r
   def +(o: SpecialPolarNodal[F]) = SpecialPolarNodal(I+o.I,θ+o.θ,Ω+o.Ω,r+o.r,R+o.R,`Θ/r`+o.`Θ/r`)
-
+  def -(o: SpecialPolarNodal[F]) = SpecialPolarNodal(I-o.I,θ-o.θ,Ω-o.Ω,r-o.r,R-o.R,`Θ/r`-o.`Θ/r`)
 }
 
 case class CSpecialPolarNodal[F: Field](

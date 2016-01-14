@@ -50,7 +50,7 @@ class Factory2ndOrderSecularCorrectionsTerms[F : Field : NRoot : Order : Trig](w
     val perigeeHeight =  (rp - 1) * aE
     val isImpacting : Boolean = rp < (220/aE + 1) 
     val s = fittingAtmosphericParameter(perigeeHeight)
-    val gctx = GeoPotentialContext(elem0, s, rp, aE)
+    val gctx = GeoPotentialContext(elem0, s, aE)
 
     val geoPot  = geoPotentialCoefs(elem0, context0, gctx, wgs)
     (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
