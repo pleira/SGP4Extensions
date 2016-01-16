@@ -12,9 +12,9 @@ case class DragSecularCoefs[F](Mcof: F, ωcof: F, Ωcof: F)
 
 case class LaneCoefs[F](T2: F, T3: F, T4: F, T5: F)
 
-case class ContextD[F](c: F, s: F, p: F, κ: F, σ: F) {
-  def cosI = c; def sinI = s;
-}
+//case class ContextD[F](c: F, s: F, p: F, κ: F, σ: F) {
+//  def cosI = c; def sinI = s;
+//}
 
 class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig]( 
     val elem0: SGPElems[F],    
@@ -27,7 +27,9 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
     val dragCoefs : DragSecularCoefs[F],
     val isImpacting: Boolean,
     val rp: F
-    ) extends HelperTypes[F] {
+    )  {
+
+  type Minutes = F // type to remember dealing with minutes from epoch
 
   // valid interval for eccentricity calculations
   val eValidInterval = Interval.open(0.as[F],1.as[F])
@@ -128,8 +130,7 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
 object BrouwerLaneSecularCorrections {
   
   def apply[F : Field : NRoot : Order : Trig](elem0Ctx0: (SGPElems[F], Context0[F]), wgs0: SGPConstants[F]) :  BrouwerLaneSecularCorrections[F] = {
-    val factory : Factory2ndOrderSecularCorrectionsTerms[F] = new Factory2ndOrderSecularCorrectionsTerms(wgs0)
-    val (elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, dragCoefs, isImpacting, rp) = factory.from(elem0Ctx0)
+    val (elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, dragCoefs, isImpacting, rp) = Factory2ndOrderSecularCorrectionsTerms.from(elem0Ctx0, wgs0)
     new BrouwerLaneSecularCorrections(elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, dragCoefs, isImpacting, rp)
   }
   

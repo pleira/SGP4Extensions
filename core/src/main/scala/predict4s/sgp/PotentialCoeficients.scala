@@ -11,6 +11,8 @@ import predict4s.coord.Context0
 
 // The notation used in the formulas here correspond to that used in SPACETRACK Report n 3, Hoots.
 
+case class GeoPotentialCoefs[F](C1: F, C2: F, C3: F, C4: F, C5: F, D2: F, D3: F, D4: F)
+
 trait GeoPotentialAndAtmosphere2ndOrderModel {
 
   def geoPotentialCoefs[F: Field : NRoot : Order : Trig](elem0: SGPElems[F], ctx: Context0[F], gctx: GeoPotentialContext[F], wgs: SGPConstants[F]) 
@@ -39,23 +41,6 @@ trait GeoPotentialAndAtmosphere2ndOrderModel {
   }
   
 }
-
-trait FittingAtmosphericParameter[F] {
-  
-  val aE : F
-  def S_above156(implicit ev: Field[F]) : F = 1 + 78/aE
-  // def hs(perigeeHeight: F)(implicit ev: Field[F]) : F =  perigeeHeight - 78   // interpolation, being a number bigger than 20, and smaller that 78
-  def S_between_98_156(perigeeHeight: F)(implicit ev: Field[F]) : F =  (1 + (perigeeHeight - 78)/aE)
-  def S_below98(implicit ev: Field[F]) : F =  (1 + 20/aE)
-  
-  def fittingAtmosphericParameter(perigeeHeight: F)(implicit ev: Field[F], o: Order[F]) : F =
-       if (perigeeHeight >= 156)       S_above156
-       else if (perigeeHeight >= 98)   S_between_98_156(perigeeHeight)
-       else                            S_below98
-
-}
-
-case class GeoPotentialCoefs[F](C1: F, C2: F, C3: F, C4: F, C5: F, D2: F, D3: F, D4: F)
 
 case class GeoPotentialContext[F: Field: NRoot : Order: Trig](
     elem0 : SGPElems[F],   // original elements with a0 and n0 

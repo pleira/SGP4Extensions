@@ -233,10 +233,10 @@ object ReportTestNearTLEs extends App {
   def allComp(t: TestTLE) = new CompareAll(AllPropagators(t), t)
   val tles = List(TLE00005, TLE06251, TLE28057, TLE29238, TLE29141)
   val comps = tles map allComp
-  // comps map { _.cartesianDiffReport }
+  comps map { _.cartesianDiffReport }
 //  comps map { _.pnDiffReport }
 //  comps map { _.pnLppDiffReport }
-  comps map {_.vlpnFinalPNDiffReport }
+  // comps map {_.vlpnFinalPNDiffReport }
   //comps map {_.vlpnLppPNDiffReport }  
 }
 

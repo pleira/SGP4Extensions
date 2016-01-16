@@ -30,14 +30,14 @@ lazy val noPublish = Seq(
 
 lazy val root = project.in(file("."))
   .aggregate(
-    coreJVM, testsJVM, coreJS, testsJS, reports
+    coreJVM, testsJVM, reports
   )
   .settings(name := "root")
   .settings(commonSettings: _*)
   .settings(noPublish: _*)
 
 lazy val core = crossProject.crossType(CrossType.Pure).in(file("core"))
-  .settings(name := "sgp4s_11")
+  .settings(name := "sgp4s_11-core")
   .settings(commonSettings: _*)
 
 lazy val tests = crossProject.crossType(CrossType.Pure).in(file("tests"))
@@ -69,4 +69,8 @@ lazy val coreJS = core.js
 lazy val testsJVM = tests.jvm
 
 lazy val testsJS = tests.js
+
+// subeclipse settings
+
+EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
 

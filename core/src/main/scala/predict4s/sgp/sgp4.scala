@@ -8,22 +8,6 @@ import spire.syntax.primitives._
 import predict4s.coord._
 import predict4s.coord.CoordinatesConversions._
 
-trait HelperTypes[F] {  
-  type SinI = F  // type to remember dealing with the sine of the Inclination 
-  type CosI = F  // type to remember dealing with the cosine of the Inclination 
-  type Minutes = F // type to remember dealing with minutes from epoch
-  type FinalState[F] = SpecialPolarNodal[F]
-  type ShortPeriodCorrections[F] = SpecialPolarNodal[F]
-  type ShortPeriodState[F] = (SpecialPolarNodal[F], ShortPeriodCorrections[F]) // final values, corrections ShortPeriodPolarNodalContext
-  type LongPeriodState[F] = (SpecialPolarNodal[F], LongPeriodContext[F]) // final values, context variables
-  type SecularElems = SGPElems[F]
-}
-
-trait SecularCorrections[F] extends HelperTypes[F] {
-  def secularCorrections(t: Minutes): SGPElems[F]
-}
-
-
 /** 
  * The SGP-4 theory is applied for all orbits with periods of T <= 225 min. 
  * It performs a propagation in time of doubly averaged elements according to their
@@ -37,7 +21,13 @@ trait SecularCorrections[F] extends HelperTypes[F] {
  */
 abstract class SGP4[F : Field : NRoot : Order : Trig](
     val sec : BrouwerLaneSecularCorrections[F]
-    ) extends HelperTypes[F] {
+    ) {
+ 
+  type Minutes = F // type to remember dealing with minutes from epoch
+  type FinalState = SpecialPolarNodal[F]
+  type ShortPeriodCorrections = SpecialPolarNodal[F]
+  type ShortPeriodState = (SpecialPolarNodal[F], ShortPeriodCorrections) // final values, corrections ShortPeriodPolarNodalContext
+  type LongPeriodState = (SpecialPolarNodal[F], LongPeriodContext[F]) // final values, context variables
 
   def propagate(t: Minutes)  = propagate2CartesianContext(t)
 
@@ -71,7 +61,7 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
   def secularCorrections(t: Minutes): SGPElems[F] = sec.secularCorrections(t)  
   
   def periodicCorrections(secularElemt : SGPElems[F])
-      :  (FinalState[F], ShortPeriodState[F], LongPeriodState[F]) 
+      :  (FinalState, ShortPeriodState, LongPeriodState) 
   
 //  def lppCorrections(secularElemt : SGPElems[F]) : LongPeriodState[F]
 //  def sppCorrections(lppSPNContext : LongPeriodState[F]) : ShortPeriodState[F]  

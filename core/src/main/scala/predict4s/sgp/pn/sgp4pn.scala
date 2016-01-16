@@ -18,7 +18,7 @@ class SGP4PN[F : Field : NRoot : Order : Trig](
   val ctx0 = sec.ctx0   
  
   override def periodicCorrections(secularElemt : SGPElems[F])
-      :  (FinalState[F], ShortPeriodState[F], LongPeriodState[F]) = {
+      :  (FinalState, ShortPeriodState, LongPeriodState) = {
     val lppSPNContext = lppCorrections(secularElemt)
     val sppPolarNodalContext = sppCorrections(lppSPNContext)
     val finalPNState = sppPolarNodalContext._1

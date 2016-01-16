@@ -7,7 +7,6 @@ import predict4s.coord.SGPElems
 import predict4s.coord.SGPElemsConversions
 import predict4s.coord.Context0
 import predict4s.coord.SGP72Constants
-import predict4s.coord.Context0
 
 class GeoPotentialStateCheck extends FunSuite with TLE00005 with TLE06251  {
   
@@ -16,19 +15,17 @@ class GeoPotentialStateCheck extends FunSuite with TLE00005 with TLE06251  {
   def sgpImpl : String = "Vallado SGP4"
   
   def fixture = new {
+      def buildGeoPotential(tle: TLE) = {
         import spire.implicits._
-        val factory = new Factory2ndOrderSecularCorrectionsTerms[Double](wgs) {
-          def buildGeoPotential(tle: TLE) = {
-            val elemTLE : (SGPElems[Double], Context0[Double]) = SGPElemsConversions.sgpElemsAndContext(tle, wgs)
-            val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = geoPotentialCoefsAndContexts(elemTLE)
-            (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
-        }
-    }
+        val elem : (SGPElems[Double], Context0[Double]) = SGPElemsConversions.sgpElemsAndContext(tle, wgs)
+        val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = Factory2ndOrderSecularCorrectionsTerms.geoPotentialCoefsAndContexts(elem, wgs)
+        (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
+      }
   }
   
   test(s"${sgpImpl}: compare GeoPotentialState for 00005 when t=0") {
     val f = fixture
-    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = f.factory.buildGeoPotential(tle00005)
+    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = f.buildGeoPotential(tle00005)
     assert(isImpacting == false)
     //assert(isDeepSpace == false)
     checkSgp4GeoPotential_5(elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
@@ -36,7 +33,7 @@ class GeoPotentialStateCheck extends FunSuite with TLE00005 with TLE06251  {
   
   test(s"${sgpImpl}: compare GeoPotentialState for 06251 when t=0") {
     val f = fixture
-    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = f.factory.buildGeoPotential(tle06251)
+    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = f.buildGeoPotential(tle06251)
     assert(isImpacting == false)
     //assert(gps.dps.isDeepSpace == false)
     checkSgp4GeoPotential_06251(elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)

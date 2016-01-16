@@ -22,7 +22,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   // this method uses Special Polar Nodal Variables useful for comparing with 
   // other algorithms
   override def periodicCorrections(secularElemt : SGPElems[F])
-      :  (FinalState[F], ShortPeriodState[F], LongPeriodState[F]) = {
+      :  (FinalState, ShortPeriodState, LongPeriodState) = {
     
     val pcLara = periodicCorrectionsNative(secularElemt)
     

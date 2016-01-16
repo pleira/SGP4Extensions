@@ -68,7 +68,7 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
     }
     test(s"TLE ${tle.satelliteNumber} : short period periodic Vallado/Polar Nodals comparison")
     {  
-      implicit val toMinus3 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1E-4)
+      implicit val toMinus3 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(3E-4)
       resSpp foreach { result =>
         val (pnspn, v) = result
         val pn = pnspn._1

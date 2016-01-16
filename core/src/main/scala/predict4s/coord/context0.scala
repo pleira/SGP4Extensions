@@ -19,7 +19,9 @@ case class Context0[F: Field: NRoot : Trig](
   def θsq        = `cos²I0`
   def sinI0      = s
   // def sinio      = s
-
+  val `c³`       = `c²`*c
+  val `c⁴`       = `c²`*`c²`
+  
   val `β0⁴`      = `β0²`*`β0²`
   // def rteosq     = β0sq
   def omeosq     = `β0²`

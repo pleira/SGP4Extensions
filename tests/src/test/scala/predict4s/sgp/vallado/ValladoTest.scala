@@ -3,7 +3,6 @@ package predict4s.sgp.vallado
 import org.scalatest.FunSuite
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
-import predict4s.sgp.{NearTLEs}
 import predict4s.coord.SGP72Constants
 import predict4s.sgp._
 import predict4s.coord.SGPElems

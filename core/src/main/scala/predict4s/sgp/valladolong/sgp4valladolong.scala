@@ -17,7 +17,7 @@ class SGP4ValladoLong[F : Field : NRoot : Order : Trig](
   import ctx0._,wgs.`J3/J2`
   
   override def periodicCorrections(secularElemt : SGPElems[F])
-      :  (FinalState[F], ShortPeriodState[F], LongPeriodState[F]) = {
+      :  (FinalState, ShortPeriodState, LongPeriodState) = {
     val lppSPNContext = lppCorrections(secularElemt)
     val sppPolarNodalContext = sppCorrections(lppSPNContext)
     val finalPNState = sppPolarNodalContext._1

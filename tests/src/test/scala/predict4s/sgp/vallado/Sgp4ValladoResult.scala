@@ -3,15 +3,13 @@ package predict4s.sgp.vallado
 import predict4s.sgp.Sgp4Near
 import predict4s.coord.CartesianElems
 import predict4s.sgp.Sgp4Result
-import predict4s.coord.AnomalyState
-import predict4s.sgp.HelperTypes
 import predict4s.coord._
 
 case class Sgp4ValladoResult(
     sgp: SGP4Vallado[Double], 
     statett: (CartesianElems[Double], CartesianElems[Double], SpecialPolarNodal[Double], 
         (SpecialPolarNodal[Double], SpecialPolarNodal[Double]), (SpecialPolarNodal[Double], LongPeriodContext[Double])), tle: TLE, t: Double) 
-        extends Sgp4Result[Double] with HelperTypes[Double] {
+        extends Sgp4Result[Double] {
   val posVel = statett._1 
   val r = posVel.pos
   val v = posVel.vel
