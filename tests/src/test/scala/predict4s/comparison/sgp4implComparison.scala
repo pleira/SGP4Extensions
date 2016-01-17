@@ -26,8 +26,8 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
     val results = 
       for (t <- 0 to 360 by 1;
         secularElemt = vsgp4.secularCorrections(t);
-        (_, pnspps, pnlpps) = pnsgp4.periodicCorrections(secularElemt);
-        (_, vspps, vlpps) = vsgp4.periodicCorrections(secularElemt)
+        (pnspps, pnlpps) = pnsgp4.periodicCorrections(secularElemt);
+        (vspps, vlpps) = vsgp4.periodicCorrections(secularElemt)
         // vE = veas.E - secularElemt.ω     // Vallado's solved kepler equation on Lyddane variables => E = u - ω
        ) yield ((pnspps, vspps), (pnlpps, vlpps))
     
@@ -41,8 +41,8 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
       implicit val toMinus5 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(3.4E-4)
       resLpp foreach { result =>
         val (pnspn, v) = result
-        val pn = pnspn._1
-        val vspn = v._1
+        val pn = pnspn
+        val vspn = v
         assert(vspn.r === pn.r)
         assert(vspn.R === pn.R)
         assert(vspn.Ω === pn.Ω)
@@ -51,17 +51,17 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
         //assert(vspn.`Θ/r`*scala.math.cos(vspn.I) === pn.N/pn.r)
         assert(vspn.θ === pn.θ)
         // check auxiliary variables `el²`, pl, βl, sin2θ, cos2θ
-        import v._2._
-        import pnspn.{_2 => aux}
-        assert(`el²` === aux.`el²`)
-        assert(pl === aux.pl)
-        assert(βl === aux.βl)
-        if (sin2θ > 0 && aux.sin2θ < 0 ||
-            sin2θ < 0 && aux.sin2θ > 0 ||
-            !(sin2θ === aux.sin2θ) || 
-            !(cos2θ === aux.cos2θ)) {
+//        import v._2._
+//        import pnspn.{_2 => aux}
+//        assert(`el²` === aux.`el²`)
+//        assert(pl === aux.pl)
+//        assert(βl === aux.βl)
+//        if (sin2θ > 0 && aux.sin2θ < 0 ||
+//            sin2θ < 0 && aux.sin2θ > 0 ||
+//            !(sin2θ === aux.sin2θ) || 
+//            !(cos2θ === aux.cos2θ)) {
         //  Console.print(s"vallado: ${v.toString()}\npnspn:   ${pnspn.toString()}\n")
-        }
+        //}
 //        assert(v._5 === pnspn._5)  // FIXME
 //        assert(v._6 === pnspn._6)        
       }
@@ -71,8 +71,8 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
       implicit val toMinus3 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(3E-4)
       resSpp foreach { result =>
         val (pnspn, v) = result
-        val pn = pnspn._1
-        val vspn = v._1
+        val pn = pnspn
+        val vspn = v
         assert(vspn.r === pn.r)
         assert(vspn.R === pn.R)
         assert(vspn.Ω === pn.Ω)

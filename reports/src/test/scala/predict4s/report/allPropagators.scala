@@ -43,7 +43,7 @@ class AllPropagators(val tle: TLE, val wgs: SGPConstants[Double], val start: Int
   val lfpn = finalPNResults(3)
   
   val lppPNResults = results map { l =>
-    l map { tuple => tuple._4._1 } 
+    l map { tuple => tuple._4 } 
   }
   val lpvpn = lppPNResults(0)
   val lpvlpn = lppPNResults(1)

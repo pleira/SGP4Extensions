@@ -29,8 +29,8 @@ class Sgp4ImplComparison2 extends FunSuite with TLE24946 with TLE22675 with TLE0
     val results = 
       for (t <- 0 to 360 by 20;
         secularElemt = lsgp4.secularCorrections(t);
-        (_, pnspps, pnlpps) = pnsgp4.periodicCorrections(secularElemt);
-        (lfinalspn, _, llpps) = lsgp4.periodicCorrections(secularElemt)
+        (pnspps, pnlpps) = pnsgp4.periodicCorrections(secularElemt);
+        (lfinalspn, llpps) = lsgp4.periodicCorrections(secularElemt)
        ) yield ((pnspps, lfinalspn), (pnlpps, llpps))
     
     val r2 = results.unzip
@@ -43,7 +43,7 @@ class Sgp4ImplComparison2 extends FunSuite with TLE24946 with TLE22675 with TLE0
       implicit val toMinus5 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1.2E-5)
       resLpp foreach { result =>
         val (pnspn, lspn) = result
-        val pn = pnspn._1
+        val pn = pnspn
   //      val lspn = lsgp4.laraNonSingular2SpecialPolarNodal(lns, pn.I)
 //        assert(lspn.r === pn.r)
 //        assert(lspn.R === pn.R)

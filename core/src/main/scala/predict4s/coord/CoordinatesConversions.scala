@@ -59,7 +59,7 @@ object CoordinatesConversions {
    *  Mathematically involves matrix multiplication  R3(−h) R1(−I) R3(−θ)
    *  where R1 and R3 are the usual rotation matrices about the x and z axes, respectively
    */
-  def polarNodal2UnitCartesian[F: Field: Trig](spn: SpecialPolarNodal[F]) = {
+  def polarNodal2UnitCartesian[F: Field: Trig](spn: SpecialPolarNodal[F]) : CartesianElems[F] = {
     import spn._
     val sinI  =  sin(I); val cosI  =  cos(I)
     val sinθ  =  sin(θ); val cosθ  =  cos(θ)

@@ -2,7 +2,6 @@ package predict4s.report
 
 import java.io.{ File => JFile }
 import better.files._
-import predict4s.sgp.HelperTypes
 import predict4s.sgp.SGP4
 import predict4s.coord._
 
@@ -12,7 +11,7 @@ abstract class FileReport[F] {
   
   def propagator: String
   
-  def save(pnr: IndexedSeq[((SpecialPolarNodal[F], (SpecialPolarNodal[F],SpecialPolarNodal[F]), (SpecialPolarNodal[F], LongPeriodContext[F])), SGPElems[F])], tle: TLE, lines: List[String], times : IndexedSeq[Int]) = {
+  def save(pnr: IndexedSeq[((SpecialPolarNodal[F], SpecialPolarNodal[F]), SGPElems[F])], tle: TLE, lines: List[String], times : IndexedSeq[Int]) = {
     val f = File(path(tle))
     implicit val oo = File.OpenOptions.append
     f << s"# ${propagator} algorithm\n"
@@ -31,19 +30,13 @@ abstract class FileReport[F] {
       f << p._1._1.toString().replaceAll(",|SpecialPolarNodal\\(|\\)|\\(", "|")    
     }
     
-    f << "\n\n#### Short period corrections in Special Polar Nodal coordinates\n"  
-    f << "| inclination | argument of latitude | ascending node | radial distance (aE=1) | radial velocity | `Θ/r` "
-    f << "| ----------- | -------------------  | -------------- | ---------------------- | --------------- | ----- "
-   pnr foreach { p => 
-      f << p._1._2._2.toString().replaceAll(",|SpecialPolarNodal\\(|\\)|\\(", "|")          
-    }
     
     f << "\n\n#### Long period state in Special Polar Nodal coordinates\n"  
     f << "| inclination | argument of latitude | ascending node | radial distance (aE=1) | radial velocity | `Θ/r` "
     f << "| ----------- | -------------------  | -------------- | ---------------------- | --------------- | ----- "
  
     pnr foreach { p => 
-      f << p._1._3._1.toString().replaceAll(",|SpecialPolarNodal\\(|\\)|\\(", "|")      
+      f << p._1._2.toString().replaceAll(",|SpecialPolarNodal\\(|\\)|\\(", "|")      
     }
     
 //    f << "\n\n#### Anomaly calculation \n"

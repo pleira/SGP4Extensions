@@ -22,7 +22,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   // this method uses Special Polar Nodal Variables useful for comparing with 
   // other algorithms
   override def periodicCorrections(secularElemt : SGPElems[F])
-      :  (FinalState, ShortPeriodState, LongPeriodState) = {
+      :  (SpecialPolarNodal[F], SpecialPolarNodal[F]) = {
     
     val pcLara = periodicCorrectionsNative(secularElemt)
     
@@ -34,14 +34,14 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 //    val `e²` = e*e
 //    val N : F = sqrt(1 - `e²`) / (n pow 0.33333333) * cos(I)
 //    if (pcLara._1._1.Θ < N) throw new Exception(s"Θ < N  ${pcLara._1._1.Θ} , ${N}") 
-    val finalPolarNodalt = laraNonSingular2SpecialPolarNodal(pcLara._1._1, I) 
+    val finalPolarNodalt = laraNonSingular2SpecialPolarNodal(pcLara._1, I) 
     
     // FIXME: is it better to pass N instead of I here 
-    val spnSppc = laraNonSingular2SpecialPolarNodal(pcLara._1._2, I)
+    //val spnSppc = laraNonSingular2SpecialPolarNodal(pcLara._1._2, I)
     val spnLppc = laraNonSingular2SpecialPolarNodal(pcLara._2._1, I)
     
     // final state in Polar Nodal coordinates at time t and with cosI instead of I    
-    (finalPolarNodalt, (finalPolarNodalt, spnSppc), (spnLppc,pcLara._2._2))
+    (finalPolarNodalt, spnLppc)
   }
 
   // this method uses Special Polar Nodal Variables useful for comparing with 
@@ -57,7 +57,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val `e²` = e*e
     val N : F = sqrt(1 - `e²`) / (n nroot 3) * cos(I)
     
-    val unscaledCartesian = laraNonSingular2Cartesian(pcLara._1._1, N)
+    val unscaledCartesian = laraNonSingular2Cartesian(pcLara._1, N)
     val finalCartesian = scale2CartesianElems(unscaledCartesian)
     // final Cartesian coordinates at time t     
     finalCartesian

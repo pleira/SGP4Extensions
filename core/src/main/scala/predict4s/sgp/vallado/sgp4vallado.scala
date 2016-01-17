@@ -27,11 +27,11 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
   val aycof = - `J3/J2` * sinI0 / 2
   
   override def periodicCorrections(secularElemt : SGPElems[F])
-      :  (FinalState, ShortPeriodState, LongPeriodState) = {
+      :  (SpecialPolarNodal[F], SpecialPolarNodal[F]) = {
     val lppSPNContext = lppCorrections(secularElemt)
     val sppPolarNodalContext = sppCorrections(lppSPNContext)
     val finalPNState = sppPolarNodalContext._1
-    (finalPNState, sppPolarNodalContext, lppSPNContext)
+    (finalPNState, lppSPNContext._1)
   }
   
 }

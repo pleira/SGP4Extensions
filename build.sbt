@@ -49,7 +49,7 @@ lazy val tests = crossProject.crossType(CrossType.Pure).in(file("tests"))
 lazy val reports = project.in(file("reports"))
   .settings(name := "sgp4s_11-reports")
   .settings(commonSettings:_*)
-  .dependsOn(coreJVM,testsJVM)
+  .dependsOn(coreJVM,testsJVM  % "compile->compile;test->test")
   .settings(libraryDependencies +=
     "com.github.pathikrit" %% "better-files" % "2.14.0") 
   .settings(noPublish: _*)

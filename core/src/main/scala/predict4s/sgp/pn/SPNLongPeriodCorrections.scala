@@ -17,8 +17,8 @@ trait SPNLongPeriodCorrections[F] extends SimpleKeplerEq {
       : (SpecialPolarNodal[F], LongPeriodContext[F]) = {
     // long period corrections in SpecialPolarNodal coordinates
     val eaState = solveKeplerEq(secularElemt)
-    val pnSecularContext = sgpelems2SpecialPolarNodal(eaState, secularElemt, wgs)
-    lppCorrections(pnSecularContext, secularElemt)
+    val spnSecularContext = sgpelems2SpecialPolarNodal(eaState, secularElemt, wgs)
+    lppCorrections(spnSecularContext, secularElemt)
   }
    
   def lppCorrections(spn: (SpecialPolarNodal[F], AuxVariables[F]), secElemt: SGPElems[F])(implicit ev: Field[F], nr: NRoot[F], trig: Trig[F])
@@ -36,6 +36,39 @@ trait SPNLongPeriodCorrections[F] extends SimpleKeplerEq {
     val δΩ = ϵ3 * c/s * (κ*cosθ + σ * sinθ) 
     val δR = ϵ3 * `Θ/r` * (1+κ) * s * cosθ
     val δΘ = ϵ3 * Θ * s * (κ*sinθ - σ * cosθ)
+    val rl = r+δr
+    val Rl = R+δR
+    val Θl = Θ+δΘ // angular momentum
+    val θl = θ+δθ 
+    val Ωl = Ω-δΩ
+    // recalculate the "state" variables here
+    val sin2θ = sin(2*θl) // 2 * cos(θl) * sin(θl)
+    val cos2θ = cos(2*θl) // 1 - 2 * sin(θl) * sin(θl)
+    // val a = rl /(1 - ecosE) 
+    val pl = Θl*Θl // MU=1
+    val κl = pl/rl - 1
+    val σl = pl*Rl/Θl
+    val `el²` = κl*κl + σl*σl
+    val βl = sqrt(1 - `el²`)
+    (SpecialPolarNodal(I, θl, Ωl, rl, Rl, Θl/rl), LongPeriodContext(`el²`, pl, βl, sin2θ, cos2θ, n))
+  }
+  
+  def lppCorrectionsAlt(spn: (SpecialPolarNodal[F], AuxVariables[F]), secElemt: SGPElems[F])(implicit ev: Field[F], nr: NRoot[F], trig: Trig[F])
+       : (SpecialPolarNodal[F], LongPeriodContext[F]) = {
+    import spn._1._,spn._2.{p,s,c},wgs.{KE,`J3/J2`,twopi}, secElemt.n
+    //(s: F, c: F, p: F, κ: F, σ: F, n: F, β: F, sin2f: F, cos2f: F)
+    val ϵ3 = `J3/J2`/p/2 // ϵ3 = 1/2 aE/p C30/C20 in Lara's
+    val σ = p*R/Θ
+    val κ = p/r - 1
+    val sinθ = sin(θ)
+    val cosθ = cos(θ)
+    val ξ = s * sinθ
+    val χ = s * cosθ 
+    val δθ = ϵ3 * ( (2*s + κ/s)*cosθ + (1/s - s)* σ * sinθ)
+    val δΩ = ϵ3 * c/s * (κ*cosθ + σ * sinθ) 
+    val δr = ϵ3 * p * ξ
+    val δR = ϵ3 * `Θ/r` * (1+κ) * χ
+    val δΘ = ϵ3 * Θ * (κ*ξ - σ*χ)
     val rl = r+δr
     val Rl = R+δR
     val Θl = Θ+δΘ // angular momentum

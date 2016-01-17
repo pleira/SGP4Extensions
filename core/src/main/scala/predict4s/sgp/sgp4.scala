@@ -24,10 +24,10 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
     ) {
  
   type Minutes = F // type to remember dealing with minutes from epoch
-  type FinalState = SpecialPolarNodal[F]
-  type ShortPeriodCorrections = SpecialPolarNodal[F]
-  type ShortPeriodState = (SpecialPolarNodal[F], ShortPeriodCorrections) // final values, corrections ShortPeriodPolarNodalContext
-  type LongPeriodState = (SpecialPolarNodal[F], LongPeriodContext[F]) // final values, context variables
+  //type FinalState = SpecialPolarNodal[F]
+  //type ShortPeriodCorrections = SpecialPolarNodal[F]
+  //type ShortPeriodState = (SpecialPolarNodal[F], ShortPeriodCorrections) // final values, corrections ShortPeriodPolarNodalContext
+  //type LongPeriodState = SpecialPolarNodal[F]
 
   def propagate(t: Minutes)  = propagate2CartesianContext(t)
 
@@ -44,10 +44,10 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
 //  }
   
   def propagate2CartesianContext(t: Minutes) = {
-    val ((finalPolarNodal, sppState, lppState), secularElemt) = propagate2PolarNodalContext(t)
+    val ((finalPolarNodal, lppState), secularElemt) = propagate2PolarNodalContext(t)
     val uPV = polarNodal2UnitCartesian(finalPolarNodal)
     val posVel = scale2CartesianElems(uPV, finalPolarNodal)
-    (posVel, uPV, finalPolarNodal, sppState, lppState)    
+    (posVel, uPV, finalPolarNodal, lppState)    
   }
    
 //  def propagate2Cartesian(t: Minutes) : CartesianElems[F] = {  
@@ -61,7 +61,7 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
   def secularCorrections(t: Minutes): SGPElems[F] = sec.secularCorrections(t)  
   
   def periodicCorrections(secularElemt : SGPElems[F])
-      :  (FinalState, ShortPeriodState, LongPeriodState) 
+      :  (SpecialPolarNodal[F], SpecialPolarNodal[F]) 
   
 //  def lppCorrections(secularElemt : SGPElems[F]) : LongPeriodState[F]
 //  def sppCorrections(lppSPNContext : LongPeriodState[F]) : ShortPeriodState[F]  
