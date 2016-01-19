@@ -57,7 +57,7 @@ val checkIntl5 = (ini : Initl[F]) => { implicit equ: Equality[F] =>
   //   in/out : 
   assert(     no  ===     0.047206302 ); 
   //   outputs : 
-  assert(   ainv  ===     0.738607085 ); assert(     ao  ===     1.353899821 ); assert(  con41  ===     1.048865088 ); assert(  con42  ===    -2.414775147 ); assert(  cosio  ===     0.826410932 ); 
+  assert(   ainv  ===     0.738607085 ); assert(     ao  ===     1.353899821 ); assert(  con41  ===     1.048865088 ); assert(  cosio  ===     0.826410932 ); 
   assert( cosio2  ===     0.682955029 ); 
 /*  assert(  einx   ===     0.034583614 ); */ assert(  eccsq  ===     0.034583614 ); assert(  omeosq ===     0.965416386 ); assert(   posq  ===     1.708450473 ); assert(     rp  ===     1.102119539 ); assert(  rteosq ===     0.982556048 ); 
   assert(  sinio  ===     0.563067465 ); assert(   gsto  ===     3.469172342 ); 
@@ -145,7 +145,7 @@ val checkIntl28057 = (ini : Initl[F]) => { implicit equ: Equality[F] =>
  //   in/out : 
   assert(     no  ===     0.062672399 ); 
  //   outputs : 
-    assert(   ainv  ===     0.892204404 ); assert(     ao  ===     1.120819394 ); assert(  con41  ===    -0.935550263 ); assert(  con42  ===     0.892583771 ); assert(  cosio  ===    -0.146571640 ); 
+    assert(   ainv  ===     0.892204404 ); assert(     ao  ===     1.120819394 ); assert(  con41  ===    -0.935550263 );  assert(  cosio  ===    -0.146571640 ); 
   assert( cosio2  ===     0.021483246 ); 
 /*  assert(  einx   ===     0.000000008 ); */ assert(  eccsq  ===     0.000000008 ); assert(  omeosq ===     0.999999992 ); assert(   posq  ===     1.256236095 ); assert(     rp  ===     1.120720314 ); assert(  rteosq ===     0.999999996 ); 
   assert(  sinio  ===     0.989200058 ); assert(   gsto  ===     3.451783622 ); 

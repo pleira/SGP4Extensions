@@ -17,11 +17,12 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
   import ctx0._,wgs.`J3/J2`
 
   // sgp4fix for divide by zero with I = 180 deg, // FIXME: not valid for deep space
+  // sinI0 = s; cosI0 = c
   val xlcof  : F  =  
-      if (abs(θ+1) > 1.5e-12.as[F]) 
-        - `J3/J2` * sinI0 * (3 + 5*θ) / (1 + θ) / 4
+      if (abs(c+1) > 1.5e-12.as[F]) 
+        - `J3/J2` * s * (3 + 5*c) / (1 + θ) / 4
       else
-        - `J3/J2` * sinI0 * (3 + 5*θ) / 1.5e-12 / 4
+        - `J3/J2` * s * (3 + 5*c) / 1.5e-12 / 4
   
 
   val aycof = - `J3/J2` * sinI0 / 2
@@ -29,8 +30,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
   override def periodicCorrections(secularElemt : SGPElems[F])
       :  (SpecialPolarNodal[F], SpecialPolarNodal[F]) = {
     val lppSPNContext = lppCorrections(secularElemt)
-    val sppPolarNodalContext = sppCorrections(lppSPNContext)
-    val finalPNState = sppPolarNodalContext._1
+    val finalPNState = sppCorrections(lppSPNContext)
     (finalPNState, lppSPNContext._1)
   }
   

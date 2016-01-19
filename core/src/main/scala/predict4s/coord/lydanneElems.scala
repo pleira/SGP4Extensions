@@ -7,12 +7,12 @@ import scala.{ specialized => spec }
 import spire.syntax.primitives._
   
 // n: mean motion, I: inclination, a: semimajor axis, Ω: ascending node argument
-case class LyddaneElems[F](n: F, I: F, a: F, Ω: F, ecosω: F, aynl: F, xl: F) {
+case class LyddaneElems[F](I: F, a: F, Ω: F, ecosω: F, aynl: F, xl: F) {
   def `C´` = axnl; def `S´` = aynl ; def `F´` = xl; def axnl = ecosω
 }
 
 
-case class LongPeriodContext[F](`el²`: F, pl: F, βl: F, sin2θ: F, cos2θ: F, n: F)
+case class LongPeriodContext[F](`el²`: F, pl: F, `√pl`: F, βl: F, sin2θ: F, cos2θ: F)
 
 object LyddaneConversions {
   
@@ -30,21 +30,21 @@ object LyddaneConversions {
     val `el²` =  `C´`* `C´` + `S´`*`S´` 
     val pl = a*(1 - `el²`)  // semilatus rectum , as MU=1, p=Z²
     if (pl < 0.as[F]) throw new Exception("pl: " + pl)
-      
+    val `√pl`  = sqrt(pl)
     val rl     = a * (1 - ecosU)          // r´        
     val rdotl  = sqrt(a) * esinU/rl       // R´
-    val rvdotl = sqrt(pl) / rl            // Θ’/r’ that is Θ/r 
+    val rvdotl = `√pl` / rl            // Θ’/r’ that is Θ/r 
     val βl     = sqrt(1 - `el²`)          // y’
-    val temp0  = esinU / (1 + βl)         
+    val `esinU/(1+βl)` = esinU / (1 + βl)         
      
     // θ is the argument of the latitude measured from the ascending node
-    val sinθ = a / rl * (sinU - `S´` - `C´` * temp0)
-    val cosθ = a / rl * (cosU - `C´` + `S´` * temp0)
+    val sinθ = a / rl * (sinU - `S´` - `C´` * `esinU/(1+βl)`)
+    val cosθ = a / rl * (cosU - `C´` + `S´` * `esinU/(1+βl)`)
     val θ = atan2(sinθ, cosθ)
     val sin2θ = 2 * cosθ * sinθ
     val cos2θ = 1 - 2 * sinθ * sinθ
 
-    (SpecialPolarNodal(I, θ, Ω, rl, rdotl, rvdotl), LongPeriodContext(`el²`, pl, βl, sin2θ, cos2θ, n)) 
+    (SpecialPolarNodal(I, θ, Ω, rl, rdotl, rvdotl), LongPeriodContext(`el²`, pl, `√pl`, βl, sin2θ, cos2θ)) 
   }    
   
 }

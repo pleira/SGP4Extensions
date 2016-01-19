@@ -11,6 +11,8 @@ import predict4s.coord.LaraConversions._
 import predict4s.coord.SGPElemsConversions._
 import predict4s.coord.{SGPElems,AnomalyState}
 
+case class LaraLongPeriodContext[F](`el²`: F, pl: F, βl: F, sin2θ: F, cos2θ: F, n: F)
+
 trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
   
   val wgs : SGPConstants[F]
@@ -18,7 +20,7 @@ trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
   
   // this method uses Lara's Non Singular variables useful for the calculation of the corrections
   def periodicCorrectionsNative(secularElemt : SGPElems[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
-      : (LaraNonSingular[F], (LaraNonSingular[F], LongPeriodContext[F])) = {
+      : (LaraNonSingular[F], (LaraNonSingular[F], LaraLongPeriodContext[F])) = {
       
     val eaState = solveKeplerEq(secularElemt)
     // TODO: check note from 4 Jan 2016
@@ -26,14 +28,13 @@ trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
     
     // secular state at time t in Lara Non Singular variables
     val sect = specialPolarNodal2LaraNonSingular(spnSecularContext)    
-    val lppt = lppCorrections(sect, spnSecularContext._2)
-    
+    val lppt = lppCorrections(sect, spnSecularContext._2)   
     val sppt = sppCorrections(lppt)
     (sppt, lppt)
   }
     
   def lppCorrectionsOld(lnSingular: LaraNonSingular[F], aux: AuxVariables[F])(implicit ev: Field[F])
-      : (LaraNonSingular[F],LongPeriodContext[F]) = {
+      : (LaraNonSingular[F], LaraLongPeriodContext[F]) = {
     import lnSingular._,wgs.`J3/J2`
     import aux.p
     //import sec.ctx0._
@@ -52,12 +53,12 @@ trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
     val Rl = R+δR
     val rl = r+δr
     val pl = Θl*Θl // MU=1
-    (LaraNonSingular(ψ+δψ,ξ+δξ,χ+δχ,rl,Rl,Θl), LongPeriodContext(0.as[F], pl, 0.as[F], 0.as[F], 0.as[F], 0.as[F]))
+    (LaraNonSingular(ψ+δψ,ξ+δξ,χ+δχ,rl,Rl,Θl), LaraLongPeriodContext(0.as[F], pl, 0.as[F], 0.as[F], 0.as[F], 0.as[F]))
   }
     
   // This implementation includes more terms with respect lppCorrectionsOld
   def lppCorrections(lnSingular: LaraNonSingular[F], aux: AuxVariables[F])(implicit ev: Field[F])
-      : (LaraNonSingular[F],LongPeriodContext[F]) = {
+      : (LaraNonSingular[F], LaraLongPeriodContext[F]) = {
     import lnSingular._,wgs.`J3/J2`
     import aux.{p,σ,κ,c,s}
 
@@ -79,10 +80,10 @@ trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
     val Rl = R+δR
     val rl = r+δr
     val pl = Θl*Θl // MU=1
-    (LaraNonSingular(ψ+δψ,ξ+δξ,χ+δχ,rl,Rl,Θl), LongPeriodContext(0.as[F], pl, 0.as[F], 0.as[F], 0.as[F], 0.as[F]))
+    (LaraNonSingular(ψ+δψ,ξ+δξ,χ+δχ,rl,Rl,Θl), LaraLongPeriodContext(0.as[F], pl, 0.as[F], 0.as[F], 0.as[F], 0.as[F]))
   }
   
-  def sppCorrections(lppState: (LaraNonSingular[F], LongPeriodContext[F]))(implicit ev: Field[F]) 
+  def sppCorrections(lppState: (LaraNonSingular[F], LaraLongPeriodContext[F]))(implicit ev: Field[F]) 
     : LaraNonSingular[F] = {
     import lppState.{_1=>lns,_2=>lctx}
     import wgs.J2, ctx0.{c,s},lctx.{pl=>p}, lns._

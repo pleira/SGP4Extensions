@@ -20,7 +20,7 @@ trait LyddaneExtraLongPeriodCorrections[T] extends TwoTermsKeplerEq {
     val lylppState = lylppCorrections(secularElemt)
     // To transform to Special Polar Nodals, get the eccentric anomaly
     val eaState = solveKeplerEq(lylppState)
-    lyddane2SpecialPolarNodal(eaState, lylppState)
+    LyddaneConversions.lyddane2SpecialPolarNodal(eaState, lylppState)
   }
   
   def lylppCorrections(secularElem : SGPElems[T])(implicit ev: Field[T], trig: Trig[T], or: Order[T], nr: NRoot[T]) : LyddaneElems[T] = {
@@ -53,38 +53,7 @@ trait LyddaneExtraLongPeriodCorrections[T] extends TwoTermsKeplerEq {
     val Il = I +  ϵ3* esinω * c  
     
     //LyddaneLongPeriodPeriodicState(n, I, a, Ω, ecosω, aynl, F)
-    LyddaneElems(n, Il, a, h, C, S, F)
+    LyddaneElems(Il, a, h, C, S, F)
   }
-  
-  def lyddane2SpecialPolarNodal(eaState: AnomalyState[T], lylppState: LyddaneElems[T]) 
-      (implicit ev: Field[T], trig: Trig[T], or: Order[T], nr: NRoot[T]) 
-      : (SpecialPolarNodal[T], LongPeriodContext[T]) = {
-    import eaState._ 
-    import lylppState._
-
-    // It follows the usual transformation to polar-nodal variables
-    // (r, θ, R, Θ) −→ (F, C, S, a)  with C' = e'cosg and  S' = e'sing
-    // Note: Vallado's SGP4 uses rθdot = Θ/r instead of Θ
-    // Note: the U here has the relation U = E + ω with E the eccentric anomaly
-    
-    val `el²` =  `C´`* `C´` + `S´`*`S´` 
-    val pl = a*(1 - `el²`)  // semilatus rectum , as MU=1, p=Z²
-    if (pl < 0.as[T]) throw new Exception("pl: " + pl)
-      
-    val rl     = a * (1 - ecosU)          // r´        
-    val rdotl  = sqrt(a) * esinU/rl       // R´
-    val rvdotl = sqrt(pl) / rl            // Θ’/r’ that is Θ/r 
-    val βl     = sqrt(1 - `el²`)          // y’
-    val temp0  = esinU / (1 + βl)         
-     
-    // θ is the argument of the latitude measured from the ascending node
-    val sinθ = a / rl * (sinU - `S´` - `C´` * temp0)
-    val cosθ = a / rl * (cosU - `C´` + `S´` * temp0)
-    val θ = atan2(sinθ, cosθ)
-    val sin2θ = 2 * cosθ * sinθ
-    val cos2θ = 1 - 2 * sinθ * sinθ
-
-    (SpecialPolarNodal(I, θ, Ω, rl, rdotl, rvdotl), LongPeriodContext(`el²`, pl, βl, sin2θ, cos2θ, n)) 
-  }    
   
 }

@@ -39,10 +39,10 @@ case class Context0[F: Field: NRoot : Trig](
 // FIXME  val η : F = β0  // (1 - `e²`).sqrt           // eccentricity function G/L, with G as the Delauney's action, the total angular momentum , and L = √(μ a)
 //  val x3thm1     = 3*`c²` - 1
   def con41 = `3c²-1` // depends on the inclination 
-  val `1-5c²` = 1 - 5*`c²`
+//  val `1-5c²` = 1 - 5*`c²`
   val x1mth2 = 1 - `c²`
   val x7thm1 = 7*`c²` - 1   
   val x3thm1     = `3c²-1`   
   val `1-c²`   = 1 - `c²`
-  val `7c²-1`  = 7*`c²` - 1   
+//  val `7c²-1`  = 7*`c²` - 1   
 }

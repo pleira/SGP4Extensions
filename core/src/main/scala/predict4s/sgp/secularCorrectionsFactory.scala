@@ -73,7 +73,7 @@ object Factory2ndOrderSecularCorrectionsTerms extends GeoPotentialAndAtmosphere2
         SecularFrequencies(// derivative of M 
           n0 - `3n0ϵ2` * β0 * (`3c²-1` - ϵ2 * (13 - 78 * `c²` + 137 * `c⁴`) / 4),
         // derivative of the perigee argument
-        `3n0ϵ2` * (`1-5c²` + ϵ2*(7 - 114*`c²` + 395*`c⁴`)/4) + temp3*(3 - 36*`c²` + 49*`c⁴`),
+        `3n0ϵ2` * (1 - 5*`c²` + ϵ2*(7 - 114*`c²` + 395*`c⁴`)/4) + temp3*(3 - 36*`c²` + 49*`c⁴`),
         // derivative of the raan
         //(2* `3n0ϵ2` * (1 + (ϵ2*(4 - 19*`c²`)) + 2*temp3 * (3 - 7*`c²`)))*c
         hdot + ϵ2*hdot* (4 - 19*`c²`) + 2*temp3*c* (3 - 7*`c²`)

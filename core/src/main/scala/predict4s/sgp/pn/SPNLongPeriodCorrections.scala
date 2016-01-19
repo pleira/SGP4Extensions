@@ -18,12 +18,12 @@ trait SPNLongPeriodCorrections[F] extends SimpleKeplerEq {
     // long period corrections in SpecialPolarNodal coordinates
     val eaState = solveKeplerEq(secularElemt)
     val spnSecularContext = sgpelems2SpecialPolarNodal(eaState, secularElemt, wgs)
-    lppCorrections(spnSecularContext, secularElemt)
+    lppCorrections(spnSecularContext)
   }
    
-  def lppCorrections(spn: (SpecialPolarNodal[F], AuxVariables[F]), secElemt: SGPElems[F])(implicit ev: Field[F], nr: NRoot[F], trig: Trig[F])
+  def lppCorrections(spn: (SpecialPolarNodal[F], AuxVariables[F]))(implicit ev: Field[F], nr: NRoot[F], trig: Trig[F])
        : (SpecialPolarNodal[F], LongPeriodContext[F]) = {
-    import spn._1._,spn._2.{p,s,c},wgs.{KE,`J3/J2`,twopi}, secElemt.n
+    import spn._1._,spn._2.{p,s,c},wgs.{KE,`J3/J2`,twopi}
     //(s: F, c: F, p: F, κ: F, σ: F, n: F, β: F, sin2f: F, cos2f: F)
     val ϵ3 = `J3/J2`/p/2 // ϵ3 = 1/2 aE/p C30/C20 in Lara's
     
@@ -50,12 +50,12 @@ trait SPNLongPeriodCorrections[F] extends SimpleKeplerEq {
     val σl = pl*Rl/Θl
     val `el²` = κl*κl + σl*σl
     val βl = sqrt(1 - `el²`)
-    (SpecialPolarNodal(I, θl, Ωl, rl, Rl, Θl/rl), LongPeriodContext(`el²`, pl, βl, sin2θ, cos2θ, n))
+    (SpecialPolarNodal(I, θl, Ωl, rl, Rl, Θl/rl), LongPeriodContext(`el²`, pl, sqrt(pl), βl, sin2θ, cos2θ))
   }
   
-  def lppCorrectionsAlt(spn: (SpecialPolarNodal[F], AuxVariables[F]), secElemt: SGPElems[F])(implicit ev: Field[F], nr: NRoot[F], trig: Trig[F])
+  def lppCorrectionsAlt(spn: (SpecialPolarNodal[F], AuxVariables[F]))(implicit ev: Field[F], nr: NRoot[F], trig: Trig[F])
        : (SpecialPolarNodal[F], LongPeriodContext[F]) = {
-    import spn._1._,spn._2.{p,s,c},wgs.{KE,`J3/J2`,twopi}, secElemt.n
+    import spn._1._,spn._2.{p,s,c},wgs.{KE,`J3/J2`,twopi}
     //(s: F, c: F, p: F, κ: F, σ: F, n: F, β: F, sin2f: F, cos2f: F)
     val ϵ3 = `J3/J2`/p/2 // ϵ3 = 1/2 aE/p C30/C20 in Lara's
     val σ = p*R/Θ
@@ -83,7 +83,7 @@ trait SPNLongPeriodCorrections[F] extends SimpleKeplerEq {
     val σl = pl*Rl/Θl
     val `el²` = κl*κl + σl*σl
     val βl = sqrt(1 - `el²`)
-    (SpecialPolarNodal(I, θl, Ωl, rl, Rl, Θl/rl), LongPeriodContext(`el²`, pl, βl, sin2θ, cos2θ, n))
+    (SpecialPolarNodal(I, θl, Ωl, rl, Rl, Θl/rl), LongPeriodContext(`el²`, pl, sqrt(pl), βl, sin2θ, cos2θ))
   }
   
 }

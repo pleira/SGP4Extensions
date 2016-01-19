@@ -20,7 +20,7 @@ class SGP4ValladoLong[F : Field : NRoot : Order : Trig](
       :  (SpecialPolarNodal[F], SpecialPolarNodal[F]) = {
     val lppSPNContext = lppCorrections(secularElemt)
     val finalPNState = sppCorrections(lppSPNContext)
-    (finalPNState._1, lppSPNContext._1)
+    (finalPNState, lppSPNContext._1)
   }
   
 }

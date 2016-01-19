@@ -26,8 +26,8 @@ trait LyddaneLongPeriodCorrections[F] extends TwoTermsKeplerEq {
     lyddane2SpecialPolarNodal(eaState, lylppState)
   }
   
-  def lylppCorrections(secularElem : SGPElems[F])(implicit ev: Field[F], trig: Trig[F], nr: NRoot[F]) : LyddaneElems[F] = {
-    import secularElem._
+  def lylppCorrections(secularElemt : SGPElems[F])(implicit ev: Field[F], trig: Trig[F], nr: NRoot[F]) : LyddaneElems[F] = {
+    import secularElemt._
     
     // Brouwer long-period gravitational corrections are reformulated in Lyddane’s (F,S,C,a,h,I).
     // At the precision of SGP4, there are only corrections for F and S.
@@ -47,7 +47,7 @@ trait LyddaneLongPeriodCorrections[F] extends TwoTermsKeplerEq {
     
     // no more corrections, that is, L’= L",  I’= I", h’= h"
     
-    LyddaneElems(n, I, a, Ω, ecosω, aynl, xl)
+    LyddaneElems(I, a, Ω, ecosω, aynl, xl)
   }
   
 }
