@@ -9,14 +9,14 @@ import predict4s.coord._
 trait ShortPeriodPolarNodalCorrections[F] {
   
   val wgs: SGPConstants[F]
-  val ctx0: Context0[F]
+  val ictx: InclinationCtx[F]
   
   def sppCorrections(lppState: (SpecialPolarNodal[F], LongPeriodContext[F]))
     (implicit ev: Field[F], trig: Trig[F], ro: NRoot[F] ): SpecialPolarNodal[F] = {
     import lppState.{_1 => lppPN,_2 => lppc}
     import lppPN.r,lppc.{pl,βl,`√pl`,cos2θ,sin2θ}
     import wgs.J2
-    import ctx0.{c,s,`c²`,`s²`}
+    import ictx.{c,s,`c²`,`s²`}
 
     val `3c²-1` = 3*`c²`-1
     val `βl³/√pl` = βl*βl*βl/`√pl`

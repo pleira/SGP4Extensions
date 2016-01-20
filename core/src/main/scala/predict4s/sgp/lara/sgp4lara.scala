@@ -17,7 +17,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   ) extends SGP4(sec) with LaraFirstOrderCorrections[F] {
  
   val wgs = sec.wgs
-  val ctx0 = sec.ctx0
+  val inclCtx = sec.inclCtx
     
   // this method uses Special Polar Nodal Variables useful for comparing with 
   // other algorithms

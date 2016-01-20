@@ -63,10 +63,6 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
   def periodicCorrections(secularElemt : SGPElems[F])
       :  (SpecialPolarNodal[F], SpecialPolarNodal[F]) 
   
-//  def lppCorrections(secularElemt : SGPElems[F]) : LongPeriodState[F]
-//  def sppCorrections(lppSPNContext : LongPeriodState[F]) : ShortPeriodState[F]  
-  
-  
   /**
    * Vallado's code works with internal units of length LU (units of earth’s radius  
    * R⊕ in km) and time TU (units of the orbit’s period in min) 

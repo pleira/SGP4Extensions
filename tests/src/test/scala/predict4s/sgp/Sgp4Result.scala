@@ -12,7 +12,6 @@ trait Sgp4Result[F] extends Sgp4Near[F] {
   
   def  ainv  : F    
   def    ao  : F    
-  def con41  : F    
   def cosio  : F    
   def cosio2 : F    
   def eccsq  : F     

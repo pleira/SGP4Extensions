@@ -13,8 +13,7 @@ class SGP4ValladoLong[F : Field : NRoot : Order : Trig](
   ) extends SGP4(sec) with LyddaneExtraLongPeriodCorrections[F] with ShortPeriodPolarNodalCorrections[F] {
  
   val wgs = sec.wgs
-  val ctx0 = sec.ctx0
-  import ctx0._,wgs.`J3/J2`
+  val ictx = sec.inclCtx
   
   override def periodicCorrections(secularElemt : SGPElems[F])
       :  (SpecialPolarNodal[F], SpecialPolarNodal[F]) = {
@@ -22,7 +21,7 @@ class SGP4ValladoLong[F : Field : NRoot : Order : Trig](
     val finalPNState = sppCorrections(lppSPNContext)
     (finalPNState, lppSPNContext._1)
   }
-  
+    
 }
 
 object SGP4ValladoLong  {

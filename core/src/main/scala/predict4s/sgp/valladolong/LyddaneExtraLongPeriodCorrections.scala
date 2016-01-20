@@ -12,7 +12,7 @@ import predict4s.coord.LyddaneElems
 trait LyddaneExtraLongPeriodCorrections[T] extends TwoTermsKeplerEq {
    
   val wgs: SGPConstants[T]
-  val ctx0: Context0[T]
+  val ictx: InclinationCtx[T]
   
   def lppCorrections(secularElemt : SGPElems[T])(implicit ev: Field[T], trig: Trig[T], or: Order[T], nr: NRoot[T]) 
       : (SpecialPolarNodal[T], LongPeriodContext[T]) = {
@@ -24,7 +24,7 @@ trait LyddaneExtraLongPeriodCorrections[T] extends TwoTermsKeplerEq {
   }
   
   def lylppCorrections(secularElem : SGPElems[T])(implicit ev: Field[T], trig: Trig[T], or: Order[T], nr: NRoot[T]) : LyddaneElems[T] = {
-    import secularElem._,wgs.`J3/J2`,ctx0.{c,s}
+    import secularElem._,wgs.`J3/J2`,ictx.{c,s}
     
     val `η²` = (1 - e*e)
     val η = sqrt(`η²`)

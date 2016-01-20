@@ -13,19 +13,8 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
   ) extends SGP4(sec) with LyddaneLongPeriodCorrections[F] with ShortPeriodPolarNodalCorrections[F] {
  
   val wgs = sec.wgs
-  val ctx0 = sec.ctx0
-  import ctx0._,wgs.`J3/J2`
+  val ictx = sec.inclCtx
 
-  // sgp4fix for divide by zero with I = 180 deg, // FIXME: not valid for deep space
-  // sinI0 = s; cosI0 = c
-  val xlcof  : F  =  
-      if (abs(c+1) > 1.5e-12.as[F]) 
-        - `J3/J2` * s * (3 + 5*c) / (1 + θ) / 4
-      else
-        - `J3/J2` * s * (3 + 5*c) / 1.5e-12 / 4
-  
-
-  val aycof = - `J3/J2` * sinI0 / 2
   
   override def periodicCorrections(secularElemt : SGPElems[F])
       :  (SpecialPolarNodal[F], SpecialPolarNodal[F]) = {

@@ -5,10 +5,12 @@ import spire.math._
 import spire.implicits._
 import spire.syntax.primitives._
 
+case class InclinationCtx[F](c : F, `c²` : F, s : F,`s²` : F)
+
 // This initial context is produced when transforming a TLE into SGPElems
 // so that certain variables are not calculated again.
 case class Context0[F: Field: NRoot : Trig](
-    a0: F, `e²`: F,s: F,c: F,`c²`: F, `3c²-1`: F,β0: F,`β0²`: F,`β0³`: F, private val wgs: SGPConstants[F]) {
+    a0: F, `e²`: F,s: F,c: F,`c²`: F, `3c²-1`: F,β0: F,`β0²`: F,`β0³`: F) {
 
   def cosI0      = c 
   def `cos²I0`   = `c²`
@@ -42,7 +44,8 @@ case class Context0[F: Field: NRoot : Trig](
 //  val `1-5c²` = 1 - 5*`c²`
   val x1mth2 = 1 - `c²`
   val x7thm1 = 7*`c²` - 1   
-  val x3thm1     = `3c²-1`   
+  //val x3thm1     = `3c²-1`   
   val `1-c²`   = 1 - `c²`
 //  val `7c²-1`  = 7*`c²` - 1   
+  def inclinationCtx : InclinationCtx[F] = InclinationCtx(c,`c²`,s,`s²`)
 }

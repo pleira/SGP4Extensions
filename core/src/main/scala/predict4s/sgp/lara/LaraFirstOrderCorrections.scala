@@ -16,7 +16,7 @@ case class LaraLongPeriodContext[F](`el²`: F, pl: F, βl: F, sin2θ: F, cos2θ:
 trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
   
   val wgs : SGPConstants[F]
-  val ctx0: Context0[F]
+  val inclCtx: InclinationCtx[F]
   
   // this method uses Lara's Non Singular variables useful for the calculation of the corrections
   def periodicCorrectionsNative(secularElemt : SGPElems[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
@@ -86,9 +86,8 @@ trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
   def sppCorrections(lppState: (LaraNonSingular[F], LaraLongPeriodContext[F]))(implicit ev: Field[F]) 
     : LaraNonSingular[F] = {
     import lppState.{_1=>lns,_2=>lctx}
-    import wgs.J2, ctx0.{c,s},lctx.{pl=>p}, lns._
-    val `c²` = c*c
-    val ϵ2 = -J2/ (p*p) / 4
+    import wgs.J2, inclCtx.{c,`c²`,s},lctx.{pl=>p}, lns._
+    val ϵ2 = -J2/p/p/4
     
     val `χ²` = χ*χ
     val `ξ²` = ξ*ξ

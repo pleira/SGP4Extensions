@@ -15,7 +15,7 @@ class SGP4PN[F : Field : NRoot : Order : Trig](
   ) extends SGP4(sec) with SPNLongPeriodCorrections[F] with ShortPeriodPolarNodalCorrections[F] {
  
   val wgs = sec.wgs
-  val ctx0 = sec.ctx0   
+  val ictx = sec.inclCtx   
  
   override def periodicCorrections(secularElemt : SGPElems[F])
       :  (SpecialPolarNodal[F], SpecialPolarNodal[F]) = {

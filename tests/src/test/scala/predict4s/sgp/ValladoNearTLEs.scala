@@ -57,7 +57,7 @@ val checkIntl5 = (ini : Initl[F]) => { implicit equ: Equality[F] =>
   //   in/out : 
   assert(     no  ===     0.047206302 ); 
   //   outputs : 
-  assert(   ainv  ===     0.738607085 ); assert(     ao  ===     1.353899821 ); assert(  con41  ===     1.048865088 ); assert(  cosio  ===     0.826410932 ); 
+  assert(   ainv  ===     0.738607085 ); assert(     ao  ===     1.353899821 ); assert(  cosio  ===     0.826410932 ); 
   assert( cosio2  ===     0.682955029 ); 
 /*  assert(  einx   ===     0.034583614 ); */ assert(  eccsq  ===     0.034583614 ); assert(  omeosq ===     0.965416386 ); assert(   posq  ===     1.708450473 ); assert(     rp  ===     1.102119539 ); assert(  rteosq ===     0.982556048 ); 
   assert(  sinio  ===     0.563067465 ); assert(   gsto  ===     3.469172342 ); 
@@ -84,7 +84,7 @@ assert(      t  ===     0.000000000); assert(  nodeo  ===     6.086385471 );
 val checkSgp4_5_0 = (res: Sgp4Result[F]) => { implicit equ: Equality[F] =>
  import res._
  //   inputs : 
- assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  bstar  ===     0.000028098 ); assert(  con41  ===     1.048865088 ); assert(    cc1  ===     0.000000000 ); 
+ assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  bstar  ===     0.000028098 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===     0.000000526 ); assert(    cc5  ===     0.000016465 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 );  
  assert(   ecco  ===     0.185966700 ); assert(    eta  ===     0.736909543 ); assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
  assert(      t  ===     0.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.317044971 ); 
@@ -96,7 +96,7 @@ val checkSgp4_5_0 = (res: Sgp4Result[F]) => { implicit equ: Equality[F] =>
 val checkSgp4_5_360 = (res: Sgp4Result[F]) => { implicit equ: Equality[F] =>
  import res._
  //   inputs : 
- assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  bstar  ===     0.000028098 ); assert(  con41  ===     1.048865088 ); assert(    cc1  ===     0.000000000 ); 
+ assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  bstar  ===     0.000028098 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===     0.000000526 ); assert(    cc5  ===     0.000016465 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 );  
  assert(   ecco  ===     0.185966700 ); assert(    eta  ===     0.736909543 ); assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
  assert(      t  ===   360.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.317044971 ); 
@@ -108,7 +108,7 @@ val checkSgp4_5_360 = (res: Sgp4Result[F]) => { implicit equ: Equality[F] =>
 val checkSgp4_5_720 = (res: Sgp4Result[F]) => { implicit equ: Equality[F] =>
  import res._
  //   inputs : 
- assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  bstar  ===     0.000028098 ); assert(  con41  ===     1.048865088 ); assert(    cc1  ===     0.000000000 ); 
+ assert(  isimp  ===               0 ); assert( method  ===             110 ); assert(  bstar  ===     0.000028098 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===     0.000000526 ); assert(    cc5  ===     0.000016465 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 );  
  assert(   ecco  ===     0.185966700 ); assert(    eta  ===     0.736909543 ); assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
  assert(      t  ===   720.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.317044971 ); 
@@ -145,7 +145,7 @@ val checkIntl28057 = (ini : Initl[F]) => { implicit equ: Equality[F] =>
  //   in/out : 
   assert(     no  ===     0.062672399 ); 
  //   outputs : 
-    assert(   ainv  ===     0.892204404 ); assert(     ao  ===     1.120819394 ); assert(  con41  ===    -0.935550263 );  assert(  cosio  ===    -0.146571640 ); 
+    assert(   ainv  ===     0.892204404 ); assert(     ao  ===     1.120819394 ); assert(  cosio  ===    -0.146571640 ); 
   assert( cosio2  ===     0.021483246 ); 
 /*  assert(  einx   ===     0.000000008 ); */ assert(  eccsq  ===     0.000000008 ); assert(  omeosq ===     0.999999992 ); assert(   posq  ===     1.256236095 ); assert(     rp  ===     1.120720314 ); assert(  rteosq ===     0.999999996 ); 
   assert(  sinio  ===     0.989200058 ); assert(   gsto  ===     3.451783622 ); 
@@ -174,7 +174,7 @@ val sgp4CheckSat5_720 = (res: Sgp4Result[F]) => { implicit equ: Equality[F] =>
  import res._
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); 
- assert(  bstar  ===     0.000028098 ); assert(  con41  ===     1.048865088 ); assert(    cc1  ===     0.000000000 ); 
+ assert(  bstar  ===     0.000028098 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===     0.000000526 ); assert(    cc5  ===     0.000016465 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 );  
  assert(   ecco  ===     0.185966700 ); assert(    eta  ===     0.736909543 ); assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
  assert(      t  ===   720.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.317044971 ); 
@@ -188,7 +188,7 @@ val sgp4CheckSat5_1080 = (res: Sgp4Result[F]) => { implicit equ: Equality[F] =>
  import res._
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); 
- assert(  bstar  ===     0.000028098 ); assert(  con41  ===     1.048865088 ); assert(    cc1  ===     0.000000000 ); 
+ assert(  bstar  ===     0.000028098 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===     0.000000526 ); assert(    cc5  ===     0.000016465 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 );  
  assert(   ecco  ===     0.185966700 ); assert(    eta  ===     0.736909543 ); assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
  assert(      t  ===  1080.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.317044971 ); 
@@ -215,7 +215,7 @@ val sgp4CheckSat5_1800 = (res: Sgp4Result[F]) => { implicit equ: Equality[F] =>
  import res._
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); 
- assert(  bstar  ===     0.000028098 ); assert(  con41  ===     1.048865088 ); assert(    cc1  ===     0.000000000 ); 
+ assert(  bstar  ===     0.000028098 ); assert(    cc1  ===     0.000000000 ); 
  assert(    cc4  ===     0.000000526 ); assert(    cc5  ===     0.000016465 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 );  
  assert(   ecco  ===     0.185966700 ); assert(    eta  ===     0.736909543 ); assert(  argpo  ===     5.790416027 ); assert( argpdot ===     0.000054293 ); assert(  omgcof ===     0.000000000 ); assert(  sinmao ===     0.330949230 ); 
  assert(      t  ===  1800.000000000 ); assert(  t2cof  ===     0.000000000 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.317044971 ); 
@@ -337,7 +337,7 @@ val sgp4CheckSat6251_0 = (res: Sgp4Result[F]) => { implicit equ: Equality[F] =>
  import res._
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); 
-assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
+assert(  bstar  ===     0.000128080 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); 
  assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===     0.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 
@@ -352,7 +352,7 @@ val sgp4CheckSat6251_120 = (res: Sgp4Result[F]) => { implicit equ: Equality[F] =
  import res._
  //   inputs : 
  // assert(  isimp  ===               0 ); assert( method  ===             110 ); 
- assert(  bstar  ===     0.000128080 ); assert(  con41  ===    -0.160280193 ); assert(    cc1  ===     0.000000003 ); 
+ assert(  bstar  ===     0.000128080 ); assert(    cc1  ===     0.000000003 ); 
  assert(    cc4  ===     0.000005200 ); assert(    cc5  ===     0.000650194 ); assert(     d2  ===     0.000000000 ); assert(     d3  ===     0.000000000 ); assert(     d4  ===     0.000000000 ); 
  assert(   ecco  ===     0.003003500 ); assert(    eta  ===     0.063675056 ); assert(  argpo  ===     2.428744337 ); assert( argpdot ===     0.000019407 ); assert(  omgcof ===    -0.000000052 ); assert(  sinmao ===    -0.658497710 ); 
  assert(      t  ===   120.000000000 ); assert(  t2cof  ===     0.000000004 ); assert(  t3cof  ===     0.000000000 ); assert(  t4cof  ===     0.000000000 ); assert(  t5cof  ===     0.000000000 ); assert(  x1mth2 ===     0.720093398 ); 

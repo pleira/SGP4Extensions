@@ -50,26 +50,26 @@ object SGPElemsConversions {
     val s : F = sin(I)
     val c : F = cos(I)
     val `c²` : F = c*c
-    val x3thm1 = 3*`c²` - 1
+    val `3c²-1` = 3*`c²` - 1
     val `β0²` = 1 - `e²`
     val β0 = `β0²`.sqrt
     val `β0³` = β0 * `β0²`
-    val (n, a) = calcOriginalMotionAndSemimajorAxis(radPerMin,x3thm1,`β0³`,wgs)
-    val context0 = Context0(a, `e²`,s,c,`c²`, x3thm1,β0,`β0²`,`β0³`, wgs)
+    val (n, a) = calcOriginalMotionAndSemimajorAxis(radPerMin,`3c²-1`,`β0³`,wgs)
+    val context0 = Context0(a, `e²`,s,c,`c²`,`3c²-1`,β0,`β0²`,`β0³`)
     (SGPElems[F](n,e,I,ω,Ω,M,a,bStar,epoch), context0)
   }
   
-  private def calcOriginalMotionAndSemimajorAxis[F: Field: NRoot : Order: Trig](n: F, x3cos2Im1: F, `β0³`: F, wgs: SGPConstants[F]) 
+  private def calcOriginalMotionAndSemimajorAxis[F: Field: NRoot : Order: Trig](n: F, `3c²-1`: F, `β0³`: F, wgs: SGPConstants[F]) 
       : (F, F) = {
-    import wgs.{KE,J2}
-    
-    val a1   = (KE / n) fpow (2.0/3.0).as[F]  // (Ke / n0) pow 1.5   
-    val tval = 3 * J2 * x3cos2Im1 / `β0³` / 4  // 3 * k2 * (3*`cos²I0` - 1) / ((1-`e0²`) pow 1.5) / 4 
+    import wgs.{KE,J2,`2/3`,`1/3`}
+
+    val a1   = (KE / n) fpow `2/3`  // (Ke / n0) pow 1.5   
+    val tval = 3 * J2 * `3c²-1` / `β0³` / 4  // 3 * k2 * (3*`cos²I0` - 1) / ((1-`e0²`) pow 1.5) / 4 
     val δ1   = tval / (a1*a1)
-    val a0   = a1 * (1 - δ1 * (1.as[F]/3.as[F] + δ1 * (1 + 134 * δ1 / 81)))
-    val δ0   = tval / (a0 * a0)  
-    val n0dp = n   / (1 + δ0) 
-    val a0dp = (KE / n0dp) fpow (2.as[F]/3.as[F])  // a0   / (1 - δ0)
+    val a0   = a1 * (1 - δ1 * (`1/3` + δ1 * (1 + 134 * δ1 / 81)))
+    val δ0   = tval / (a0 * a0)
+    val n0dp = n / (1 + δ0)
+    val a0dp = (KE / n0dp) fpow `2/3`  // a0   / (1 - δ0)
     (n0dp, a0dp)
   }
    
@@ -80,9 +80,9 @@ object SGPElemsConversions {
     
     val `e²` = e*e
     val p = a*(1 - `e²`)  // semilatus rectum , as MU=1, p=Z²
-    val β = sqrt(1 - `e²`) 
+    val β = sqrt(1 - `e²`)
     if (p < 0.as[F]) throw new Exception("p: " + p)
-    val `√p` = sqrt(p)  
+    val `√p` = sqrt(p)
     val `√a` = sqrt(a)
 
     val r = a * (1 - ecosE)        // r´        

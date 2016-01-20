@@ -109,6 +109,8 @@ trait SGPConstants[F] {
   def `J3/J2` : F
   def μ : F
   def twopi = 2*pi
+  def `2/3` : F
+  def `1/3` : F
 //  def CK2: F = wgs.K2 // = 5.413080E-4.as[F] // 1/2 J2aE
 //  def CK4: F = wgs.K4  // = -3*J4* aE⁴ / 8
 //  def K2: F =  wgs.K2
@@ -129,6 +131,8 @@ class SGP721Constants[F: Field](wgs: WGS721Constants[F]) extends SGPConstants[F]
   override val `J3/J2` : F = J3/J2
   override val α : F = aE                        // Earth's equatorial radius
   override val μ : F = wgs.MU
+  override val `2/3` = 2.as[F]/3.as[F]
+  override val `1/3` = 1.as[F]/3.as[F]
 }
 
 class SGP72Constants[F: Field](wgs: WGS72Constants[F]) extends SGPConstants[F] {
@@ -143,6 +147,8 @@ class SGP72Constants[F: Field](wgs: WGS72Constants[F]) extends SGPConstants[F] {
   override val `J3/J2` : F = J3/J2
   override val α : F = aE                        // Earth's equatorial radius
   override val μ : F = wgs.MU
+  override val `2/3` = 2.as[F]/3.as[F]
+  override val `1/3` = 1.as[F]/3.as[F]
 }
 
 class SGP84Constants[F: Field](wgs: WGS84Constants[F]) extends SGPConstants[F] {
@@ -157,6 +163,8 @@ class SGP84Constants[F: Field](wgs: WGS84Constants[F]) extends SGPConstants[F] {
   override val `J3/J2` : F = J3/J2
   override val α : F = aE                        // Earth's equatorial radius
   override val μ : F = wgs.MU
+  override val `2/3` = 2.as[F]/3.as[F]
+  override val `1/3` = 1.as[F]/3.as[F]
 }
 
 object SGP721Constants {

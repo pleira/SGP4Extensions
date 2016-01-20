@@ -124,7 +124,8 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
 
     (δL, δe, δℓ, ωm_, Mpm_, Ωm)
   }
-    
+  
+  def inclCtx = ctx0.inclinationCtx
 }
 
 object BrouwerLaneSecularCorrections {

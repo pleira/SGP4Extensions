@@ -11,7 +11,7 @@ trait Initl[F] {
   def inclo : F
   def    no  : F   
  //   outputs : 
-  def  ainv  : F     ; def    ao  : F  ; def con41 : F  ; def cosio  : F  ; def cosio2  : F    
+  def  ainv  : F     ; def    ao  : F  ; def cosio  : F  ; def cosio2  : F    
   def eccsq  : F  ; def omeosq : F     ; def  posq  : F ; def    rp  : F  ; def rteosq : F  ; 
   def sinio  : F  ; def  gsto  : F     ; 
 }
@@ -48,7 +48,7 @@ trait Sgp4Near[F] extends Initl[F] with PosVel[F] {
   def    no  : F     ; 
   //    outputs  :
   def   isimp  : Int      ; def  method  : Char       ; 
-  def con41  : F     ; def    cc1   : F     ; def     cc4  : F    ; 
+  def    cc1   : F     ; def     cc4  : F    ; 
   def   cc5  : F     ; def      d2  : F     ; def      d3  : F    ; def      d4  : F     ;
   def   eta  : F     ; def  argpdot : F     ; def   omgcof : F; 
   def sinmao : F     ; def   t2cof  : F     ; def   t3cof  : F    ; 
