@@ -240,6 +240,7 @@ object ReportTestNearTLEs extends App {
   //comps map {_.vlpnLppPNDiffReport }  
   //val comp5 = comps(0)
   // comp5.algosPvDiffsList map { ls => ls map { println } }
-  comps map { _.algosPnDiffsList map { ls => ls map { println } } }
+ // comps map { _.algosPnDiffsList map { ls => ls map { println } } }
+  comps map { _.algosPvDiffsList map { ls => ls map { println } } }
 }
 

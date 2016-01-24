@@ -7,8 +7,10 @@ import scala.{ specialized => spec }
 import spire.syntax.primitives._
   
 // n: mean motion, I: inclination, a: semimajor axis, Ω: ascending node argument
-case class LyddaneElems[F](I: F, a: F, Ω: F, ecosω: F, aynl: F, xl: F) {
-  def `C´` = axnl; def `S´` = aynl ; def `F´` = xl; def axnl = ecosω
+case class LyddaneElems[F: Field](I: F, a: F, Ω: F, C: F, S: F, F: F) {
+  def xl = F; def `C´` = C; def `S´` = S ; def `F´` = xl; def h = Ω; def axnl = C; def ecosω = C; def aynl = S ; 
+  def +(o: LyddaneElems[F]) = LyddaneElems(I + o.I, a - o.a,Ω + o.Ω,C + o.C,S + o.S, F + o.F)
+  def -(o: LyddaneElems[F]) = LyddaneElems(I - o.I,a - o.a,Ω - o.Ω,C - o.C,S - o.S, F - o.F)  
 }
 
 

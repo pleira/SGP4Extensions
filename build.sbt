@@ -4,10 +4,10 @@
 lazy val commonSettings = Seq(
   organization := "org.sgp4s_11",
   scalaVersion := "2.11.7",
-  crossScalaVersions := Seq("2.10.5", "2.11.7"),
+  crossScalaVersions := Seq("2.11.7"),
   libraryDependencies ++= Seq(
     "org.spire-math" %%% "spire" % "0.11.0",
-    "org.scalactic" %%% "scalactic" % "3.0.0-M15" % "test",
+    "org.scalactic" %%% "scalactic" % "3.0.0-M15",
     "org.scalatest" %%% "scalatest" % "3.0.0-M15" % "test"
   ),
 // Compiler settings. Use scalac -X for other options and their description.
@@ -28,28 +28,30 @@ lazy val noPublish = Seq(
   publishLocal := {},
   publishArtifact := false)
 
-lazy val root = project.in(file("."))
-  .aggregate(
-    coreJVM, testsJVM, reports
-  )
-  .settings(name := "root")
-  .settings(commonSettings: _*)
-  .settings(noPublish: _*)
+//lazy val root = project.in(file("."))
+//  .aggregate(
+//    core, tests, reports
+//  )
+//  .settings(name := "root")
+//  .settings(commonSettings: _*)
+//  .settings(noPublish: _*)
 
-lazy val core = crossProject.crossType(CrossType.Pure).in(file("core"))
+//lazy val core = crossProject.crossType(CrossType.Pure).in(file("core"))
+lazy val core = project.in(file("core"))
   .settings(name := "sgp4s_11-core")
   .settings(commonSettings: _*)
 
-lazy val tests = crossProject.crossType(CrossType.Pure).in(file("tests"))
+//lazy val tests = crossProject.crossType(CrossType.Pure).in(file("tests"))
+lazy val tests = project.in(file("tests"))
   .settings(name := "sgp4s_11-tests")
   .settings(commonSettings: _*)
+  .dependsOn(core  % "compile->compile;test->test")
   .settings(noPublish: _*)
-  .dependsOn(core)
 
 lazy val reports = project.in(file("reports"))
   .settings(name := "sgp4s_11-reports")
   .settings(commonSettings:_*)
-  .dependsOn(coreJVM,testsJVM  % "compile->compile;test->test")
+  .dependsOn(core,tests  % "compile->compile;test->test")
   .settings(libraryDependencies +=
     "com.github.pathikrit" %% "better-files" % "2.14.0") 
   .settings(noPublish: _*)
@@ -57,18 +59,18 @@ lazy val reports = project.in(file("reports"))
 lazy val thymeBenchmarks = project.in(file("thymeBenchmarks"))
   .settings(name := "sgp4s_11-thymeBenchmarks")
   .settings(commonSettings:_*)
-  .dependsOn(coreJVM)
+  .dependsOn(core)
   .settings(libraryDependencies +=
     "ichi.bench" % "thyme" % "0.1.1" from "https://github.com/Ichoran/thyme/raw/9ff531411e10c698855ade2e5bde77791dd0869a/Thyme.jar")
   .settings(noPublish: _*)
 
-lazy val coreJVM = core.jvm
+//lazy val coreJVM = core.jvm
 
-lazy val coreJS = core.js
+//lazy val coreJS = core.js
 
-lazy val testsJVM = tests.jvm
+//lazy val testsJVM = tests.jvm
 
-lazy val testsJS = tests.js
+//lazy val testsJS = tests.js
 
 // subeclipse settings
 
