@@ -10,7 +10,7 @@ Analysis of the propagation results for Vallado's TLE 00005
 
 Scala's implementation of Vallado's algorithm matches perfectly Vallado's results in C++.
 
-Polar Nodals and Vallado's Long seem correlated. 
+Polar Nodals and Vallado's Long are coincident for all except for the inclination.
 
 Implementation in Lara's non singular variables is still buggy.
 
