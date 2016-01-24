@@ -10,6 +10,6 @@ title: SGP4 Algorithm Comparison
 # Motivation
 
 
-![Difference of argument of the latitude]({{ site.url }}/assets/vallado/dθ_pn_00005.png)
-![Difference of distance (internal units)]({{ site.url }}/assets/vallado/dr_pn_00005.png)
+![Difference of argument of the latitude]({{ site.url }}/assets/img/dθ_pn_00005.png)
+![Difference of distance (internal units)]({{ site.url }}/assets/img/dr_pn_00005.png)
 
