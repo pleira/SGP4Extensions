@@ -1,0 +1,48 @@
+# Permalinks
+#
+# Use of `relative_permalinks` ensures post links from the index work properly.
+permalink:           pretty
+relative_permalinks: true
+
+# Setup
+title:               Simple General Perturbations (SGP4) in Scala 11 project
+tagline:             SGP4 Algorithm verification and some functional programming mixed with orbital propagation
+url:                 http://pleira.github.io/sgp4s_11
+paginate:            1
+baseurl:             ""
+
+# Assets
+#
+# We specify the directory for Jekyll so we can use @imports.
+sass:
+  sass_dir:          _sass
+  style:            :compressed
+
+# About/contact
+author:
+  name:              Pablo Pita Leira
+  url:               https://pleira.github.io
+  email:             pablo.pita@gmail.com
+
+# Custom vars
+version:             2.0.0
+github:
+  repo:              https://github.com/pleira/sgp4s_11
+
+
+# Github repositories
+github_user: pleira
+github_repo_count: 5
+github_show_profile_link: false
+github_skip_forks: true
+
+# Twitter
+twitter_user: pleira
+twitter_tweet_button: true
+
+markdown: redcarpet
+redcarpet:
+  extensions: ["no_intra_emphasis", "fenced_code_blocks", "autolink", "tables", "with_toc_data"]
+
+gems:
+  - jekyll-creativecommons
