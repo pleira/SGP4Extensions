@@ -240,7 +240,13 @@ object ReportTestNearTLEs extends App {
   //comps map {_.vlpnLppPNDiffReport }  
   //val comp5 = comps(0)
   // comp5.algosPvDiffsList map { ls => ls map { println } }
- // comps map { _.algosPnDiffsList map { ls => ls map { println } } }
-  comps map { _.algosPvDiffsList map { ls => ls map { println } } }
+  import better.files._
+  import java.io.{File => JFile}
+  val file = file"gnuplot/diffpn.out"
+  file.overwrite("")
+  comps map { _.algosPnDiffsList map { ls => ls map { _ >>: file } } }
+  val pvfile = file"gnuplot/diffcartesians.out"
+  pvfile.overwrite("")
+  comps map { _.algosPvDiffsList map { ls => ls map { _ >>: pvfile } } }
 }
 

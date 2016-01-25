@@ -32,15 +32,18 @@ trait SPNLongPeriodCorrections[F] extends SimpleKeplerEq {
     val sinθ = sin(θ)
     val cosθ = cos(θ)
     val δr = ϵ3 * p * s * sinθ
-    val δθ = ϵ3 * ( (2*s + κ/s)*cosθ + (1/s - s)* σ * sinθ)
-    val δΩ = ϵ3 * c/s * (κ*cosθ + σ * sinθ) 
-    val δR = ϵ3 * `Θ/r` * (1+κ) * s * cosθ
-    val δΘ = ϵ3 * Θ * s * (κ*sinθ - σ * cosθ)
+    val δθ = ϵ3 * ( (2*s + κ/s)*cosθ + (1/s - s)*σ*sinθ)
+    val δΩ = ϵ3 * c/s * (κ*cosθ + σ*sinθ)
+    val δR = ϵ3 * `Θ/r` * (1+κ) * s*cosθ
+    val δΘ = ϵ3 * Θ * s * (κ*sinθ - σ*cosθ)
     val rl = r+δr
     val Rl = R+δR
     val Θl = Θ+δΘ // angular momentum
     val θl = θ+δθ 
     val Ωl = Ω-δΩ
+    // derive correction for the inclination, cosI' = c / (1 + ϵ3*s*(κ*sinθ - σ*cosθ))
+    val cosI = c / (1 + ϵ3*s*(κ*sinθ - σ*cosθ))
+    val Il = acos(cosI)
     // recalculate the "state" variables here
     val sin2θ = sin(2*θl) // 2 * cos(θl) * sin(θl)
     val cos2θ = cos(2*θl) // 1 - 2 * sin(θl) * sin(θl)
@@ -50,7 +53,7 @@ trait SPNLongPeriodCorrections[F] extends SimpleKeplerEq {
     val σl = pl*Rl/Θl
     val `el²` = κl*κl + σl*σl
     val βl = sqrt(1 - `el²`)
-    (SpecialPolarNodal(I, θl, Ωl, rl, Rl, Θl/rl), LongPeriodContext(`el²`, pl, sqrt(pl), βl, sin2θ, cos2θ))
+    (SpecialPolarNodal(Il, θl, Ωl, rl, Rl, Θl/rl), LongPeriodContext(`el²`, pl, sqrt(pl), βl, sin2θ, cos2θ))
   }
   
   def lppCorrectionsAlt(spn: (SpecialPolarNodal[F], AuxVariables[F]))(implicit ev: Field[F], nr: NRoot[F], trig: Trig[F])

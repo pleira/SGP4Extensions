@@ -4,7 +4,7 @@ import predict4s.sgp._
 import predict4s.coord._
 import predict4s.sgp.vallado.SGP4Vallado
 import predict4s.sgp.algo.SGP4ValladoLong
-import predict4s.sgp.pn.SGP4PN
+import predict4s.sgp.algo.SGP4PN
 import predict4s.sgp.lara.SGP4Lara
 import predict4s.sgp._
 import spire.implicits._
