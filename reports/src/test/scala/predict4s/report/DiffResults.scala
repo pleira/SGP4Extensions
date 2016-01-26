@@ -230,23 +230,70 @@ class CompareAll(all: AllPropagators, tle: TestTLE) extends LoadCppResults with 
 }
 
 object ReportTestNearTLEs extends App {
+  import better.files._
+  import java.io.{File => JFile}
   def allComp(t: TestTLE) = new CompareAll(AllPropagators(t), t)
   val tles = List(TLE00005, TLE06251, TLE28057, TLE29238, TLE29141)
   val comps = tles map allComp
-  // comps map { _.cartesianDiffReport }
+
+  //  comps map { _.cartesianDiffReport }
+  val cdifffile = file".doc/hcartesiandiff.md"
+  cdifffile.overwrite("")
+  "### Differences between cartesian final results from Vallado to the algorithms\n" >>: cdifffile
+  comps map { cls => 
+    cls.cartesianDiffReportHeader map { _ >>: cdifffile }
+    cls.algosPvDiffsList map { ls => ls map {_ >>: cdifffile }}
+  }
+  
 //  comps map { _.pnDiffReport }
+  val pndifffile = file".doc/hpndiff.md"
+  pndifffile.overwrite("")
+  "### Differences between final results from Vallado in polar nodals using internal units to the algorithms\n" >>: pndifffile
+  comps map { cls => 
+        "\n" >>: pndifffile
+    cls.pnDiffReportHeader map { _ >>: pndifffile }
+    cls.algosPnDiffsList map { ls => ls map {_ >>: pndifffile }}
+  }
+  
 //  comps map { _.pnLppDiffReport }
-  // comps map {_.vlpnFinalPNDiffReport }
-  //comps map {_.vlpnLppPNDiffReport }  
+  val pnlppdifffile = file".doc/hpnlppdiff.md"
+  pndifffile.overwrite("")
+  "### Differences between long period periodic corrections from Vallado in polar nodals using internal units to the algorithms\n" >>: pndifffile
+  comps map { cls => 
+    "\n" >>: pndifffile
+    cls.pnDiffReportHeader map { _ >>: pnlppdifffile }
+    cls.algosPnLppDiffsList map { ls => ls map {_ >>: pnlppdifffile }}
+  }
+  
   //val comp5 = comps(0)
   // comp5.algosPvDiffsList map { ls => ls map { println } }
-  import better.files._
-  import java.io.{File => JFile}
-  val file = file"gnuplot/diffpn.out"
+
+  // GNUPLOT
+  
+  val file = file".doc/diffpn.out"
   file.overwrite("")
   comps map { _.algosPnDiffsList map { ls => ls map { _ >>: file } } }
-  val pvfile = file"gnuplot/diffcartesians.out"
+  val pvfile = file".doc/diffcartesians.out"
   pvfile.overwrite("")
   comps map { _.algosPvDiffsList map { ls => ls map { _ >>: pvfile } } }
+  
+  // COMPARISON VL with PN
+  // comps map {_.vlpnFinalPNDiffReport }
+  val vlpndifffile = file".doc/hvlpndiff.md"
+  vlpndifffile.overwrite("")
+  "### Differences between final polar nodals results from Vallado Long and Polar Nodals algorithms using internal units\n" >>: vlpndifffile
+  comps map { cls => 
+    "\n" >>: vlpndifffile
+    cls.vlpnFinalPNDiffReportHeader map { _ >>: vlpndifffile }
+    cls.vlpnPnDiffsList map { _ >>: vlpndifffile }
+  }
+  //comps map {_.vlpnLppPNDiffReport }  
+//  val vlpnlppdifffile = file".doc/hvlpnlppdiff.out"
+//  vlpnlppdifffile.overwrite("")
+//  "### Differences between long period periodic corrections from Vallado in polar nodals using internal units to the algorithms\n" >>: vlpnlppdifffile
+//  comps map { cls => cls.pnDiffReportHeader map { _ >>: vlpnlppdifffile }}
+//  comps map { cls => cls.algosPnLppDiffsList map { ls => ls map {_ >>: vlpnlppdifffile }}}
+
+
 }
 
