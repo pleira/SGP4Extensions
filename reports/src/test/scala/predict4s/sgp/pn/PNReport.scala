@@ -4,7 +4,7 @@ import predict4s.sgp._
 import predict4s.report.PolarNodalFileReport
 import predict4s.coord._
 
-
+/*
 object HardcodedPNReport extends App with NearTLEs  {
  
   val wgs = SGP72Constants.tleDoubleConstants
@@ -32,5 +32,5 @@ object HardcodedPNReport extends App with NearTLEs  {
   PolarNodalFileReport.save(results06251, tle06251, lines(1), times06251)
   PolarNodalFileReport.save(results28057, tle28057, lines(2), times28057)
 } 
-
+*/
 

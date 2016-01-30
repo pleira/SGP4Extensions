@@ -1,5 +1,8 @@
 package predict4s.coord
 
+import org.scalactic.Or
+import org.scalactic.Good
+import org.scalactic.Bad
 import spire.algebra._
 import spire.math._
 import spire.implicits._
@@ -18,9 +21,8 @@ case class LongPeriodContext[F](`el²`: F, pl: F, `√pl`: F, βl: F, sin2θ: F,
 
 object LyddaneConversions {
   
-  
   def lyddane2SpecialPolarNodal[F: Field: NRoot: Order: Trig](eaState: AnomalyState[F], lylppState: LyddaneElems[F]) 
-      : (SpecialPolarNodal[F], LongPeriodContext[F]) = {
+      : (SpecialPolarNodal[F], LongPeriodContext[F]) Or ErrorMessage = {
     import eaState._ 
     import lylppState._
 
@@ -31,7 +33,7 @@ object LyddaneConversions {
     
     val `el²` =  `C´`* `C´` + `S´`*`S´` 
     val pl = a*(1 - `el²`)  // semilatus rectum , as MU=1, p=Z²
-    if (pl < 0.as[F]) throw new Exception("pl: " + pl)
+    if (pl < 0.as[F]) return Bad(s"lyddane2SpecialPolarNodal: Problem with semilatus rectum p: $pl")
     val `√pl`  = sqrt(pl)
     val rl     = a * (1 - ecosU)          // r´        
     val rdotl  = sqrt(a) * esinU/rl       // R´
@@ -46,7 +48,7 @@ object LyddaneConversions {
     val sin2θ = 2 * cosθ * sinθ
     val cos2θ = 1 - 2 * sinθ * sinθ
 
-    (SpecialPolarNodal(I, θ, Ω, rl, rdotl, rvdotl), LongPeriodContext(`el²`, pl, `√pl`, βl, sin2θ, cos2θ)) 
+    Good((SpecialPolarNodal(I, θ, Ω, rl, rdotl, rvdotl), LongPeriodContext(`el²`, pl, `√pl`, βl, sin2θ, cos2θ))) 
   }    
   
 }

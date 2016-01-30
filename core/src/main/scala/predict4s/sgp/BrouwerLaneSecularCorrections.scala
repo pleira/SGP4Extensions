@@ -4,17 +4,15 @@ import spire.math._
 import spire.implicits._
 import spire.syntax.primitives._
 import predict4s.coord._
-
+import org.scalactic.Or
+import org.scalactic.Good
+import org.scalactic.Bad
 
 case class SecularFrequencies[F](Mdot: F, ωdot: F, Ωdot: F)
 
 case class DragSecularCoefs[F](Mcof: F, ωcof: F, Ωcof: F)
 
 case class LaneCoefs[F](T2: F, T3: F, T4: F, T5: F)
-
-//case class ContextD[F](c: F, s: F, p: F, κ: F, σ: F) {
-//  def cosI = c; def sinI = s;
-//}
 
 class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig]( 
     val elem0: SGPElems[F],    
@@ -34,7 +32,7 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
   // valid interval for eccentricity calculations
   val eValidInterval = Interval.open(0.as[F],1.as[F])
      
-  def secularCorrections(t: Minutes): SGPElems[F] = { // : Either[String, SGPElems[F]] = {
+  def secularCorrections(t: Minutes): SGPSecularResult[F] = { // : Either[String, SGPElems[F]] = {
     
     import secularFreqs._  // {ωdot,Ωdot,mdot=>Mdot,Ωcof}
     import dragCoefs._  
@@ -65,8 +63,7 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
     if (!eValidInterval.contains(em_))
       {
         // sgp4fix to return if there is an error in eccentricity
-        // return Left(s"Secular eccentricity $e outside valid range")
-        return SGPElems(nm, em_, I, ωm, Ωm, Mp, am, bStar, epoch)
+        return Bad(s"Secular eccentricity $em_ outside valid range")
       }
 
     // sgp4fix fix tolerance to avoid a divide by zero
@@ -83,8 +80,8 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
     val lm = ℓm  % twopi
     val Mm = (lm - ω_ - Ω_) % twopi
     val elems = SGPElems(nm, em, I, ω_, Ω_, Mm, am, bStar, epoch)
-    // Right(elems)
-    elems
+    val elemCtx = (elems,ctx0.inclinationCtx,wgs)
+    Good(elemCtx)
   }
   
   /*

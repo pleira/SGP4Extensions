@@ -8,7 +8,7 @@ import spire.syntax.primitives._
 import predict4s.sgp._
 import predict4s.coord._
 
-
+/*
 // compute the corrections in polar-nodal variables. 
 class SGP4PN[F : Field : NRoot : Order : Trig](
  sec : BrouwerLaneSecularCorrections[F]
@@ -36,3 +36,4 @@ object SGP4PN  {
     new SGP4PN[F](secular)
   }  
 }
+*/

@@ -9,6 +9,7 @@ import predict4s.coord._
 import predict4s.sgp.vallado.TwoTermsKeplerEq
 import predict4s.coord.LyddaneElems
 
+/*
 trait LyddaneExtraLongPeriodCorrections[T] extends TwoTermsKeplerEq {
    
   val wgs: SGPConstants[T]
@@ -57,3 +58,4 @@ trait LyddaneExtraLongPeriodCorrections[T] extends TwoTermsKeplerEq {
   }
   
 }
+*/

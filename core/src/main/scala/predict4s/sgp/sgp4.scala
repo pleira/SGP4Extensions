@@ -2,7 +2,6 @@ package predict4s.sgp
 import spire.algebra._
 import spire.math._
 import spire.implicits._
-import spire.implicits._
 import scala.{ specialized => spec }
 import spire.syntax.primitives._
 import predict4s.coord._
@@ -23,45 +22,34 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
     val sec : BrouwerLaneSecularCorrections[F]
     ) {
  
-  type Minutes = F // type to remember dealing with minutes from epoch
-  //type FinalState = SpecialPolarNodal[F]
-  //type ShortPeriodCorrections = SpecialPolarNodal[F]
-  //type ShortPeriodState = (SpecialPolarNodal[F], ShortPeriodCorrections) // final values, corrections ShortPeriodPolarNodalContext
-  //type LongPeriodState = SpecialPolarNodal[F]
+  type Minutes =  sec.Minutes
 
   def propagate(t: Minutes)  = propagate2CartesianContext(t)
 
   def gsto : F = TimeUtils.gstime(sec.elem0.epoch + 2433281.5) 
   
-  def propagate2PolarNodalContext(t: Minutes) = {
-    val secularElemt = secularCorrections(t)
-    (periodicCorrections(secularElemt), secularElemt)
+  def propagate2PolarNodalContext(t: Minutes) : SGPCorrPropResult[F] = {
+    for {
+     secularElemt <- secularCorrections(t)
+     pc <- periodicCorrections(secularElemt)
+    } yield (pc, secularElemt)
   }
-  
-//  def propagate2PolarNodal(t: Minutes) = {
-//    val ((finalPolarNodal, _, _), _) = propagate2PolarNodalContext(t)
-//    finalPolarNodal
-//  }
-  
-  def propagate2CartesianContext(t: Minutes) = {
-    val ((finalPolarNodal, lppState), secularElemt) = propagate2PolarNodalContext(t)
-    val uPV = polarNodal2UnitCartesian(finalPolarNodal)
-    val posVel = scale2CartesianElems(uPV, finalPolarNodal)
-    (posVel, uPV, finalPolarNodal, lppState)    
+    
+  def propagate2CartesianContext(t: Minutes) : SGPPropResult[F] = {
+    for {
+      propCtx <- propagate2PolarNodalContext(t)
+      finalPolarNodal = propCtx._1._1
+      uPV = polarNodal2UnitCartesian(finalPolarNodal)
+      posVel = scale2CartesianElems(uPV, finalPolarNodal)      
+    } yield (posVel, uPV, propCtx) 
   }
-   
-//  def propagate2Cartesian(t: Minutes) : CartesianElems[F] = {  
-//    val (posVel, _, _,_,_) = propagate2CartesianContext(t)
-//    posVel
-//  }
   
   /** 
    *  Calculates the new secular elements at time t in minutes from the epoch of the initial elements 
    */
-  def secularCorrections(t: Minutes): SGPElems[F] = sec.secularCorrections(t)  
+  def secularCorrections(t: Minutes): SGPSecularResult[F] = sec.secularCorrections(t)  
   
-  def periodicCorrections(secularElemt : SGPElems[F])
-      :  (SpecialPolarNodal[F], SpecialPolarNodal[F]) 
+  def periodicCorrections(secularElemt : SGPSecularCtx[F])  :  SGPSPNResult[F] 
   
   /**
    * Vallado's code works with internal units of length LU (units of earth’s radius  
@@ -86,6 +74,3 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
   }  
   
 }
-
-
-

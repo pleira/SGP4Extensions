@@ -4,7 +4,7 @@ import predict4s.report.ValladoLongFileReport
 import predict4s.sgp._
 import predict4s.coord._
 
-
+/*
 object HardcodedLydanneLongReport extends App with NearTLEs {
  
   val wgs = SGP72Constants.tleDoubleConstants
@@ -34,3 +34,4 @@ object HardcodedLydanneLongReport extends App with NearTLEs {
 } 
 
 
+*/

@@ -10,7 +10,7 @@ import predict4s.coord._
 import predict4s.coord.LaraConversions._
 import predict4s.coord.SGPElemsConversions._
 import predict4s.coord.{SGPElems,AnomalyState}
-
+/*
 case class LaraLongPeriodContext[F](`el²`: F, pl: F, βl: F, sin2θ: F, cos2θ: F, n: F)
 
 trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
@@ -101,3 +101,4 @@ trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
   }
   
 }
+*/

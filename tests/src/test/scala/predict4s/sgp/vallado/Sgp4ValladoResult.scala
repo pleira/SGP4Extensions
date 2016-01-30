@@ -4,7 +4,7 @@ import predict4s.sgp.Sgp4Near
 import predict4s.coord.CartesianElems
 import predict4s.sgp.Sgp4Result
 import predict4s.coord._
-
+/*
 case class Sgp4ValladoResult(
     sgp: SGP4Vallado[Double], 
     statett: (CartesianElems[Double], CartesianElems[Double], SpecialPolarNodal[Double], 
@@ -86,3 +86,4 @@ case class Sgp4ValladoResult(
   def atime : Double = t
     
 }
+*/

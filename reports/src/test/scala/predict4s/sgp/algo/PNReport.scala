@@ -28,9 +28,9 @@ object HardcodedPNReport extends App with NearTLEs  {
   val results06251 = for (t <- times06251) yield sgp06251.propagate2PolarNodalContext(t)
   val results28057 = for (t <- times28057) yield sgp28057.propagate2PolarNodalContext(t)
   
-  PolarNodalFileReport.save(results00005, tle00005, lines(0), times00005)
-  PolarNodalFileReport.save(results06251, tle06251, lines(1), times06251)
-  PolarNodalFileReport.save(results28057, tle28057, lines(2), times28057)
+//  PolarNodalFileReport.save(results00005, tle00005, lines(0), times00005)
+//  PolarNodalFileReport.save(results06251, tle06251, lines(1), times06251)
+//  PolarNodalFileReport.save(results28057, tle28057, lines(2), times28057)
 } 
 
 

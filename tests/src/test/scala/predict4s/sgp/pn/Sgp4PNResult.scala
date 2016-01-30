@@ -2,7 +2,7 @@ package predict4s.sgp.pn
 
 import predict4s.sgp.Sgp4Result
 import predict4s.coord._
-
+/*
 case class Sgp4PNResult(
     sgp: SGP4PN[Double], 
     statett: (CartesianElems[Double], CartesianElems[Double], SpecialPolarNodal[Double], 
@@ -84,3 +84,5 @@ case class Sgp4PNResult(
   def atime : Double = t
     
 }
+
+*/

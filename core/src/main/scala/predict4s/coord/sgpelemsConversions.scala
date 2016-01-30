@@ -4,13 +4,16 @@ import spire.algebra._
 import spire.math._
 import spire.implicits._
 import spire.syntax.primitives._
+import org.scalactic.Or
+import org.scalactic.Good
+import org.scalactic.Bad
 
 case class AnomalyState[F](E : F, cosE: F, sinE: F, ecosE: F, esinE: F) {
   // define alternative methods to allow expressing a different Anomaly U (not the Eccentric Anomaly)
   def U = E; def cosU: F = cosE; def sinU: F = sinE; def ecosU: F = ecosE; def esinU: F = esinE;
 }
 
-case class AuxVariables[F](s: F, c: F, p: F, κ: F, σ: F, n: F, β: F, sin2f: F, cos2f: F)
+case class SPNAuxVariables[F](p: F, κ: F, σ: F, n: F, β: F)
 
 object SGPElemsConversions {
  
@@ -73,21 +76,22 @@ object SGPElemsConversions {
     (n0dp, a0dp)
   }
    
-  def sgpelems2SpecialPolarNodal[F: Field: Trig: NRoot: Order](eaState: AnomalyState[F], secularElem : SGPElems[F], wgs: SGPConstants[F]) = {
+  def sgpelems2SpecialPolarNodal[F: Field: Trig: NRoot: Order](eaState: AnomalyState[F], secularCtx : SGPSecularCtx[F]) 
+      : SpecialPolarNodal[F] Or ErrorMessage = {
     import eaState._ 
-    import secularElem.{a,I,e,n,ω,Ω}
-    import wgs.twopi
+    import secularCtx.{_1 => elem}, elem.{a,I,e,n,ω,Ω}
+    import secularCtx.{_3 => wgs}, wgs.twopi
     
     val `e²` = e*e
-    val p = a*(1 - `e²`)  // semilatus rectum , as MU=1, p=Z²
+ //   val p = a*(1 - `e²`)  // semilatus rectum , as MU=1, p=Z²
     val β = sqrt(1 - `e²`)
-    if (p < 0.as[F]) throw new Exception("p: " + p)
-    val `√p` = sqrt(p)
+ //   if (p < 0.as[F]) return Bad("Problem with semilatus rectum  p: $p")
+ //   val `√p` = sqrt(p)
     val `√a` = sqrt(a)
 
-    val r = a * (1 - ecosE)        // r´        
-    val R = sqrt(a) / r * esinE     // R´ = L/r *esinE, L=sqrt(nu*a), MU=1 in SGP4 variables, later applied
-    val Θ = sqrt(a) * β            // MU=1 
+    val r = a * (1 - ecosE)     // r´        
+    val R = `√a` / r * esinE    // R´ = L/r *esinE, L=sqrt(nu*a), MU=1 in SGP4 variables, later applied
+    val Θ = `√a` * β            // MU=1 
     val numer = β * sinE
     val denom = (cosE - e)
     val sinf = a/r*numer
@@ -97,19 +101,18 @@ object SGPElemsConversions {
     val f = atan2(sinf, cosf)
     //val f = trueAnomaly(eaState, e)
     val θ0to2pi = f + ω 
-    val θ = if (θ0to2pi > pi.as[F])  θ0to2pi - twopi else θ0to2pi 
+    val θ = if (θ0to2pi > pi.as[F]) θ0to2pi - twopi else θ0to2pi 
     //val N = H
 //    val av = AuxVariables(sin(I), cos(I), p, ecosf, esinf, n, β, sin2f, cos2f)
-    val av = AuxVariables(sin(I), cos(I), p, ecosf, esinf, n, β, 0.as[F], 0.as[F])
+    //val av = SPNAuxVariables(p, ecosf, esinf, n, β)
     
     // do check
-    {
-    import av._
-    assert(abs(κ - (av.p/r - 1)) < 1E-12.as[F] ) 
-    assert(abs(σ - (av.p*R/Θ)) < 1E-12.as[F])
-    }
+//    {
+//    import av._
+//    assert(abs(κ - (av.p/r - 1)) < 1E-12.as[F] ) 
+//    assert(abs(σ - (av.p*R/Θ)) < 1E-12.as[F])
+//    }
     
-    (SpecialPolarNodal(I,θ,Ω,r,R,Θ/r), av) 
-  }
-  
+    Good(SpecialPolarNodal(I,θ,Ω,r,R,Θ/r)) 
+  }  
 }

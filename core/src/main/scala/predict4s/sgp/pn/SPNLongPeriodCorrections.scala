@@ -8,7 +8,7 @@ import spire.syntax.primitives._
 import predict4s.sgp._
 import predict4s.coord._
 import predict4s.coord.SGPElemsConversions._
-
+/*
 trait SPNLongPeriodCorrections[F] extends SimpleKeplerEq {
   
   val wgs: SGPConstants[F]
@@ -90,3 +90,4 @@ trait SPNLongPeriodCorrections[F] extends SimpleKeplerEq {
   }
   
 }
+*/

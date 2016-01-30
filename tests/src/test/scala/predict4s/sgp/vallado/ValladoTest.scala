@@ -7,7 +7,7 @@ import predict4s.coord.SGP72Constants
 import predict4s.sgp._
 import predict4s.coord.SGPElems
 import predict4s.coord.SGPElemsConversions
-
+/*
 trait ValladoNearTLEsTest extends NearTLEs with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] { self : FunSuite => 
 
   implicit val wgs = SGP72Constants.tleDoubleConstants
@@ -75,4 +75,4 @@ class HardcodedValladoCheck extends FunSuite with NearTLEs with ValladoNearTLEsC
   }
 } 
 
-
+*/

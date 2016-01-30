@@ -11,7 +11,7 @@ import predict4s.coord.LaraConversions._
 import predict4s.coord.SGPElemsConversions._
 import predict4s.coord.{SGPElems,AnomalyState}
 
-
+/*
 class SGP4Lara[F : Field : NRoot : Order : Trig](
  sec : BrouwerLaneSecularCorrections[F]
   ) extends SGP4(sec) with LaraFirstOrderCorrections[F] {
@@ -86,3 +86,5 @@ object SGP4Lara {
     new SGP4Lara[F](secular)
   }
 }
+
+*/

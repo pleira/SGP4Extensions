@@ -7,7 +7,7 @@ import scala.{ specialized => spec }
 import spire.syntax.primitives._
 import predict4s.sgp._
 import predict4s.coord._
-
+/*
 
 trait LyddaneLongPeriodCorrections[F] extends TwoTermsKeplerEq {
    
@@ -50,3 +50,4 @@ trait LyddaneLongPeriodCorrections[F] extends TwoTermsKeplerEq {
   }
   
 }
+*/

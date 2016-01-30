@@ -102,7 +102,7 @@ trait LoadCppResults {
 }
 
 class CompareAll(all: AllPropagators, tle: TestTLE) extends LoadCppResults with DiffResults {
-  val algos = List("va", "vl", "pn", "la") // this is the order
+  val algos = List("va", "vl", "pn") // , "la" this is the order
   val SEP = "|"
   val sat = tle.tle.satelliteNumber
   val cppOuts = loadCppOutputData(sat)

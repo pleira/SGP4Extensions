@@ -7,24 +7,24 @@ import scala.{ specialized => spec }
 import spire.syntax.primitives._
 import predict4s.sgp._
 import predict4s.coord._
+import org.scalactic.Or
 
 trait LongPeriodCorrections[F] {
-  def lppCorrections(secularElemt : SGPElems[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F])  : (SpecialPolarNodal[F], LongPeriodContext[F])
+  def lppCorrections(secularElemt : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
+      : LPPSPNResult[F]
 }
 
 abstract class SGP4ShortPeriodPNCorrections[F : Field : NRoot : Order : Trig](
   sec : BrouwerLaneSecularCorrections[F]
   ) extends SGP4(sec) with LongPeriodCorrections[F] with ShortPeriodPolarNodalCorrections[F] {
- 
-  val wgs = sec.wgs
-  val ictx = sec.inclCtx
-  
-  override def periodicCorrections(secularElemt : SGPElems[F]) :  (SpecialPolarNodal[F], SpecialPolarNodal[F]) = {
-    val lppSPNContext = lppCorrections(secularElemt)
-    val finalPNState = sppCorrections(lppSPNContext)
-    (finalPNState, lppSPNContext._1)
+
+  override def periodicCorrections(secularElemt : SGPSecularCtx[F]) :  SGPSPNResult[F] = {
+    for {
+      lppSPNContext <- lppCorrections(secularElemt)
+      finalPNState = sppCorrections(lppSPNContext)
+    } yield (finalPNState, lppSPNContext._1)
   }
-    
+
 }
 
 class SGP4Vallado[F : Field : NRoot : Order : Trig](
@@ -60,8 +60,6 @@ object SGP4PN  {
     new SGP4PN[F](secular)
   }
 }
-
-
 
 object SGP4ValladoLong  {
   

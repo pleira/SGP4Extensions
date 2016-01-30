@@ -1,35 +1,28 @@
-package predict4s.kepler
+package predict4s.sgp
 
 import org.scalatest.FunSuite
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
-
 import spire.algebra._
 import spire.math._
 import spire.implicits._
-import scala.{ specialized => spec }
 import spire.syntax.primitives._
-import predict4s.coord.AnomalyState
-import predict4s.sgp.SimpleKeplerEq
 
 // Tests of the algorithm used in solving Kepler's equation 
 // Solutions are compared with the results obtained in Wolframalpha.com for Kepler's equation
 
-object KeplerEquationSolver extends SimpleKeplerEq 
-
 class KeplerAndTrueAnomalyTest extends FunSuite  {
   
-  val kepler = KeplerEquationSolver 
+  object kepler extends SimpleKeplerEq 
   
   // e: eccentricity, M: mean anomaly, E: expected eccentric anomaly
-  def solveKeplerAndCheckE(e : Double, M: Double, E: Double)  = {
-      val eas  = kepler.solveKeplerEq(e, M.toRadians)
-      val Ed = eas.E.toDegrees
+  def solveKeplerAndCheckE(e : Double, M: Double, E: Double) = for {
+      eas <- kepler.solveKeplerEq(e, M.toRadians)
+      xEd = eas.E.toDegrees
       // Console.println(s"calculated eccentric anomaly: ${Ed} , expected eccentric anomaly: ${E} ")
-      assert(E === Ed)
-      eas
-  }
-  
+      _ = assert(E === xEd)
+  } yield eas
+      
   def checkr(ecosE: Double, r: Double) = {
       val a = 10000
       val rc = a * (1 - ecosE)
@@ -56,19 +49,23 @@ class KeplerAndTrueAnomalyTest extends FunSuite  {
         , (-270.0, -268.85431349358964, 92.2912203675837, 10004.0)
         , (-360.0, -360.0, 0.0, 9800.0)
         )
-  implicit val toMinus12 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1E-12)
+  implicit val tolerant : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1E-12)
     
     all foreach { p =>
       val M = p._1; val E = p._2; val f = p._3; val r = p._4
-      val eas = solveKeplerAndCheckE(e, M, E)
-      import eas._
-      val sinf = β*sinE
-      val cosf = (cosE - e)
-      val fr = atan2(sinf, cosf)
-      val fd = fr.toDegrees
-      assert(fd === f)
-      checkr(ecosE, r)
-    }    
+      val orEas = solveKeplerAndCheckE(e, M, E)
+      if (orEas.isBad) fail
+      else {
+        val eas = orEas.get
+        import eas._
+        val sinf = β*sinE
+        val cosf = (cosE - e)
+        val fr = atan2(sinf, cosf)
+        val fd = fr.toDegrees
+        assert(fd === f)
+        checkr(ecosE, r)
+      }
+    }
   }
   
  }

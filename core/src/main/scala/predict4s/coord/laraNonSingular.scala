@@ -32,21 +32,21 @@ object LaraConversions {
     SpecialPolarNodal(I,θ,ν,r,R,Θ/r)
   }
 
-  def specialPolarNodal2LaraNonSingular[F: Field: NRoot: Trig](all : (SpecialPolarNodal[F], AuxVariables[F]) ) : LaraNonSingular[F] = {
-    import all._1._ ,all._2.s
-    val ψ = Ω + θ
-    val ξ = s * sin(θ)
-    val χ = s * cos(θ)
-    LaraNonSingular(ψ, ξ, χ, r, R, Θ) 
-  }
+//  def specialPolarNodal2LaraNonSingular[F: Field: NRoot: Trig](all : (SpecialPolarNodal[F], SPNAuxVariables[F]) ) : LaraNonSingular[F] = {
+//    import all._1._ ,all._2.s
+//    val ψ = Ω + θ
+//    val ξ = s * sin(θ)
+//    val χ = s * cos(θ)
+//    LaraNonSingular(ψ, ξ, χ, r, R, Θ) 
+//  }
   
-  def polarNodal2LaraNonSingular[F: Field: NRoot: Trig](all : (PolarNodalElems[F], AuxVariables[F]) ) : LaraNonSingular[F] = {
-    import all._1._ ,all._2.s
-    val ψ = ν + θ
-    val ξ = s * sin(θ)
-    val χ = s * cos(θ)
-    LaraNonSingular(ψ, ξ, χ, r, R, Θ) 
-  }
+//  def polarNodal2LaraNonSingular[F: Field: NRoot: Trig](all : PolarNodalElems[F], SPNAuxVariables[F]) ) : LaraNonSingular[F] = {
+//    import all._1._ ,all._2.s
+//    val ψ = ν + θ
+//    val ξ = s * sin(θ)
+//    val χ = s * cos(θ)
+//    LaraNonSingular(ψ, ξ, χ, r, R, Θ) 
+//  }
   
   def cartesian2LaraNonSingular[F: Field: NRoot: Trig](pv: CartesianElems[F]) : LaraNonSingular[F] = {
     import pv._

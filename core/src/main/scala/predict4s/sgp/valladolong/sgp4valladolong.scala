@@ -7,7 +7,7 @@ import scala.{ specialized => spec }
 import spire.syntax.primitives._
 import predict4s.sgp._
 import predict4s.coord._
-
+/*
 class SGP4ValladoLong[F : Field : NRoot : Order : Trig](
   sec : BrouwerLaneSecularCorrections[F]
   ) extends SGP4(sec) with LyddaneExtraLongPeriodCorrections[F] with ShortPeriodPolarNodalCorrections[F] {
@@ -34,3 +34,4 @@ object SGP4ValladoLong  {
     new SGP4ValladoLong[F](secular)
   }
 }
+*/

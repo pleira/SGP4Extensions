@@ -8,15 +8,12 @@ import predict4s.coord._
 
 trait ShortPeriodPolarNodalCorrections[F] {
   
-  val wgs: SGPConstants[F]
-  val ictx: InclinationCtx[F]
-  
-  def sppCorrections(lppState: (SpecialPolarNodal[F], LongPeriodContext[F]))
-    (implicit ev: Field[F], trig: Trig[F], ro: NRoot[F] ): SpecialPolarNodal[F] = {
-    import lppState.{_1 => lppPN,_2 => lppc}
+  def sppCorrections(ctx: LPPSPNCtx[F])(implicit ev: Field[F], trig: Trig[F], ro: NRoot[F] )
+      : SpecialPolarNodal[F] = {
+    import ctx.{_1 => lppPN,_2 => lppc,_3 => secular}
     import lppPN.r,lppc.{pl,βl,`√pl`,cos2θ,sin2θ}
-    import wgs.J2
-    import ictx.{c,s,`c²`,`s²`}
+    import secular.{_2=>ictx,_3 => wgs}
+    import wgs.J2, ictx.{c,s,`c²`,`s²`}
 
     val `3c²-1` = 3*`c²`-1
     val `βl³/√pl` = βl*βl*βl/`√pl`
@@ -25,8 +22,7 @@ trait ShortPeriodPolarNodalCorrections[F] {
     val δI = - 3 * ϵ2 * c * s * cos2θ
     val δθ =       ϵ2 * (7*`c²`-1) * sin2θ / 2
     val δΩ = - 3 * ϵ2 * c * sin2θ
-    val δr =       ϵ2 * (3 * r * βl * `3c²-1` - pl*`s²`*cos2θ)   
-      
+    val δr =       ϵ2 * (3 * r * βl * `3c²-1` - pl*`s²`*cos2θ)      
 //    val δR = - `J2/p/2` * `s²` * sin2θ * n / KE  // rdot, angular velocity
 //    val δrvdot =  `J2/p/2` * (`s²` * cos2θ + 1.5 * `3c²-1`) * n / KE
     val δR   =  2 * ϵ2 * `s²` * sin2θ * `βl³/√pl` // rdot, angular velocity

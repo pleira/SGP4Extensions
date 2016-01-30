@@ -6,7 +6,7 @@ import org.scalactic.Equality
 import predict4s.sgp._
 import predict4s.coord._
 import org.scalatest.Ignore
-
+/*
 //@Ignore
 class HardcodedLaraCheck extends FunSuite with NearTLEs with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] {
  
@@ -61,3 +61,4 @@ class HardcodedLaraCheck extends FunSuite with NearTLEs with ValladoNearTLEsChec
 } 
 
 
+*/

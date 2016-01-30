@@ -3,7 +3,7 @@ package predict4s.sgp.vallado
 import predict4s.sgp._
 import predict4s.report.ValladoFileReport
 import predict4s.coord._
-
+/*
 object HardcodedValladoReport extends App with NearTLEs {
  
   val wgs = SGP72Constants.tleDoubleConstants
@@ -32,4 +32,4 @@ object HardcodedValladoReport extends App with NearTLEs {
   ValladoFileReport.save(results28057, tle28057, lines(2), times28057)
 } 
 
-
+*/

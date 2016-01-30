@@ -2,7 +2,7 @@ package predict4s.report
 import predict4s.coord.TLE
 import better.files._
 import java.io.{File => JFile}
-import predict4s.sgp.vallado.SGP4Vallado
+import predict4s.sgp.algo.SGP4Vallado
 import predict4s.coord._
 
 object ValladoFileReport {
