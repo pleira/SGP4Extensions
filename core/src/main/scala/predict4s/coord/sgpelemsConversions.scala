@@ -22,7 +22,7 @@ object SGPElemsConversions {
    * 
    */  
   def sgpElemsAndContext[F: Field: Trig: NRoot: Order](tle: TLE, wgs: SGPConstants[F]) 
-      :  (SGPElems[F], Context0[F]) = { 
+      :  (SGPElems[F], Context0[F]) Or ErrorMessage = { 
     val e0 = tle.eccentricity.toDouble.as[F]
     val i0 = tle.inclination.toDouble.toRadians.as[F]
     val pa = tle.argumentOfPeriapsis.toDouble.toRadians.as[F]
@@ -40,26 +40,25 @@ object SGPElemsConversions {
     val Ω0 = raan
     val M0 = meanAnomaly    
     val radPerMin0 = TimeUtils.revPerDay2RadPerMin(meanMotionPerDay)
-    //val context0 = Context0(i0, e0)
     val elem0Ctx = calcContextAndOriginalMotionAndSemimajorAxis(e0,i0,ω0,Ω0,M0, bStar,epoch, radPerMin0, wgs)
     elem0Ctx
-    // (SGPElems[F](n0,e0,i0,ω0,Ω0,M0,a0,bStar,epoch), context0)
   }
 
   private def calcContextAndOriginalMotionAndSemimajorAxis[F: Field: NRoot : Order: Trig](
       e: F,I: F,ω: F,Ω: F,M: F, bStar: F,epoch: F, radPerMin: F, wgs: SGPConstants[F]) 
-    : (SGPElems[F], Context0[F]) = {
+    : (SGPElems[F], Context0[F]) Or ErrorMessage = {
     val `e²` : F = e*e
     val s : F = sin(I)
     val c : F = cos(I)
     val `c²` : F = c*c
     val `3c²-1` = 3*`c²` - 1
     val `β0²` = 1 - `e²`
+    if (`β0²` < 0.as[F]) return Bad(s"Problem with eccentricity $e")
     val β0 = `β0²`.sqrt
     val `β0³` = β0 * `β0²`
     val (n, a) = calcOriginalMotionAndSemimajorAxis(radPerMin,`3c²-1`,`β0³`,wgs)
     val context0 = Context0(a, `e²`,s,c,`c²`,`3c²-1`,β0,`β0²`,`β0³`)
-    (SGPElems[F](n,e,I,ω,Ω,M,a,bStar,epoch), context0)
+    Good((SGPElems[F](n,e,I,ω,Ω,M,a,bStar,epoch), context0))
   }
   
   private def calcOriginalMotionAndSemimajorAxis[F: Field: NRoot : Order: Trig](n: F, `3c²-1`: F, `β0³`: F, wgs: SGPConstants[F]) 
@@ -80,13 +79,10 @@ object SGPElemsConversions {
       : SpecialPolarNodal[F] Or ErrorMessage = {
     import eaState._ 
     import secularCtx.{_1 => elem}, elem.{a,I,e,n,ω,Ω}
-    import secularCtx.{_3 => wgs}, wgs.twopi
+    import secularCtx.{_3 => wgs}, wgs.`2pi`
     
     val `e²` = e*e
- //   val p = a*(1 - `e²`)  // semilatus rectum , as MU=1, p=Z²
     val β = sqrt(1 - `e²`)
- //   if (p < 0.as[F]) return Bad("Problem with semilatus rectum  p: $p")
- //   val `√p` = sqrt(p)
     val `√a` = sqrt(a)
 
     val r = a * (1 - ecosE)     // r´        
@@ -98,21 +94,10 @@ object SGPElemsConversions {
     val cosf = a/r*denom
     val esinf = e*sinf
     val ecosf = e*cosf
+    // comes from -pi,pi
     val f = atan2(sinf, cosf)
-    //val f = trueAnomaly(eaState, e)
     val θ0to2pi = f + ω 
-    val θ = if (θ0to2pi > pi.as[F]) θ0to2pi - twopi else θ0to2pi 
-    //val N = H
-//    val av = AuxVariables(sin(I), cos(I), p, ecosf, esinf, n, β, sin2f, cos2f)
-    //val av = SPNAuxVariables(p, ecosf, esinf, n, β)
-    
-    // do check
-//    {
-//    import av._
-//    assert(abs(κ - (av.p/r - 1)) < 1E-12.as[F] ) 
-//    assert(abs(σ - (av.p*R/Θ)) < 1E-12.as[F])
-//    }
-    
+    val θ = (f + ω) % `2pi`  // if (θ0to2pi > pi.as[F]) θ0to2pi - `2pi` else θ0to2pi     
     Good(SpecialPolarNodal(I,θ,Ω,r,R,Θ/r)) 
   }  
 }

@@ -102,13 +102,13 @@ trait LoadCppResults {
 }
 
 class CompareAll(all: AllPropagators, tle: TestTLE) extends LoadCppResults with DiffResults {
-  val algos = List("va", "vl", "pn") // , "la" this is the order
+  val algos = List("va", "vl", "pn", "la") // this is the order
   val SEP = "|"
   val sat = tle.tle.satelliteNumber
   val cppOuts = loadCppOutputData(sat)
   val pvs = all.finalCartesiansResults
   val pns = all.finalPNResults
-  val pnls = all.lppPNResults
+//  val pnls = all.lppPNResults
   val ups = all.unitCartesianPositions
   
   def maxs = pvs map { pvl => diffListPosVel(cppOuts, pvl) }
@@ -141,19 +141,19 @@ class CompareAll(all: AllPropagators, tle: TestTLE) extends LoadCppResults with 
     }
     ls
   }
-  val pnLppDiffs = pnls map { pnl => calculatePnLppDiffList(cppOuts, pnl) }
-  val algosPnLppDiffs = algos zip pnLppDiffs
+//  val pnLppDiffs = pnls map { pnl => calculatePnLppDiffList(cppOuts, pnl) }
+//  val algosPnLppDiffs = algos zip pnLppDiffs
   // TODO: applicative ?
-  val algosPnLppDiffsList = algosPnLppDiffs map {p =>
-    val algo = p._1
-    val list = p._2
-    val ls = list map { tc =>
-      val t : Int = (tc._1).toDouble.toInt
-      val c = tc._2
-      f"$SEP ${algo}%3s $SEP ${sat}%05d  $SEP ${t}%5d $SEP ${c.I}% 6.4e $SEP ${c.θ}% 6.4e $SEP ${c.Ω}% 6.4e $SEP ${c.r}% 6.4e $SEP ${c.R}% 6.4e $SEP ${c.`Θ/r`}% 6.4e $SEP"
-    }
-    ls
-  }
+//  val algosPnLppDiffsList = algosPnLppDiffs map {p =>
+//    val algo = p._1
+//    val list = p._2
+//    val ls = list map { tc =>
+//      val t : Int = (tc._1).toDouble.toInt
+//      val c = tc._2
+//      f"$SEP ${algo}%3s $SEP ${sat}%05d  $SEP ${t}%5d $SEP ${c.I}% 6.4e $SEP ${c.θ}% 6.4e $SEP ${c.Ω}% 6.4e $SEP ${c.r}% 6.4e $SEP ${c.R}% 6.4e $SEP ${c.`Θ/r`}% 6.4e $SEP"
+//    }
+//    ls
+//  }
 
   def vlpnPnDiffs: List[SpecialPolarNodal[Double]] = (pnDiffs.tail.head zip pnDiffs.tail.tail.head) map { p => p._1._2 - p._2._2 }
   def vlpnPnDiffsList = vlpnPnDiffs map { c =>
@@ -213,12 +213,12 @@ class CompareAll(all: AllPropagators, tle: TestTLE) extends LoadCppResults with 
     println
   }
   
-  def pnLppDiffReport() = {
-    println("### Differences between long period periodic corrections from Vallado in polar nodals using internal units to the algorithms\n")
-    pnDiffReportHeader map println
-    algosPnLppDiffsList map { ls => ls map { println } }
-    println
-  }
+//  def pnLppDiffReport() = {
+//    println("### Differences between long period periodic corrections from Vallado in polar nodals using internal units to the algorithms\n")
+//    pnDiffReportHeader map println
+//    algosPnLppDiffsList map { ls => ls map { println } }
+//    println
+//  }
   
   def vlpnFinalPNDiffReport() = {
     println("### Differences between final polar nodals results from Vallado Long and Polar Nodals algorithms using internal units\n")
@@ -256,14 +256,14 @@ object ReportTestNearTLEs extends App {
   }
   
 //  comps map { _.pnLppDiffReport }
-  val pnlppdifffile = file".doc/hpnlppdiff.md"
-  pndifffile.overwrite("")
-  "### Differences between long period periodic corrections from Vallado in polar nodals using internal units to the algorithms\n" >>: pndifffile
-  comps map { cls => 
-    "\n" >>: pndifffile
-    cls.pnDiffReportHeader map { _ >>: pnlppdifffile }
-    cls.algosPnLppDiffsList map { ls => ls map {_ >>: pnlppdifffile }}
-  }
+//  val pnlppdifffile = file".doc/hpnlppdiff.md"
+//  pndifffile.overwrite("")
+//  "### Differences between long period periodic corrections from Vallado in polar nodals using internal units to the algorithms\n" >>: pndifffile
+//  comps map { cls => 
+//    "\n" >>: pndifffile
+//    cls.pnDiffReportHeader map { _ >>: pnlppdifffile }
+//    cls.algosPnLppDiffsList map { ls => ls map {_ >>: pnlppdifffile }}
+//  }
   
   //val comp5 = comps(0)
   // comp5.algosPvDiffsList map { ls => ls map { println } }

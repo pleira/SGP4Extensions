@@ -11,7 +11,7 @@ import spire.syntax.primitives._
 import predict4s.sgp._
 import predict4s.coord._
 
-trait LyddaneLongPeriodCorrections[F] extends LongPeriodCorrections[F] with TwoTermsKeplerEq {
+trait LyddaneLongPeriodCorrections[F] extends LongPeriodSPNCorrections[F] with TwoTermsKeplerEq {
  
   override def lppCorrections(secularElemt : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
       : LPPSPNResult[F] = {

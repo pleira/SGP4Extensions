@@ -1,4 +1,6 @@
 package predict4s.sgp
+
+import org.scalactic.Or
 import spire.algebra._
 import spire.math._
 import spire.implicits._
@@ -23,33 +25,21 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
     ) {
  
   type Minutes =  sec.Minutes
+  type PC[_]   // return type for the periodic corrections 
 
-  def propagate(t: Minutes)  = propagate2CartesianContext(t)
+  def propagate(t: Minutes) : SGPPropResult[F]
 
   def gsto : F = TimeUtils.gstime(sec.elem0.epoch + 2433281.5) 
-  
-  def propagate2PolarNodalContext(t: Minutes) : SGPCorrPropResult[F] = {
-    for {
-     secularElemt <- secularCorrections(t)
-     pc <- periodicCorrections(secularElemt)
-    } yield (pc, secularElemt)
-  }
     
-  def propagate2CartesianContext(t: Minutes) : SGPPropResult[F] = {
-    for {
-      propCtx <- propagate2PolarNodalContext(t)
-      finalPolarNodal = propCtx._1._1
-      uPV = polarNodal2UnitCartesian(finalPolarNodal)
-      posVel = scale2CartesianElems(uPV, finalPolarNodal)      
-    } yield (posVel, uPV, propCtx) 
-  }
-  
   /** 
    *  Calculates the new secular elements at time t in minutes from the epoch of the initial elements 
    */
   def secularCorrections(t: Minutes): SGPSecularResult[F] = sec.secularCorrections(t)  
-  
-  def periodicCorrections(secularElemt : SGPSecularCtx[F])  :  SGPSPNResult[F] 
+
+  /** 
+   *  Applies the periodic corrections to the secular elements at time t in minutes from the epoch of the initial elements 
+   */  
+  def periodicCorrections(secularElemt : SGPSecularCtx[F]) : PC[F] Or ErrorMessage 
   
   /**
    * Vallado's code works with internal units of length LU (units of earth’s radius  

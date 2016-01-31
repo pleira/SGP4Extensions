@@ -108,7 +108,7 @@ trait SGPConstants[F] {
   def `J2/J3` : F
   def `J3/J2` : F
   def μ : F
-  def twopi = 2*pi
+  def `2pi` = 2*pi 
   def `2/3` : F
   def `1/3` : F
 //  def CK2: F = wgs.K2 // = 5.413080E-4.as[F] // 1/2 J2aE
@@ -196,7 +196,7 @@ object SGP84Constants {
 //DE2RA = 0.174532925E-1 // radians/degree
 //PI = 3.14159265 // π
 //PIO2 = 1.57079633 // π/2 
-//TWOPI =  6.2831853 // 2π
+//`2pi` =  6.2831853 // 2π
 //X3PIO2 = 4.71238898  // 3π/2 
 
 //object TLEConstants {

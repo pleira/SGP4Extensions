@@ -72,13 +72,13 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
     val Mm_ = Mp + n*δℓ
      
     // modulus so that the angles are in the range 0,2pi
-    val Ω_ = Ωm  % twopi
-    val ω_ = ωm  % twopi
+    val Ω_ = Ωm  % `2pi`
+    val ω_ = ωm  % `2pi`
     
     // Lyddane's variables and back 
     val ℓm = Mm_ + ωm + Ωm
-    val lm = ℓm  % twopi
-    val Mm = (lm - ω_ - Ω_) % twopi
+    val lm = ℓm  % `2pi`
+    val Mm = (lm - ω_ - Ω_) % `2pi`
     val elems = SGPElems(nm, em, I, ω_, Ω_, Mm, am, bStar, epoch)
     val elemCtx = (elems,ctx0.inclinationCtx,wgs)
     Good(elemCtx)
@@ -132,8 +132,8 @@ object BrouwerLaneSecularCorrections {
     new BrouwerLaneSecularCorrections(elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, dragCoefs, isImpacting, rp)
   }
   
-  def apply[F : Field : NRoot : Order : Trig](tle: TLE, wgs: SGPConstants[F]) :  BrouwerLaneSecularCorrections[F] =  {
-    val elem0AndCtx = SGPElemsConversions.sgpElemsAndContext(tle, wgs)
-    BrouwerLaneSecularCorrections(elem0AndCtx, wgs)
-  }    
+  def build[F : Field : NRoot : Order : Trig](tle: TLE, wgs: SGPConstants[F]) :  BrouwerLaneSecularCorrections[F] Or ErrorMessage = for {
+    elem0AndCtx <- SGPElemsConversions.sgpElemsAndContext(tle, wgs)
+  } yield BrouwerLaneSecularCorrections(elem0AndCtx, wgs)
+    
 }

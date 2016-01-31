@@ -14,7 +14,7 @@ object HardcodedPNReport extends App with NearTLEs  {
   
   def propags : List[SGP4PN[Double]] = tles map {tle => 
     import spire.std.any.DoubleAlgebra
-    SGP4PN[Double](tle, wgs)
+    SGP4PN.build[Double](tle, wgs).get
   }
   def sgpImpl : String = "PN SGP4"
   

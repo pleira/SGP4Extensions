@@ -12,7 +12,7 @@ import predict4s.sgp._
 import predict4s.coord._
 import predict4s.coord.SGPElemsConversions._
 
-trait SPNLongPeriodCorrections[F] extends LongPeriodCorrections[F] with SimpleKeplerEq {
+trait SPNLongPeriodCorrections[F] extends LongPeriodSPNCorrections[F] with SimpleKeplerEq {
   
   /**
    * long period corrections in SpecialPolarNodal coordinates
@@ -22,7 +22,7 @@ trait SPNLongPeriodCorrections[F] extends LongPeriodCorrections[F] with SimpleKe
     val elem = secularElemt._1
     val wgs = secularElemt._3
     for {
-      eaState <- solveKeplerEq(elem)
+      eaState <- solveKeplerEq(elem.e, elem.M)
       spnSecular <- sgpelems2SpecialPolarNodal(eaState, secularElemt)
       lppcorr = lppPNCorrections((spnSecular, secularElemt))
     } yield (lppcorr._1, lppcorr._2, secularElemt)    
@@ -33,7 +33,7 @@ trait SPNLongPeriodCorrections[F] extends LongPeriodCorrections[F] with SimpleKe
     import spnCtx.{_1 => spn}, spn._, spnCtx.{_2 => secularCtx}, secularCtx.{_1 => elem}
     import elem.{Ω=>_, _} // do not import Ω from secular elements, just use spn version
     import secularCtx._2.{c,s}
-    import secularCtx._3.{KE,`J3/J2`,twopi}
+    import secularCtx._3.{KE,`J3/J2`,`2pi`}
 
     val p = a*(1 - e*e)  // semilatus rectum , as MU=1, p=Z²
     val ϵ3 = `J3/J2`/p/2 // ϵ3 = 1/2 aE/p C30/C20 in Lara's
@@ -46,29 +46,29 @@ trait SPNLongPeriodCorrections[F] extends LongPeriodCorrections[F] with SimpleKe
     val κ = p/r - 1
     val sinθ = sin(θ)
     val cosθ = cos(θ)
-    val δr = ϵ3 * p * s * sinθ
     val δθ = ϵ3 * ((2*s_ + κ/s_)*cosθ + (1/s_ - s_)* σ * sinθ)
     val δΩ = ϵ3 * c/s_ * (κ*cosθ + σ * sinθ) 
+    val δr = ϵ3 * p * s * sinθ
     val δR = ϵ3 * `Θ/r` * (1+κ) * s * cosθ
     val δΘ = ϵ3 * Θ * s * (κ*sinθ - σ * cosθ)
+
+    // derive correction for the inclination, cosI' = c / (1 + ϵ3*s*(κ*sinθ - σ*cosθ))
+    val cosI = c / (1 + ϵ3*s*(κ*sinθ - σ*cosθ))
+    val Il = acos(cosI)
     
+    // apply corrections
     val θl_ = θ+δθ 
     // convert to -pi,pi range
     val diff = abs(θl_) - pi.as[F]
     val θl = if (diff > 0.as[F]) {
-      if (θl_ > 0.as[F]) θl_ - twopi   
-      else twopi + θl_
+      if (θl_ > 0.as[F]) θl_ - `2pi`   
+      else `2pi` + θl_
     } else θl_
     
     val Ωl = Ω-δΩ
     val rl = r+δr
     val Rl = R+δR
     val Θl = Θ+δΘ // angular momentum
-    
-        
-    // derive correction for the inclination, cosI' = c / (1 + ϵ3*s*(κ*sinθ - σ*cosθ))
-    val cosI = c / (1 + ϵ3*s*(κ*sinθ - σ*cosθ))
-    val Il = acos(cosI)
     
     // recalculate the "state" variables here
     val sin2θ = sin(2*θl) // 2 * cos(θl) * sin(θl)
@@ -84,7 +84,7 @@ trait SPNLongPeriodCorrections[F] extends LongPeriodCorrections[F] with SimpleKe
   
 //  def lppCorrectionsAlt(spn: (SpecialPolarNodal[F], AuxVariables[F]))(implicit ev: Field[F], nr: NRoot[F], trig: Trig[F])
 //       : (SpecialPolarNodal[F], LongPeriodContext[F]) = {
-//    import spn._1._,spn._2.{p,s,c},wgs.{KE,`J3/J2`,twopi}
+//    import spn._1._,spn._2.{p,s,c},wgs.{KE,`J3/J2`,`2pi`}
 //    //(s: F, c: F, p: F, κ: F, σ: F, n: F, β: F, sin2f: F, cos2f: F)
 //    val ϵ3 = `J3/J2`/p/2 // ϵ3 = 1/2 aE/p C30/C20 in Lara's
 //    val σ = p*R/Θ

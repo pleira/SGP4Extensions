@@ -14,7 +14,7 @@ object HardcodedLydanneLongReport extends App with NearTLEs {
 
   def propags : List[SGP4ValladoLong[Double]] = tles map {tle => 
     import spire.std.any.DoubleAlgebra
-    SGP4ValladoLong[Double](tle, wgs)
+    SGP4ValladoLong.build[Double](tle, wgs).get
   }
   def sgpImpl : String = "Vallado-Lydanne LONG SGP4"
   

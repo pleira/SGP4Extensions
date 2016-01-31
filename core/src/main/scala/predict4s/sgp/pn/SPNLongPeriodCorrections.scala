@@ -23,7 +23,7 @@ trait SPNLongPeriodCorrections[F] extends SimpleKeplerEq {
    
   def lppCorrections(spn: (SpecialPolarNodal[F], AuxVariables[F]))(implicit ev: Field[F], nr: NRoot[F], trig: Trig[F])
        : (SpecialPolarNodal[F], LongPeriodContext[F]) = {
-    import spn._1._,spn._2.{p,s,c},wgs.{KE,`J3/J2`,twopi}
+    import spn._1._,spn._2.{p,s,c},wgs.{KE,`J3/J2`,`2pi`}
     //(s: F, c: F, p: F, κ: F, σ: F, n: F, β: F, sin2f: F, cos2f: F)
     val ϵ3 = `J3/J2`/p/2 // ϵ3 = 1/2 aE/p C30/C20 in Lara's
     
@@ -58,7 +58,7 @@ trait SPNLongPeriodCorrections[F] extends SimpleKeplerEq {
   
   def lppCorrectionsAlt(spn: (SpecialPolarNodal[F], AuxVariables[F]))(implicit ev: Field[F], nr: NRoot[F], trig: Trig[F])
        : (SpecialPolarNodal[F], LongPeriodContext[F]) = {
-    import spn._1._,spn._2.{p,s,c},wgs.{KE,`J3/J2`,twopi}
+    import spn._1._,spn._2.{p,s,c},wgs.{KE,`J3/J2`,`2pi`}
     //(s: F, c: F, p: F, κ: F, σ: F, n: F, β: F, sin2f: F, cos2f: F)
     val ϵ3 = `J3/J2`/p/2 // ϵ3 = 1/2 aE/p C30/C20 in Lara's
     val σ = p*R/Θ

@@ -17,7 +17,7 @@ class GeoPotentialStateCheck extends FunSuite with TLE00005 with TLE06251  {
   def fixture = new {
       def buildGeoPotential(tle: TLE) = {
         import spire.implicits._
-        val elem : (SGPElems[Double], Context0[Double]) = SGPElemsConversions.sgpElemsAndContext(tle, wgs)
+        val elem : (SGPElems[Double], Context0[Double]) = SGPElemsConversions.sgpElemsAndContext(tle, wgs).get
         val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = Factory2ndOrderSecularCorrectionsTerms.geoPotentialCoefsAndContexts(elem, wgs)
         (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
       }

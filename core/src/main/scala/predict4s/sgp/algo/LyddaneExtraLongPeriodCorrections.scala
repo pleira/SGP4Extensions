@@ -11,7 +11,7 @@ import org.scalactic.Bad
 import predict4s.coord._
 import predict4s.sgp._
 
-trait LyddaneExtraLongPeriodCorrections[F] extends LongPeriodCorrections[F] with TwoTermsKeplerEq {
+trait LyddaneExtraLongPeriodCorrections[F] extends LongPeriodSPNCorrections[F] with TwoTermsKeplerEq {
   
   override def lppCorrections(secularElemt : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
       : LPPSPNResult[F] = {
