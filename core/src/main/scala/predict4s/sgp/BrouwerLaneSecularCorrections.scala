@@ -32,7 +32,7 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
   // valid interval for eccentricity calculations
   val eValidInterval = Interval.open(0.as[F],1.as[F])
      
-  def secularCorrections(t: Minutes): SGPSecularResult[F] = { // : Either[String, SGPElems[F]] = {
+  def secularCorrections(t: Minutes): SGPSecularResult[F] = {
     
     import secularFreqs._  // {ωdot,Ωdot,mdot=>Mdot,Ωcof}
     import dragCoefs._  

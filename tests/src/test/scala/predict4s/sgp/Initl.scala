@@ -12,7 +12,7 @@ trait Initl[F] {
   def    no  : F   
  //   outputs : 
   def  ainv  : F     ; def    ao  : F  ; def cosio  : F  ; def cosio2  : F    
-  def eccsq  : F  ; def omeosq : F     ; def  posq  : F ; def    rp  : F  ; def rteosq : F  ; 
+  def eccsq  : F  ; def omeosq : F     ; def    rp  : F  ; def rteosq : F  ; 
   def sinio  : F  ; def  gsto  : F     ; 
 }
 

@@ -37,7 +37,6 @@ object Factory2ndOrderSecularCorrectionsTerms extends GeoPotentialAndAtmosphere2
   
   def geoPotentialCoefsAndContexts[F : Field : NRoot : Order : Trig](elem0Ctx0: (SGPElems[F], Context0[F]), wgs: SGPConstants[F]) 
       : (SGPElems[F], Context0[F], GeoPotentialCoefs[F], GeoPotentialContext[F], F, F, Boolean) = {
-    //val (elem0, context0) = originalElemsAndContext(elemTLE)
     import elem0Ctx0.{_1 => elem0, _2 => context0}
     import elem0.{a,e}
     
@@ -61,8 +60,12 @@ object Factory2ndOrderSecularCorrectionsTerms extends GeoPotentialAndAtmosphere2
       : (SecularFrequencies[F], F) = {
   
     import gcof._,gctx._,ctx0._
-    import wgs._
+    import wgs._,iCtx._,eCtx._
     import elem.{e => e0,n => n0,a => a0,ω => ω0, M => M0,bStar}
+
+    val p = a0 * `β0²` // a0 * (1 - `e²`) // semilatus rectum , which also is G²/μ, with G as the Delauney's action, the total angular momentum
+    val `p²` = p*p
+    val `p⁴` = `p²`*`p²`
     
     val ϵ2 = - J2/`p²`/ 4  // note missing aE² as in Lara's
     val temp3 = -0.46875 * J4 * n0 / `p⁴`
@@ -88,7 +91,7 @@ object Factory2ndOrderSecularCorrectionsTerms extends GeoPotentialAndAtmosphere2
       : DragSecularCoefs[F] = {
     
     import gcof._,gctx._,ctx0._
-    import wgs._
+    import wgs._,iCtx._,eCtx._
     import elem.{e => e0,n => n0,a => a0,ω => ω0, bStar}
     
     // other derived coeficients and variables that are used related to drag corrections

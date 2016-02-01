@@ -4,48 +4,55 @@ import spire.algebra._
 import spire.math._
 import spire.implicits._
 import spire.syntax.primitives._
+import org.scalactic.Or
+import org.scalactic.Good
+import org.scalactic.Bad
 
-case class InclinationCtx[F](c : F, `c²` : F, s : F,`s²` : F)
+case class InclinationCtx[F: Field](c : F, s : F) {
+  lazy val `s²` = s*s
+  lazy val `c²` = c*c
+  lazy val `c³` = `c²`*c
+  lazy val `c⁴` = `c²`*`c²`
+  lazy val `3c²-1` = 3*`c²` - 1
+  def cosI0      = c 
+  def `cos²I0`   = `c²`
+  def sinI0      = s
+  // these are used in Brouwers notation
+  def θ          = c
+  def `θ²`       = `c²` // `cos²I0`
+  def `θ³`       = `c³` // cosI0 * `cos²I0`
+  def `θ⁴`       = `c⁴` // `cos²I0` * `cos²I0`
+  def θsq        = `c²` // `cos²I0`
+}
+
+object InclinationCtx {
+  def apply[F: Field: Trig](I: F) : InclinationCtx[F] = InclinationCtx(cos(I), sin(I))
+}
+
+case class EccentricityCtx[F: Field: NRoot](eccentricity : F, `e²`: F, `β0²`: F) {
+  val  β0 : F = sqrt(`β0²`) 
+  val `β0³`: F = β0*`β0²`
+  val `β0⁴`: F = `β0²`*`β0²`  
+}
+
+
+object EccentricityCtx {
+    // valid interval for eccentricity calculations
+    def checkEccentricityValidInterval[F: Field: Order](e: F) : Boolean = Interval.open(0.as[F],1.as[F]).contains(e)
+  
+    def apply[F: Field: Order: NRoot](e: F) : EccentricityCtx[F] =  EccentricityCtx(e,e*e, 1-e*e)
+    
+    def elliptical[F: Field: NRoot : Order](e: F) : EccentricityCtx[F] Or ErrorMessage = 
+      if (e > 0.as[F] && e < 1.as[F]) 
+        Good(EccentricityCtx(e,e*e, 1-e*e))
+      else 
+        Bad(s"Problem with eccentricity $e")
+        
+}
 
 // This initial context is produced when transforming a TLE into SGPElems
 // so that certain variables are not calculated again.
-case class Context0[F: Field: NRoot : Trig](
-    a0: F, `e²`: F,s: F,c: F,`c²`: F, `3c²-1`: F,β0: F,`β0²`: F,`β0³`: F) {
-
-  def cosI0      = c 
-  def `cos²I0`   = `c²`
-  def θ          = c
-  def `θ²`       = `cos²I0`
-  def `θ³`       = cosI0 * `cos²I0`
-  def `θ⁴`       = `cos²I0` * `cos²I0`
-  def θsq        = `cos²I0`
-  def sinI0      = s
-  // def sinio      = s
-  val `c³`       = `c²`*c
-  val `c⁴`       = `c²`*`c²`
-  
-  val `β0⁴`      = `β0²`*`β0²`
-  // def rteosq     = β0sq
-  def omeosq     = `β0²`
-    
-  val `s²` = s*s
-  val p : F = a0 * `β0²` // a0 * (1 - `e²`) // semilatus rectum , which also is G²/μ, with G as the Delauney's action, the total angular momentum
-  val `p²` = p*p
-  val `p⁴` = `p²`*`p²`
-//  val `1/p²` = 1/`p²`
-//  val `1/p⁴` = 1/`p⁴`
-//  import wgs.{aE=>α,J2,`J2/J3`,`J3/J2`}
-//  val `α/p` : F = α/p
-//  val ϵ2 : F = -J2*(`α/p`**2) / 4
-//  val ϵ3 : F = (`J3/J2`)*`α/p` / 2      // or (`C30/C20`)*`α/p` / 2   
-// FIXME  val η : F = β0  // (1 - `e²`).sqrt           // eccentricity function G/L, with G as the Delauney's action, the total angular momentum , and L = √(μ a)
-//  val x3thm1     = 3*`c²` - 1
-  def con41 = `3c²-1` // depends on the inclination 
-//  val `1-5c²` = 1 - 5*`c²`
-  val x1mth2 = 1 - `c²`
-  val x7thm1 = 7*`c²` - 1   
-  //val x3thm1     = `3c²-1`   
-  val `1-c²`   = 1 - `c²`
-//  val `7c²-1`  = 7*`c²` - 1   
-  def inclinationCtx : InclinationCtx[F] = InclinationCtx(c,`c²`,s,`s²`)
+case class Context0[F: Field: NRoot : Order : Trig](iCtx: InclinationCtx[F], eCtx : EccentricityCtx[F]) {
+  def inclinationCtx = iCtx
+  def eccentricityCtx = eCtx
 }

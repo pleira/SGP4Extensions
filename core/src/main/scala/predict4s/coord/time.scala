@@ -21,8 +21,6 @@ import spire.syntax.primitives.IntAs
 object TimeUtils {
     
 
- 
-
   def revPerDay2RadPerMin[F: Field](rpd: F) : F = 2 * pi * rpd / 1440 
    
   // use old way of finding gst

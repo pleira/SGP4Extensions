@@ -20,7 +20,7 @@ trait GeoPotentialAndAtmosphere2ndOrderModel {
     import elem0.{a => a0,e => e0,n => n0,ω => ω0, bStar}
     import gctx._
     import wgs.{J2,J3,`J3/J2`}
-    import ctx.sinI0,ctx.`θ²`,ctx.`β0²`
+    import ctx._,iCtx.{sinI0,`θ²`},eCtx.`β0²`
   
     val coef1 : F = `ξ⁴(q0-s)⁴` / (`1-η²`** 3.5)
   

@@ -45,25 +45,20 @@ object SGPElemsConversions {
   }
 
   private def calcContextAndOriginalMotionAndSemimajorAxis[F: Field: NRoot : Order: Trig](
-      e: F,I: F,ω: F,Ω: F,M: F, bStar: F,epoch: F, radPerMin: F, wgs: SGPConstants[F]) 
-    : (SGPElems[F], Context0[F]) Or ErrorMessage = {
-    val `e²` : F = e*e
-    val s : F = sin(I)
-    val c : F = cos(I)
-    val `c²` : F = c*c
-    val `3c²-1` = 3*`c²` - 1
-    val `β0²` = 1 - `e²`
-    if (`β0²` < 0.as[F]) return Bad(s"Problem with eccentricity $e")
-    val β0 = `β0²`.sqrt
-    val `β0³` = β0 * `β0²`
-    val (n, a) = calcOriginalMotionAndSemimajorAxis(radPerMin,`3c²-1`,`β0³`,wgs)
-    val context0 = Context0(a, `e²`,s,c,`c²`,`3c²-1`,β0,`β0²`,`β0³`)
-    Good((SGPElems[F](n,e,I,ω,Ω,M,a,bStar,epoch), context0))
-  }
+    e: F,I: F,ω: F,Ω: F,M: F, bStar: F,epoch: F, radPerMin: F, wgs: SGPConstants[F]) 
+      : (SGPElems[F], Context0[F]) Or ErrorMessage =  
+    for {
+       eCtx <- EccentricityCtx.elliptical(e) 
+       iCtx = InclinationCtx(I)   
+       n_and_a = calcOriginalMotionAndSemimajorAxis(radPerMin,iCtx,eCtx,wgs)
+       (n,a) = (n_and_a._1, n_and_a._2)
+    } yield (SGPElems(n,e,I,ω,Ω,M,a,bStar,epoch), Context0(iCtx, eCtx))
   
-  private def calcOriginalMotionAndSemimajorAxis[F: Field: NRoot : Order: Trig](n: F, `3c²-1`: F, `β0³`: F, wgs: SGPConstants[F]) 
+  
+  private def calcOriginalMotionAndSemimajorAxis[F: Field: NRoot : Order: Trig](n: F, iCtx: InclinationCtx[F], eCtx : EccentricityCtx[F], wgs: SGPConstants[F]) 
       : (F, F) = {
     import wgs.{KE,J2,`2/3`,`1/3`}
+    import iCtx.`3c²-1`,eCtx.`β0³`
 
     val a1   = (KE / n) fpow `2/3`  // (Ke / n0) pow 1.5   
     val tval = 3 * J2 * `3c²-1` / `β0³` / 4  // 3 * k2 * (3*`cos²I0` - 1) / ((1-`e0²`) pow 1.5) / 4 

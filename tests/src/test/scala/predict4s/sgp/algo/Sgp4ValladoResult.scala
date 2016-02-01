@@ -14,7 +14,7 @@ case class Sgp4ValladoResult(
   val r = posVel.pos
   val v = posVel.vel
     
-  import sgp.sec._
+  import sgp.sec.ctx0._,iCtx._,eCtx._
   import sgp.sec.elem0
   import sgp.sec.geoPot._
   import sgp.sec.isImpacting
@@ -36,15 +36,15 @@ case class Sgp4ValladoResult(
   
   def  ainv  : Double    = 1 / elem0.a
   def    ao  : Double    = elem0.a
-//  def con41  : Double    = ctx0.x3thm1   // FIXME for d
-  def cosio  : Double    = ctx0.c // θ
-  def cosio2 : Double    = ctx0.`c²` // θsq
-  def eccsq  : Double    = ctx0.`e²` // e0sq 
-  def omeosq : Double    = 1 - ctx0.`e²` //  β0sq
-  def  posq  : Double    = ctx0.`p²` // posq
+//  def con41  : Double    = x3thm1   // FIXME for d
+  def cosio  : Double    = c // θ
+  def cosio2 : Double    = `c²` // θsq
+  def eccsq  : Double    = `e²` // e0sq 
+  def omeosq : Double    = 1 - `e²` //  β0sq
+  //def  posq  : Double    = `p²` // posq
   def    rp  : Double    = sgp.sec.rp
-  def rteosq : Double    = math.sqrt(1 - ctx0.`e²`) // β0
-  def sinio  : Double    = ctx0.s
+  def rteosq : Double    = math.sqrt(1 - `e²`) // β0
+  def sinio  : Double    = s
   def  gsto  : Double    = sgp.gsto    
   
   // ---
@@ -70,8 +70,8 @@ case class Sgp4ValladoResult(
   def   t3cof  : Double = laneCoefs.T3
   def   t4cof  : Double = laneCoefs.T4
   def   t5cof  : Double = laneCoefs.T5
-  def  x1mth2  : Double = ctx0.x1mth2 // FIXME for d
-  def  x7thm1  : Double = ctx0.x7thm1 // FIXME for d
+  def  x1mth2  : Double = 1 - `c²` // FIXME for d
+  def  x7thm1  : Double = 7*`c²` - 1   // x7thm1 // FIXME for d
   def   xmcof  : Double = dragCoefs.Mcof
 //      def temp1 : Double = 3 * J2 / posq * no / 2  
 //      def temp2 : Double = J2/ posq *temp1 / 2

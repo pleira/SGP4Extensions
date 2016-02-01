@@ -40,7 +40,7 @@ class GeoPotentialStateCheck extends FunSuite with TLE00005 with TLE06251  {
   }
   
   def checkSgp4GeoPotential_5(elem0: SGPElems[Double], context0: Context0[Double], geoPot: GeoPotentialCoefs[Double], gctx: GeoPotentialContext[Double], rp: Double, perigeeHeight: Double, isImpacting: Boolean) = {
-    import geoPot._,elem0._,context0.{con41,omeosq} // rteosq
+    import geoPot._,elem0._,context0.iCtx.`3c²-1`,context0.eCtx.`β0²` // rteosq
     val ωcof = C3*bStar*math.cos(ω)
    
     assert(  n      ===     0.047206302); assert(   a  ===     1.353899821); 
@@ -49,14 +49,14 @@ class GeoPotentialStateCheck extends FunSuite with TLE00005 with TLE06251  {
     assert(  Ω      ===     6.086385471); assert(   M  ===     0.337309313);
     assert(  bStar  ===     0.000028098); assert( epoch  === 18441.784950620);
     assert(    rp  ===     1.102119539); 
-    assert( con41  ===     1.048865088); assert(  omeosq ===    0.965416386); assert(   ωcof ===     0.000000000 ); 
+    assert( `3c²-1`  ===     1.048865088); assert(  `β0²` ===    0.965416386); assert(   ωcof ===     0.000000000 ); 
     assert(    C1  ===     0.000000000); assert(    C4  ===     0.000000526); assert(    C5  ===     0.000016465);  
     assert(    D2  ===     0.000000000); assert(    D3  ===     0.000000000); assert(    D4  ===     0.000000000);
   } 
 
 
   def checkSgp4GeoPotential_06251(elem0: SGPElems[Double], context0: Context0[Double], geoPot: GeoPotentialCoefs[Double], gctx: GeoPotentialContext[Double], rp: Double, perigeeHeight: Double, isImpacting: Boolean) = {
-import geoPot._,elem0._,context0.{con41,omeosq} // rteosq
+import geoPot._,elem0._,context0.iCtx.`3c²-1`,context0.eCtx.`β0²`  // rteosq
     val ωcof = C3*bStar*math.cos(ω)
     assert(  n      ===     0.067918037); assert(   a  ===     1.062338933); 
     assert(  e      ===     0.003003500); 
@@ -64,7 +64,7 @@ import geoPot._,elem0._,context0.{con41,omeosq} // rteosq
     assert(  Ω      ===     0.943219561); assert(   M  ===     3.860413487);
     assert(  bStar  ===     0.000128080); assert( epoch  === 20630.824120140);
     assert(    rp  ===     1.059148199); 
-    assert( con41  ===    -0.160280193); assert(  omeosq ===    0.999990979); assert(   ωcof ===    -0.000000052 )
+    assert( `3c²-1`  ===  -0.160280193); assert(  `β0²` ===    0.999990979); assert(   ωcof ===    -0.000000052 )
     assert(    C1  ===     0.000000003); assert(    C4  ===     0.000005200); assert(    C5  ===     0.000650194);  
     assert(    D2  ===     0.000000000); assert(    D3  ===     0.000000000); assert(    D4  ===     0.000000000);
   } 
