@@ -15,16 +15,12 @@ case class DragSecularCoefs[F](Mcof: F, ωcof: F, Ωcof: F)
 case class LaneCoefs[F](T2: F, T3: F, T4: F, T5: F)
 
 class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig]( 
-    val elem0: SGPElems[F],    
-    val wgs: SGPConstants[F],
-    val ctx0: Context0[F],
+    val elem0Ctx: SGPElemsCtx[F],    
     val geoPot: GeoPotentialCoefs[F],
     val gctx: GeoPotentialContext[F],
     val laneCoefs : LaneCoefs[F],
     val secularFreqs : SecularFrequencies[F], 
-    val dragCoefs : DragSecularCoefs[F],
-    val isImpacting: Boolean,
-    val rp: F
+    val dragCoefs : DragSecularCoefs[F]
     )  {
 
   type Minutes = F // type to remember dealing with minutes from epoch
@@ -36,7 +32,8 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
     
     import secularFreqs._  // {ωdot,Ωdot,mdot=>Mdot,Ωcof}
     import dragCoefs._  
-    import elem0._, wgs._
+    import elem0Ctx.{elem,iCtx,eCtx,wgs} 
+    import elem._,wgs.{KE,`2/3`,`2pi`}
  
     // Brouwer’s gravitational corrections are applied first
     // Note that his theory relies on Delaunays variables, 
@@ -54,7 +51,7 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
     val Mp = xMp
 
     // Compute the secular elements (not exactly secular as they mix long-period terms from drag)
-    val am : F  = ((KE/n) fpow (2.0/3.0).as[F]) * δL * δL // a * tempa**2  
+    val am : F  = ((KE/n) fpow `2/3`) * δL * δL // a * tempa**2  
     val nm : F  = KE / (am pow 1.5)
     val em_ : F = e - δe
     
@@ -80,7 +77,7 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
     val lm = ℓm  % `2pi`
     val Mm = (lm - ω_ - Ω_) % `2pi`
     val elems = SGPElems(nm, em, I, ω_, Ω_, Mm, am, bStar, epoch)
-    val elemCtx = (elems,ctx0.inclinationCtx,wgs)
+    val elemCtx = (elems,iCtx,wgs)
     Good(elemCtx)
   }
   
@@ -96,7 +93,8 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
     import dragCoefs._ // {ωcof,delM0,sinM0,Mcof}    
     import geoPot._ 
     import gctx.η 
-    import elem0.{bStar,M}
+    import elem0Ctx.{elem,iCtx,eCtx,wgs,isImpacting} 
+    import elem._,wgs.{KE,`2/3`,`2pi`}
     
     val `t²` : F = t*t    
     val Ωm  : F = Ωdf + Ωcof*`t²` 
@@ -122,18 +120,17 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
     (δL, δe, δℓ, ωm_, Mpm_, Ωm)
   }
   
-  def inclCtx = ctx0.inclinationCtx
 }
 
 object BrouwerLaneSecularCorrections {
   
-  def apply[F : Field : NRoot : Order : Trig](elem0Ctx0: (SGPElems[F], Context0[F]), wgs0: SGPConstants[F]) :  BrouwerLaneSecularCorrections[F] = {
-    val (elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, dragCoefs, isImpacting, rp) = Factory2ndOrderSecularCorrectionsTerms.from(elem0Ctx0, wgs0)
-    new BrouwerLaneSecularCorrections(elem, wgs, ctx0, geoPot, gctx, laneCoefs, secularFreqs, dragCoefs, isImpacting, rp)
+  def apply[F : Field : NRoot : Order : Trig](elem0Ctx: SGPElemsCtx[F]) :  BrouwerLaneSecularCorrections[F] = {
+    val (geoPot, gctx, laneCoefs, secularFreqs, dragCoefs) = Factory2ndOrderSecularCorrectionsTerms.from(elem0Ctx)
+    new BrouwerLaneSecularCorrections(elem0Ctx, geoPot, gctx, laneCoefs, secularFreqs, dragCoefs)
   }
   
   def build[F : Field : NRoot : Order : Trig](tle: TLE, wgs: SGPConstants[F]) :  BrouwerLaneSecularCorrections[F] Or ErrorMessage = for {
     elem0AndCtx <- SGPElemsConversions.sgpElemsAndContext(tle, wgs)
-  } yield BrouwerLaneSecularCorrections(elem0AndCtx, wgs)
+  } yield BrouwerLaneSecularCorrections(elem0AndCtx)
     
 }

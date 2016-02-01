@@ -63,7 +63,7 @@ object SGP4Vallado  {
   
   def build[F : Field : NRoot : Order : Trig](tle: TLE, wgs: SGPConstants[F]) : SGP4Vallado[F] Or ErrorMessage  =  for {
     elem0AndCtx <- SGPElemsConversions.sgpElemsAndContext(tle, wgs)
-    secular = BrouwerLaneSecularCorrections(elem0AndCtx, wgs)
+    secular = BrouwerLaneSecularCorrections(elem0AndCtx)
   } yield SGP4Vallado[F](secular)
 }
 
@@ -73,7 +73,7 @@ object SGP4PN  {
   
   def build[F : Field : NRoot : Order : Trig](tle: TLE, wgs: SGPConstants[F]) : SGP4PN[F] Or ErrorMessage  =  for {
     elem0AndCtx <- SGPElemsConversions.sgpElemsAndContext(tle, wgs)
-    secular = BrouwerLaneSecularCorrections(elem0AndCtx, wgs)
+    secular = BrouwerLaneSecularCorrections(elem0AndCtx)
   } yield SGP4PN[F](secular)
 
 }
@@ -84,7 +84,7 @@ object SGP4ValladoLong  {
   
   def build[F : Field : NRoot : Order : Trig](tle: TLE, wgs: SGPConstants[F]) : SGP4ValladoLong[F] Or ErrorMessage = for {
       elem0AndCtx <- SGPElemsConversions.sgpElemsAndContext(tle, wgs)
-      secular = BrouwerLaneSecularCorrections(elem0AndCtx, wgs)
+      secular = BrouwerLaneSecularCorrections(elem0AndCtx)
     } yield SGP4ValladoLong[F](secular)
 
 }

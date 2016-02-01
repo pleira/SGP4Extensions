@@ -40,5 +40,8 @@ package object coord {
   type LyddaneResult[F] = (LyddaneElems[F], LyddaneCtx[F])
   
   // for Kepler Equations
-  type AnomalyResult[F] = AnomalyState[F] Or ErrorMessage      
+  type AnomalyResult[F] = AnomalyState[F] Or ErrorMessage   
+  
+  // SGPElems
+  type SGPElemsResult[F] = SGPElemsCtx[F] Or ErrorMessage
 }

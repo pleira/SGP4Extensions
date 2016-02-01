@@ -28,7 +28,7 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
   // val tols = List()
   for (tle <- tles) {
     val elem0AndCtx = SGPElemsConversions.sgpElemsAndContext(tle, wgs).get
-    val model = BrouwerLaneSecularCorrections(elem0AndCtx,wgs)
+    val model = BrouwerLaneSecularCorrections(elem0AndCtx)
     val vsgp4 = SGP4Vallado[Double](model)
     val pnsgp4 = SGP4PN[Double](model)
     val vlsgp4 = SGP4ValladoLong[Double](model)

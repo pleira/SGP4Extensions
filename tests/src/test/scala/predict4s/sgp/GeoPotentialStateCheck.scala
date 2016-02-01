@@ -2,11 +2,7 @@ package predict4s.sgp
 import org.scalatest.FunSuite
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
-import predict4s.coord.TLE
-import predict4s.coord.SGPElems
-import predict4s.coord.SGPElemsConversions
-import predict4s.coord.Context0
-import predict4s.coord.SGP72Constants
+import predict4s.coord._
 
 class GeoPotentialStateCheck extends FunSuite with TLE00005 with TLE06251  {
   
@@ -17,30 +13,31 @@ class GeoPotentialStateCheck extends FunSuite with TLE00005 with TLE06251  {
   def fixture = new {
       def buildGeoPotential(tle: TLE) = {
         import spire.implicits._
-        val elem : (SGPElems[Double], Context0[Double]) = SGPElemsConversions.sgpElemsAndContext(tle, wgs).get
-        val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = Factory2ndOrderSecularCorrectionsTerms.geoPotentialCoefsAndContexts(elem, wgs)
-        (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
+        val elem0Ctx = SGPElemsConversions.sgpElemsAndContext(tle, wgs).get
+        val (geoPot, gctx) = Factory2ndOrderSecularCorrectionsTerms.geoPotentialCoefsAndContexts(elem0Ctx)
+        (elem0Ctx, geoPot, gctx)
       }
   }
   
   test(s"${sgpImpl}: compare GeoPotentialState for 00005 when t=0") {
     val f = fixture
-    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = f.buildGeoPotential(tle00005)
-    assert(isImpacting == false)
+    val (elem0Ctx, geoPot, gctx) = f.buildGeoPotential(tle00005)
+    assert(elem0Ctx.isImpacting == false)
     //assert(isDeepSpace == false)
-    checkSgp4GeoPotential_5(elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
+    checkSgp4GeoPotential_5(elem0Ctx, geoPot, gctx)
   }
   
   test(s"${sgpImpl}: compare GeoPotentialState for 06251 when t=0") {
     val f = fixture
-    val (elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting) = f.buildGeoPotential(tle06251)
-    assert(isImpacting == false)
+    val (elem0Ctx, geoPot, gctx) = f.buildGeoPotential(tle06251)
+    assert(elem0Ctx.isImpacting == false)
     //assert(gps.dps.isDeepSpace == false)
-    checkSgp4GeoPotential_06251(elem0, context0, geoPot, gctx, rp, perigeeHeight, isImpacting)
+    checkSgp4GeoPotential_06251(elem0Ctx, geoPot, gctx)
   }
   
-  def checkSgp4GeoPotential_5(elem0: SGPElems[Double], context0: Context0[Double], geoPot: GeoPotentialCoefs[Double], gctx: GeoPotentialContext[Double], rp: Double, perigeeHeight: Double, isImpacting: Boolean) = {
-    import geoPot._,elem0._,context0.iCtx.`3c²-1`,context0.eCtx.`β0²` // rteosq
+  def checkSgp4GeoPotential_5(elem0Ctx: SGPElemsCtx[Double], geoPot: GeoPotentialCoefs[Double], gctx: GeoPotentialContext[Double]) = {
+    import elem0Ctx.{elem,iCtx,eCtx,wgs,rp} 
+    import geoPot._,elem._,iCtx.`3c²-1`,eCtx.`β0²` // rteosq
     val ωcof = C3*bStar*math.cos(ω)
    
     assert(  n      ===     0.047206302); assert(   a  ===     1.353899821); 
@@ -55,9 +52,11 @@ class GeoPotentialStateCheck extends FunSuite with TLE00005 with TLE06251  {
   } 
 
 
-  def checkSgp4GeoPotential_06251(elem0: SGPElems[Double], context0: Context0[Double], geoPot: GeoPotentialCoefs[Double], gctx: GeoPotentialContext[Double], rp: Double, perigeeHeight: Double, isImpacting: Boolean) = {
-import geoPot._,elem0._,context0.iCtx.`3c²-1`,context0.eCtx.`β0²`  // rteosq
+  def checkSgp4GeoPotential_06251(elem0Ctx: SGPElemsCtx[Double], geoPot: GeoPotentialCoefs[Double], gctx: GeoPotentialContext[Double]) = {
+    import elem0Ctx.{elem,iCtx,eCtx,wgs,rp} 
+    import geoPot._,elem._,iCtx.`3c²-1`,eCtx.`β0²` // rteosq
     val ωcof = C3*bStar*math.cos(ω)
+    
     assert(  n      ===     0.067918037); assert(   a  ===     1.062338933); 
     assert(  e      ===     0.003003500); 
     assert(  I      ===     1.013301512); assert(   ω  ===     2.428744337); 

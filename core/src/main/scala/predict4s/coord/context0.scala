@@ -8,6 +8,18 @@ import org.scalactic.Or
 import org.scalactic.Good
 import org.scalactic.Bad
 
+// this class has the first informations related to the TLE processing
+case class SGPElemsCtx[F: Field: Order](elem: SGPElems[F], iCtx: InclinationCtx[F], eCtx: EccentricityCtx[F], wgs: SGPConstants[F]) {
+    import elem.{a,e},wgs.aE
+    
+    // radius of perigee
+    def rp = a*(1-e)
+      
+    // perigee height, altitude relative to the earth's surface
+    def perigeeHeight =  (rp - 1) * aE
+    def isImpacting : Boolean = rp < (220/aE + 1.as[F])   
+}
+
 case class InclinationCtx[F: Field](c : F, s : F) {
   lazy val `s²` = s*s
   lazy val `c²` = c*c
@@ -52,7 +64,7 @@ object EccentricityCtx {
 
 // This initial context is produced when transforming a TLE into SGPElems
 // so that certain variables are not calculated again.
-case class Context0[F: Field: NRoot : Order : Trig](iCtx: InclinationCtx[F], eCtx : EccentricityCtx[F]) {
-  def inclinationCtx = iCtx
-  def eccentricityCtx = eCtx
-}
+//case class Context0[F: Field: NRoot : Order : Trig](iCtx: InclinationCtx[F], eCtx : EccentricityCtx[F]) {
+//  def inclinationCtx = iCtx
+//  def eccentricityCtx = eCtx
+//}

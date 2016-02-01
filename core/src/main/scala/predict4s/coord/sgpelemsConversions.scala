@@ -22,7 +22,7 @@ object SGPElemsConversions {
    * 
    */  
   def sgpElemsAndContext[F: Field: Trig: NRoot: Order](tle: TLE, wgs: SGPConstants[F]) 
-      :  (SGPElems[F], Context0[F]) Or ErrorMessage = { 
+      :  SGPElemsResult[F] = { 
     val e0 = tle.eccentricity.toDouble.as[F]
     val i0 = tle.inclination.toDouble.toRadians.as[F]
     val pa = tle.argumentOfPeriapsis.toDouble.toRadians.as[F]
@@ -40,19 +40,18 @@ object SGPElemsConversions {
     val Ω0 = raan
     val M0 = meanAnomaly    
     val radPerMin0 = TimeUtils.revPerDay2RadPerMin(meanMotionPerDay)
-    val elem0Ctx = calcContextAndOriginalMotionAndSemimajorAxis(e0,i0,ω0,Ω0,M0, bStar,epoch, radPerMin0, wgs)
-    elem0Ctx
+    calcContextAndOriginalMotionAndSemimajorAxis(e0,i0,ω0,Ω0,M0, bStar,epoch, radPerMin0, wgs)
   }
 
   private def calcContextAndOriginalMotionAndSemimajorAxis[F: Field: NRoot : Order: Trig](
     e: F,I: F,ω: F,Ω: F,M: F, bStar: F,epoch: F, radPerMin: F, wgs: SGPConstants[F]) 
-      : (SGPElems[F], Context0[F]) Or ErrorMessage =  
+      : SGPElemsResult[F] =  
     for {
        eCtx <- EccentricityCtx.elliptical(e) 
        iCtx = InclinationCtx(I)   
        n_and_a = calcOriginalMotionAndSemimajorAxis(radPerMin,iCtx,eCtx,wgs)
        (n,a) = (n_and_a._1, n_and_a._2)
-    } yield (SGPElems(n,e,I,ω,Ω,M,a,bStar,epoch), Context0(iCtx, eCtx))
+    } yield SGPElemsCtx(SGPElems(n,e,I,ω,Ω,M,a,bStar,epoch), iCtx, eCtx, wgs)
   
   
   private def calcOriginalMotionAndSemimajorAxis[F: Field: NRoot : Order: Trig](n: F, iCtx: InclinationCtx[F], eCtx : EccentricityCtx[F], wgs: SGPConstants[F]) 

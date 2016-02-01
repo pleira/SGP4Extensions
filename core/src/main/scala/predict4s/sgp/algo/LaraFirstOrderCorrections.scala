@@ -59,7 +59,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 
  
   def scalePV(uPV: CartesianElems[F], laraCtx: SGPLaraCtx[F]): CartesianElems[F] = {
-      import sec.wgs.{aE,vkmpersec}, uPV._, laraCtx.{_1=>lns}, lns.{R,r,`Θ/r`}
+      import sec.elem0Ctx.wgs.{aE,vkmpersec}, uPV._, laraCtx.{_1=>lns}, lns.{R,r,`Θ/r`}
       val (p, v) = ( (aE*r) *: pos,  vkmpersec *: (R *: pos + `Θ/r` *: vel))
       CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
   }    
@@ -208,6 +208,6 @@ object SGP4Lara {
   
   def build[F : Field : NRoot : Order : Trig](tle: TLE, wgs: SGPConstants[F]) :  SGP4Lara[F] Or ErrorMessage = for {
     elem0AndCtx <- SGPElemsConversions.sgpElemsAndContext(tle, wgs)
-    secular = BrouwerLaneSecularCorrections(elem0AndCtx, wgs)
+    secular = BrouwerLaneSecularCorrections(elem0AndCtx)
   } yield SGP4Lara[F](secular)
 }

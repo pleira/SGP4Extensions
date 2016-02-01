@@ -29,7 +29,7 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
 
   def propagate(t: Minutes) : SGPPropResult[F]
 
-  def gsto : F = TimeUtils.gstime(sec.elem0.epoch + 2433281.5) 
+  def gsto : F = TimeUtils.gstime(sec.elem0Ctx.elem.epoch + 2433281.5) 
     
   /** 
    *  Calculates the new secular elements at time t in minutes from the epoch of the initial elements 
@@ -48,17 +48,17 @@ abstract class SGP4[F : Field : NRoot : Order : Trig](
    * where μ is the earth’s gravitational constant; μ = 1 UL³/UT² in internal units.    
    */
   def convertAndScale2UnitVectors(pos : Vector[F], vel : Vector[F], mrt: F, mvt: F, rvdot: F): (Vector[F], Vector[F]) = {
-      import sec.wgs.{aE,vkmpersec}
+      import sec.elem0Ctx.wgs.{aE,vkmpersec}
       ( (aE*mrt) *: pos,  vkmpersec *: (mvt *: pos + rvdot *: vel))
   }
   
   def convertAndScale2UnitVectors(pos : Vector[F], vel : Vector[F], spn: SpecialPolarNodal[F]): (Vector[F], Vector[F]) = {
-      import sec.wgs.{aE,vkmpersec}, spn._
+      import sec.elem0Ctx.wgs.{aE,vkmpersec}, spn._
       ( (aE*r) *: pos,  vkmpersec *: (R *: pos + `Θ/r` *: vel))
   }  
  
   def scale2CartesianElems(unitElems: CartesianElems[F], spn: SpecialPolarNodal[F]): CartesianElems[F] = {
-      import sec.wgs.{aE,vkmpersec}, spn._, unitElems._
+      import sec.elem0Ctx.wgs.{aE,vkmpersec}, spn._, unitElems._
       val (p, v) = ( (aE*r) *: pos,  vkmpersec *: (R *: pos + `Θ/r` *: vel))
       CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
   }  

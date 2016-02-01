@@ -14,10 +14,10 @@ case class Sgp4ValladoResult(
   val r = posVel.pos
   val v = posVel.vel
     
-  import sgp.sec.ctx0._,iCtx._,eCtx._
-  import sgp.sec.elem0
+  import sgp.sec.elem0Ctx
+  import elem0Ctx._,iCtx._,eCtx._
+  // import elem0Ctx.isImpacting
   import sgp.sec.geoPot._
-  import sgp.sec.isImpacting
   import sgp.sec.{dragCoefs,secularFreqs,laneCoefs}
   val error = 0
   val x = r(0); 
@@ -27,31 +27,31 @@ case class Sgp4ValladoResult(
   val ydot = v(1) ; 
   val zdot = v(2) ;
   def satn = tle.satelliteNumber
-  def ecco  : Double = elem0.e
-  def epoch : Double = elem0.epoch
-  def inclo : Double = elem0.I
+  def ecco  : Double = elem.e
+  def epoch : Double = elem.epoch
+  def inclo : Double = elem.I
   
  //   outputs : 
   // def method  : Char  = 'n' // FIXME if (isDeepSpace) 'd' else 'n'
   
-  def  ainv  : Double    = 1 / elem0.a
-  def    ao  : Double    = elem0.a
+  def  ainv  : Double    = 1 / elem.a
+  def    ao  : Double    = elem.a
 //  def con41  : Double    = x3thm1   // FIXME for d
   def cosio  : Double    = c // θ
   def cosio2 : Double    = `c²` // θsq
   def eccsq  : Double    = `e²` // e0sq 
   def omeosq : Double    = 1 - `e²` //  β0sq
   //def  posq  : Double    = `p²` // posq
-  def    rp  : Double    = sgp.sec.rp
+  def    rp  : Double    = sgp.sec.elem0Ctx.rp
   def rteosq : Double    = math.sqrt(1 - `e²`) // β0
   def sinio  : Double    = s
   def  gsto  : Double    = sgp.gsto    
   
   // ---
   def      yr  : Int    = tle.epochyear
-  def   bstar  : Double = elem0.bStar
-  def   argpo  : Double = elem0.ω
-  def      mo  : Double = elem0.M
+  def   bstar  : Double = elem.bStar
+  def   argpo  : Double = elem.ω
+  def      mo  : Double = elem.M
   def   isimp  : Int    = if ((omeosq >= 0.0) || (no >= 0.0))
                                   if (isImpacting) 1 else 0
                                 // FIXME: should be if (isImpacting || isDeepSpace) 1 else 0
@@ -65,7 +65,7 @@ case class Sgp4ValladoResult(
   def     eta  : Double =  sgp.sec.gctx.η
   def  argpdot : Double =  secularFreqs.ωdot 
   def   omgcof : Double =  dragCoefs.ωcof 
-  def   sinmao : Double = math.sin(elem0.M)
+  def   sinmao : Double = math.sin(elem.M)
   def   t2cof  : Double = laneCoefs.T2
   def   t3cof  : Double = laneCoefs.T3
   def   t4cof  : Double = laneCoefs.T4
@@ -80,8 +80,8 @@ case class Sgp4ValladoResult(
   def    mdot  : Double = secularFreqs.Mdot
   def   nodecf : Double = dragCoefs.Ωcof
   def   nodedt : Double = secularFreqs.Ωdot     
-  def   nodeo  : Double = elem0.Ω
-  def      no  : Double = elem0.n
+  def   nodeo  : Double = elem.Ω
+  def      no  : Double = elem.n
   // FIXME
   def atime : Double = t
     

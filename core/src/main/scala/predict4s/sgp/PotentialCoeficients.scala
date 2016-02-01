@@ -4,10 +4,7 @@ import spire.algebra._
 import spire.math._
 import spire.implicits._
 import spire.syntax.primitives._
-import predict4s.coord.SGPElems
-import predict4s.coord.Context0
-import predict4s.coord.SGPConstants
-import predict4s.coord.Context0
+import predict4s.coord._
 
 // The notation used in the formulas here correspond to that used in SPACETRACK Report n 3, Hoots.
 
@@ -15,12 +12,12 @@ case class GeoPotentialCoefs[F](C1: F, C2: F, C3: F, C4: F, C5: F, D2: F, D3: F,
 
 trait GeoPotentialAndAtmosphere2ndOrderModel {
 
-  def geoPotentialCoefs[F: Field : NRoot : Order : Trig](elem0: SGPElems[F], ctx: Context0[F], gctx: GeoPotentialContext[F], wgs: SGPConstants[F]) 
+  def geoPotentialCoefs[F: Field : NRoot : Order : Trig](elem0Ctx: SGPElemsCtx[F], gctx: GeoPotentialContext[F]) 
       : GeoPotentialCoefs[F] = {
-    import elem0.{a => a0,e => e0,n => n0,ω => ω0, bStar}
+    import elem0Ctx.{elem,iCtx,eCtx,wgs,perigeeHeight} 
     import gctx._
     import wgs.{J2,J3,`J3/J2`}
-    import ctx._,iCtx.{sinI0,`θ²`},eCtx.`β0²`
+    import elem0.{e=>e0,n=>n0,ω=>ω0,a=>a0,bStar},iCtx.{sinI0,`θ²`},eCtx.`β0²`
   
     val coef1 : F = `ξ⁴(q0-s)⁴` / (`1-η²`** 3.5)
   
