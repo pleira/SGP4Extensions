@@ -10,34 +10,31 @@ class GeoPotentialStateCheck extends FunSuite with TLE00005 with TLE06251  {
   implicit val wgs = SGP72Constants.tleDoubleConstants
   def sgpImpl : String = "Vallado SGP4"
   
-  def fixture = new {
-      def buildGeoPotential(tle: TLE) = {
-        import spire.implicits._
-        val elem0Ctx = SGPElemsConversions.sgpElemsAndContext(tle, wgs).get
-        val (geoPot, gctx) = Factory2ndOrderSecularCorrectionsTerms.geoPotentialCoefsAndContexts(elem0Ctx)
-        (elem0Ctx, geoPot, gctx)
-      }
+  def buildGeoPotential(tle: TLE) = {
+    import spire.implicits._
+    val elem0Ctx = SGPElemsConversions.sgpElemsAndContext(tle, wgs).get
+    val geoPotCtx = BrouwerLaneSecularCorrections.geoPotentialCoefs(elem0Ctx)
+    (elem0Ctx, geoPotCtx)
   }
-  
+
   test(s"${sgpImpl}: compare GeoPotentialState for 00005 when t=0") {
-    val f = fixture
-    val (elem0Ctx, geoPot, gctx) = f.buildGeoPotential(tle00005)
+    val (elem0Ctx, geoPotCtx) = buildGeoPotential(tle00005)
     assert(elem0Ctx.isImpacting == false)
-    //assert(isDeepSpace == false)
-    checkSgp4GeoPotential_5(elem0Ctx, geoPot, gctx)
+    assert(elem0Ctx.isDeepSpace == false)
+    checkSgp4GeoPotential_5(elem0Ctx, geoPotCtx)
   }
   
   test(s"${sgpImpl}: compare GeoPotentialState for 06251 when t=0") {
-    val f = fixture
-    val (elem0Ctx, geoPot, gctx) = f.buildGeoPotential(tle06251)
+    val (elem0Ctx, geoPotCtx) = buildGeoPotential(tle06251)
     assert(elem0Ctx.isImpacting == false)
-    //assert(gps.dps.isDeepSpace == false)
-    checkSgp4GeoPotential_06251(elem0Ctx, geoPot, gctx)
+    assert(elem0Ctx.isDeepSpace == false)
+    checkSgp4GeoPotential_06251(elem0Ctx, geoPotCtx)
   }
   
-  def checkSgp4GeoPotential_5(elem0Ctx: SGPElemsCtx[Double], geoPot: GeoPotentialCoefs[Double], gctx: GeoPotentialContext[Double]) = {
+  def checkSgp4GeoPotential_5(elem0Ctx: SGPElemsCtx[Double], geoPot: GeoPotentialCtx[Double]) = {
     import elem0Ctx.{elem,iCtx,eCtx,wgs,rp} 
-    import geoPot._,elem._,iCtx.`3c²-1`,eCtx.`β0²` // rteosq
+    import elem._,iCtx.`3c²-1`,eCtx.`β0²` // rteosq
+    import geoPot.{_1=>gcoef,_2=>geoctx},gcoef._,geoctx._
     val ωcof = C3*bStar*math.cos(ω)
    
     assert(  n      ===     0.047206302); assert(   a  ===     1.353899821); 
@@ -52,9 +49,10 @@ class GeoPotentialStateCheck extends FunSuite with TLE00005 with TLE06251  {
   } 
 
 
-  def checkSgp4GeoPotential_06251(elem0Ctx: SGPElemsCtx[Double], geoPot: GeoPotentialCoefs[Double], gctx: GeoPotentialContext[Double]) = {
+  def checkSgp4GeoPotential_06251(elem0Ctx: SGPElemsCtx[Double], geoPot: GeoPotentialCtx[Double]) = {
     import elem0Ctx.{elem,iCtx,eCtx,wgs,rp} 
-    import geoPot._,elem._,iCtx.`3c²-1`,eCtx.`β0²` // rteosq
+    import elem._,iCtx.`3c²-1`,eCtx.`β0²` // rteosq
+    import geoPot.{_1=>gcoef,_2=>geoctx},gcoef._,geoctx._
     val ωcof = C3*bStar*math.cos(ω)
     
     assert(  n      ===     0.067918037); assert(   a  ===     1.062338933); 

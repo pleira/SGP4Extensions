@@ -8,6 +8,7 @@ import org.scalactic.Or
 import org.scalactic.Good
 import org.scalactic.Bad
 
+// TODO: relate these case classes with spire's VectorSpace?
 case class SecularFrequencies[F](Mdot: F, ωdot: F, Ωdot: F)
 
 case class DragSecularCoefs[F](Mcof: F, ωcof: F, Ωcof: F)
@@ -16,8 +17,7 @@ case class LaneCoefs[F](T2: F, T3: F, T4: F, T5: F)
 
 class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig]( 
     val elem0Ctx: SGPElemsCtx[F],    
-    val geoPot: GeoPotentialCoefs[F],
-    val gctx: GeoPotentialContext[F],
+    val geoPotCtx: GeoPotentialCtx[F],
     val laneCoefs : LaneCoefs[F],
     val secularFreqs : SecularFrequencies[F], 
     val dragCoefs : DragSecularCoefs[F]
@@ -87,17 +87,17 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
    * have been evaluated at the initialization stage.
    * δL,δe,δℓ,δh	
    */
-  def dragSecularCorrections(t: Minutes, ωdf: F, Mdf: F, Ωdf: F): (F,F,F,F,F,F) = {
+  private def dragSecularCorrections(t: Minutes, ωdf: F, Mdf: F, Ωdf: F): (F,F,F,F,F,F) = {
 
     import laneCoefs._
     import dragCoefs._ // {ωcof,delM0,sinM0,Mcof}    
-    import geoPot._ 
-    import gctx.η 
+    import geoPotCtx.{_1=>gcoefs,_2=>gctx}
+    import gctx.η,gcoefs._ 
     import elem0Ctx.{elem,iCtx,eCtx,wgs,isImpacting} 
     import elem._,wgs.{KE,`2/3`,`2pi`}
     
-    val `t²` : F = t*t    
-    val Ωm  : F = Ωdf + Ωcof*`t²` 
+    val `t²` = t*t    
+    val Ωm  = Ωdf + Ωcof*`t²` 
  
     // It should be noted that when epoch perigee height is less than
     // 220 kilometers, the equations for a and Lane's are truncated after the C1 term, 
@@ -108,10 +108,10 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
     val `t³` = `t²`*t
     val `t⁴` = `t²`*`t²`
     val delM0 = (1+η*cos(M))**3
-    val δω : F = ωcof*t
-    val δM : F = Mcof*( (1+η*cos(Mdf))**3 - delM0)
-    val Mpm_ : F = Mdf + δω + δM
-    val ωm_  : F = ωdf - δω - δM
+    val δω  = ωcof*t
+    val δM  = Mcof*( (1+η*cos(Mdf))**3 - delM0)
+    val Mpm_  = Mdf + δω + δM
+    val ωm_   = ωdf - δω - δM
     
     val δL = 1 - C1*t - D2*`t²` - D3*`t³` - D4*`t⁴`  // (L´´/L0) 
     val δe = bStar*(C4*t + C5*(sin(Mpm_) - sin(M)))  // sin(M) === sin(M0)
@@ -122,15 +122,82 @@ class BrouwerLaneSecularCorrections[F : Field : NRoot : Order : Trig](
   
 }
 
-object BrouwerLaneSecularCorrections {
+object BrouwerLaneSecularCorrections extends GeoPotentialAndAtmosphere2ndOrderModel { 
   
-  def apply[F : Field : NRoot : Order : Trig](elem0Ctx: SGPElemsCtx[F]) :  BrouwerLaneSecularCorrections[F] = {
-    val (geoPot, gctx, laneCoefs, secularFreqs, dragCoefs) = Factory2ndOrderSecularCorrectionsTerms.from(elem0Ctx)
-    new BrouwerLaneSecularCorrections(elem0Ctx, geoPot, gctx, laneCoefs, secularFreqs, dragCoefs)
+  /**
+   * Factory method to produce all inputs needed to create the propagator for SecularCorrections.
+   * Here we are starting with a SGP Elements directly obtained from a TLE. 
+   */
+  def apply[F : Field : NRoot : Order : Trig](elem0Ctx: SGPElemsCtx[F]) = {
+    val geoPotCtx = geoPotentialCoefs(elem0Ctx)
+    val geoPotCoefs = geoPotCtx._1
+    val laneCoefs = calcLaneCoefs(geoPotCoefs)
+    val (secularFrequencies, hdot) = calcSecularFrequencies(elem0Ctx)
+    val dragSecularCoefs = calcSecularDragCoefs(hdot, elem0Ctx, geoPotCtx)
+    new BrouwerLaneSecularCorrections(elem0Ctx,geoPotCtx, laneCoefs, secularFrequencies, dragSecularCoefs)
   }
   
   def build[F : Field : NRoot : Order : Trig](tle: TLE, wgs: SGPConstants[F]) :  BrouwerLaneSecularCorrections[F] Or ErrorMessage = for {
     elem0AndCtx <- SGPElemsConversions.sgpElemsAndContext(tle, wgs)
   } yield BrouwerLaneSecularCorrections(elem0AndCtx)
+  
+  private def calcSecularFrequencies[F : Field : NRoot : Order : Trig](elem0Ctx: SGPElemsCtx[F])
+      : (SecularFrequencies[F], F) = {
+    import elem0Ctx.{elem,iCtx,eCtx,wgs} 
+    import wgs._,iCtx._,eCtx._
+    import elem.{e => e0,n => n0,a => a0,ω => ω0, M => M0,bStar}
+
+    val p = a0 * `β0²` // a0 * (1 - `e²`) // semilatus rectum , which also is G²/μ, with G as the Delauney's action, the total angular momentum
+    val `p²` = p*p
+    val `p⁴` = `p²`*`p²`
+    
+    val ϵ2 = - J2/`p²`/ 4  // note missing aE² as in Lara's
+    val temp3 = -0.46875 * J4 * n0 / `p⁴`
+    val `3n0ϵ2` = 3*ϵ2*n0
+    val hdot =  2*`3n0ϵ2`*c 
+    val secularFrequencies = 
+      if (n0 >= 0.as[F] || `β0²` >= 0.as[F])
+        SecularFrequencies(// derivative of M 
+          n0 - `3n0ϵ2` * β0 * (`3c²-1` - ϵ2 * (13 - 78 * `c²` + 137 * `c⁴`) / 4),
+        // derivative of the perigee argument
+        `3n0ϵ2` * (1 - 5*`c²` + ϵ2*(7 - 114*`c²` + 395*`c⁴`)/4) + temp3*(3 - 36*`c²` + 49*`c⁴`),
+        // derivative of the raan
+        //(2* `3n0ϵ2` * (1 + (ϵ2*(4 - 19*`c²`)) + 2*temp3 * (3 - 7*`c²`)))*c
+        hdot + ϵ2*hdot* (4 - 19*`c²`) + 2*temp3*c* (3 - 7*`c²`)
+        )
+      else 
+        SecularFrequencies(0.as[F],0.as[F],0.as[F])
+        
+    (secularFrequencies, hdot)
+  }
+  
+  private def calcSecularDragCoefs[F : Field : NRoot : Order : Trig](hdot: F, elem0Ctx: SGPElemsCtx[F], gctx : GeoPotentialCtx[F])
+      : DragSecularCoefs[F] = {
+    
+    import gctx.{_1=>gcoef,_2=>geoctx}
+    import gcoef.{C1,C3},geoctx.{e0η, `ξ⁴(q0-s)⁴`}
+    import elem0Ctx.{elem,eCtx,wgs},eCtx.`β0²`,wgs.`2/3` 
+    import elem.{e => e0,n => n0,a => a0,ω => ω0, bStar}
+    
+    // other derived coeficients and variables that are used related to drag corrections
+    DragSecularCoefs(    
+      if (e0 > 0.0001.as[F]) -`2/3` * `ξ⁴(q0-s)⁴` * bStar / e0η else 0.as[F],
+      bStar*C3*cos(ω0),
+      7 * `β0²` * hdot * C1 / 2 )    
+  }
+  
+  /**
+   * The initialization process provides a series of coefficients needed
+   * to apply drag secular corrections as computed from Lane’s theory.
+   */
+  private def calcLaneCoefs[F : Field](gcoefs : GeoPotentialCoefs[F]) : LaneCoefs[F] = {
+    import gcoefs._
+    val `C1²` = C1*C1
+    LaneCoefs(
+         3*C1/2, 
+         D2 + 2*`C1²`, 
+         (3*D3 + C1*(12*D2 + 10 * `C1²`))/4,  
+         (3*D4 + 12*C1*D3 + 6*D2*D2 + 15*`C1²`*(2*D2+`C1²`))/5)
+  }
     
 }

@@ -17,7 +17,8 @@ case class Sgp4ValladoResult(
   import sgp.sec.elem0Ctx
   import elem0Ctx._,iCtx._,eCtx._
   // import elem0Ctx.isImpacting
-  import sgp.sec.geoPot._
+  import sgp.sec.geoPotCtx.{_1=>gcoef,_2=>geoctx}
+  import gcoef._
   import sgp.sec.{dragCoefs,secularFreqs,laneCoefs}
   val error = 0
   val x = r(0); 
@@ -62,7 +63,7 @@ case class Sgp4ValladoResult(
   def      d2  : Double =  D2
   def      d3  : Double =  D3     
   def      d4  : Double =  D4 
-  def     eta  : Double =  sgp.sec.gctx.η
+  def     eta  : Double =  geoctx.η
   def  argpdot : Double =  secularFreqs.ωdot 
   def   omgcof : Double =  dragCoefs.ωcof 
   def   sinmao : Double = math.sin(elem.M)

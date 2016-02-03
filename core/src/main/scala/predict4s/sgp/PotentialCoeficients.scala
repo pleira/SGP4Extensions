@@ -12,12 +12,19 @@ case class GeoPotentialCoefs[F](C1: F, C2: F, C3: F, C4: F, C5: F, D2: F, D3: F,
 
 trait GeoPotentialAndAtmosphere2ndOrderModel {
 
-  def geoPotentialCoefs[F: Field : NRoot : Order : Trig](elem0Ctx: SGPElemsCtx[F], gctx: GeoPotentialContext[F]) 
-      : GeoPotentialCoefs[F] = {
+  def geoPotentialCoefs[F: Field : NRoot : Order : Trig](elem0Ctx: SGPElemsCtx[F]) 
+      : GeoPotentialCtx[F] = {
     import elem0Ctx.{elem,iCtx,eCtx,wgs,perigeeHeight} 
+    import wgs.{J2,J3,`J3/J2`,aE}
+    import elem.{e=>e0,n=>n0,ω=>ω0,a=>a0,bStar},iCtx.{sinI0,`θ²`},eCtx.`β0²`
+  
+    val s0 = fittingAtmosphericParameter(perigeeHeight, aE)
+    val ξ0 = 1 / (a0 - s0)  // tsi
+    val η0 = a0*e0*ξ0   // eta
+    val e0η0 = e0*η0 
+    val q0 = 1 + 120/aE 
+    val gctx = GeoPotentialContext(s0,ξ0,η0,e0η0,q0)
     import gctx._
-    import wgs.{J2,J3,`J3/J2`}
-    import elem0.{e=>e0,n=>n0,ω=>ω0,a=>a0,bStar},iCtx.{sinI0,`θ²`},eCtx.`β0²`
   
     val coef1 : F = `ξ⁴(q0-s)⁴` / (`1-η²`** 3.5)
   
@@ -34,27 +41,26 @@ trait GeoPotentialAndAtmosphere2ndOrderModel {
     val D2 = 4*a0*`C1²`*ξ
     val D3 = D2*(17*a0+s)*C1*ξ/3
     val D4 = D2*D2*ξ*(221*a0+31*s)/24
-    GeoPotentialCoefs(C1,C2,C3,C4,C5,D2,D3,D4)
+    (GeoPotentialCoefs(C1,C2,C3,C4,C5,D2,D3,D4),gctx)
+  }
+  
+  def fittingAtmosphericParameter[F: Field : Order](perigeeHeight: F, aE: F) : F = {
+    def S_above156 : F = 1 + 78/aE
+    // def hs(perigeeHeight: F)(implicit ev: Field[F]) : F =  perigeeHeight - 78   // interpolation, being a number bigger than 20, and smaller that 78
+    def S_between_98_156 : F =  (1 + (perigeeHeight - 78)/aE)
+    def S_below98: F =  (1 + 20/aE)
+       if (perigeeHeight >= 156)       S_above156
+       else if (perigeeHeight >= 98)   S_between_98_156
+       else                            S_below98
   }
   
 }
 
-case class GeoPotentialContext[F: Field: NRoot : Order: Trig](
-    elem0 : SGPElems[F],   // original elements with a0 and n0 
-    s: F,                  // atmospheric coefficient
-    aE: F                  // earths radius  (km)
-    ) {
-  import elem0.{n => n0,e => e0, a => a0}
-
-  val ξ = 1 / (a0 - s)  // tsi
-  val η = a0*e0*ξ   // eta
+case class GeoPotentialContext[F: Field: Order](s: F, ξ: F, η: F, e0η: F, q0: F) {
   val `η²` = η*η
   val `η³` = η*`η²`
-  
-  val e0η = e0*η      // eeta 
   val `1-η²` = abs[F](1-`η²`) 
   // The parameter q0 is the geocentric reference altitude, 
   // a constant equal to 120 km plus one Earth radius 
-  val q0 = 1 + 120/aE 
   val `ξ⁴(q0-s)⁴` = (ξ*(q0 - s))**4 
 }
