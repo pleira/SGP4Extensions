@@ -28,10 +28,11 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     for {
     	eaState <- solveKeplerEq(elem.e, elem.M)
     	spnSecular <- sgpelems2SpecialPolarNodal(eaState, secularElemt)
+    	_N = spnSecular.`Θ/r`*spnSecular.r*ictx.c    // cosI = N/Θ is constant
       lnSingular = specialPolarNodal2LaraNonSingular(spnSecular, ictx)    
       lppState = lppCorrections(lnSingular, secularElemt)   
       sppt = sppCorrections(lppState)
-    } yield (sppt, lppState)
+    } yield (sppt, lppState, _N)
   }
   
   def propagate2CartesianContext(t: Minutes) : SGPPropResult[F] = {
@@ -39,11 +40,12 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
       laraResult <- propagateDirect2CartesianContext(t)
       uPV = laraResult._1
       laraCtx = laraResult._2
+      _N = laraResult._2._3
       secularCtx = laraCtx._2._2
-      finalPolarNodalt = laraNonSingular2SpecialPolarNodal(laraCtx._1, secularCtx._1.I) 
+      finalSPNt = laraNonSingular2SpecialPolarNodal(laraCtx._1, _N) 
       //TODO type class here? propCtx = createPropCtx(laraResult._3)
       // FIXME
-      fake = (finalPolarNodalt, finalPolarNodalt)
+      fake = (finalSPNt, finalSPNt)
       fPV = scalePV(uPV, laraCtx)
     } yield (fPV, uPV, (fake, secularCtx)) 
   }
@@ -67,7 +69,37 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 
 
 trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
-        
+
+  def lppCorrections(secularElemt : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
+      : LPPSPNResult[F] = {
+    val elem = secularElemt._1
+		val ictx = secularElemt._2    
+    val wgs = secularElemt._3
+    for {
+      eaState <- solveKeplerEq(elem.e, elem.M)
+      spnSecular <- sgpelems2SpecialPolarNodal(eaState, secularElemt)
+      _N = spnSecular.`Θ/r`*spnSecular.r*ictx.c    // cosI = N/Θ =>  
+      lnSingular = specialPolarNodal2LaraNonSingular(spnSecular, ictx)    
+      lalppcorr = lppCorrections(lnSingular, secularElemt)
+      lppcorr1 = laraNonSingular2SpecialPolarNodal(lalppcorr._1, _N)
+    } yield (lppcorr1, LongPeriodContext(0.as[F],0.as[F],0.as[F],0.as[F],0.as[F],0.as[F]), secularElemt)    
+  }
+
+  def lppCPNCorrections(secularElemt : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
+      : LPPCPNResult[F] = {
+    val elem = secularElemt._1
+		val ictx = secularElemt._2    
+    val wgs = secularElemt._3
+    for {
+      eaState <- solveKeplerEq(elem.e, elem.M)
+      spnSecular <- sgpelems2SpecialPolarNodal(eaState, secularElemt)
+      _N = spnSecular.`Θ/r`*spnSecular.r*ictx.c    // cosI = N/Θ, N remains a constant 
+      lnSingular = specialPolarNodal2LaraNonSingular(spnSecular, ictx)    
+      lalppcorr = lppCorrections(lnSingular, secularElemt)
+      lppcorr1 = laraNonSingular2CSpecialPolarNodal(lalppcorr._1, _N)
+    } yield (lppcorr1, secularElemt)    
+  }
+  
   // This implementation includes more terms with respect lppCorrectionsOld
   def lppCorrections(lnSingular: LaraNonSingular[F], secularElemt : SGPSecularCtx[F])(implicit ev: Field[F])
       : (LaraNonSingular[F], SGPSecularCtx[F]) = {
@@ -87,15 +119,13 @@ trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
     val `χ²` = χ*χ
     val `ξ²` = ξ*ξ   
     
-    val δψ =  ϵ3 * (2*χ + (κ*χ - c*ξ*σ)/(1+c))
+    val δψ =  ϵ3 * (2*χ + (κ*χ - c*σ*ξ)/(1+c))
     val δξ =  ϵ3 * (2*`χ²` + κ*(1 - `ξ²`))
-    val δχ = -ϵ3 * (`c²` * σ + (2 + κ)*χ*ξ)
+    val δχ = -ϵ3 * (`c²`*σ + (2 + κ)*ξ*χ)
     val δr =  ϵ3 * p * ξ
     val δR =  ϵ3 * (Θ/r) * (1 + κ) * χ
     val δΘ =  ϵ3 * Θ * (κ*ξ - σ*χ)
     
-    // recalculate the "state" variables here
-    // val a = rl /(1 - ecosE) 
     val rl = r+δr
     val Rl = R+δR
     val Θl = δΘ+Θ

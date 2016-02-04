@@ -27,9 +27,9 @@ object LaraConversions {
     
     PolarNodalElems(r,θ,Ω,R,Θ,N)
   }
-  
+
   // ν = ψ − θ and sinθ = ξ/s, cosθ = χ/s and c = N/Θ, tanθ = ξ/χ
-  def laraNonSingular2SpecialPolarNodal[F: Field: NRoot: Order: Trig](lnSingular: LaraNonSingular[F], I: F) : SpecialPolarNodal[F] = {
+  def laraNonSingular2CSpecialPolarNodal[F: Field: NRoot: Order: Trig](lnSingular: LaraNonSingular[F], N: F) : CSpecialPolarNodal[F] = {
 	  import lnSingular._
 	  val θ = atan2(ξ,χ)
     // convert ν to -2pi,2pi range
@@ -43,7 +43,25 @@ object LaraConversions {
 //         if (ν < -pi.as[F]) `2pi`+ν  else   ν
 //      }
  	  
-    SpecialPolarNodal(I,θ,Ω,r,R,Θ/r)
+    CSpecialPolarNodal(N/Θ,θ,Ω,r,R,Θ/r)
+  }
+  
+  // ν = ψ − θ and sinθ = ξ/s, cosθ = χ/s and c = N/Θ, tanθ = ξ/χ
+  def laraNonSingular2SpecialPolarNodal[F: Field: NRoot: Order: Trig](lnSingular: LaraNonSingular[F], N: F) : SpecialPolarNodal[F] = {
+	  import lnSingular._
+	  val θ = atan2(ξ,χ)
+    // convert ν to -2pi,2pi range
+	  val ν = (ψ - θ)%`2pi`
+    val Ω = ν // if (ν > 0.as[F]) ν else - ν
+// 	  // convert to -pi,pi range
+//    val Ω = 
+//      if (ν > 0.as[F]) {
+//        if (ν > pi) ν - `2pi`  else   ν
+//      } else {
+//         if (ν < -pi.as[F]) `2pi`+ν  else   ν
+//      }
+ 	  
+    SpecialPolarNodal(acos(N/Θ),θ,Ω,r,R,Θ/r)
   }
 
   def specialPolarNodal2LaraNonSingular[F: Field: NRoot: Trig](spn : SpecialPolarNodal[F], ictx: InclinationCtx[F]) : LaraNonSingular[F] = {
@@ -111,15 +129,14 @@ object LaraConversions {
   
   def laraNonSingular2CartesianCtx[F: Field: NRoot: Trig](laraCtx: SGPLaraCtx[F]) 
       : (CartesianElems[F], CartesianElems[F]) = {
-    import laraCtx.{_1=>lnSingular,_2=>lppAndsecularCtx}
+    import laraCtx.{_1=>lnSingular,_2=>lppAndsecularCtx,_3=>N}
     import lnSingular._,lppAndsecularCtx.{_2=>secularCtx}
-    import secularCtx._2.c
     
     val `ξ²` = ξ*ξ
     val `χ²` = χ*χ
     val `R/r` : F = R/r
     val `Θ/r` : F = Θ/r
-    //val c = N/Θ
+    val c = N/Θ
     val cosψ = cos(ψ)
     val sinψ = sin(ψ)
     val q = ξ * χ / (1 + c)
@@ -146,13 +163,12 @@ object LaraConversions {
     }
   
   def laraNonSingular2UnitPositionCartesian[F: Field: NRoot: Trig](laraCtx: SGPLaraCtx[F]) : CartesianElems[F] = {
-    import laraCtx.{_1=>lnSingular,_2=>lppAndsecularCtx}
+    import laraCtx.{_1=>lnSingular,_2=>lppAndsecularCtx,_3=>N}
     import lnSingular._,lppAndsecularCtx.{_2=>secularCtx}
-    import secularCtx._2.c
 
     val `ξ²` = ξ*ξ
     val `χ²` = χ*χ
-    //val c = N/Θ
+    val c = N/Θ
     val cosψ = cos(ψ)
     val sinψ = sin(ψ)
     val q = ξ * χ / (1 + c)
@@ -172,15 +188,16 @@ object LaraConversions {
  
   def laraNonSingular2uPV[F: Field: NRoot: Trig](laraCtx: SGPLaraCtx[F]) 
       : CartesianElems[F] = {
-    import laraCtx.{_1=>lnSingular,_2=>lppAndsecularCtx}
+    import laraCtx.{_1=>lnSingular,_2=>lppAndsecularCtx,_3=>N}
     import lnSingular._,lppAndsecularCtx.{_2=>secularCtx}
-    import secularCtx._2.c
+    
+    // new cosI  
+    val c = N/Θ
     
     val `ξ²` = ξ*ξ
     val `χ²` = χ*χ
     val `R/r` : F = R/r
     val `Θ/r` : F = Θ/r
-    //val c = N/Θ
     val cosψ = cos(ψ)
     val sinψ = sin(ψ)
     val q = ξ * χ / (1 + c)

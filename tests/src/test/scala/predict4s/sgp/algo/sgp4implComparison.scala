@@ -1,4 +1,4 @@
-package predict4s.comparison
+package predict4s.sgp.algo
 
 import org.scalatest.FunSuite
 import org.scalactic.TolerantNumerics
@@ -8,10 +8,6 @@ import predict4s.coord.SGP72Constants
 import predict4s.sgp._
 import predict4s.coord.SGPElemsConversions
 import predict4s.coord.SpecialPolarNodal
-import predict4s.sgp.algo.SGP4Vallado
-import predict4s.sgp.algo.SGP4ValladoLong
-import predict4s.sgp.algo.SGP4PN
-import predict4s.sgp.algo.SGP4Lara
 import predict4s.collision.TLE22675
 import predict4s.collision.TLE24946
 import predict4s.coord.LaraConversions._
@@ -25,7 +21,6 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
   
   import spire.std.any.DoubleAlgebra
   val tles = List(tle00005,tle06251,tle22675,tle24946,tle28057)
-  // val tols = List()
   for (tle <- tles) {
     val elem0AndCtx = SGPElemsConversions.sgpElemsAndContext(tle, wgs).get
     val model = BrouwerLaneSecularCorrections(elem0AndCtx)

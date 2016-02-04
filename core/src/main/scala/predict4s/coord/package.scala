@@ -24,7 +24,7 @@ package object coord {
   type SGPCorrPropResult[F] = SGPCorrPropCtx[F] Or ErrorMessage
 
   // final correction results in Lara Non Singular
-  type SGPLaraCtx[F] = (LaraNonSingular[F], (LaraNonSingular[F], SGPSecularCtx[F])) 
+  type SGPLaraCtx[F] = (LaraNonSingular[F], (LaraNonSingular[F], SGPSecularCtx[F]), F) 
   type SGPLaraResult[F] = SGPLaraCtx[F] Or ErrorMessage
   
   // final results in cartesians
@@ -34,6 +34,10 @@ package object coord {
   // For Long Period Periodic corrections in polar nodals SPN
   type LPPSPNCtx[F] = (SpecialPolarNodal[F], LongPeriodContext[F], SGPSecularCtx[F])
   type LPPSPNResult[F] = LPPSPNCtx[F] Or ErrorMessage
+
+  // For Long Period Periodic corrections in cosI polar nodals CPN
+  type LPPCPNCtx[F] = (CSpecialPolarNodal[F], SGPSecularCtx[F])
+  type LPPCPNResult[F] = LPPCPNCtx[F] Or ErrorMessage
   
   // Intermediate results in Lyddane's
   type LyddaneCtx[F] = (F,F,F) // (ϵ3,η,esinω)
