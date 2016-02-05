@@ -21,19 +21,6 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   type PC[_] = SGPLaraCtx[F] 
 
   override def propagate(t: Minutes): SGPPropResult[F] = propagate2CartesianContext(t)
-
-  override def periodicCorrections(secularElemt : SGPSecularCtx[F]) : SGPLaraResult[F] = {
-    val elem = secularElemt._1
-		val ictx = secularElemt._2    
-    for {
-    	eaState <- solveKeplerEq(elem.e, elem.M)
-    	spnSecular <- sgpelems2SpecialPolarNodal(eaState, secularElemt)
-    	_N = spnSecular.`Θ/r`*spnSecular.r*ictx.c    // cosI = N/Θ is constant
-      lnSingular = specialPolarNodal2LaraNonSingular(spnSecular, ictx)    
-      lppState = lppCorrections(lnSingular, secularElemt)   
-      sppt = sppCorrections(lppState)
-    } yield (sppt, lppState, _N)
-  }
   
   def propagate2CartesianContext(t: Minutes) : SGPPropResult[F] = {
     for {
@@ -43,11 +30,9 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
       _N = laraResult._2._3
       secularCtx = laraCtx._2._2
       finalSPNt = laraNonSingular2SpecialPolarNodal(laraCtx._1, _N) 
-      //TODO type class here? propCtx = createPropCtx(laraResult._3)
-      // FIXME
-      fake = (finalSPNt, finalSPNt)
+      finalSPNasPair = (finalSPNt, finalSPNt) // FIXME one day
       fPV = scalePV(uPV, laraCtx)
-    } yield (fPV, uPV, (fake, secularCtx)) 
+    } yield (fPV, uPV, (finalSPNasPair, secularCtx)) 
   }
   
   def propagateDirect2CartesianContext(t: Minutes) = {
@@ -59,19 +44,27 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     } yield (uPV, laraCtx) 
   }
 
+  override def periodicCorrections(secularElemt : SGPSecularCtx[F]) : SGPLaraResult[F] = {
+    val elem = secularElemt._1
+		val ictx = secularElemt._2    
+    for {
+    	eaState <- solveKeplerEq(elem.e, elem.M)
+    	spnSecular <- sgpelems2SpecialPolarNodal(eaState, secularElemt)
+    	_N = spnSecular.`Θ/r`*spnSecular.r*ictx.c    // N = Θ*cosI , which remains constant
+      lnSingular = specialPolarNodal2LaraNonSingular(spnSecular, ictx)
+      lppState = lppCorrections(lnSingular, secularElemt)   
+      sppt = sppCorrections(lppState)
+    } yield (sppt, lppState, _N)
+  }
  
   def scalePV(uPV: CartesianElems[F], laraCtx: SGPLaraCtx[F]): CartesianElems[F] = {
       import sec.elem0Ctx.wgs.{aE,vkmpersec}, uPV._, laraCtx.{_1=>lns}, lns.{R,r,`Θ/r`}
       val (p, v) = ( (aE*r) *: pos,  vkmpersec *: (R *: pos + `Θ/r` *: vel))
       CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
   }    
-}
 
 
-trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
-
-  def lppCorrections(secularElemt : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
-      : LPPSPNResult[F] = {
+  def propagateToSPNLPP(secularElemt : SGPSecularCtx[F]) : LPPSPNResult[F] = {
     val elem = secularElemt._1
 		val ictx = secularElemt._2    
     val wgs = secularElemt._3
@@ -85,8 +78,7 @@ trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
     } yield (lppcorr1, LongPeriodContext(0.as[F],0.as[F],0.as[F],0.as[F],0.as[F],0.as[F]), secularElemt)    
   }
 
-  def lppCPNCorrections(secularElemt : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
-      : LPPCPNResult[F] = {
+  def propagateToCPNLPP(secularElemt : SGPSecularCtx[F]) : LPPCPNResult[F] = {
     val elem = secularElemt._1
 		val ictx = secularElemt._2    
     val wgs = secularElemt._3
@@ -97,8 +89,13 @@ trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
       lnSingular = specialPolarNodal2LaraNonSingular(spnSecular, ictx)    
       lalppcorr = lppCorrections(lnSingular, secularElemt)
       lppcorr1 = laraNonSingular2CSpecialPolarNodal(lalppcorr._1, _N)
-    } yield (lppcorr1, secularElemt)    
+    } yield (lppcorr1, LongPeriodContext(0.as[F],0.as[F],0.as[F],0.as[F],0.as[F],0.as[F]), secularElemt)    
   }
+
+}
+
+
+trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
   
   // This implementation includes more terms with respect lppCorrectionsOld
   def lppCorrections(lnSingular: LaraNonSingular[F], secularElemt : SGPSecularCtx[F])(implicit ev: Field[F])

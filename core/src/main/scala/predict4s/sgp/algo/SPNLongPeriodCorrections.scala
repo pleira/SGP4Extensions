@@ -14,23 +14,27 @@ import predict4s.coord.SGPElemsConversions._
 
 trait SPNLongPeriodCorrections[F] extends LongPeriodSPNCorrections[F] with SimpleKeplerEq {
   
+  override def lppCorrections(secularElemt : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F])  =
+      propagateToSPNLPP(secularElemt)
+  
   /**
    * long period corrections in SpecialPolarNodal coordinates
    */
-  override def lppCorrections(secularElemt : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
+   def propagateToSPNLPP(secularElemt : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
       : LPPSPNResult[F] = {
     val elem = secularElemt._1
     val wgs = secularElemt._3
     for {
       eaState <- solveKeplerEq(elem.e, elem.M)
       spnSecular <- sgpelems2SpecialPolarNodal(eaState, secularElemt)
-      lppcorr = lppPNCorrections((spnSecular, secularElemt))
+      lppcorr = lppSPNCorrections((spnSecular, secularElemt))
     } yield (lppcorr._1, lppcorr._2, secularElemt)    
   }
+  
   /**
    * long period corrections in CSpecialPolarNodal coordinates
    */
-  def lppCPNCorrections(secularElemt : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
+  def propagateToCPNLPP(secularElemt : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
       : LPPCPNResult[F] = {
     val elem = secularElemt._1
     val wgs = secularElemt._3
@@ -38,11 +42,10 @@ trait SPNLongPeriodCorrections[F] extends LongPeriodSPNCorrections[F] with Simpl
       eaState <- solveKeplerEq(elem.e, elem.M)
       spnSecular <- sgpelems2SpecialPolarNodal(eaState, secularElemt)
       lppcorr = lppCPNCorrections((spnSecular, secularElemt))
-    } yield (lppcorr, secularElemt)    
+    } yield (lppcorr._1, lppcorr._2, secularElemt)    
   }
   
-  def lppPNCorrections(spnCtx: SPNSecularCtx[F])(implicit ev: Field[F], nr: NRoot[F], or: Order[F], trig: Trig[F])
-       : (SpecialPolarNodal[F], LongPeriodContext[F]) = {
+  def lppSPNCorrections(spnCtx: SPNSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]): (SpecialPolarNodal[F], LongPeriodContext[F]) = {
     import spnCtx.{_1 => spn}, spn._, spnCtx.{_2 => secularCtx}, secularCtx.{_1 => elem}
     import elem.{Ω=>_, _} // do not import Ω from secular elements, just use spn version
     import secularCtx._2.{c,s,`s²`}
@@ -108,8 +111,8 @@ trait SPNLongPeriodCorrections[F] extends LongPeriodSPNCorrections[F] with Simpl
     (SpecialPolarNodal(Il, θl, Ωl, rl, Rl, Θl/rl), LongPeriodContext(`el²`, pl, sqrt(pl), βl, sin2θ, cos2θ))
   }
 
-    def lppCPNCorrections(spnCtx: SPNSecularCtx[F])(implicit ev: Field[F], nr: NRoot[F], or: Order[F], trig: Trig[F])
-       : CSpecialPolarNodal[F] = {
+    def lppCPNCorrections(spnCtx: SPNSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
+       : (CSpecialPolarNodal[F], LongPeriodContext[F]) = {
     import spnCtx.{_1 => spn}, spn._, spnCtx.{_2 => secularCtx}, secularCtx.{_1 => elem}
     import elem.{Ω=>_, _} // do not import Ω from secular elements, just use spn version
     import secularCtx._2.{c,s,`s²`}
@@ -172,7 +175,7 @@ trait SPNLongPeriodCorrections[F] extends LongPeriodSPNCorrections[F] with Simpl
     val σl = pl*Rl/Θl
     val `el²` = κl*κl + σl*σl
     val βl = sqrt(1 - `el²`)
-    CSpecialPolarNodal(cosI, θl, Ωl, rl, Rl, Θl/rl)
+    (CSpecialPolarNodal(cosI, θl, Ωl, rl, Rl, Θl/rl), LongPeriodContext(`el²`, pl, sqrt(pl), βl, sin2θ, cos2θ))
   }
   
 //  def lppCorrectionsAlt(spn: (SpecialPolarNodal[F], AuxVariables[F]))(implicit ev: Field[F], nr: NRoot[F], trig: Trig[F])

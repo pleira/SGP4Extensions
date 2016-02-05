@@ -22,12 +22,6 @@ abstract class SGP4WithSPNCorrections[F : Field : NRoot : Order : Trig](
   type PC[_] = SGPSPNCtx[F]
 
   override def propagate(t: Minutes): SGPPropResult[F] = propagate2CartesianContext(t)
-  
-  def propagate2PolarNodalContext(t: Minutes) : SGPCorrPropResult[F] = 
-    for {
-     secularElemt <- secularCorrections(t)
-     pc <- periodicCorrections(secularElemt)
-    } yield (pc, secularElemt)
     
   def propagate2CartesianContext(t: Minutes) : SGPPropResult[F] = 
     for {
@@ -37,12 +31,18 @@ abstract class SGP4WithSPNCorrections[F : Field : NRoot : Order : Trig](
       posVel = scale2CartesianElems(uPV, finalPolarNodal)      
     } yield (posVel, uPV, propCtx) 
   
+  def propagate2PolarNodalContext(t: Minutes) : SGPCorrPropResult[F] = 
+    for {
+     secularElemt <- secularCorrections(t)
+     pc <- periodicCorrections(secularElemt)
+    } yield (pc, secularElemt)
+  
   override def periodicCorrections(secularElemt : SGPSecularCtx[F]) :  SGPSPNResult[F] = 
     for {
       lppSPNContext <- lppCorrections(secularElemt)
       finalPNState = sppCorrections(lppSPNContext)
     } yield (finalPNState, lppSPNContext._1)
-
+    
 }
 
 class SGP4Vallado[F : Field : NRoot : Order : Trig](
@@ -55,7 +55,7 @@ class SGP4ValladoLong[F : Field : NRoot : Order : Trig](
 
 class SGP4PN[F : Field : NRoot : Order : Trig](
   sec : BrouwerLaneSecularCorrections[F]
-  ) extends SGP4WithSPNCorrections(sec) with SPNLongPeriodCorrections[F]
+  ) extends SGP4WithSPNCorrections(sec) with SPNLongPeriodCorrections[F] 
 
 object SGP4Vallado  {
   

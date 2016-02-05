@@ -30,5 +30,5 @@ trait ShortPeriodPolarNodalCorrections[F] {
     val δspp = SpecialPolarNodal(δI,δθ,δΩ,δr,δR,δrvdot)
     lppPN + δspp
   }
-  
+ 
 }

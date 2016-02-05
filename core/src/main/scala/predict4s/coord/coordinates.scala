@@ -42,7 +42,7 @@ case class PolarNodalElems[F](
     N : F  // the polar component of the angular momentum
 ) 
   
-case class SpecialPolarNodal[F: Field](
+case class SpecialPolarNodal[F: Field: Trig](
     I: F,  // the orbital inclination 
     θ: F,  // the argument of latitude from the ascending node
     Ω: F,  // the argument of the node
@@ -57,9 +57,10 @@ case class SpecialPolarNodal[F: Field](
   def rθdot = Θ/r
   def +(o: SpecialPolarNodal[F]) = SpecialPolarNodal(I+o.I,θ+o.θ,Ω+o.Ω,r+o.r,R+o.R,`Θ/r`+o.`Θ/r`)
   def -(o: SpecialPolarNodal[F]) = SpecialPolarNodal(I-o.I,θ-o.θ,Ω-o.Ω,r-o.r,R-o.R,`Θ/r`-o.`Θ/r`)
+  def toCPN = CSpecialPolarNodal(cos(I),θ,Ω,r,R,`Θ/r`)
 }
 
-case class CSpecialPolarNodal[F: Field](
+case class CSpecialPolarNodal[F: Field: Trig](
     cosI: F, //  CosI, related to the orbital inclination 
     θ: F,  // the argument of latitude from the ascending node
     Ω: F,  // the argument of the node
@@ -72,4 +73,5 @@ case class CSpecialPolarNodal[F: Field](
   def rvdot = `Θ/r`;
   def Θ = `Θ/r`*r;
   def rθdot = Θ/r
+  def toSPN = SpecialPolarNodal(acos(cosI),θ,Ω,r,R,`Θ/r`)
 }
