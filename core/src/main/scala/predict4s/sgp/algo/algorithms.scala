@@ -25,23 +25,23 @@ abstract class SGP4WithSPNCorrections[F : Field : NRoot : Order : Trig](
     
   def propagate2CartesianContext(t: Minutes) : SGPPropResult[F] = 
     for {
-      propCtx <- propagate2PolarNodalContext(t)
-      finalPolarNodal = propCtx._1._1
-      uPV = polarNodal2UnitCartesian(finalPolarNodal)
-      posVel = scale2CartesianElems(uPV, finalPolarNodal)      
-    } yield (posVel, uPV, propCtx) 
+      spnCtx <- propagate2SPNContext(t)
+      finalSPN = spnCtx._1._1
+      unitpv = polarNodal2UnitCartesian(finalSPN)
+      pv = scale2CartesianElems(unitpv, finalSPN)      
+    } yield (pv, unitpv, spnCtx) 
   
-  def propagate2PolarNodalContext(t: Minutes) : SGPCorrPropResult[F] = 
+  def propagate2SPNContext(t: Minutes): SGPCorrPropResult[F] = 
     for {
-     secularElemt <- secularCorrections(t)
-     pc <- periodicCorrections(secularElemt)
-    } yield (pc, secularElemt)
+     sc <- secularCorrections(t)
+     pc <- periodicCorrections(sc)
+    } yield (pc, sc)
   
   override def periodicCorrections(secularElemt : SGPSecularCtx[F]) :  SGPSPNResult[F] = 
     for {
-      lppSPNContext <- lppCorrections(secularElemt)
-      finalPNState = sppCorrections(lppSPNContext)
-    } yield (finalPNState, lppSPNContext._1)
+      lc <- lppCorrections(secularElemt)
+      finalSPN = sppCorrections(lc)
+    } yield (finalSPN, lc._1)
     
 }
 

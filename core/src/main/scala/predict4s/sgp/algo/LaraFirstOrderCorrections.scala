@@ -52,17 +52,31 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     	spnSecular <- sgpelems2SpecialPolarNodal(eaState, secularElemt)
     	_N = spnSecular.`Θ/r`*spnSecular.r*ictx.c    // N = Θ*cosI , which remains constant
       lnSingular = specialPolarNodal2LaraNonSingular(spnSecular, ictx)
-      lppState = lppCorrections(lnSingular, secularElemt)   
-      sppt = sppCorrections(lppState)
-    } yield (sppt, lppState, _N)
+      lalppcorr = lppCorrections(lnSingular, secularElemt)   
+      sppt = sppCorrections(lalppcorr)
+    } yield (sppt, lalppcorr, _N)
   }
  
+  def periodicCorrectionsSPN(secularElemt : SGPSecularCtx[F]) : SGPSPNResult[F] = {
+    val elem = secularElemt._1
+		val ictx = secularElemt._2    
+    for {
+    	eaState <- solveKeplerEq(elem.e, elem.M)
+    	spnSecular <- sgpelems2SpecialPolarNodal(eaState, secularElemt)
+    	_N = spnSecular.`Θ/r`*spnSecular.r*ictx.c    // N = Θ*cosI , which remains constant
+      lnSingular = specialPolarNodal2LaraNonSingular(spnSecular, ictx)
+      lalppcorr = lppCorrections(lnSingular, secularElemt)   
+      sppt = sppCorrections(lalppcorr)
+      lpSPN = laraNonSingular2SpecialPolarNodal(lalppcorr._1, _N)
+      finalSPN = laraNonSingular2SpecialPolarNodal(sppt, _N)
+    } yield (finalSPN, lpSPN)
+  }
+  
   def scalePV(uPV: CartesianElems[F], laraCtx: SGPLaraCtx[F]): CartesianElems[F] = {
       import sec.elem0Ctx.wgs.{aE,vkmpersec}, uPV._, laraCtx.{_1=>lns}, lns.{R,r,`Θ/r`}
       val (p, v) = ( (aE*r) *: pos,  vkmpersec *: (R *: pos + `Θ/r` *: vel))
       CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
   }    
-
 
   def propagateToSPNLPP(secularElemt : SGPSecularCtx[F]) : LPPSPNResult[F] = {
     val elem = secularElemt._1
@@ -145,10 +159,34 @@ trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
     val `ξ²` = ξ*ξ
     val δψ = -ϵ2 * ((1+7*c)/(1+c)) * ξ * χ 
     val δξ = -ϵ2 * (`χ²` - 3*`c²`) * ξ
-    val δχ = -ϵ2 * (`ξ²` - 3*`c²`) * χ
+    val δχ =  ϵ2 * (`ξ²` - 3*`c²`) * χ
     val δr =  ϵ2 * r * (`ξ²` - `χ²` - 3 + 9*`c²`)
     val δR =  ϵ2 * 4 * (Θ/r) * ξ * χ
     val δΘ =  ϵ2 * 3 * Θ * (`ξ²` - `χ²`)
+    LaraNonSingular(ψ+δψ,ξ+δξ,χ+δχ,r+δr,R+δR,Θ+δΘ)
+  }
+  
+  def sppCorrectionsAlternative(lppState: (LaraNonSingular[F], SGPSecularCtx[F]))(implicit ev: Field[F]) 
+    : LaraNonSingular[F] = {
+    import lppState.{_1=>lnSingular,_2=>secularElemt}
+    val elem = secularElemt._1
+		val ictx = secularElemt._2    
+    val wgs = secularElemt._3
+    import wgs.J2, ictx.{c,`c²`,s,`s²`}
+    import lnSingular._
+    
+    val p = Θ*Θ 
+    val ϵ2 = -J2/p/p/4
+    val `χ²` = χ*χ
+    val `ξ²` = ξ*ξ
+    val cos2θ = `χ²` - `ξ²`
+    val sin2θ = 2*ξ*χ/`s²`
+    val δψ = -ϵ2 * ((1+7*c)/(1+c)) * ξ * χ 
+    val δξ = -ϵ2 * (`χ²` - 3*`c²`) * ξ
+    val δχ =  ϵ2 * (`ξ²` - 3*`c²`) * χ
+    val δr =  ϵ2 * r * ( - cos2θ - 3 + 9*`c²`)
+    val δR =  ϵ2 * 2 * `s²`* sin2θ * (Θ/r)      // ϵ2 * 4 * (Θ/r) * ξ * χ
+    val δΘ =  - ϵ2 * 3 * Θ * cos2θ
     LaraNonSingular(ψ+δψ,ξ+δξ,χ+δχ,r+δr,R+δR,Θ+δΘ)
   }
   
