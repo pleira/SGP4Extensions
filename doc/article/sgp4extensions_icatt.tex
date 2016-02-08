@@ -1,0 +1,235 @@
+% Template for ESA 6th ICATT manuscripts; to be used with:
+%          spconf.sty  - LaTeX style file, and
+%          IEEEbib.bst - IEEE bibliography style file.
+% --------------------------------------------------------------------------
+\documentclass{article}
+\usepackage{spconf,amsmath,graphicx}
+
+% Example definitions.
+% --------------------
+\def\x{{\mathbf x}}
+\def\L{{\cal L}}
+
+% Title.
+% ------
+\title{An implementation of SGP4 in non-singular variables using a functional paradigm}
+%
+% Single address.
+% ---------------
+%\name{Author(s) Name(s)}
+%\address{Author Affiliation(s)}
+%
+% For example:
+% ------------
+%\address{School\\
+%	Department\\
+%	Address}
+%
+% Two addresses (uncomment and modify for two-address case).
+% ----------------------------------------------------------
+\twoauthors
+  {Pablo Pita Leira, Martín Lara}
+%
+\begin{document}
+%\ninept
+%
+\maketitle
+%
+\begin{abstract}
+The SGP4 (Simplified General Perturbations 4) orbit propagator is a widely used tool for the fast, short term propagation of space orbits. The algorithms in which it is based are thoroughly described in the SPACETRACK report #3, as well as in Vallado et al. update. Current implementations of SGP4 are based on Brouwer's gravity solution and Lane atmospheric model, but using Lyddane's modifications for avoiding loss of precision in the evaluation of the periodic corrections, which are, besides, notably simplified for improving evaluation efficiency. Different alternatives in the literature discuss other variable sets, either canonical or not, that can be used in the computation of periodic corrections (see Izsak, Aksnes, Hoots, or Lara).
+
+This work presents a new implementation of the SGP4 algorithm in Scala that offers a choice about the variable set used for the computation of the periodic corrections. Scala is a hybrid functional/object oriented programming language running in the Java Virtual Machine that allows for incorporating functional features in the design. Validation of the new implementations is made by carrying out different tests based on Vallado's results. Finally, applicability for massive data processing tasks like prediction of orbital collision events and performance are discussed.
+
+%The abstract should appear at the top of the left-hand column of text, about
+%0.5 inch (12 mm) below the title area and no more than 3.125 inches (80 mm) in
+%length.  Leave a 0.5 inch (12 mm) space between the end of the abstract and the
+%beginning of the main text.  The abstract should contain about 100 to 150
+%words, and should be identical to the abstract text submitted electronically
+%along with the paper cover sheet.  All manuscripts must be written in English.
+\end{abstract}
+%
+\begin{keywords}
+SGP4, Orbital Propagation, Scala
+\end{keywords}
+%
+\section{Introduction to SGP4}
+\label{sec:intro}
+
+Satellite short-term prediction is customarily carried out
+with SGP4 \cite{}, an analytical solution that has its roots in
+Brouwer’s celebrated gravity solution to the artificial satellite
+problem [2] and which is optimized for the propagation of
+satellite ephemeris using the element sets in the two-line
+format specified by the North American Aerospace Defense
+Command [3, 4].
+
+Vallado has published a version of SGP4 in the public domain in several programming languages 
+which is used as reference in this work. 
+
+Vallado's version has been translated to other programming languages.
+
+This work is about presenting the SGP4 algorithm in a programming language called Scala.
+
+
+\section{Formatting your paper}
+\label{sec:format}
+
+Scala has been created by Martin Ordersky as an hybrid language allowing for architecting software in 
+object oritented and functional paradigms \cite{scala-overview-tech-report}. There is a trend to introduce the functional paradigm in new software developments where no mutable state is kept within the program. That allows for simpler reasoning about the program.
+
+This programming language o a different architectural style.
+perspective.
+
+* Scala based to use functional programming paradigm
+* Interpreter pattern in its core
+* Avoidance of mutable state
+* Parameterisation of numeric types in the algorithms
+* unicode variables to help reading the software against equations given in the literature
+* better structure to allow the introduction of new algorithms 
+* choice of algorithms presented through Abstract Data Types in contrast to Object Oriented Interfaces 
+
+The interpreter pattern design provides more flexibility and more capabilities for massive data processing operations. There is a separation of the run time part that has state, like reading/writing to files, from a pure functional part, which just is responsible to describe the algorithm applied. 
+
+%\section{Formatting your paper}
+%\label{sec:format}
+
+%All printed material, including text, illustrations, and charts, must be kept
+%within a print area of 7 inches (178 mm) wide by 9 inches (229 mm) high. Do
+%not write anything outside the print area. The top margin must be 1
+%inch (25 mm), except for the title page, and the left margin must be 0.75 inch
+%(19 mm).  All {\it text} must be in a two-column format. Columns are to be 3.39
+%inches (86 mm) wide, with a 0.24 inch (6 mm) space between them. Text must be
+%fully justified.
+
+\section{SGP4 ALGORITHM DESCRIPTIONS}
+\label{sec:algorithms}
+
+
+%Para ir avanzando, lo que quiero pedirte es a partir de tu artículo del 3 de diciembre con la descripción del algoritmo de Vallado y de variables no singulares,  an~adir Vallado Long y Polares Nodales. A partir de ahi converger la notación de las ecuaciones en todos los algoritmos (Vallado, Vallado Long, Polares Nodales y no singulares). Y con ello, tener las ecuaciones de tal modo que el código en Scala las refleje exactamente de igual manera. Eso es posible gracias al soporte de Unicode que me ofrece Scala. 
+
+%Se trata pues de hacer lo siguente en tu artículo en Latex: 
+%- quitar el código fortran del artículo
+%- dejar por tanto las ecuaciones, donde se describen el potencial, las correcciones, las coordenadas usadas ...
+%- A~nadir la parte de Vallado Long y de Polares Nodales de tus otros artículos.
+%- transformar (si es posible) algunos términos de las ecuaciones para tener la misma notación tanto en Vallado (y demás) como en no singulares:
+% * por ejemplo, 1-e*e es en Vallado beta al cuadrado β² y en alguna formula tuya una n larga al cuadrado
+%  * converger en usar c y s para el coseno/seno de la inclinación (Vallado usa theta en las expresiones del geopotencial) (te parece bien?, pues Hoots/Roerich usan theta en su documento sobre Spacetrack #3)
+% * introducir las variables ϵ2 y ϵ3 en las expresiones de Vallado (las hacen más faciles de comparar con las ecuaciones en no singulares o en polares nodales, no te parece?)
+
+
+%Equations shall be centred in the column and the corresponding number aligned on the right. They shall be referenced using parenthesis, e.g.,~\eqref{eq:ellipse}.
+
+%\begin{equation}
+%r=\dfrac{p}{1+e\cos\theta}
+%\label{eq:ellipse}
+%\end{equation}
+
+%The paper title (on the first page) should begin 1.38 inches (35 mm) from the
+%top edge of the page, centered, completely capitalized, and in Times 14-point,
+%boldface type.  The authors' name(s) and affiliation(s) appear below the title
+%in capital and lower case letters.  Papers with multiple authors and
+%affiliations may require two or more lines for this information.
+
+%\section{TYPE-STYLE AND FONTS}
+%\label{sec:typestyle}
+
+%To achieve the best rendering, only use Times-Roman font. In addition, this will give
+%the proceedings a more uniform look.  Use a font that is no smaller than nine
+%point type throughout the paper, including figure captions.
+
+%In nine point type font, capital letters are 2 mm high.  {\bf If you use the
+%smallest point size, there should be no more than 3.2 lines/cm (8 lines/inch)
+%vertically.}  This is a minimum spacing; 2.75 lines/cm (7 lines/inch) will make
+%the paper much more readable.  Larger type sizes require correspondingly larger
+%vertical spacing.  Please do not double-space your paper.  TrueType or
+%Postscript Type 1 fonts are preferred.
+
+%The first paragraph in each section should not be indented, but all the
+%following paragraphs within the section should be indented as these paragraphs
+%demonstrate.
+
+\section{SAMPLE TEST CASES}
+\label{sec:sampletestcases}
+
+
+\subsection{Subheadings}
+\label{ssec:subhead}
+
+%Subheadings should appear in lower case (initial word capitalized) in
+%boldface.  They should start at the left margin on a separate line.
+ 
+
+\section{VALIDATION}
+\label{sec:validation}
+
+
+
+\section{FIGURES, TABLES AND EQUATIONS}
+\label{sec:floats}
+
+Figures, tables and equations must be numbered and placed within the designated margins. They may span the two
+columns. Every figure and table must also be captioned.
+
+If possible, position illustrations at the top of columns, rather than in the middle or at the bottom. Figure~\ref{fig:res} shows how to include images.
+
+% Replace ``screenshotX.png'' with a suitable image file name
+% Vectorised image formats like .pdf and .eps are preferred -------------------------------------------------------------------------
+\begin{figure}[htb]
+\begin{minipage}[b]{.48\linewidth}
+  \centering
+	\includegraphics[width=\linewidth]{screenshot1.png}
+  \centerline{(a) Scenario 1}\medskip
+\end{minipage}
+\hfill
+\begin{minipage}[b]{0.48\linewidth}
+  \centering
+	\includegraphics[width=\linewidth]{screenshot2.png}
+  \centerline{(b) Scenario 2}\medskip
+\end{minipage}
+\caption{Example of placing a figure}
+\label{fig:res}
+\end{figure}
+
+For tables, the example on how they shall be captioned and formatted is provided in Table~\ref{tab:res}.
+
+\begin{table}[htb]
+\centering
+\caption{Example of formatting a table}\vspace{2mm}
+\begin{tabular}{lll}
+\hline\hline
+Column A & Column B & Column C\\
+\hline
+Row 1 &  & \\
+Row 2 &  & \\
+Row 3 &  & \\
+\hline\hline
+\end{tabular}
+\label{tab:res}
+\end{table}
+
+% To start a new column (but not a new page) and help balance the last-page
+% column length use \vfill\pagebreak.
+% -------------------------------------------------------------------------
+\vfill
+\pagebreak
+
+\section{FOOTNOTES}
+\label{sec:foot}
+
+Use footnotes sparingly (or not at all!) and place them at the bottom of the
+column on the page on which they are referenced. Use Times 9-point type,
+single-spaced. To help your readers, avoid using footnotes altogether and
+include necessary peripheral observations in the text (within parentheses, if
+you prefer, as in this sentence).
+
+\bibliographystyle{IEEEbib}
+\bibliography{refs}
+
+\noindent As shown, all bibliographical references shall be listed and numbered at the end of the paper. The references shall be numbered in order of appearance in the document.  When referring to them in the text, type the corresponding reference number in square brackets, e.g.,~\cite{C1} or~\cite{C1,C2}.
+
+% References should be produced using the bibtex program from suitable
+% BiBTeX files (here: refs). The IEEEbib.bst bibliography
+% style file from IEEE produces unsorted bibliography list.
+% -------------------------------------------------------------------------
+
+\end{document}
