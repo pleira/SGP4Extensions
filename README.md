@@ -1,7 +1,7 @@
 SGP4_11
 ------------
 
-[![Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pleira/sgp4s_11)
+[![Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/pleira/SGP4Extensions)
 
 Interim scala project to try different SGP4 algorithm implementations. SGP4 is used to predict orbits from TLE data. The Deep Space algorithm, which contains lunar-solar perturbations, is not implemented. My [sgp4s](http://github.com/pleira/sgp4s) project should become the improvements tried here.
 

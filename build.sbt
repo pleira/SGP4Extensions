@@ -2,7 +2,7 @@
 // For Settings/Task reference, see http://www.scala-sbt.org/release/sxr/sbt/Keys.scala.html
 
 lazy val commonSettings = Seq(
-  organization := "org.sgp4s_11",
+  organization := "org.sgp4s",
   scalaVersion := "2.11.7",
   crossScalaVersions := Seq("2.11.7"),
   libraryDependencies ++= Seq(
@@ -16,7 +16,7 @@ lazy val commonSettings = Seq(
     "-deprecation", "-unchecked", "-Xlint", "-encoding", "UTF-8","-language:implicitConversions","-language:higherKinds", "-feature"
   ),
   licenses += ("Apache License, Version 2.0", url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
-  homepage := Some(url("http://github.com/pleira/sgp4s_11")))
+  homepage := Some(url("http://github.com/pleira/SGP4Extensions")))
 
 
 lazy val commonJvmSettings = Seq(
@@ -38,18 +38,18 @@ lazy val noPublish = Seq(
 
 //lazy val core = crossProject.crossType(CrossType.Pure).in(file("core"))
 lazy val core = project.in(file("core"))
-  .settings(name := "sgp4s_11-core")
+  .settings(name := "sgp4ext-core")
   .settings(commonSettings: _*)
 
 //lazy val tests = crossProject.crossType(CrossType.Pure).in(file("tests"))
 lazy val tests = project.in(file("tests"))
-  .settings(name := "sgp4s_11-tests")
+  .settings(name := "sgp4ext-tests")
   .settings(commonSettings: _*)
   .dependsOn(core  % "compile->compile;test->test")
   .settings(noPublish: _*)
 
 lazy val reports = project.in(file("reports"))
-  .settings(name := "sgp4s_11-reports")
+  .settings(name := "sgp4ext-reports")
   .settings(commonSettings:_*)
   .dependsOn(core,tests  % "compile->compile;test->test")
   .settings(libraryDependencies +=
@@ -57,7 +57,7 @@ lazy val reports = project.in(file("reports"))
   .settings(noPublish: _*)
 
 lazy val thymeBenchmarks = project.in(file("thymeBenchmarks"))
-  .settings(name := "sgp4s_11-thymeBenchmarks")
+  .settings(name := "sgp4ext-thymeBenchmarks")
   .settings(commonSettings:_*)
   .dependsOn(core)
   .settings(libraryDependencies +=
