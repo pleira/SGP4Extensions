@@ -1,4 +1,4 @@
-package predict4s.sgp.algo
+package predict4s.sgp.ref
 
 import spire.algebra._
 import spire.math._

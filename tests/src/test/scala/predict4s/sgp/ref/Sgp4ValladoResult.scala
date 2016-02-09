@@ -1,4 +1,4 @@
-package predict4s.sgp.algo
+package predict4s.sgp.ref
 
 import predict4s.sgp.Sgp4Near
 import predict4s.coord.CartesianElems

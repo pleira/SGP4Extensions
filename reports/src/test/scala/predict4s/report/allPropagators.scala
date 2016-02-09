@@ -2,7 +2,7 @@ package predict4s.report
 
 import predict4s.coord._
 import predict4s.sgp.TestTLE
-import predict4s.sgp.algo._
+import predict4s.sgp.ref._
 import spire.implicits._
 import spire.algebra.Field
 import spire.math._

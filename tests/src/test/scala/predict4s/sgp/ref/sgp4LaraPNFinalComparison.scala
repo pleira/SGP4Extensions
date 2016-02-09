@@ -1,4 +1,4 @@
-package predict4s.sgp.algo
+package predict4s.sgp.ref
 
 import org.scalatest.FunSuite
 import org.scalactic.TolerantNumerics
@@ -15,10 +15,10 @@ import predict4s.coord.LaraConversions._
 class Sgp4LaraPNFinalComparison extends FunSuite with TLE22675 with TLE24946 with TLE00005  with TLE06251 with TLE28057 {
  
   implicit val wgs = SGP72Constants.tleDoubleConstants
-  val tol = TolerantNumerics.tolerantDoubleEquality(2E-5)
+  val tol = TolerantNumerics.tolerantDoubleEquality(2.5E-5)
   
   import spire.std.any.DoubleAlgebra
-  val tles = List(tle00005) // ,tle06251,tle22675,tle24946,tle28057)
+  val tles = List(tle00005,tle06251,tle22675,tle24946,tle28057)
   for (tle <- tles) {
     val elem0AndCtx = SGPElemsConversions.sgpElemsAndContext(tle, wgs).get
     val model = BrouwerLaneSecularCorrections(elem0AndCtx)

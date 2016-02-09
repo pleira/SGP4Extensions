@@ -1,4 +1,4 @@
-package predict4s.sgp.algo
+package predict4s.sgp.ref
 
 import org.scalactic.Or
 import org.scalactic.Good

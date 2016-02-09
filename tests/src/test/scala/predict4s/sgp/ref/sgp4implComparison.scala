@@ -1,4 +1,4 @@
-package predict4s.sgp.algo
+package predict4s.sgp.ref
 
 import org.scalatest.FunSuite
 import org.scalactic.TolerantNumerics
@@ -36,13 +36,14 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
            vafspn <- vsgp4.periodicCorrections(secularElemt)
            pnfspn <- pnsgp4.periodicCorrections(secularElemt)
            vlfspn <- vlsgp4.periodicCorrections(secularElemt)
-           lafnsing <- lasgp4.periodicCorrections(secularElemt)
-        } yield (vafspn, pnfspn, vlfspn, lafnsing)
+           lafspn <- lasgp4.periodicCorrectionsSPN(secularElemt)
+           //lafnsing <- lasgp4.periodicCorrections(secularElemt)
+        } yield (vafspn, pnfspn, vlfspn, lafspn) // lafnsing)
         if (result.isGood) {
-          val (vafspn, pnfspn, vlfspn, lafnsing) = result.get
+          val (vafspn, pnfspn, vlfspn, lafspn) = result.get
           val (vaspnLPP,pnspnLPP, vlspnLPP) = (vafspn._2,pnfspn._2, vlfspn._2)
-          val (vaspn,pnspn, vlspn) = (vafspn._1,pnfspn._1, vlfspn._1)
-          val laspn = laraNonSingular2SpecialPolarNodal(lafnsing._1, lafnsing._2._2._1.I)
+          val (vaspn,pnspn, vlspn, laspn) = (vafspn._1,pnfspn._1, vlfspn._1, lafspn._1)
+//          val laspn = laraNonSingular2SpecialPolarNodal(lafnsing._1, lafnsing._2._2._1.I)
           
           compareSPN(s"TLE ${tle.satelliteNumber} : long period periodic Vallado/Polar Nodals comparison at time $t", vaspnLPP, pnspnLPP, tol1);
           compareSPN(s"TLE ${tle.satelliteNumber} : Vallado/Polar Nodals comparison in SPN at time $t", vaspn, pnspn, tol1);
@@ -78,18 +79,22 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
       assert(spn1.r === spn2.r)
       assert(spn1.R === spn2.R)
       if (abs(spn1.Ω - spn2.Ω) > 6) {
-        // different signs, do not compare this one 
-        // assert(spn1.Ω === - spn2.Ω)
+        // different signs, correct one by 2Pi
+        val o1 = if (spn1.Ω < 0) spn1.Ω + 2*Pi else spn1.Ω
+        val o2 = if (spn2.Ω < 0) spn2.Ω + 2*Pi else spn2.Ω
+        assert(o1 === o2) 
       } else {
         assert(spn1.Ω === spn2.Ω)
       }
       assert(spn1.`Θ/r` === spn2.`Θ/r`)
       assert(spn1.I === spn2.I)
-      if (abs(spn1.θ - spn2.θ) > 6) {
-        // different signs, do not compare this one 
-        // assert(spn1.θ === - spn2.θ) 
-      } else {
+      if (abs(spn1.θ - spn2.θ) < 6) {
         assert(spn1.θ === spn2.θ) 
+      } else {
+        // different signs, correct one by 2Pi
+        val o1 = if (spn1.θ < 0) spn1.θ + 2*Pi else spn1.θ
+        val o2 = if (spn2.θ < 0) spn2.θ + 2*Pi else spn2.θ
+        assert(o1 === o2)         
       }
 
     }  
