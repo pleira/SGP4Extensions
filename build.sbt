@@ -59,7 +59,7 @@ lazy val reports = project.in(file("reports"))
 lazy val thymeBenchmarks = project.in(file("thymeBenchmarks"))
   .settings(name := "sgp4ext-thymeBenchmarks")
   .settings(commonSettings:_*)
-  .dependsOn(core)
+  .dependsOn(core,tests  % "compile->compile;test->test")
   .settings(libraryDependencies +=
     "ichi.bench" % "thyme" % "0.1.1" from "https://github.com/Ichoran/thyme/raw/9ff531411e10c698855ade2e5bde77791dd0869a/Thyme.jar")
   .settings(noPublish: _*)
