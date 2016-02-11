@@ -1,23 +1,22 @@
 package predict4s.sgp.ref
 
+import predict4s.report.ValladoLongFileReport
 import predict4s.sgp._
-import predict4s.sgp.ref.SGP4PN;
-import predict4s.report.PolarNodalFileReport
 import predict4s.coord._
 
 
-object HardcodedPNReport extends App with NearTLEs  {
+object HardcodedLydanneLongReport extends App with NearTLEs {
  
   val wgs = SGP72Constants.tleDoubleConstants
   val times00005 = for (i <- 0 until 13; j = i*360) yield j // times in minutes 
   val times06251 = for (i <- 0 until 25; j = i*120) yield j // times in minutes
   val times28057 = for (i <- 0 until 25; j = i*120) yield j // times in minutes
-  
-  def propags : List[SGP4PN[Double]] = tles map {tle => 
+
+  def propags : List[SGP4ValladoLong[Double]] = tles map {tle => 
 import spire.std.any.DoubleAlgebra
-    SGP4PN.build[Double](tle, wgs).get
+    SGP4ValladoLong.build[Double](tle, wgs).get
   }
-  def sgpImpl : String = "PN SGP4"
+  def sgpImpl : String = "Vallado-Lydanne LONG SGP4"
   
   val sgps     = propags
   
@@ -29,9 +28,9 @@ import spire.std.any.DoubleAlgebra
   val results06251 = for (t <- times06251) yield sgp06251.propagate2SPNContext(t)
   val results28057 = for (t <- times28057) yield sgp28057.propagate2SPNContext(t)
   
-//  PolarNodalFileReport.save(results00005, tle00005, lines(0), times00005)
-//  PolarNodalFileReport.save(results06251, tle06251, lines(1), times06251)
-//  PolarNodalFileReport.save(results28057, tle28057, lines(2), times28057)
+//  ValladoLongFileReport.save(results00005, tle00005, lines(0), times00005)
+//  ValladoLongFileReport.save(results06251, tle06251, lines(1), times06251)
+//  ValladoLongFileReport.save(results28057, tle28057, lines(2), times28057)
 } 
 
 

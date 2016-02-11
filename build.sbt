@@ -40,6 +40,7 @@ lazy val noPublish = Seq(
 lazy val core = project.in(file("core"))
   .settings(name := "sgp4ext-core")
   .settings(commonSettings: _*)
+  .settings(classDiagramSettings)
 
 //lazy val tests = crossProject.crossType(CrossType.Pure).in(file("tests"))
 lazy val tests = project.in(file("tests"))

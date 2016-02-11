@@ -1,0 +1,17 @@
+digraph "diagram" {
+
+node  [shape="record", style="filled"]
+
+edge  [arrowtail="none"]
+
+"predict4s.sgp.SGP4" [fillcolor="#7996AC"]
+"predict4s.sgp.SimpleKeplerEq" [fillcolor="#799F5A"]
+"predict4s.sgp.ref.LaraFirstOrderCorrections" [fillcolor="#799F5A"]
+"predict4s.sgp.ref.SGP4Lara" [fillcolor="#7996AC"]
+
+"predict4s.sgp.ref.LaraFirstOrderCorrections" -> "predict4s.sgp.SimpleKeplerEq"
+"predict4s.sgp.ref.SGP4Lara" -> "predict4s.sgp.SGP4"
+"predict4s.sgp.ref.SGP4Lara" -> "predict4s.sgp.ref.LaraFirstOrderCorrections"
+
+}
+

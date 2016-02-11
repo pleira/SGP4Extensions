@@ -22,7 +22,7 @@ object Sgp4ImplBench extends App with TLE22675 with TLE24946 with TLE00005  with
   val th = Thyme.warmed(verbose = print)
   
   import spire.std.any.DoubleAlgebra
-  val tles = List(tle00005) // ,tle06251,tle22675,tle24946,tle28057)
+  val tles = List(tle00005 ,tle06251,tle22675,tle24946,tle28057)
   for (tle <- tles) {
     val elem0AndCtx = SGPElemsConversions.sgpElemsAndContext(tle, wgs).get
     val model = BrouwerLaneSecularCorrections(elem0AndCtx)
