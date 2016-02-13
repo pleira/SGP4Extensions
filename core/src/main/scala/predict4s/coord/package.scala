@@ -5,6 +5,8 @@ import org.scalactic.Bad
 
 package object coord {
   
+  type sp = scala.specialized
+  
   type ErrorMessage =  String
   
   // for secular corrections

@@ -1,4 +1,5 @@
-package predict4s.coord
+package predict4s
+package coord
 
 import spire.algebra._
 import spire.math._
@@ -8,12 +9,12 @@ import org.scalactic.Or
 import org.scalactic.Good
 import org.scalactic.Bad
 
-case class AnomalyState[F](E : F, cosE: F, sinE: F, ecosE: F, esinE: F) {
+case class AnomalyState[@sp(Double) F](E : F, cosE: F, sinE: F, ecosE: F, esinE: F) {
   // define alternative methods to allow expressing a different Anomaly U (not the Eccentric Anomaly)
   def U = E; def cosU: F = cosE; def sinU: F = sinE; def ecosU: F = ecosE; def esinU: F = esinE;
 }
 
-case class SPNAuxVariables[F](p: F, κ: F, σ: F, n: F, β: F)
+case class SPNAuxVariables[@sp(Double) F](p: F, κ: F, σ: F, n: F, β: F)
 
 object SGPElemsConversions {
  
@@ -21,7 +22,7 @@ object SGPElemsConversions {
    * Builds SGPElems with original mean motion (n0'', n0dp) and semimajor axis (a0'' , a0dp).
    * 
    */  
-  def sgpElemsAndContext[F: Field: Trig: NRoot: Order](tle: TLE, wgs: SGPConstants[F]) 
+  def sgpElemsAndContext[@sp(Double) F: Field: Trig: NRoot: Order](tle: TLE, wgs: SGPConstants[F]) 
       :  SGPElemsResult[F] = { 
     val e0 = tle.eccentricity.toDouble.as[F]
     val i0 = tle.inclination.toDouble.toRadians.as[F]
@@ -54,7 +55,7 @@ object SGPElemsConversions {
     } yield SGPElemsCtx(SGPElems(n,e,I,ω,Ω,M,a,bStar,epoch), iCtx, eCtx, wgs)
   
   
-  private def calcOriginalMotionAndSemimajorAxis[F: Field: NRoot : Order: Trig](n: F, iCtx: InclinationCtx[F], eCtx : EccentricityCtx[F], wgs: SGPConstants[F]) 
+  private def calcOriginalMotionAndSemimajorAxis[@sp(Double) F: Field: NRoot : Order: Trig](n: F, iCtx: InclinationCtx[F], eCtx : EccentricityCtx[F], wgs: SGPConstants[F]) 
       : (F, F) = {
     import wgs.{KE,J2,`2/3`,`1/3`}
     import iCtx.`3c²-1`,eCtx.`β0³`
@@ -69,7 +70,7 @@ object SGPElemsConversions {
     (n0dp, a0dp)
   }
    
-  def sgpelems2SpecialPolarNodal[F: Field: Trig: NRoot: Order](eaState: AnomalyState[F], secularCtx : SGPSecularCtx[F]) 
+  def sgpelems2SpecialPolarNodal[@sp(Double) F: Field: Trig: NRoot: Order](eaState: AnomalyState[F], secularCtx : SGPSecularCtx[F]) 
       : SpecialPolarNodal[F] Or ErrorMessage = {
     import eaState._ 
     import secularCtx.{_1 => elem}, elem.{a,I,e,n,ω,Ω}

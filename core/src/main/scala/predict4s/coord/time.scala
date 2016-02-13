@@ -21,7 +21,7 @@ import spire.syntax.primitives.IntAs
 object TimeUtils {
     
 
-  def revPerDay2RadPerMin[F: Field](rpd: F) : F = 2 * pi * rpd / 1440 
+  def revPerDay2RadPerMin[@sp(Double) F: Field](rpd: F) : F = 2 * pi * rpd / 1440 
    
   // use old way of finding gst
   // count integer number of days from 0 jan 1970
@@ -65,7 +65,7 @@ object TimeUtils {
 *    vallado       2004, 191, eq 3-45
 */
 
-def  gstime[F : Field: Order](jdut1: F) : F = {
+def  gstime[@sp(Double) F : Field: Order](jdut1: F) : F = {
      val `2pi` = (2 * pi).as[F]
      val deg2rad = pi / 180
 

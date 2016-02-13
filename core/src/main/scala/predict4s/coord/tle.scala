@@ -1,4 +1,6 @@
-package predict4s.coord
+package predict4s
+package coord
+
 
 /**
  * TLE represents the non converted data given bz a Two Line Element.

@@ -1,11 +1,10 @@
-package predict4s.sgp
+package predict4s
+package sgp
 
 import spire.algebra._
 import spire.math.{sin,cos,abs}
 import spire.implicits._
-import scala.{ specialized => spec }
 import spire.syntax.primitives._
-import predict4s.coord.{SGPElems,AnomalyState}
 import org.scalactic.Good
 import org.scalactic.Bad
 import predict4s.coord._
@@ -18,7 +17,7 @@ trait SimpleKeplerEq {
    * to compute E the eccentric anomaly.
    * The Newton-Raphson iterations start from E0 = M = (l in Delauneys).
    */
-   def solveKeplerEq[F: Field: Trig: Order](e: F, M : F): AnomalyResult[F] = {
+   def solveKeplerEq[@sp(Double) F: Field: Trig: Order](e: F, M : F): AnomalyResult[F] = {
      def loop(E: F, remainingIters: Int) : AnomalyResult[F] = {
       val sinE = sin(E)
       val cosE = cos(E)
@@ -38,9 +37,9 @@ trait SimpleKeplerEq {
     loop(M, 10)  
    }
    
-   def solveKeplerEq[F: Field: Trig: Order](elem : SGPElems[F]): AnomalyResult[F] = 
+   def solveKeplerEq[@sp(Double) F: Field: Trig: Order](elem : SGPElems[F]): AnomalyResult[F] = 
     solveKeplerEq(elem.e, elem.M)
    
-   def solveKeplerEq[F: Field: Trig: Order](elemCtx : SGPSecularCtx[F]): AnomalyResult[F] = 
+   def solveKeplerEq[@sp(Double) F: Field: Trig: Order](elemCtx : SGPSecularCtx[F]): AnomalyResult[F] = 
     solveKeplerEq(elemCtx._1)
 }

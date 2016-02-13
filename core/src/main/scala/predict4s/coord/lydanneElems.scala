@@ -1,4 +1,5 @@
-package predict4s.coord
+package predict4s
+package coord
 
 import org.scalactic.Or
 import org.scalactic.Good
@@ -6,22 +7,21 @@ import org.scalactic.Bad
 import spire.algebra._
 import spire.math._
 import spire.implicits._
-import scala.{ specialized => spec }
 import spire.syntax.primitives._
   
 // n: mean motion, I: inclination, a: semimajor axis, Ω: ascending node argument
-case class LyddaneElems[F: Field](I: F, a: F, Ω: F, C: F, S: F, F: F) {
+case class LyddaneElems[@sp(Double) F: Field](I: F, a: F, Ω: F, C: F, S: F, F: F) {
   def xl = F; def `C´` = C; def `S´` = S ; def `F´` = xl; def h = Ω; def axnl = C; def ecosω = C; def aynl = S ; 
 //  def +(o: LyddaneElems[F]) = LyddaneElems(I + o.I, a - o.a,Ω + o.Ω,C + o.C,S + o.S, F + o.F)
 //  def -(o: LyddaneElems[F]) = LyddaneElems(I - o.I,a - o.a,Ω - o.Ω,C - o.C,S - o.S, F - o.F)  
 }
 
 
-case class LongPeriodContext[F](`el²`: F, pl: F, `√pl`: F, βl: F, sin2θ: F, cos2θ: F)
+case class LongPeriodContext[@sp(Double) F](`el²`: F, pl: F, `√pl`: F, βl: F, sin2θ: F, cos2θ: F)
 
 object LyddaneConversions {
   
-  def lyddane2SpecialPolarNodal[F: Field: NRoot: Order: Trig](eaState: AnomalyState[F], lylppState: LyddaneElems[F]) 
+  def lyddane2SpecialPolarNodal[@sp(Double) F: Field: NRoot: Order: Trig](eaState: AnomalyState[F], lylppState: LyddaneElems[F]) 
       : (SpecialPolarNodal[F], LongPeriodContext[F]) Or ErrorMessage = {
     import eaState._ 
     import lylppState._

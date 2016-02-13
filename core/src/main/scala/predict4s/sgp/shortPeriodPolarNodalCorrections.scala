@@ -1,4 +1,5 @@
-package predict4s.sgp
+package predict4s
+package sgp
 
 import spire.algebra._
 import spire.math._
@@ -8,7 +9,7 @@ import predict4s.coord._
 
 trait ShortPeriodPolarNodalCorrections[F] {
   
-  def sppCorrections(ctx: LPPSPNCtx[F])(implicit ev: Field[F], trig: Trig[F], ro: NRoot[F] )
+  def sppCorrections(@sp(Double) ctx: LPPSPNCtx[F])(implicit ev: Field[F], trig: Trig[F], ro: NRoot[F] )
       : SpecialPolarNodal[F] = {
     import ctx.{_1 => lppPN,_2 => lppc,_3 => secular}
     import lppPN.r,lppc.{pl,βl,`√pl`,cos2θ,sin2θ}

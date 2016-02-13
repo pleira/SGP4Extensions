@@ -1,4 +1,5 @@
-package predict4s.coord
+package predict4s
+package coord
 
 import spire.algebra._
 import spire.math._

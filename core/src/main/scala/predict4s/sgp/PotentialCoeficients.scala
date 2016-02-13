@@ -1,4 +1,5 @@
-package predict4s.sgp
+package predict4s
+package sgp
 
 import spire.algebra._
 import spire.math._
@@ -8,11 +9,11 @@ import predict4s.coord._
 
 // The notation used in the formulas here correspond to that used in SPACETRACK Report n 3, Hoots.
 
-case class GeoPotentialCoefs[F](C1: F, C2: F, C3: F, C4: F, C5: F, D2: F, D3: F, D4: F)
+case class GeoPotentialCoefs[@sp(Double) F](C1: F, C2: F, C3: F, C4: F, C5: F, D2: F, D3: F, D4: F)
 
 trait GeoPotentialAndAtmosphere2ndOrderModel {
 
-  def geoPotentialCoefs[F: Field : NRoot : Order : Trig](elem0Ctx: SGPElemsCtx[F]) 
+  def geoPotentialCoefs[@sp(Double) F: Field : NRoot : Order : Trig](elem0Ctx: SGPElemsCtx[F]) 
       : GeoPotentialCtx[F] = {
     import elem0Ctx.{elem,iCtx,eCtx,wgs,perigeeHeight} 
     import wgs.{J2,J3,`J3/J2`,aE}
@@ -44,7 +45,7 @@ trait GeoPotentialAndAtmosphere2ndOrderModel {
     (GeoPotentialCoefs(C1,C2,C3,C4,C5,D2,D3,D4),gctx)
   }
   
-  def fittingAtmosphericParameter[F: Field : Order](perigeeHeight: F, aE: F) : F = {
+  def fittingAtmosphericParameter[@sp(Double) F: Field : Order](perigeeHeight: F, aE: F) : F = {
     def S_above156 : F = 1 + 78/aE
     // def hs(perigeeHeight: F)(implicit ev: Field[F]) : F =  perigeeHeight - 78   // interpolation, being a number bigger than 20, and smaller that 78
     def S_between_98_156 : F =  (1 + (perigeeHeight - 78)/aE)
@@ -56,7 +57,7 @@ trait GeoPotentialAndAtmosphere2ndOrderModel {
   
 }
 
-case class GeoPotentialContext[F: Field: Order](s: F, ξ: F, η: F, e0η: F, q0: F) {
+case class GeoPotentialContext[@sp(Double) F: Field: Order](s: F, ξ: F, η: F, e0η: F, q0: F) {
   val `η²` = η*η
   val `η³` = η*`η²`
   val `1-η²` = abs[F](1-`η²`) 

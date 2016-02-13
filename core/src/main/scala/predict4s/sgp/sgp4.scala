@@ -1,10 +1,10 @@
-package predict4s.sgp
+package predict4s
+package sgp
 
 import org.scalactic.Or
 import spire.algebra._
 import spire.math._
 import spire.implicits._
-import scala.{ specialized => spec }
 import spire.syntax.primitives._
 import predict4s.coord._
 import predict4s.coord.CoordinatesConversions._
@@ -20,7 +20,7 @@ import predict4s.coord.CoordinatesConversions._
  * of first-order, short-period perturbation amplitudes due to J2. 
  * (from Space Debris, by H. Klinkrad, pag 216).
  */
-abstract class SGP4[F : Field : NRoot : Order : Trig](
+abstract class SGP4[@sp(Double) F : Field : NRoot : Order : Trig](
     val sec : BrouwerLaneSecularCorrections[F]
     ) {
  
