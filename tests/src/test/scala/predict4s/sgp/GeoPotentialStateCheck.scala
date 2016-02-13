@@ -1,4 +1,6 @@
-package predict4s.sgp
+package predict4s
+package sgp
+
 import org.scalatest.FunSuite
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality

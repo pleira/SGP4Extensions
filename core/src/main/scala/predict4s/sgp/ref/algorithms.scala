@@ -1,9 +1,10 @@
-package predict4s.sgp.ref
+package predict4s
+package sgp
+package ref
 
 import spire.algebra._
 import spire.math._
 import spire.implicits._
-import scala.{ specialized => spec }
 import spire.syntax.primitives._
 import predict4s.sgp._
 import predict4s.coord._

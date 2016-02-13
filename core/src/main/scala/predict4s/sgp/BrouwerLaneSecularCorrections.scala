@@ -28,7 +28,7 @@ class BrouwerLaneSecularCorrections[@sp(Double) F : Field : NRoot : Order : Trig
   type Minutes = F // type to remember dealing with minutes from epoch
 
   // valid interval for eccentricity calculations
-  val eValidInterval = Interval.open(0.as[F],1.as[F])
+  def eValidInterval = Interval.open(0.as[F],1.as[F])
      
   def secularCorrections(t: Minutes): SGPSecularResult[F] = {
     
@@ -59,7 +59,7 @@ class BrouwerLaneSecularCorrections[@sp(Double) F : Field : NRoot : Order : Trig
     
     // fix tolerance for error recognition
     // sgp4fix am is fixed from the previous nm check
-    if (!eValidInterval.contains(em_))
+    if (!Interval.open(0.as[F],1.as[F]).contains(em_))
       {
         // sgp4fix to return if there is an error in eccentricity
         return Bad(s"Secular eccentricity $em_ outside valid range")

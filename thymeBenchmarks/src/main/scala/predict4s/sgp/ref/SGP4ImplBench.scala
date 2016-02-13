@@ -1,4 +1,6 @@
-package predict4s.sgp.ref
+package predict4s
+package sgp
+package ref
 
 import ichi.bench.Thyme
 import ichi.bench.Thyme.HowWarm

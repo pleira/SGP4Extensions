@@ -1,9 +1,12 @@
-package predict4s.sgp.ref
+package predict4s
+package sgp
+package ref
 
 import org.scalatest.FunSuite
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
-import scala.math._
+import spire.std.any.DoubleAlgebra
+import spire.math._
 import predict4s.coord.SGP72Constants
 import predict4s.sgp._
 import predict4s.coord.SGPElemsConversions
@@ -17,7 +20,6 @@ class Sgp4LaraPNFinalComparison extends FunSuite with TLE22675 with TLE24946 wit
   implicit val wgs = SGP72Constants.tleDoubleConstants
   val tol = TolerantNumerics.tolerantDoubleEquality(2.5E-5)
   
-  import spire.std.any.DoubleAlgebra
   val tles = List(tle00005,tle06251,tle22675,tle24946,tle28057)
   for (tle <- tles) {
     val elem0AndCtx = SGPElemsConversions.sgpElemsAndContext(tle, wgs).get

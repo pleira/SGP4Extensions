@@ -40,7 +40,7 @@ abstract class WGS[@sp(Double) F: Field]() extends WGSConstants[F] {
 }
 
 // old WGS72 constants
-class WGS721Constants[@sp(Double) F: Field]() extends WGS[F] {
+class WGS721Constants[F: Field]() extends WGS[F] {
   val MU     =   398600.8.as[F]
   val aE     =   6378.135.as[F]
   val KE     =   0.0743669161.as[F] // units 1/min = 60/sqrt(aE³/μ)
@@ -54,7 +54,7 @@ class WGS721Constants[@sp(Double) F: Field]() extends WGS[F] {
   override val K4     =   super.K4
 }
 
-class WGS72Constants[@sp(Double) F: Field]() extends WGS[F] {
+class WGS72Constants[F: Field]() extends WGS[F] {
   val MU     =   398600.79964.as[F] 
   val aE     =   6378.135.as[F]
   val KE     =   0.07436691613317.as[F]       //   60 / (aE³/ MU).sqrt  // /min
@@ -68,7 +68,7 @@ class WGS72Constants[@sp(Double) F: Field]() extends WGS[F] {
   val α : F = aE                        // Earth's equatorial radius  
 }
 
-class WGS84Constants[@sp(Double) F: Field]() extends WGS[F] {
+class WGS84Constants[F: Field]() extends WGS[F] {
   val MU     =   398600.5.as[F]            
   val aE     =   6378.137.as[F]
   val KE     =   0.07436685316871.as[F]   //   60 / (aE³/ MU).sqrt   //  /min

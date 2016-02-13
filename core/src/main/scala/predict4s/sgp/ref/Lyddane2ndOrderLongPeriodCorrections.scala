@@ -1,14 +1,15 @@
-package predict4s.sgp.ref
+package predict4s
+package sgp
+package ref
 
 import spire.algebra._
 import spire.math._
 import spire.implicits._
-import scala.{ specialized => spec }
 import spire.syntax.primitives._
 import predict4s.coord._
 import predict4s.coord.LyddaneElems
 
-trait Lyddane2ndOrderLongPeriodCorrections[F] extends LyddaneLongPeriodCorrections[F] {
+trait Lyddane2ndOrderLongPeriodCorrections[@sp(Double) F] extends LyddaneLongPeriodCorrections[F] {
       
   override def lylppCorrectionsCtx(secularCtx : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F])
       : LyddaneResult[F]  = {

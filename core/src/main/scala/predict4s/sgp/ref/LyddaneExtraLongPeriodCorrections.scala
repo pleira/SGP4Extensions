@@ -1,4 +1,6 @@
-package predict4s.sgp.ref
+package predict4s
+package sgp
+package ref
 
 import spire.algebra._
 import spire.math._
@@ -11,7 +13,7 @@ import org.scalactic.Bad
 import predict4s.coord._
 import predict4s.sgp._
 
-trait LyddaneExtraLongPeriodCorrections[F] extends LongPeriodSPNCorrections[F] with TwoTermsKeplerEq {
+trait LyddaneExtraLongPeriodCorrections[@sp(Double) F] extends LongPeriodSPNCorrections[F] with TwoTermsKeplerEq {
   
   override def lppCorrections(secularElemt : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
       : LPPSPNResult[F] = {

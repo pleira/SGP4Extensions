@@ -1,4 +1,6 @@
-package predict4s.sgp.ref
+package predict4s
+package sgp
+package ref
 
 import org.scalatest.FunSuite
 import org.scalactic.TolerantNumerics
@@ -6,7 +8,6 @@ import org.scalactic.Equality
 
 import predict4s.coord.SGP72Constants
 import predict4s.sgp._
-import predict4s.sgp.ref.SGP4Vallado;
 import predict4s.coord.SGPElems
 import predict4s.coord.SGPElemsConversions
 

@@ -1,4 +1,5 @@
-package predict4s.sgp
+package predict4s
+package sgp
 
 import predict4s.coord.TLE;
 

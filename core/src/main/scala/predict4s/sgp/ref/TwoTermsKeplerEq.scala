@@ -1,8 +1,10 @@
-package predict4s.sgp.ref
+package predict4s
+package sgp
+package ref
+
 import spire.algebra._
 import spire.math.{sin,cos,abs,pi}
 import spire.implicits._
-import scala.{ specialized => spec }
 import spire.syntax.primitives._
 import predict4s.coord._
 import predict4s.sgp._
@@ -19,7 +21,7 @@ trait TwoTermsKeplerEq {
    * and g is the argument of the perigee (ω).
    * The Newton-Raphson iterations start from Ψ0 = U.
    */
-  def solveKeplerEq[F: Field: Trig: Order](elems: LyddaneElems[F]) : AnomalyResult[F]  = {
+  def solveKeplerEq[@sp(Double) F: Field: Trig: Order](elems: LyddaneElems[F]) : AnomalyResult[F]  = {
     import elems._   
     // U = F' - h' = M" + g"; 
     val u = Field[F].mod(xl - Ω, 2.as[F]*pi)  

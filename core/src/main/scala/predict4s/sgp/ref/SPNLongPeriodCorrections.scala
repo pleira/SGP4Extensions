@@ -1,4 +1,6 @@
-package predict4s.sgp.ref
+package predict4s
+package sgp
+package ref
 
 import org.scalactic.Or
 import org.scalactic.Good
@@ -6,13 +8,12 @@ import org.scalactic.Bad
 import spire.algebra._
 import spire.math._
 import spire.implicits._
-import scala.{ specialized => spec }
 import spire.syntax.primitives._
 import predict4s.sgp._
 import predict4s.coord._
 import predict4s.coord.SGPElemsConversions._
 
-trait SPNLongPeriodCorrections[F] extends LongPeriodSPNCorrections[F] with SimpleKeplerEq {
+trait SPNLongPeriodCorrections[@sp(Double) F] extends LongPeriodSPNCorrections[F] with SimpleKeplerEq {
   
   override def lppCorrections(secularElemt : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F])  =
       propagateToSPNLPP(secularElemt)

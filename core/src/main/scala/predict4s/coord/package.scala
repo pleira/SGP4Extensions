@@ -1,4 +1,5 @@
 package predict4s
+
 import org.scalactic.Or
 import org.scalactic.Good
 import org.scalactic.Bad
