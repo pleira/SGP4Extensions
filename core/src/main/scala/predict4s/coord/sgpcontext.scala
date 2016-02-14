@@ -25,20 +25,20 @@ case class SGPElemsCtx[@sp(Double) F: Field: Order](elem: SGPElems[F], iCtx: Inc
 }
 
 case class InclinationCtx[@sp(Double) F: Field](c : F, s : F) {
-  lazy val `s²` = s*s
-  lazy val `c²` = c*c
-  lazy val `c³` = `c²`*c
-  lazy val `c⁴` = `c²`*`c²`
-  lazy val `3c²-1` = 3*`c²` - 1
-  def cosI0      = c 
-  def `cos²I0`   = `c²`
-  def sinI0      = s
+  lazy val `s²` = s * s
+  lazy val `c²` = c * c
+  lazy val `c³` = `c²` * c
+  lazy val `c⁴` = `c²` * `c²`
+  lazy val `3c²-1` = 3 * `c²` - 1
+  def cosI0 = c
+  def `cos²I0` = `c²`
+  def sinI0 = s
   // these are used in Brouwers notation
-  def θ          = c
-  def `θ²`       = `c²` // `cos²I0`
-  def `θ³`       = `c³` // cosI0 * `cos²I0`
-  def `θ⁴`       = `c⁴` // `cos²I0` * `cos²I0`
-  def θsq        = `c²` // `cos²I0`
+  def θ = c
+  def `θ²` = `c²` // `cos²I0`
+  def `θ³` = `c³` // cosI0 * `cos²I0`
+  def `θ⁴` = `c⁴` // `cos²I0` * `cos²I0`
+  def θsq = `c²` // `cos²I0`
 }
 
 object InclinationCtx {

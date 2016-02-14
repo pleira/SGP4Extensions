@@ -1,4 +1,5 @@
-package predict4s.collision
+package predict4s
+package conjunction
 
 import predict4s.coord.TLE;
 

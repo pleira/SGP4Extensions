@@ -117,7 +117,7 @@ class BrouwerLaneSecularCorrections[@sp(Double) F : Field : NRoot : Order : Trig
     
     val δL = 1 - C1*t - D2*`t²` - D3*`t³` - D4*`t⁴`  // (L´´/L0) 
     val δe = bStar*(C4*t + C5*(sin(Mpm_) - sin(M)))  // sin(M) === sin(M0)
-    val δℓ =  T2*`t²` + T3*`t³` + `t⁴` * (T4 + t*T5) // (ℓ´´ - ℓj´´)/ n0
+    val δℓ = T2*`t²` + T3*`t³` + `t⁴` * (T4 + t*T5)  // (ℓ´´ - ℓj´´)/ n0
 
     (δL, δe, δℓ, ωm_, Mpm_, Ωm)
   }
@@ -153,8 +153,9 @@ object BrouwerLaneSecularCorrections extends GeoPotentialAndAtmosphere2ndOrderMo
     val `p²` = p*p
     val `p⁴` = `p²`*`p²`
     
-    val ϵ2 = - J2/`p²`/ 4  // note missing aE² as in Lara's
-    val temp3 = -0.46875 * J4 * n0 / `p⁴`
+    val ϵ2 = - J2/`p²`/ 4
+    val ϵ4 = - 15 * J4 / `p⁴`/ 32
+    val n0ϵ4 = n0*ϵ4 
     val `3n0ϵ2` = 3*ϵ2*n0
     val hdot =  2*`3n0ϵ2`*c 
     val secularFrequencies = 
@@ -162,10 +163,10 @@ object BrouwerLaneSecularCorrections extends GeoPotentialAndAtmosphere2ndOrderMo
         SecularFrequencies(// derivative of M 
           n0 - `3n0ϵ2` * β0 * (`3c²-1` - ϵ2 * (13 - 78 * `c²` + 137 * `c⁴`) / 4),
         // derivative of the perigee argument
-        `3n0ϵ2` * (1 - 5*`c²` + ϵ2*(7 - 114*`c²` + 395*`c⁴`)/4) + temp3*(3 - 36*`c²` + 49*`c⁴`),
+        `3n0ϵ2` * (1 - 5*`c²` + ϵ2*(7 - 114*`c²` + 395*`c⁴`)/4) + n0ϵ4*(3 - 36*`c²` + 49*`c⁴`),
         // derivative of the raan
         //(2* `3n0ϵ2` * (1 + (ϵ2*(4 - 19*`c²`)) + 2*temp3 * (3 - 7*`c²`)))*c
-        hdot + ϵ2*hdot* (4 - 19*`c²`) + 2*temp3*c* (3 - 7*`c²`)
+        hdot + ϵ2*hdot* (4 - 19*`c²`) + 2*n0ϵ4*c* (3 - 7*`c²`)
         )
       else 
         SecularFrequencies(0.as[F],0.as[F],0.as[F])

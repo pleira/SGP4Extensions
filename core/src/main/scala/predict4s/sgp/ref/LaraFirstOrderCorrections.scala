@@ -23,7 +23,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 
   override def propagate(t: Minutes): SGPPropResult[F] = propagate2CartesianContext(t)
   
-  def propagate2CartesianContext(t: Minutes) : SGPPropResult[F] = {
+  def propagate2CartesianContext(t: Minutes) : SGPPropResult[F] = 
     for {
       laraResult <- propagateDirect2CartesianContext(t)
       uPV = laraResult._1
@@ -34,16 +34,14 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
       finalSPNasPair = (finalSPNt, finalSPNt) // FIXME one day
       fPV = scalePV(uPV, laraCtx)
     } yield (fPV, uPV, (finalSPNasPair, secularCtx)) 
-  }
   
-  def propagateDirect2CartesianContext(t: Minutes) = {
+  def propagateDirect2CartesianContext(t: Minutes) = 
     for {
       secularElemt <- secularCorrections(t)
       laraCtx <- periodicCorrections(secularElemt)
       uPV = laraNonSingular2uPV(laraCtx)
       // posVel = scale2CartesianElems(uPV, finalPolarNodalt)   
     } yield (uPV, laraCtx) 
-  }
 
   override def periodicCorrections(secularElemt : SGPSecularCtx[F]) : SGPLaraResult[F] = {
     val elem = secularElemt._1
@@ -110,7 +108,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 }
 
 
-trait LaraFirstOrderCorrections[F] extends SimpleKeplerEq {
+trait LaraFirstOrderCorrections[@sp(Double) F] extends SimpleKeplerEq {
   
   // This implementation includes more terms with respect lppCorrectionsOld
   def lppCorrections(lnSingular: LaraNonSingular[F], secularElemt : SGPSecularCtx[F])(implicit ev: Field[F])
