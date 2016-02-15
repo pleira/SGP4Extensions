@@ -80,11 +80,10 @@ SGP4, Orbital Propagation, Scala
 Satellite short-term prediction is customarily carried out
 with SGP4 \cite{}. Due to its popularity, there are numerous versions of
 of SGP4 in several programming languages. The most important implementation comes from Vallado
+\cite{ValladoCrawford06}
 who has done a comprehensive analysis of the algorithm. Many other versions
 are derived from his work. The work presented in this paper also derives from Vallado's software.
-This new implementation, called SGP4Extensions, provides in our opinion more flexibility to handle
-propagation for certain kinds of orbits or to perform conjunction analysis.
-SGP4Extensions is written in a programming language called Scala.
+This new implementation, called SGP4Extensions is written in a programming language called Scala.
 It is hosted in http://github.com/pleira/SGP4Extensions and licensed
 with an open source Apache Version 2 license.
 
@@ -97,6 +96,8 @@ equations in the code as expressed in the articles
 into the propagation algorithm. In particular, Lara has proposed the usage of non-singular variables for the
 calculations of the periodic corrections and an implementation is provided using his variables.
 \end{enumerate}
+Besides, it is designed to provide more options when being used within other algorithms,
+like those performing space debris conjunction analysis.
 
 Currently, only extensions around SGP4 are implemented. The deep space SDP4 algorithm is not
 implemented.
@@ -111,14 +112,13 @@ to java byte code that will run in the Java Virtual Machine.
 
 As software complexity increases due to demands like concurrent tasks and parallelism,
 there has been a trend in the last years to introduce the functional paradigm where
-functions are implemented in a referential transparent way, with no side effects.
+functions are implemented in a referential transparent way, with no side effects \cite{ChBj}.
 No mutable state is kept within the functions. Effects are moved to the outer layers
-of the program. Many functional data structures are designed for immutablity.
-All this allows for simpler reasoning about the program and for
+of the program. All this allows for simpler reasoning about the program which enables
 implementing concurrent and parallel solutions more effectively.
 
-The SGP4 algorithm has been implemented using Scala with functional concepts
-in mind. Foremost, it is the Interpreter Pattern. There is an intentional
+The SGP4 algorithm is implemented foremost with the Interpreter Pattern in mind.
+There is an intentional
 separation of the run time part that has state, like reading/writing to files, called
 generally the interpreter, from a pure functional part, the description, which is just
 responsible to describe the algorithms that will be applied.
@@ -132,20 +132,8 @@ with the calculations carried out.
 A scala library called spire is used for providing different efficient numeric types
 and their mathematical functions.
 The implementation of almost all functions and methods in SGP4Extensions
-are parameterised in the numeric types. As example, this function is parameterized
+are parameterized in the numeric types. As example, this function is parameterized
 in F which is constraint to have Field operations:
-
-\begin{lstlisting}[style=myScalastyle]
-private def calcLaneCoefs[@sp(Double) F : Field](gcoefs : GeoPotentialCoefs[F]) : LaneCoefs[F] = {
-  import gcoefs._
-  val `C1²` = C1*C1
-  LaneCoefs(
-       3*C1/2,
-       D2 + 2*`C1²`,
-       (3*D3 + C1*(12*D2 + 10 * `C1²`))/4,
-       (3*D4 + 12*C1*D3 + 6*D2*D2 + 15*`C1²`*(2*D2+`C1²`))/5)
-}
-\end{lstlisting}
 
 Field is a type in spire that provides for the sum, product and division operation
 following associative laws. The algorithm to calculate Lane Coeficients is expressed in Field terms.
@@ -163,75 +151,80 @@ Using an exact numeric type like Real resulted in execution types two orders of 
 \subsection{Description of the types used}
 \label{sec:typesystem}
 
-The Scala Type System is quite rich. Types are used to make clear the data structures and processing
-steps involved in the implementation.
+Numerous types are used to make clear the data structures and processing
+steps involved in this new SGP4 implementation.
 
-One goal is to provide flexibility for the introduction of new models/algorithms
-by separating models in their own classes or traits
+Coordinate types and supporting classes for coordinate transformations:
+\begin{itemize}
+\item SGPElems: classical keplerian elements plus bStar and a julian date)
+\item Cartesian: orbital position and velocity in cartesian
+\item SpecialPolarNodal: polar nodal coordinates with the inclination instead of the polar component of the angular momentum
+\item PolarNodal: \cite{}
+\item LaraNonSingular
+\item LyddaneElems
+\end{itemize}
+
+Models for the corrections like:
+\begin{itemize}
+\item BrouwerLaneSecularCorrections
+\item LyddaneLongPeriodCorrections
+\item Lyddane2ndOrderLongPeriodCorrections
+\item LaraFirstOrderCorrections
+\end{itemize}
+
+Resolution of different Kepler equations because of
+different coordinate systems: SimpleKeplerEq, TwoTermsKeplerEq.
 
 % // TODO: introduce the different figures with algorithms
 % Vectorised image formats like .pdf and .eps are preferred -------------------------------------------------------------------------
 \begin{figure}[htb]
-\begin{minipage}[b]{.48\linewidth}
-  \centering
-	\includegraphics[width=\linewidth]{pn.png}
-  \centerline{SGP4 Algorithm in Polar Nodals}\medskip
-\end{minipage}
-\hfill
-\begin{minipage}[b]{0.48\linewidth}
   \centering
 	\includegraphics[width=\linewidth]{lara.png}
-  \centerline{SGP4 Algorithm Lara}\medskip
-\end{minipage}
-\caption{Two of the SGP4 implementations}
 \label{fig:res}
+\caption{SGP4 Algorithm in Lara Non Singular variables}
 \end{figure}
 
-Vallado's handles error returns by setting the global errno in the
-structure. In this work, there is an alias for an String called ErrorMessage.
-The return type like SGP4CartesianResult is composed of
-two types as follows: SGP4CartesianCtx Or ErrorMessage. This can also be expressed
-as Or[SGP4CartesianCtx, ErrorMessage]. Monadic composition is used for following the
-happy path when dealing with Or[X, ErrorMessage] types.
-
-Monadic composition in Scala for comprehensions allows for clear and clean code.
-On the other hand, benchmarks have proved problems with the performance
-of Scala collections and these monadic processing flows up to current Scala
-version 2.11. Spire offers for
-that reason the cfor loop macro. Other users in need of performance change the
-style to more imperative versions using the while loop provided by the language.
-However, Scala version 2.12 is bringing a new code bytecode optimizer called GenBCode
-that would address those problems in the functional/monadic composition flows.
-Therefore, this work has been designed for this future compiler version at the expense
-of not being fully optimized in version 2.11.
+\begin{figure}[htb]
+  \centering
+	\includegraphics[width=\linewidth]{pn.png}
+\caption{SGP4 Algorithm in Polar Nodals}
+\end{figure}
 
 \subsection{Unicode usage}
 \label{sec:unicodeusage}
 
-The support in Scala for unicode variables has been used intensively to write
-the equations in the software as those given in the literature. The
-model equations currently implemented are presented in the next section.
+The support in Scala for unicode variables has been used intensively in all Model,
+Coordinate and Correnction classes or traits. That allowed to write
+the equations in the software similar to those given in the literature.
+This method shows the calculation of Lane coeficients of atmospheric drag:
 
-As example:
 \begin{lstlisting}[style=myScalastyle]
-case class SpecialPolarNodal[@sp(Double) F: Field: Trig](
-    I: F,  // the orbital inclination
-    θ: F,  // the argument of latitude from the ascending node
-    Ω: F,  // the argument of the node
-    r: F,  // the radial distance
-    R: F,  // the radial velocity
-    `Θ/r` : F  // related to the total angular momentum
-  ) {
-  // Note: Vallado's SGP4 uses rθdot = Θ/r instead of Θ, used by Lara
-  def rvdot = `Θ/r`
-  def Θ = `Θ/r`*r
-  def rθdot = Θ/r
-...
+private def calcLaneCoefs[@sp(Double) F : Field](gcoefs : GeoPotentialCoefs[F]) : LaneCoefs[F] = {
+  import gcoefs._
+  val `C1²` = C1*C1
+  LaneCoefs(
+       3*C1/2,
+       D2 + 2*`C1²`,
+       (3*D3 + C1*(12*D2 + 10 * `C1²`))/4,
+       (3*D4 + 12*C1*D3 + 6*D2*D2 + 15*`C1²`*(2*D2+`C1²`))/5)
 }
 \end{lstlisting}
+Here is the Lyddane 2nd Order Long Period Corrections:
+\begin{lstlisting}[style=myScalastyle]
+val δI =   ϵ3 * esinω * c
+val δa =   0
+val δh = - ϵ3 * ecosω * c/s_
+val δC = - ϵ3 * ecosω * esinω * (1/s_ - 2*s_)
+val δS =   ϵ3 * s_ - ϵ3*`η²`*s_ - 2*ϵ3*`ecosω²`*s_ + ϵ3*`ecosω²`/s_
+val δF =   ϵ3 * s * ecosω * (1 - 2*`η²`/(1+η)) / 2
+\end{lstlisting}
 
-* Use of the @specialized compiler feature for the Double numeric type. It is nice
-to use primitive types like Double in all generic collections. However, the compiler
+\subsection{Optimizations}
+\label{sec:optimizations}
+
+All numeric methods use the @specialized compiler feature for the Double numeric type.
+The convenient usage of primitive types like Double in generic collections comes with
+the cost of boxing/unboxing operations. The compiler
 must create wrapper objects for that, an operation called boxing. With @specialized
 the compiler will support creating specialized methods or classes for the
 declared primitive types that avoid creating the boxing objects.
@@ -304,10 +297,10 @@ declared primitive types that avoid creating the boxing objects.
 
 The validation of the software has been done using the same TLEs as Vallado for the Near Earth case.
 
-\begin{table}[htb]
+\begin{table}[p]
 \centering
-\caption{NEAR EARTH TLEs}\vspace{2mm}
-\begin{tabular}{lll}
+\caption{NEAR EARTH TLEs used for testing}\vspace{2mm}
+\begin{tabular}{|l|l|p{14cm}|}
 \hline\hline
 Satellite & Category & Comments\\
 \hline
