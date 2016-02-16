@@ -53,6 +53,8 @@ class AllPropagators(val tle: TLE, val wgs: SGPConstants[Double], val start: Int
 //  def calcPropagation(sgp4: SGP4[Double], start: Int, end: Int, step: Int) = {
 //    for (t <- start to end by step) yield sgp4.propagate(t)
 //  }
+  
+  def algorithmNames = List("va", "vl", "pn", "la") // this is the order
 }
 
 object AllPropagators {

@@ -27,19 +27,19 @@ trait GeoPotentialAndAtmosphere2ndOrderModel {
     val gctx = GeoPotentialContext(s0,ξ0,η0,e0η0,q0)
     import gctx._
   
-    val coef1 : F = `ξ⁴(q0-s)⁴` / (`1-η²`** 3.5)
+    val coef1 = `ξ⁴(q0-s)⁴` / (`1-η²`** 3.5)
   
-    val C2 : F = coef1 * n0 *(a0 * (1 + 1.5*`η²` + e0η*(4 + `η²`)) + 0.375*J2*ξ / `1-η²` * (3*`θ²` - 1) * (8 + 3*`η²`*(8 + `η²`)))
+    val C2 = coef1 * n0 *(a0 * (1 + 1.5*`η²` + e0η*(4 + `η²`)) + 0.375*J2*ξ / `1-η²` * (3*`θ²` - 1) * (8 + 3*`η²`*(8 + `η²`)))
       // coef1 * n0 *(a0 * (1 + 1.5*`η²` + e0η*(4 + `η²`)) + 3*J2*ξ / 2 / psisq * (3*`θ²` - 1) / 2 * (8 + 3*`η²`*(8 + `η²`)))
     
-    val C1 : F = bStar * C2
-    val `C1²`  = C1*C1
+    val C1 = bStar * C2
+    val `C1²` = C1*C1
   
     val C3 =  if (e0 > 0.0001.as[F]) -2 * `ξ⁴(q0-s)⁴` * ξ * `J3/J2` * n0 * sinI0 / e0 else 0.as[F]
     val aterm = 3*(1-3*`θ²`)*(1 + 3*`η²`/2 - 2*e0η - e0η*`η²`/2) + 3*(1-`θ²`)*(2*`η²` - e0η - e0η*`η²`)*cos(2*ω0)/4
     val C4 = 2*a0*`β0²`*coef1*n0*((2*η*(1 + e0η) + (e0 + `η³`)/2) - J2*ξ*aterm/(a0*`1-η²`))
     val C5 = 2*a0*`β0²`*coef1*(1 + 11*(`η²`+e0η)/4 + e0η*`η²`)
-    val D2 = 4*a0*`C1²`*ξ
+    val D2 = 4*a0*ξ*`C1²`
     val D3 = D2*(17*a0+s)*C1*ξ/3
     val D4 = D2*D2*ξ*(221*a0+31*s)/24
     (GeoPotentialCoefs(C1,C2,C3,C4,C5,D2,D3,D4),gctx)

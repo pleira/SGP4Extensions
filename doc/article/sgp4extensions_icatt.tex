@@ -7,6 +7,7 @@
 \usepackage{listings}
 \usepackage{color}
 
+
 % Example definitions.
 % --------------------
 %\def\x{{\mathbf x}}
@@ -42,14 +43,7 @@
 % Two addresses (uncomment and modify for two-address case).
 % ----------------------------------------------------------
 
-%\twoauthors{Pablo Pita Leira}{Martín Lara}
-\author{
-  Pablo Pita Leira\\
-  \texttt{pablo.pita@gmail.com}
-  \and
-  Martín Lara\\
-  \texttt{mlara0@gmail.com}
-}
+\twoauthors{Pablo Pita Leira}{pablo.pita@gmail.com}{Mart\'in Lara}{mlara0@gmail.com}
 
 %
 
@@ -237,18 +231,82 @@ declared primitive types that avoid creating the boxing objects.
 \section{SGP4 ALGORITHM DESCRIPTIONS}
 \label{sec:algorithms}
 
+% Mi estructura:
+% subseccion más importante con la descripción del algoritmo de Vallado
+% an~adir subseccion en No Singulares
+% si hay sitio, an~adir subsección con Vallado Long y Polares Nodales.
+% o estas dos unirlas a una subsección para descartar efectos de haber
+% calculado la anomalía verdadera con anterioridad a las correcciones de largo periodo
+%
+% Tenemos que converger la notación de las ecuaciones en todos los algoritmos
+% (Vallado, Vallado Long, Polares Nodales y no singulares).
+% Tener las ecuaciones de tal modo que el código en Scala las refleje exactamente
+% Eso es posible gracias al soporte de Unicode que ofrece Scala.
+% Mencionar en algún sitio que no hay problema con el cálculo de la anomalía.
+% la prueba es que Vallado Long y Polares Nodales coinciden a E-7 despues de las
+% correcciones de largo periodo.
 
-%Para ir avanzando, lo que quiero pedirte es a partir de tu artículo del 3 de diciembre con la descripción del algoritmo de Vallado y de variables no singulares,  an~adir Vallado Long y Polares Nodales. A partir de ahi converger la notación de las ecuaciones en todos los algoritmos (Vallado, Vallado Long, Polares Nodales y no singulares). Y con ello, tener las ecuaciones de tal modo que el código en Scala las refleje exactamente de igual manera. Eso es posible gracias al soporte de Unicode que me ofrece Scala.
-
-%Se trata pues de hacer lo siguente en tu artículo en Latex:
+% Se trata pues de hacer lo siguente en tu artículo en Latex:
 %- quitar el código fortran del artículo
 %- dejar por tanto las ecuaciones, donde se describen el potencial, las correcciones, las coordenadas usadas ...
 %- A~nadir la parte de Vallado Long y de Polares Nodales de tus otros artículos.
 %- transformar (si es posible) algunos términos de las ecuaciones para tener la misma notación tanto en Vallado (y demás) como en no singulares:
 % * por ejemplo, 1-e*e es en Vallado beta al cuadrado β² y en alguna formula tuya una n larga al cuadrado
-%  * converger en usar c y s para el coseno/seno de la inclinación (Vallado usa theta en las expresiones del geopotencial) (te parece bien?, pues Hoots/Roerich usan theta en su documento sobre Spacetrack #3)
+% * converger en usar c y s para el coseno/seno de la inclinación (Vallado usa theta en las expresiones del geopotencial)
+%   (te parece bien?, pues Hoots/Roerich usan theta en su documento sobre Spacetrack #3)
 % * introducir las variables ϵ2 y ϵ3 en las expresiones de Vallado (las hacen más faciles de comparar con las ecuaciones en no singulares o en polares nodales, no te parece?)
 
+
+\subsection{Vallado's algorithm}
+\label{sec:vallado}
+
+Gravity corrections Brouwer’s gravitational corrections are applied first
+
+Next, the secular corrections due to the atmospheric drag are incorporated;
+in particular.
+
+Then compute the secular elements (not exactly secular: they mix long-period terms from drag)
+
+Geopotential long-period corrections. Brouwer long-period gravitational corrections are reformulated in Lyddane’s variables.
+At the precision of SGP4, there are only corrections for F and S.
+
+Solve the Kepler equation to compute the anomaly Ψ = E + g, where E is the
+eccentric anomaly. The Newton-Raphson iterations start from Ψ0 = U.
+
+Compute polar variables. Change from Lyddane non-singular variables to polar-nodal variables
+
+Compute short-period gravitational corrections
+
+Finally, the state vector is computed from the standard transformation from Cartesian to polar-nodal variables
+
+\subsection{Lara algorithm with Non Singular Variables}
+\label{sec:lara}
+
+After the secular elements are obtained for time t as Vallado, then this algorithm
+comes in. First solve Kepler's equation to compute the eccentric anomaly, and then the
+true anomaly
+
+transform the Delaunay variables to my non-singular variables
+
+apply my long-period corrections (simplified according SGP4 criteria)
+
+apply my short-period corrections (simplified according SGP4 criteria)
+
+compute the state vector
+
+Remark that N is an integral of the zonal problem and, therefore, its value is always known from given initial conditions
+
+% TODO: should we revise the Short Period Corrections in non-singular variables?
+%       objective: better match in the plots
+
+\subsection{True anomaly}
+\label{sec:trueanomaly}
+To Verify that the order in which the eccentric anomaly is calculated does not have effect,
+two additional algorithms have been done:
+
+Vallado with extra terms for the long period corrections
+
+Polar Nodals variant as in Lara where first solve Kepler Equation and then the Long Period Corrections are calculated in Polar Nodals variables.
 
 %Equations shall be centred in the column and the corresponding number aligned on the right. They shall be referenced using parenthesis, e.g.,~\eqref{eq:ellipse}.
 
@@ -297,6 +355,11 @@ declared primitive types that avoid creating the boxing objects.
 
 The validation of the software has been done using the same TLEs as Vallado for the Near Earth case.
 
+
+
+%%%
+%%% MAYBE THIS TABLE GETS DISCARDED, or make it smaller
+%%%
 \begin{table}[p]
 \centering
 \caption{NEAR EARTH TLEs used for testing}\vspace{2mm}
@@ -307,17 +370,17 @@ Satellite & Category & Comments\\
 00005 & Near Earth & TEME example satellite.\\
 06251 &  Near Earth  & Near Earth normal drag case. The perigee of 377.26 km is low, but above the threshold of 220
 km for simplified equations, so moderate drag case.\\
-28057 &  Near Earth  & Near Earth normal drag case but with low eccentricity (0.000 088 4) so certain drag terms are
-set to zero to avoid math errors / loss of precision.\\
-29238  & NE/S  & Near Earth with perigee 212.24 km, thus uses simplified drag branch (perigee < 220 km) test.\\
-28350 & NE/S  & Near Earth low perigee (127.20 km) that uses the branch (perigee < 156 km) for modifying
-the ‘s4’ drag coefficient. Propagation beyond approximately 1460 minutes should result in
-error trap (modified eccentricity too low).\\
 22312  & NE/S  & Near Earth with very low perigee (86.98 km) that uses the second branch (perigee < 98 km)
 for limiting the ‘s4’ drag coefficient to 20. Propagation beyond approximately 2840 min
 should result in error trap (modified eccentricity too low).\\
-28872  & NE/S  & Sub-orbital case (perigee – 51 km, lost about 50 minutes from epoch) used to test error handling.\\
+28057 &  Near Earth  & Near Earth normal drag case but with low eccentricity (0.000 088 4) so certain drag terms are
+set to zero to avoid math errors / loss of precision.\\
+28350 & NE/S  & Near Earth low perigee (127.20 km) that uses the branch (perigee \textless 156 km) for modifying
+the ‘s4’ drag coefficient. Propagation beyond approximately 1460 minutes should result in
+error trap (modified eccentricity too low).\\
+28872  & NE/S  & Sub-orbital case (perigee 51 km, lost about 50 minutes from epoch) used to test error handling.\\
 29141  & Near Earth  & Last stages of decay.\\
+29238  & NE/S  & Near Earth with perigee 212.24 km, thus uses simplified drag branch (perigee \textless 220 km) test.\\
 \hline\hline
 \end{tabular}
 \label{tab:res}

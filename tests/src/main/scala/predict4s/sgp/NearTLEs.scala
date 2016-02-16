@@ -3,14 +3,9 @@ package sgp
 
 import predict4s.coord.TLE;
 
-/* Near earth examples from Vallado's */
-trait NearTLEs extends TLE00005 with TLE06251 with TLE28057 {
-  def tles = List(tle00005, tle06251, tle28057)
-  def lines = List(lines00005,lines06251,lines28057)
-}
 
 trait TestNearTLEs {
-  def tles : List[TestTLE] = List(TLE00005, TLE06251, TLE28057, TLE22312, TLE28350, TLE28872, TLE28872, TLE29141, TLE88888)
+  def tles : List[TestTLE] = List(TLE00005, TLE06251, TLE22312, TLE28057, TLE28350, TLE28872, TLE29141, TLE29238, TLE88888)
 }
 
 trait TestTLE {

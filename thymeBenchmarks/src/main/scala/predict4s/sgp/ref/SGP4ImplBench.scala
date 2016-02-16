@@ -13,8 +13,8 @@ import predict4s.coord.SGP72Constants
 import predict4s.sgp._
 import predict4s.coord.SGPElemsConversions
 import predict4s.coord.SpecialPolarNodal
-import predict4s.collision.TLE22675
-import predict4s.collision.TLE24946
+import predict4s.conjunction.TLE22675
+import predict4s.conjunction.TLE24946
 import predict4s.coord.LaraConversions._
 
 object Sgp4ImplBench extends App with TLE22675 with TLE24946 with TLE00005  with TLE06251 with TLE28057 {

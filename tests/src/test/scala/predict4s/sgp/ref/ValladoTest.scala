@@ -11,6 +11,11 @@ import predict4s.sgp._
 import predict4s.coord.SGPElems
 import predict4s.coord.SGPElemsConversions
 
+/* Near earth examples from Vallado's */
+trait NearTLEs extends TLE00005 with TLE06251 with TLE28057 {
+  def tles = List(tle00005, tle06251, tle28057)
+  def lines = List(lines00005,lines06251,lines28057)
+}
 
 trait ValladoNearTLEsTest extends NearTLEs with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] { self : FunSuite => 
 
@@ -36,7 +41,7 @@ class HardcodedValladoCheck extends FunSuite with NearTLEs with ValladoNearTLEsC
   val toMinus9 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1E-9)
 
   def propags : List[SGP4Vallado[Double]] = tles map {tle => 
-import spire.std.any.DoubleAlgebra
+    import spire.std.any.DoubleAlgebra
     SGP4Vallado.build[Double](tle, wgs).get
   }
   def sgpImpl : String = "Vallado SGP4"
