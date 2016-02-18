@@ -9,8 +9,8 @@ import predict4s.coord._
 
 case class Sgp4ValladoResult(
     sgp: SGP4Vallado[Double], 
-    statett: (CartesianElems[Double], CartesianElems[Double], ((SpecialPolarNodal[Double], SpecialPolarNodal[Double]), 
- (SGPElems[Double], InclinationCtx[Double], SGPConstants[Double]))), tle: TLE, t: Double) 
+    statett: (CartesianElems[Double], CartesianElems[Double], SpecialPolarNodal[Double]), 
+    tle: TLE, t: Double) 
         extends Sgp4Result[Double] {
   val posVel = statett._1 
   val r = posVel.pos

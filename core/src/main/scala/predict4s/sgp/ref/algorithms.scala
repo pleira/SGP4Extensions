@@ -10,53 +10,85 @@ import predict4s.sgp._
 import predict4s.coord._
 import org.scalactic.Or
 import predict4s.coord.CoordinatesConversions._
+import predict4s.coord.SGPElemsConversions._
 
-trait LongPeriodSPNCorrections[F] {
-  def lppCorrections(secularElemt : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
-      : LPPSPNResult[F]
-}
 
 abstract class SGP4WithSPNCorrections[F : Field : NRoot : Order : Trig](
   sec : BrouwerLaneSecularCorrections[F]
-  ) extends SGP4(sec) with LongPeriodSPNCorrections[F] with ShortPeriodPolarNodalCorrections[F] {
+  ) extends SGP4(sec) with ShortPeriodPolarNodalCorrections[F] {
 
-  type PC[_] = SGPSPNCtx[F]
-
-  override def propagate(t: Minutes): SGPPropResult[F] = propagate2CartesianContext(t)
-    
-  def propagate2CartesianContext(t: Minutes) : SGPPropResult[F] = 
-    for {
-      spnCtx <- propagate2SPNContext(t)
-      finalSPN = spnCtx._1._1
-      unitpv = polarNodal2UnitCartesian(finalSPN)
-      pv = scale2CartesianElems(unitpv, finalSPN)      
-    } yield (pv, unitpv, spnCtx) 
-  
-  def propagate2SPNContext(t: Minutes): SGPCorrPropResult[F] = 
-    for {
-     sc <- secularCorrections(t)
-     pc <- periodicCorrections(sc)
-    } yield (pc, sc)
-  
   override def periodicCorrections(secularElemt : SGPSecularCtx[F]) :  SGPSPNResult[F] = 
     for {
       lc <- lppCorrections(secularElemt)
       finalSPN = sppCorrections(lc)
-    } yield (finalSPN, lc._1)
-    
+    } yield finalSPN
+  
+   def lppCorrections(secularElemt : SGPSecularCtx[F]) : LPPSPNResult[F]
 }
 
 class SGP4Vallado[F : Field : NRoot : Order : Trig](
   sec : BrouwerLaneSecularCorrections[F]
-  ) extends SGP4WithSPNCorrections(sec) with LyddaneLongPeriodCorrections[F]
+  ) extends SGP4WithSPNCorrections(sec) with LyddaneLongPeriodCorrections[F] with TwoTermsKeplerEq {
+  
+  def lppCorrections(secularElemt : SGPSecularCtx[F]) : LPPSPNResult[F] = {
+    // long period corrections in Lyddane's coordinates
+    val lyddaneElems = lylppCorrections(secularElemt)
+    for {
+      // To transform to Special Polar Nodals, get the eccentric anomaly
+      eaState <- solveKeplerEq(lyddaneElems)
+      spnctx <- LyddaneConversions.lyddane2SpecialPolarNodal(eaState, lyddaneElems)
+    } yield (spnctx._1, spnctx._2, secularElemt)
+  }  
+}
 
 class SGP4ValladoLong[F : Field : NRoot : Order : Trig](
   sec : BrouwerLaneSecularCorrections[F]
-  ) extends SGP4WithSPNCorrections(sec) with LyddaneExtraLongPeriodCorrections[F]
+  ) extends SGP4WithSPNCorrections(sec) with LyddaneExtraLongPeriodCorrections[F] with TwoTermsKeplerEq {
+ 
+  def lppCorrections(secularElemt : SGPSecularCtx[F]) : LPPSPNResult[F] = {
+    val lyddaneElems = lylppCorrections(secularElemt)
+    for {
+      // long period corrections in Lyddane's coordinates
+      // To transform to Special Polar Nodals, get the eccentric anomaly
+      eaState <- solveKeplerEq(lyddaneElems)
+      spnctx <- LyddaneConversions.lyddane2SpecialPolarNodal(eaState, lyddaneElems)
+    } yield (spnctx._1, spnctx._2, secularElemt)
+  }  
+}
 
 class SGP4PN[F : Field : NRoot : Order : Trig](
   sec : BrouwerLaneSecularCorrections[F]
-  ) extends SGP4WithSPNCorrections(sec) with SPNLongPeriodCorrections[F] 
+  ) extends SGP4WithSPNCorrections(sec) with SPNLongPeriodCorrections[F] with SimpleKeplerEq {
+  
+  def lppCorrections(secularElemt : SGPSecularCtx[F])  =
+      propagateToSPNLPP(secularElemt)
+  
+  /**
+   * long period corrections in SpecialPolarNodal coordinates
+   */
+   def propagateToSPNLPP(secularElemt : SGPSecularCtx[F]) : LPPSPNResult[F] = {
+    val elem = secularElemt._1
+    val wgs = secularElemt._3
+    for {
+      eaState <- solveKeplerEq(elem.e, elem.M)
+      spnSecular <- sgpelems2SpecialPolarNodal(eaState, secularElemt)
+      lppcorr = lppSPNCorrections((spnSecular, secularElemt))
+    } yield (lppcorr._1, lppcorr._2, secularElemt)    
+  }
+  
+  /**
+   * long period corrections in CSpecialPolarNodal coordinates
+   */
+  def propagateToCPNLPP(secularElemt : SGPSecularCtx[F]) : LPPCPNResult[F] = {
+    val elem = secularElemt._1
+    val wgs = secularElemt._3
+    for {
+      eaState <- solveKeplerEq(elem.e, elem.M)
+      spnSecular <- sgpelems2SpecialPolarNodal(eaState, secularElemt)
+      lppcorr = lppCPNCorrections((spnSecular, secularElemt))
+    } yield (lppcorr._1, lppcorr._2, secularElemt)    
+  }  
+}
 
 object SGP4Vallado  {
   

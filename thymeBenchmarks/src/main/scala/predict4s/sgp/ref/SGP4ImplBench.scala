@@ -39,7 +39,7 @@ object Sgp4ImplBench extends App with TLE22675 with TLE24946 with TLE00005  with
     
     th.pbenchOffWarm(s"Comparison Vallado/PN for TLE ${tle.satelliteNumber}")(vapc)(pnpc)  
     
-    val lapc = th.Warm(secs.map(s => lasgp4.periodicCorrectionsSPN(s)))
+    val lapc = th.Warm(secs.map(s => lasgp4.periodicCorrections(s)))
     val vlpc = th.Warm(secs.map(s => vlsgp4.periodicCorrections(s)))
     
     th.pbenchOffWarm(s"Comparison Lara/Vallado Long for TLE ${tle.satelliteNumber}")(lapc)(vlpc)  

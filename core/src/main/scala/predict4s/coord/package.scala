@@ -19,11 +19,11 @@ package object coord {
   type SPNSecularResult[F] = SPNSecularCtx[F] Or ErrorMessage
   
   // intermediate results in polar nodals SPN
-  type SGPSPNCtx[F] = (SpecialPolarNodal[F], SpecialPolarNodal[F])
-  type SGPSPNResult[F] = SGPSPNCtx[F] Or ErrorMessage
+  //type SGPSPNCtx[F] = (SpecialPolarNodal[F], SpecialPolarNodal[F])
+  type SGPSPNResult[F] = SpecialPolarNodal[F] Or ErrorMessage
 
   // final correction results in polar nodals SPN
-  type SGPCorrPropCtx[F] = (SGPSPNCtx[F], SGPSecularCtx[F]) 
+  type SGPCorrPropCtx[F] = ((SpecialPolarNodal[F], SpecialPolarNodal[F]), SGPSecularCtx[F]) 
   type SGPCorrPropResult[F] = SGPCorrPropCtx[F] Or ErrorMessage
 
   // final correction results in Lara Non Singular
@@ -31,7 +31,7 @@ package object coord {
   type SGPLaraResult[F] = SGPLaraCtx[F] Or ErrorMessage
   
   // final results in cartesians
-  type SGPPropCtx[F] = (CartesianElems[F], CartesianElems[F], SGPCorrPropCtx[F]) 
+  type SGPPropCtx[F] = (CartesianElems[F], CartesianElems[F], SpecialPolarNodal[F]) 
   type SGPPropResult[F] = SGPPropCtx[F] Or ErrorMessage
   
   // For Long Period Periodic corrections in polar nodals SPN

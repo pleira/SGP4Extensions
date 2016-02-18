@@ -12,18 +12,7 @@ import spire.syntax.primitives._
 import predict4s.sgp._
 import predict4s.coord._
 
-trait LyddaneLongPeriodCorrections[@sp(Double) F] extends LongPeriodSPNCorrections[F] with TwoTermsKeplerEq {
- 
-  override def lppCorrections(secularElemt : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
-      : LPPSPNResult[F] = {
-    // long period corrections in Lyddane's coordinates
-    val lyddaneElems = lylppCorrections(secularElemt)
-    for {
-      // To transform to Special Polar Nodals, get the eccentric anomaly
-      eaState <- solveKeplerEq(lyddaneElems)
-      spnctx <- LyddaneConversions.lyddane2SpecialPolarNodal(eaState, lyddaneElems)
-    } yield (spnctx._1, spnctx._2, secularElemt)
-  }
+trait LyddaneLongPeriodCorrections[@sp(Double) F]  {
   
   def lylppCorrections(secularCtx : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F])
       : LyddaneElems[F] = {

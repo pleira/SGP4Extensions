@@ -13,18 +13,7 @@ import org.scalactic.Bad
 import predict4s.coord._
 import predict4s.sgp._
 
-trait LyddaneExtraLongPeriodCorrections[@sp(Double) F] extends LongPeriodSPNCorrections[F] with TwoTermsKeplerEq {
-  
-  override def lppCorrections(secularElemt : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
-      : LPPSPNResult[F] = {
-    val lyddaneElems = lylppCorrections(secularElemt)
-    for {
-      // long period corrections in Lyddane's coordinates
-      // To transform to Special Polar Nodals, get the eccentric anomaly
-      eaState <- solveKeplerEq(lyddaneElems)
-      spnctx <- LyddaneConversions.lyddane2SpecialPolarNodal(eaState, lyddaneElems)
-    } yield (spnctx._1, spnctx._2, secularElemt)
-  }
+trait LyddaneExtraLongPeriodCorrections[@sp(Double) F] {
   
   def lylppCorrections(secularElemt : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F])
       : LyddaneElems[F] = {

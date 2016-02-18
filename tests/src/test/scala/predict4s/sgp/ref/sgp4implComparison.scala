@@ -26,32 +26,32 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
   for (tle <- tles) {
     val elem0AndCtx = SGPElemsConversions.sgpElemsAndContext(tle, wgs).get
     val model = BrouwerLaneSecularCorrections(elem0AndCtx)
-    val vsgp4 = SGP4Vallado[Double](model)
+    val vasgp4 = SGP4Vallado[Double](model)
     val pnsgp4 = SGP4PN[Double](model)
     val vlsgp4 = SGP4ValladoLong[Double](model)
     val lasgp4 = SGP4Lara[Double](model)
     val ts = List.range(0, 30000, 3000)
     ts foreach { t => 
-      vsgp4.secularCorrections(t) foreach { secularElemt =>
+      vasgp4.secularCorrections(t) foreach { secularElemt =>
         val result = 
           for {  
-           vafspn <- vsgp4.periodicCorrections(secularElemt)
+           vafspn <- vasgp4.periodicCorrections(secularElemt)
            pnfspn <- pnsgp4.periodicCorrections(secularElemt)
            vlfspn <- vlsgp4.periodicCorrections(secularElemt)
-           lafspn <- lasgp4.periodicCorrectionsSPN(secularElemt)
+           lafspn <- lasgp4.periodicCorrections(secularElemt)
            //lafnsing <- lasgp4.periodicCorrections(secularElemt)
         } yield (vafspn, pnfspn, vlfspn, lafspn) // lafnsing)
         if (result.isGood) {
           val (vafspn, pnfspn, vlfspn, lafspn) = result.get
-          val (vaspnLPP,pnspnLPP, vlspnLPP) = (vafspn._2,pnfspn._2, vlfspn._2)
-          val (vaspn,pnspn, vlspn, laspn) = (vafspn._1,pnfspn._1, vlfspn._1, lafspn._1)
+         // val (vaspnLPP,pnspnLPP, vlspnLPP) = (vafspn._2,pnfspn._2, vlfspn._2)
+          //val (vaspn,pnspn, vlspn, laspn) = (vafspn._1,pnfspn._1, vlfspn._1, lafspn._1)
 //          val laspn = laraNonSingular2SpecialPolarNodal(lafnsing._1, lafnsing._2._2._1.I)
           
-          compareSPN(s"TLE ${tle.satelliteNumber} : long period periodic Vallado/Polar Nodals comparison at time $t", vaspnLPP, pnspnLPP, tol1);
-          compareSPN(s"TLE ${tle.satelliteNumber} : Vallado/Polar Nodals comparison in SPN at time $t", vaspn, pnspn, tol1);
-          compareSPN(s"TLE ${tle.satelliteNumber} : Vallado Long/Polar Nodals comparison in SPN at time $t", vlspn, pnspn, tol2);
+          //compareSPN(s"TLE ${tle.satelliteNumber} : long period periodic Vallado/Polar Nodals comparison at time $t", vaspnLPP, pnspnLPP, tol1);
+          compareSPN(s"TLE ${tle.satelliteNumber} : Vallado/Polar Nodals comparison in SPN at time $t", vafspn, pnfspn, tol1);
+          compareSPN(s"TLE ${tle.satelliteNumber} : Vallado Long/Polar Nodals comparison in SPN at time $t", vlfspn, pnfspn, tol2);
           
-          compareSPN2(s"TLE ${tle.satelliteNumber} : Vallado/Lara Non Singular comparison in SPN at time $t", vaspn, laspn, tol3);
+          compareSPN2(s"TLE ${tle.satelliteNumber} : Vallado/Lara Non Singular comparison in SPN at time $t", vafspn, lafspn, tol3);
         }
       }
     }

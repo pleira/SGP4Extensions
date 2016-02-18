@@ -25,18 +25,18 @@ class AllPropagators(val tle: TLE, val wgs: SGPConstants[Double], val start: Int
   val finalCartesiansResults = results map { l =>
     l map { tuple => tuple._1 } 
   }
-  val vfc = finalCartesiansResults(0)
+  val vafc = finalCartesiansResults(0)
   val vlfc = finalCartesiansResults(1)
   val pnfc = finalCartesiansResults(2)
   val lafc = finalCartesiansResults(3) // laresult map { tuple => tuple._1 } 
   
   val finalPNResults = results map { l =>
-    l map { tuple => tuple._3._1._1 } 
+    l map { tuple => tuple._3 } 
   }
-  val vfpn = finalPNResults(0)
+  val vafpn = finalPNResults(0)
   val vlfpn = finalPNResults(1)
   val pnfpn = finalPNResults(2)
-  val lfpn = finalPNResults(3) // laresult map { tuple => tuple._3._1._1 } 
+  val lafpn = finalPNResults(3) // laresult map { tuple => tuple._3._1._1 } 
   
 //  val lppPNResults = results map { l =>
 //    l map { tuple => tuple._3._1._2 } 
@@ -54,7 +54,7 @@ class AllPropagators(val tle: TLE, val wgs: SGPConstants[Double], val start: Int
 //    for (t <- start to end by step) yield sgp4.propagate(t)
 //  }
   
-  def algorithmNames = List("va", "vl", "pn", "la") // this is the order
+  def algorithmNames = List("va", "vl", "pn", "la")
 }
 
 object AllPropagators {

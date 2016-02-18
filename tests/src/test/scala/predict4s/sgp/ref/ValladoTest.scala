@@ -12,12 +12,12 @@ import predict4s.coord.SGPElems
 import predict4s.coord.SGPElemsConversions
 
 /* Near earth examples from Vallado's */
-trait NearTLEs extends TLE00005 with TLE06251 with TLE28057 {
-  def tles = List(tle00005, tle06251, tle28057)
-  def lines = List(lines00005,lines06251,lines28057)
-}
+//trait NearTLEs extends TLE00005 with TLE06251 with TLE28057 {
+//  def tles = List(tle00005, tle06251, tle28057)
+//  def lines = List(lines00005,lines06251,lines28057)
+//}
 
-trait ValladoNearTLEsTest extends NearTLEs with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] { self : FunSuite => 
+trait ValladoNearTLEsTest extends TLE00005 with TLE06251 with TLE28057 with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] { self : FunSuite => 
 
   implicit val wgs = SGP72Constants.tleDoubleConstants
   
@@ -25,7 +25,9 @@ trait ValladoNearTLEsTest extends NearTLEs with ValladoNearTLEsCheck[Double] wit
   def propags : List[SGP4Vallado[Double]]
   
   def sgpImpl : String
-
+  
+  val tles = List(tle00005,tle06251,tle28057)
+  
   def results = (propags,tles, tlesTimes).zipped.toList map { p  =>  // tuple of propagator,  tle and the propagation times   
     val sgp4 = p._1 ; val tle = p._2; val times = p._3
     val res = for (t <- times) yield (sgp4.propagate(t), t)
@@ -35,11 +37,12 @@ trait ValladoNearTLEsTest extends NearTLEs with ValladoNearTLEsCheck[Double] wit
 }
 
 
-class HardcodedValladoCheck extends FunSuite with NearTLEs with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] {
+class HardcodedValladoCheck extends FunSuite with TLE00005 with TLE06251 with TLE28057 with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] {
  
   val wgs = SGP72Constants.tleDoubleConstants
   val toMinus9 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1E-9)
-
+  import spire.std.any.DoubleAlgebra
+  val tles = List(tle00005,tle06251,tle28057)
   def propags : List[SGP4Vallado[Double]] = tles map {tle => 
     import spire.std.any.DoubleAlgebra
     SGP4Vallado.build[Double](tle, wgs).get
