@@ -19,7 +19,6 @@ package object coord {
   type SPNSecularResult[F] = SPNSecularCtx[F] Or ErrorMessage
   
   // intermediate results in polar nodals SPN
-  //type SGPSPNCtx[F] = (SpecialPolarNodal[F], SpecialPolarNodal[F])
   type SGPSPNResult[F] = SpecialPolarNodal[F] Or ErrorMessage
 
   // final correction results in polar nodals SPN

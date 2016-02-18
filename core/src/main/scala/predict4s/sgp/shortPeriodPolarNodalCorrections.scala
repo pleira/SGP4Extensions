@@ -18,16 +18,17 @@ trait ShortPeriodPolarNodalCorrections[F] {
 
     val `3c²-1` = 3*`c²`-1
     val `βl³/√pl` = βl*βl*βl/`√pl`
-    // val `J2/p/2` = J2 / pl / 2
     val ϵ2 = - J2 / pl / pl / 4
+
     val δI = - 3 * ϵ2 * c * s * cos2θ
     val δθ =       ϵ2 * (7*`c²`-1) * sin2θ / 2
     val δΩ = - 3 * ϵ2 * c * sin2θ
     val δr =       ϵ2 * (3 * r * βl * `3c²-1` - pl*`s²`*cos2θ)      
-//    val δR = - `J2/p/2` * `s²` * sin2θ * n / KE  // rdot, angular velocity
-//    val δrvdot =  `J2/p/2` * (`s²` * cos2θ + 1.5 * `3c²-1`) * n / KE
     val δR   =  2 * ϵ2 * `s²` * sin2θ * `βl³/√pl` // rdot, angular velocity
     val δrvdot =  - ϵ2 * (2*`s²`*cos2θ + 3*`3c²-1`) * `βl³/√pl` 
+//    val δR = - `J2/p/2` * `s²` * sin2θ * n / KE  // rdot, angular velocity
+//    val δrvdot =  `J2/p/2` * (`s²` * cos2θ + 1.5 * `3c²-1`) * n / KE
+
     val δspp = SpecialPolarNodal(δI,δθ,δΩ,δr,δR,δrvdot)
     lppPN + δspp
   }

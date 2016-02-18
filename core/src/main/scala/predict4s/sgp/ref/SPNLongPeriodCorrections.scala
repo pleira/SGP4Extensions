@@ -11,7 +11,6 @@ import spire.implicits._
 import spire.syntax.primitives._
 import predict4s.sgp._
 import predict4s.coord._
-import predict4s.coord.SGPElemsConversions._
 
 trait SPNLongPeriodCorrections[@sp(Double) F] {
   
@@ -43,10 +42,10 @@ trait SPNLongPeriodCorrections[@sp(Double) F] {
     val δθ =   ϵ3 * ((2*s_ + κ/s_)*cosθ + (1/s_ - s_)* σ * sinθ)
     val δΩ = - ϵ3 * c/s_ * (κ*cosθ + σ * sinθ) 
     
-//    val δθplusδΩ = ϵ3 * (2*χ +κ*χ/`s²` + ξ*σ/`s²` - ξ*σ -  (c*κ*χ + c*σ*ξ)/`s²`)
-    // val δθplusδΩ = ϵ3 * (2*χ - ξ*σ + (κ*χ + ξ*σ - c*(κ*χ + σ*ξ))/((1+c)*(1-c)) )
-        // val δθplusδΩ = ϵ3 * (2*χ - ξ*σ + (κ*χ + ξ*σ)/(1+c))
-        // val δθplusδΩ = ϵ3 * (2*χ + (κ*χ - ξ*σ*c )/(1+c))
+   // val δθplusδΩ = ϵ3 * (2*χ +κ*χ/`s²` + ξ*σ/`s²` - ξ*σ -  (c*κ*χ + c*σ*ξ)/`s²`)
+   // val δθplusδΩ = ϵ3 * (2*χ - ξ*σ + (κ*χ + ξ*σ - c*(κ*χ + σ*ξ))/((1+c)*(1-c)) )
+   // val δθplusδΩ = ϵ3 * (2*χ - ξ*σ + (κ*χ + ξ*σ)/(1+c))
+   // val δθplusδΩ = ϵ3 * (2*χ + (κ*χ - ξ*σ*c )/(1+c))
     val δr = ϵ3 * p * ξ
     val δR = ϵ3 * `Θ/r` * (1+κ) * χ
     val δΘ = ϵ3 * Θ  * (κ*ξ  - σ*χ)

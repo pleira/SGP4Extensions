@@ -10,7 +10,6 @@ import org.scalactic.Or
 import org.scalactic.Good
 import org.scalactic.Bad
 
-// TODO: relate these case classes with spire's VectorSpace?
 case class SecularFrequencies[@sp(Double) F](Mdot: F, ωdot: F, Ωdot: F)
 
 case class DragSecularCoefs[@sp(Double) F](Mcof: F, ωcof: F, Ωcof: F)

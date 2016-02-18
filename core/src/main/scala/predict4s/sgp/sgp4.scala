@@ -24,7 +24,7 @@ abstract class SGP4[@sp(Double) F : Field : NRoot : Order : Trig](
     val sec : BrouwerLaneSecularCorrections[F]
     ) {
  
-  type Minutes =  sec.Minutes
+  type Minutes = sec.Minutes
 
   def gsto : F = TimeUtils.gstime(sec.elem0Ctx.elem.epoch + 2433281.5) 
     
