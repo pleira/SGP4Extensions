@@ -1,5 +1,6 @@
 package predict4s
 package sgp
+package ref
 
 import spire.algebra._
 import spire.math.{sin,cos,abs}

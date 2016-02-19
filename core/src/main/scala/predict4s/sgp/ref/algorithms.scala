@@ -11,6 +11,8 @@ import predict4s.coord._
 import org.scalactic.Or
 import predict4s.coord.CoordinatesConversions._
 import predict4s.coord.SGPElemsConversions._
+import predict4s.sgp.ref.ShortPeriodPolarNodalCorrections
+import predict4s.sgp.ref.SimpleKeplerEq
 
 
 abstract class SGP4WithSPNCorrections[F : Field : NRoot : Order : Trig](

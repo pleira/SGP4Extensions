@@ -16,8 +16,7 @@ import predict4s.coord.SGPElemsConversions._
 import predict4s.coord.{SGPElems,AnomalyState}
 
 trait LaraFirstOrderCorrections[@sp(Double) F] {
-  
-  // This implementation includes more terms with respect lppCorrectionsOld
+ 
   def lppCorrections(lnSingular: LaraNonSingular[F], secularElemt : SGPSecularCtx[F])(implicit ev: Field[F])
       : (LaraNonSingular[F], SGPSecularCtx[F]) = {
     val elem = secularElemt._1
@@ -92,7 +91,7 @@ trait LaraFirstOrderCorrections[@sp(Double) F] {
     val δχ =  ϵ2 * (`ξ²` - 3*`c²`) * χ
     val δr =  ϵ2 * r * ( - cos2θ - 3 + 9*`c²`)
     val δR =  ϵ2 * 2 * `s²`* sin2θ * (Θ/r)      // ϵ2 * 4 * (Θ/r) * ξ * χ
-    val δΘ =  - ϵ2 * 3 * Θ * cos2θ
+    val δΘ = -ϵ2 * 3 * Θ * cos2θ
     LaraNonSingular(ψ+δψ,ξ+δξ,χ+δχ,r+δr,R+δR,Θ+δΘ)
   }
   
@@ -136,39 +135,11 @@ trait LaraFirstOrderCorrections[@sp(Double) F] {
     val `ξl²` = ξl*ξl
     val δψs = -ϵ2 * ((1+7*c)/(1+c)) * ξl * χl 
     val δξs = -ϵ2 * (`χl²` - 3*`c²`) * ξl
-    val δχs = -ϵ2 * (`ξl²` - 3*`c²`) * χl
-    val δrs =  ϵ2 * r * (`ξl²` - `χl²` - 3 + 9*`c²`)
-    val δRs =  ϵ2 * 4 * (Θ/r) * ξl * χl
-    val δΘs =  ϵ2 * 3 * Θ * (`ξl²` - `χl²`)
+    val δχs =  ϵ2 * (`ξl²` - 3*`c²`) * χl
+    val δrs =  ϵ2 * rl * (`ξl²` - `χl²` - 3 + 9*`c²`)
+    val δRs =  ϵ2 * 4 * (Θl/rl) * ξl * χl
+    val δΘs =  ϵ2 * 3 * Θl * (`ξl²` - `χl²`)
     LaraNonSingular(ψl+δψs,ξl+δξs,χl+ δχs,rl+δrs,Rl+δRs,Θl+δΘs)   
   }
-    
-//  def lppCorrectionsOld(lnSingular: LaraNonSingular[F], secularElemt : SGPSecularCtx[F])(implicit ev: Field[F])
-//      : (LaraNonSingular[F], LaraLongPeriodContext[F]) = {
-//    val elem = secularElemt._1
-//		val ictx = secularElemt._2    
-//    val wgs = secularElemt._3
-//    import lnSingular._
-//    import elem.{a,e}, wgs.`J3/J2`, ictx.{s,c}
-//    
-//    val `e²` = e*e
-//    val p = a*(1 - `e²`)  // semilatus rectum , as MU=1
-//    val ϵ3 = `J3/J2`/p/2
-//    val `p/r` = p/r
-//    val δψ = 2 * ϵ3 * χ 
-//    val δξ = χ * δψ
-//    val δχ = - ξ * δψ
-//    val δr = ϵ3 * ξ * p
-//    val δR = ϵ3 * (Θ/r) * `p/r` * χ
-//    val δΘ = ϵ3 * Θ * ((`p/r` - 1) * ξ - p*R*χ/Θ)
-//    
-//        // recalculate the "state" variables here
-//    // val a = rl /(1 - ecosE) 
-//    val Θl = δΘ+Θ
-//    val Rl = R+δR
-//    val rl = r+δr
-//    val pl = Θl*Θl // MU=1
-//    (LaraNonSingular(ψ+δψ,ξ+δξ,χ+δχ,rl,Rl,Θl), LaraLongPeriodContext(0.as[F], pl, 0.as[F], 0.as[F], 0.as[F], 0.as[F]))
-//  }  
 }
 

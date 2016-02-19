@@ -126,10 +126,9 @@ object LaraConversions {
       R * uz + `Θ/r` * χ)
     }
   
-  def laraNonSingular2CartesianCtx[@sp(Double) F: Field: NRoot: Trig](laraCtx: SGPLaraCtx[F]) 
+  def laraNonSingular2CartesianCtx[@sp(Double) F: Field: NRoot: Trig](lns: LaraNonSingular[F], N: F) 
       : (CartesianElems[F], CartesianElems[F]) = {
-    import laraCtx.{_1=>lnSingular,_2=>lppAndsecularCtx,_3=>N}
-    import lnSingular._,lppAndsecularCtx.{_2=>secularCtx}
+    import lns._
     
     val `ξ²` = ξ*ξ
     val `χ²` = χ*χ
@@ -161,9 +160,8 @@ object LaraConversions {
       CartesianElems(ux,uy,uz,uvx,uvy,uvz))
     }
   
-  def laraNonSingular2UnitPositionCartesian[@sp(Double) F: Field: NRoot: Trig](laraCtx: SGPLaraCtx[F]) : CartesianElems[F] = {
-    import laraCtx.{_1=>lnSingular,_2=>lppAndsecularCtx,_3=>N}
-    import lnSingular._,lppAndsecularCtx.{_2=>secularCtx}
+  def laraNonSingular2UnitPositionCartesian[@sp(Double) F: Field: NRoot: Trig](lns: LaraNonSingular[F], N: F) : CartesianElems[F] = {
+   import lns._
 
     val `ξ²` = ξ*ξ
     val `χ²` = χ*χ
@@ -185,9 +183,8 @@ object LaraConversions {
       R * uz + Θ * χ)
     }
  
-  def laraNonSingular2uPV[@sp(Double) F: Field: NRoot: Trig](laraCtx: SGPLaraCtx[F]) : CartesianElems[F] = {
-    import laraCtx.{_1=>lnSingular,_2=>lppAndsecularCtx,_3=>N}
-    import lnSingular._,lppAndsecularCtx.{_2=>secularCtx}
+  def laraNonSingular2uPV[@sp(Double) F: Field: NRoot: Trig](lns: LaraNonSingular[F], N: F) : CartesianElems[F] = {
+    import lns._
     
     // new cosI  
     val c = N/Θ
