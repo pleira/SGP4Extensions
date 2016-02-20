@@ -80,8 +80,9 @@ trait SPNLongPeriodCorrections[@sp(Double) F] {
     (SpecialPolarNodal(Il, θl, Ωl, rl, Rl, Θl/rl), LongPeriodContext(`el²`, pl, sqrt(pl), βl, sin2θ, cos2θ))
   }
 
-  def lppCPNCorrections(spnCtx: SPNSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
-       : (CSpecialPolarNodal[F], LongPeriodContext[F]) = {
+  // this one is just used to do a test with Lara's lpp corrections
+  def lppCorrectionsCPN(spnCtx: SPNSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
+       : CSpecialPolarNodal[F] = {
     import spnCtx.{_1 => spn}, spn._, spnCtx.{_2 => secularCtx}, secularCtx.{_1 => elem}
     import elem.{Ω=>_, _} // do not import Ω from secular elements, just use spn version
     import secularCtx._2.{c,s,`s²`}
@@ -144,7 +145,7 @@ trait SPNLongPeriodCorrections[@sp(Double) F] {
     val σl = pl*Rl/Θl
     val `el²` = κl*κl + σl*σl
     val βl = sqrt(1 - `el²`)
-    (CSpecialPolarNodal(cosI, θl, Ωl, rl, Rl, Θl/rl), LongPeriodContext(`el²`, pl, sqrt(pl), βl, sin2θ, cos2θ))
+    CSpecialPolarNodal(cosI, θl, Ωl, rl, Rl, Θl/rl)
   }
  
 }

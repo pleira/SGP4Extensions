@@ -12,7 +12,7 @@ import predict4s.coord.SGPElemsConversions
 import predict4s.coord.SpecialPolarNodal
 import predict4s.conjunction.TLE22675
 import predict4s.conjunction.TLE24946
-import predict4s.coord.LaraConversions._
+import predict4s.coord.LNSConversions._
 
 class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00005  with TLE06251 with TLE28057 {
  

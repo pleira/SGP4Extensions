@@ -11,6 +11,7 @@ import predict4s.coord._
 import org.scalactic.Or
 import predict4s.coord.CoordinatesConversions._
 import predict4s.coord.SGPElemsConversions._
+import predict4s.coord.LyddaneConversions._
 
 // Here are collected SGP4 algorithms that perform short period corrections in polar nodals (SPN variant)
 // among them, Vallado's original
@@ -34,11 +35,11 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
   
   override def lppCorrections(secularElemt : SGPSecularCtx[F]) : LPPSPNResult[F] = {
     // long period corrections in Lyddane's coordinates
-    val lyddaneElems = lylppCorrections(secularElemt)
+    val lydElems = lylppCorrections(secularElemt)
     for {
       // To transform to Special Polar Nodals, get the eccentric anomaly
-      eaState <- solveKeplerEq(lyddaneElems)
-      spnctx <- LyddaneConversions.lyddane2SpecialPolarNodal(eaState, lyddaneElems)
+      eaState <- solveKeplerEq(lydElems)
+      spnctx <- lyd2spn(eaState, lydElems)
     } yield (spnctx._1, spnctx._2, secularElemt)
   }  
 }
@@ -48,12 +49,12 @@ class SGP4ValladoLong[F : Field : NRoot : Order : Trig](
   ) extends SGP4WithSPNCorrections(sec) with LyddaneExtraLongPeriodCorrections[F] with TwoTermsKeplerEq {
  
   override def lppCorrections(secularElemt : SGPSecularCtx[F]) : LPPSPNResult[F] = {
-    val lyddaneElems = lppLydCorrections(secularElemt)
+    val lydElems = lppLydCorrections(secularElemt)
     for {
       // long period corrections in Lyddane's coordinates
       // To transform to Special Polar Nodals, get the eccentric anomaly
-      eaState <- solveKeplerEq(lyddaneElems)
-      spnctx <- LyddaneConversions.lyddane2SpecialPolarNodal(eaState, lyddaneElems)
+      eaState <- solveKeplerEq(lydElems)
+      spnctx <- lyd2spn(eaState, lydElems)
     } yield (spnctx._1, spnctx._2, secularElemt)
   }  
 }
@@ -67,7 +68,7 @@ class SGP4PN[F : Field : NRoot : Order : Trig](
     val wgs = secularElemt._3
     for {
       eaState <- solveKeplerEq(elem.e, elem.M)
-      spnSecular <- sgpelems2SpecialPolarNodal(eaState, secularElemt)
+      spnSecular <- sgpelems2spn(eaState, secularElemt)
       lppcorr = lppCorrectionsSPN((spnSecular, secularElemt))
     } yield (lppcorr._1, lppcorr._2, secularElemt)    
   }
@@ -75,14 +76,14 @@ class SGP4PN[F : Field : NRoot : Order : Trig](
   /**
    * long period corrections in CSpecialPolarNodal coordinates used to compare with Lara's non singular results
    */
-  def lppCorrectionsCPN(secularElemt : SGPSecularCtx[F]) : LPPCPNResult[F] = {
+  def cpnLPPCorrections(secularElemt : SGPSecularCtx[F]) : LPPCPNResult[F] = {
     val elem = secularElemt._1
     val wgs = secularElemt._3
     for {
       eaState <- solveKeplerEq(elem.e, elem.M)
-      spnSecular <- sgpelems2SpecialPolarNodal(eaState, secularElemt)
-      lppcorr = lppCPNCorrections((spnSecular, secularElemt))
-    } yield (lppcorr._1, lppcorr._2, secularElemt)    
+      spnSecular <- sgpelems2spn(eaState, secularElemt)
+      lppcorr = lppCorrectionsCPN((spnSecular, secularElemt))
+    } yield lppcorr    
   }  
 }
 

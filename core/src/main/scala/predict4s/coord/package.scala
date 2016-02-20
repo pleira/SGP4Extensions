@@ -37,8 +37,7 @@ package object coord {
   type LPPSPNResult[F] = LPPSPNCtx[F] Or ErrorMessage
 
   // For Long Period Periodic corrections in cosI polar nodals CPN
-  type LPPCPNCtx[F] = (CSpecialPolarNodal[F], LongPeriodContext[F], SGPSecularCtx[F])
-  type LPPCPNResult[F] = LPPCPNCtx[F] Or ErrorMessage
+  type LPPCPNResult[F] = CSpecialPolarNodal[F] Or ErrorMessage
   
   // Intermediate results in Lyddane's
   type LyddaneResult[F] = (LyddaneElems[F], LyddaneCtx[F])

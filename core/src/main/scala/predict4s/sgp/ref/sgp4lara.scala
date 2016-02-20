@@ -11,7 +11,7 @@ import spire.implicits._
 import spire.syntax.primitives._
 import predict4s.sgp._
 import predict4s.coord._
-import predict4s.coord.LaraConversions._
+import predict4s.coord.LNSConversions._
 import predict4s.coord.SGPElemsConversions._
 import predict4s.coord.CoordinatesConversions._
 
@@ -24,11 +24,11 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 		val ictx = secularElemt._2    
     for {
     	eaState <- solveKeplerEq(elem.e, elem.M)
-    	spnSecular <- sgpelems2SpecialPolarNodal(eaState, secularElemt)
+    	spnSecular <- sgpelems2spn(eaState, secularElemt)
     	_N = spnSecular.`Θ/r`*spnSecular.r*ictx.c    // N = Θ*cosI , which remains constant
-      lnSingular = specialPolarNodal2LaraNonSingular(spnSecular, ictx)
-      corr = allCorrections(lnSingular, secularElemt)   
-      finalSPN = laraNonSingular2SpecialPolarNodal(corr, _N)
+      lns = spn2lns(spnSecular, ictx)
+      corr = allCorrections(lns, secularElemt)   
+      finalSPN = lns2spn(corr, _N)
     } yield finalSPN
   }
 
@@ -38,10 +38,10 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 		val ictx = secularElemt._2    
     for {
     	eaState <- solveKeplerEq(elem.e, elem.M)
-    	spnSecular <- sgpelems2SpecialPolarNodal(eaState, secularElemt)
+    	spnSecular <- sgpelems2spn(eaState, secularElemt)
     	_N = spnSecular.`Θ/r`*spnSecular.r*ictx.c    // N = Θ*cosI , which remains constant
-      lnSingular = specialPolarNodal2LaraNonSingular(spnSecular, ictx)
-      flns = allCorrections(lnSingular, secularElemt)
+      lns = spn2lns(spnSecular, ictx)
+      flns = allCorrections(lns, secularElemt)
     } yield flns
   }
    
@@ -60,11 +60,11 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     val wgs = secularElemt._3
     for {
       eaState <- solveKeplerEq(elem.e, elem.M)
-      spnSecular <- sgpelems2SpecialPolarNodal(eaState, secularElemt)
+      spnSecular <- sgpelems2spn(eaState, secularElemt)
       _N = spnSecular.`Θ/r`*spnSecular.r*ictx.c    // cosI = N/Θ =>  
-      lnSingular = specialPolarNodal2LaraNonSingular(spnSecular, ictx)    
-      lalppcorr = lppCorrections(lnSingular, secularElemt)
-      lppcorr1 = laraNonSingular2SpecialPolarNodal(lalppcorr._1, _N)
+      lns = spn2lns(spnSecular, ictx)    
+      lalppcorr = lppCorrections(lns, secularElemt)
+      lppcorr1 = lns2spn(lalppcorr._1, _N)
     } yield (lppcorr1, LongPeriodContext(0.as[F],0.as[F],0.as[F],0.as[F],0.as[F],0.as[F]), secularElemt)    
   }
 
@@ -72,18 +72,18 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
   /*
    * This is used to test/compare the LPP corrections in CPN coordinates 
    */
-  def propagateToCPNLPP(secularElemt : SGPSecularCtx[F]) : LPPCPNResult[F] = {
+  def cpnLPPCorrections(secularElemt : SGPSecularCtx[F]) : LPPCPNResult[F] = {
     val elem = secularElemt._1
 		val ictx = secularElemt._2    
     val wgs = secularElemt._3
     for {
       eaState <- solveKeplerEq(elem.e, elem.M)
-      spnSecular <- sgpelems2SpecialPolarNodal(eaState, secularElemt)
+      spnSecular <- sgpelems2spn(eaState, secularElemt)
       _N = spnSecular.`Θ/r`*spnSecular.r*ictx.c    // cosI = N/Θ, N remains a constant 
-      lnSingular = specialPolarNodal2LaraNonSingular(spnSecular, ictx)    
-      lalppcorr = lppCorrections(lnSingular, secularElemt)
-      lppcorr1 = laraNonSingular2CSpecialPolarNodal(lalppcorr._1, _N)
-    } yield (lppcorr1, LongPeriodContext(0.as[F],0.as[F],0.as[F],0.as[F],0.as[F],0.as[F]), secularElemt)    
+      lns = spn2lns(spnSecular, ictx)    
+      lalppcorr = lppCorrections(lns, secularElemt)
+      lppcorr1 = lns2cpn(lalppcorr._1, _N)
+    } yield lppcorr1    
   }
 
 }

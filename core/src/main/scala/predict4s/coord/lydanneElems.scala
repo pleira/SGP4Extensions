@@ -29,8 +29,7 @@ case class LongPeriodContext[@sp(Double) F](`el²`: F, pl: F, `√pl`: F, βl: F
 
 object LyddaneConversions {
   
-  def lyddane2SpecialPolarNodal[@sp(Double) F: Field: NRoot: Order: Trig](eaState: AnomalyState[F], lylppState: LyddaneElems[F]) 
-      : (SpecialPolarNodal[F], LongPeriodContext[F]) Or ErrorMessage = {
+  def lyd2spn[@sp(Double) F: Field: NRoot: Order: Trig](eaState: AnomalyState[F], lylppState: LyddaneElems[F]): (SpecialPolarNodal[F], LongPeriodContext[F]) Or ErrorMessage = {
     import eaState._ 
     import lylppState._
 

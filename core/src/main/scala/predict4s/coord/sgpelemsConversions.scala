@@ -70,8 +70,7 @@ object SGPElemsConversions {
     (n0dp, a0dp)
   }
    
-  def sgpelems2SpecialPolarNodal[@sp(Double) F: Field: Trig: NRoot: Order](eaState: AnomalyState[F], secularCtx : SGPSecularCtx[F]) 
-      : SpecialPolarNodal[F] Or ErrorMessage = {
+  def sgpelems2spn[@sp(Double) F: Field: Trig: NRoot: Order](eaState: AnomalyState[F], secularCtx : SGPSecularCtx[F]): SpecialPolarNodal[F] Or ErrorMessage = {
     import eaState._ 
     import secularCtx.{_1 => elem}, elem.{a,I,e,n,ω,Ω}
     import secularCtx.{_3 => wgs}, wgs.`2pi`

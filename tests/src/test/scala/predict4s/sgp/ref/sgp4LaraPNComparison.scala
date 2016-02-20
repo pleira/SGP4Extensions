@@ -5,19 +5,20 @@ package ref
 import org.scalatest.FunSuite
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
-import scala.math._
+import spire.math._
 import predict4s.coord.SGP72Constants
 import predict4s.sgp._
 import predict4s.coord.SGPElemsConversions
 import predict4s.coord.CSpecialPolarNodal
 import predict4s.conjunction.TLE22675
 import predict4s.conjunction.TLE24946
-import predict4s.coord.LaraConversions._
+import predict4s.coord.LNSConversions._
 
 class Sgp4LaraPNComparison extends FunSuite with TLE22675 with TLE24946 with TLE00005  with TLE06251 with TLE28057 {
  
   implicit val wgs = SGP72Constants.tleDoubleConstants
   val tol = TolerantNumerics.tolerantDoubleEquality(5E-7)
+  val `2pi` = 2*pi 
   
   import spire.std.any.DoubleAlgebra
   val tles = List(tle00005,tle06251,tle22675,tle24946,tle28057)
@@ -30,9 +31,9 @@ class Sgp4LaraPNComparison extends FunSuite with TLE22675 with TLE24946 with TLE
     ts foreach { t => 
       pnsgp4.secularCorrections(t) foreach { secularElemt =>
         for {  
-           pnspnLPP <- pnsgp4.lppCorrectionsCPN(secularElemt)
-           laspnLPP <- lasgp4.propagateToCPNLPP(secularElemt)
-        } yield compareCPN(s"TLE ${tle.satelliteNumber} : LPP Corrections in Polar Nodals/Lara Non Singular comparison in CPN at time $t", pnspnLPP._1, laspnLPP._1, tol)
+           pncpn <- pnsgp4.cpnLPPCorrections(secularElemt)
+           lacpn <- lasgp4.cpnLPPCorrections(secularElemt)
+        } yield compareCPN(s"TLE ${tle.satelliteNumber} : LPP Corrections in Polar Nodals/Lara Non Singular comparison in CPN at time $t", pncpn, lacpn, tol)
       }
     }
   }
@@ -45,9 +46,9 @@ class Sgp4LaraPNComparison extends FunSuite with TLE22675 with TLE24946 with TLE
       if (abs(cpn1.Ω - cpn2.Ω) < 6) {
         assert(cpn1.Ω === cpn2.Ω)
       } else {
-        // different signs, correct one by 2Pi
-        val o1 = if (cpn1.Ω < 0) cpn1.Ω + 2*Pi else cpn1.Ω
-        val o2 = if (cpn2.Ω < 0) cpn2.Ω + 2*Pi else cpn2.Ω
+        // different signs, correct one by 2pi
+        val o1 = if (cpn1.Ω < 0) cpn1.Ω + `2pi` else cpn1.Ω
+        val o2 = if (cpn2.Ω < 0) cpn2.Ω + `2pi` else cpn2.Ω
         assert(o1 === o2) 
       }
       assert(cpn1.`Θ/r` === cpn2.`Θ/r`)
@@ -55,9 +56,9 @@ class Sgp4LaraPNComparison extends FunSuite with TLE22675 with TLE24946 with TLE
       if (abs(cpn1.θ - cpn2.θ) < 6) {
         assert(cpn1.θ === cpn2.θ) 
       } else {
-        // different signs, correct one by 2Pi
-        val o1 = if (cpn1.θ < 0) cpn1.θ + 2*Pi else cpn1.θ
-        val o2 = if (cpn2.θ < 0) cpn2.θ + 2*Pi else cpn2.θ
+        // different signs, correct one by 2pi
+        val o1 = if (cpn1.θ < 0) cpn1.θ + `2pi` else cpn1.θ
+        val o2 = if (cpn2.θ < 0) cpn2.θ + `2pi` else cpn2.θ
         assert(o1 === o2)         
       }
     }       

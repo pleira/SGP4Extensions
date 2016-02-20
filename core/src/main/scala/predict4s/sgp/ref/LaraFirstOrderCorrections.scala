@@ -11,18 +11,15 @@ import spire.implicits._
 import spire.syntax.primitives._
 import predict4s.sgp._
 import predict4s.coord._
-import predict4s.coord.LaraConversions._
-import predict4s.coord.SGPElemsConversions._
-import predict4s.coord.{SGPElems,AnomalyState}
 
 trait LaraFirstOrderCorrections[@sp(Double) F] {
  
-  def lppCorrections(lnSingular: LaraNonSingular[F], secularElemt : SGPSecularCtx[F])(implicit ev: Field[F])
+  def lppCorrections(lns: LaraNonSingular[F], secularElemt : SGPSecularCtx[F])(implicit ev: Field[F])
       : (LaraNonSingular[F], SGPSecularCtx[F]) = {
     val elem = secularElemt._1
 		val ictx = secularElemt._2    
     val wgs = secularElemt._3
-    import lnSingular._
+    import lns._
     import elem.{a,e}, wgs.`J3/J2`, ictx.{s,c,`c²`}
     
     val `e²` = e*e
@@ -50,12 +47,12 @@ trait LaraFirstOrderCorrections[@sp(Double) F] {
   
   def sppCorrections(lppState: (LaraNonSingular[F], SGPSecularCtx[F]))(implicit ev: Field[F]) 
     : LaraNonSingular[F] = {
-    import lppState.{_1=>lnSingular,_2=>secularElemt}
+    import lppState.{_1=>lns,_2=>secularElemt}
     val elem = secularElemt._1
 		val ictx = secularElemt._2    
     val wgs = secularElemt._3
     import wgs.J2, ictx.{c,`c²`,s}
-    import lnSingular._
+    import lns._
     
     val p = Θ*Θ 
     val ϵ2 = -J2/p/p/4
@@ -73,12 +70,12 @@ trait LaraFirstOrderCorrections[@sp(Double) F] {
   
   def sppCorrectionsAlternative(lppState: (LaraNonSingular[F], SGPSecularCtx[F]))(implicit ev: Field[F]) 
     : LaraNonSingular[F] = {
-    import lppState.{_1=>lnSingular,_2=>secularElemt}
+    import lppState.{_1=>lns,_2=>secularElemt}
     val elem = secularElemt._1
 		val ictx = secularElemt._2    
     val wgs = secularElemt._3
     import wgs.J2, ictx.{c,`c²`,s,`s²`}
-    import lnSingular._
+    import lns._
     
     val p = Θ*Θ 
     val ϵ2 = -J2/p/p/4
@@ -95,12 +92,12 @@ trait LaraFirstOrderCorrections[@sp(Double) F] {
     LaraNonSingular(ψ+δψ,ξ+δξ,χ+δχ,r+δr,R+δR,Θ+δΘ)
   }
   
-  def allCorrections(lnSingular: LaraNonSingular[F], secularElemt : SGPSecularCtx[F])(implicit ev: Field[F])
+  def allCorrections(lns: LaraNonSingular[F], secularElemt : SGPSecularCtx[F])(implicit ev: Field[F])
       : LaraNonSingular[F] = {
     val elem = secularElemt._1
 		val ictx = secularElemt._2    
     val wgs = secularElemt._3
-    import lnSingular._
+    import lns._
     import elem.{a,e}, wgs.{`J3/J2`,J2}, ictx.{s,c,`c²`}
     
     val `e²` = e*e
