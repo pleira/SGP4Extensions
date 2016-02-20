@@ -50,9 +50,10 @@ trait GeoPotentialAndAtmosphere2ndOrderModel {
     // def hs(perigeeHeight: F)(implicit ev: Field[F]) : F =  perigeeHeight - 78   // interpolation, being a number bigger than 20, and smaller that 78
     def S_between_98_156 : F =  (1 + (perigeeHeight - 78)/aE)
     def S_below98: F =  (1 + 20/aE)
-       if (perigeeHeight >= 156)       S_above156
-       else if (perigeeHeight >= 98)   S_between_98_156
-       else                            S_below98
+
+    if (perigeeHeight >= 156)       S_above156
+    else if (perigeeHeight >= 98)   S_between_98_156
+    else                            S_below98
   }
   
 }

@@ -510,8 +510,21 @@ Polar Nodals variant as in Lara where first solve Kepler Equation and then the L
 \section{VALIDATION}
 \label{sec:validation}
 
-The validation of the software has been done using the same TLEs as Vallado for the Near Earth case.
+The validation of the software has been done by comparing the results with those
+of Vallado's original C++ source. The C++ source has been slightly modified in order
+to save the cartesian coordinates, the unit vector, the polar nodals coordinates
+and the long period corrections into a file. The outputs were collected
+for the Near Earth test cases. These outputs have been compared with all the propagation
+algorithms in SGP4Extensions.
 
+
+The SGP4Vallado algorithm in Scala matches the C++ results with maximum differences
+of the order of 3E-8 for all test propagations.
+When propagating 22312 and 28350, the SGP4Vallado implementation went into error earlier
+than the C++ version because of negative value for the eccentricity:
+22312  454.2028672 474.2028672
+28350  960         1440
+For the satellite 28872, propagation with SGP4Vallado ends by minute 50 as Vallado's cpp.
 
 
 %%%

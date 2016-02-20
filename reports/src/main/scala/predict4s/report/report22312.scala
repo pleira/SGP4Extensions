@@ -26,7 +26,7 @@ class Propagate(val ttle: TestTLE) extends LoadCppResults {
   def propagate(t: Double) = vasgp4.propagate(t)
   def goodProp = goods map {p => { val r = p._1.get; (r._1, p._2) } }
   
-  val pvDiffs = cppOuts zip goodProp map diffPosVelCartesian
+  def pvDiffs = cppOuts zip goodProp map diffPosVelCartesian
 
   def diffPosVelCartesian(opv : (CartesianPNLppUnit,(CartesianElems[Double], Double))) : (Double, CartesianElems[Double]) = {
     val o = opv._1
@@ -48,11 +48,11 @@ class Propagate22312D extends Propagate(TLE22312) {
     } yield (pv, t)
   val sgpOutsD = (vasgp4.propagate(0),0.0) +: seq 
   // Check that results contain ErrorMessages from the propagation
-  override def errors = sgpOutsD.filter(pvt => pvt._1.isBad)
-  override def goods = sgpOutsD.filter(pvt => pvt._1.isGood)
+  override val errors = sgpOutsD.filter(pvt => pvt._1.isBad)
+  override val goods = sgpOutsD.filter(pvt => pvt._1.isGood)
 }
 
-object CheckBadTLE22312 extends App {
+object Propagate22312 extends App {
   val p22312 = new Propagate22312D
   
   Console.out.println(s"Propagations size is ${p22312.sgpOutsD.size}")  
