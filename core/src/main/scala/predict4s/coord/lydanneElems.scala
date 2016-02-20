@@ -23,6 +23,7 @@ case class LyddaneElems[@sp(Double) F: Field](
 //  def -(o: LyddaneElems[F]) = LyddaneElems(I - o.I,a - o.a,Ω - o.Ω,C - o.C,S - o.S, F - o.F)  
 }
 
+case class LyddaneCtx[F](ϵ3: F, η: F, esinω: F)
 
 case class LongPeriodContext[@sp(Double) F](`el²`: F, pl: F, `√pl`: F, βl: F, sin2θ: F, cos2θ: F)
 

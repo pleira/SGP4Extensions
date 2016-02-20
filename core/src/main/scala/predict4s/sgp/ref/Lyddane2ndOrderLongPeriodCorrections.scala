@@ -18,11 +18,8 @@ trait Lyddane2ndOrderLongPeriodCorrections[@sp(Double) F] extends LyddaneLongPer
     import ictx.{c,s},wgs.`J3/J2`,elem.{a,e,ω,M,I,Ω}
    
     // apply the first order long-period corrections to compute the "prime" variables
-    val ly = super.lylppCorrectionsCtx(secularCtx)
-    val ly1 = ly._1
-    val ϵ3 =  ly._2._1
-    val esinω = ly._2._3
-    val η  = ly._2._2 
+    val (ly1, ly2) = super.lylppCorrectionsCtx(secularCtx)
+    import ly2._
     val `η²`  = η*η
     val ecosω = ly1.C
     val `ecosω²` = ecosω*ecosω
@@ -40,7 +37,7 @@ trait Lyddane2ndOrderLongPeriodCorrections[@sp(Double) F] extends LyddaneLongPer
     val δF =   ϵ3 * s * ecosω * (1 - 2*`η²`/(1+η)) / 2    // Lyddane F' = (M´´ + g´´ + h´´) +  ...
     
     // add 2nd order corrections to the first order corrections
-    (LyddaneElems(ly1.I + δI, ly1.a, ly1.h+δh, ly1.C+δC, ly1.S+δS, ly1.F+δF), (ϵ3,η,esinω)) 
+    (LyddaneElems(ly1.I + δI, ly1.a, ly1.h+δh, ly1.C+δC, ly1.S+δS, ly1.F+δF), ly2) 
   }
   
 }

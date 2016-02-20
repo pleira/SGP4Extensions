@@ -41,7 +41,6 @@ package object coord {
   type LPPCPNResult[F] = LPPCPNCtx[F] Or ErrorMessage
   
   // Intermediate results in Lyddane's
-  type LyddaneCtx[F] = (F,F,F) // (ϵ3,η,esinω)
   type LyddaneResult[F] = (LyddaneElems[F], LyddaneCtx[F])
   
   // for Kepler Equations

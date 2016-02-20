@@ -68,7 +68,7 @@ class SGP4PN[F : Field : NRoot : Order : Trig](
     for {
       eaState <- solveKeplerEq(elem.e, elem.M)
       spnSecular <- sgpelems2SpecialPolarNodal(eaState, secularElemt)
-      lppcorr = lppSPNCorrections((spnSecular, secularElemt))
+      lppcorr = lppCorrectionsSPN((spnSecular, secularElemt))
     } yield (lppcorr._1, lppcorr._2, secularElemt)    
   }
   

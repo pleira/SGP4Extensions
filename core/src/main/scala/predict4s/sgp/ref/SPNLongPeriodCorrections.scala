@@ -14,7 +14,7 @@ import predict4s.coord._
 
 trait SPNLongPeriodCorrections[@sp(Double) F] {
   
-  def lppSPNCorrections(spnCtx: SPNSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]): (SpecialPolarNodal[F], LongPeriodContext[F]) = {
+  def lppCorrectionsSPN(spnCtx: SPNSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]): (SpecialPolarNodal[F], LongPeriodContext[F]) = {
     import spnCtx.{_1 => spn}, spn._, spnCtx.{_2 => secularCtx}, secularCtx.{_1 => elem}
     import elem.{Ω=>_, _} // do not import Ω from secular elements, just use spn version
     import secularCtx._2.{c,s,`s²`}
