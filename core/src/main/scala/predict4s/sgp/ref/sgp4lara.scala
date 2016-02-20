@@ -14,7 +14,6 @@ import predict4s.coord._
 import predict4s.coord.LaraConversions._
 import predict4s.coord.SGPElemsConversions._
 import predict4s.coord.CoordinatesConversions._
-import predict4s.sgp.ref.SimpleKeplerEq
 
 class SGP4Lara[F : Field : NRoot : Order : Trig](
   sec : BrouwerLaneSecularCorrections[F]
@@ -33,7 +32,8 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     } yield finalSPN
   }
 
-  def periodicCorrectionsLara(secularElemt : SGPSecularCtx[F]) : SGPLaraResult[F] = {
+  // periodic corrections results in Lara Non Singular (LNS)
+  def periodicCorrectionsLNS(secularElemt : SGPSecularCtx[F]): SGPLNSResult[F] = {
     val elem = secularElemt._1
 		val ictx = secularElemt._2    
     for {

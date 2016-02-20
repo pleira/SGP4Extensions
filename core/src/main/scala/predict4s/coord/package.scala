@@ -25,8 +25,8 @@ package object coord {
   type SGPCorrPropCtx[F] = ((SpecialPolarNodal[F], SpecialPolarNodal[F]), SGPSecularCtx[F]) 
   type SGPCorrPropResult[F] = SGPCorrPropCtx[F] Or ErrorMessage
 
-  // final correction results in Lara Non Singular
-  type SGPLaraResult[F] = LaraNonSingular[F] Or ErrorMessage
+  // final correction results in Lara Non Singular (LNS)
+  type SGPLNSResult[F] = LaraNonSingular[F] Or ErrorMessage
   
   // final results in cartesians
   type SGPPropCtx[F] = (CartesianElems[F], CartesianElems[F], SpecialPolarNodal[F]) 

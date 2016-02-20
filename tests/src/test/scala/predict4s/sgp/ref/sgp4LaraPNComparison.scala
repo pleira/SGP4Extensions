@@ -30,7 +30,7 @@ class Sgp4LaraPNComparison extends FunSuite with TLE22675 with TLE24946 with TLE
     ts foreach { t => 
       pnsgp4.secularCorrections(t) foreach { secularElemt =>
         for {  
-           pnspnLPP <- pnsgp4.propagateToCPNLPP(secularElemt)
+           pnspnLPP <- pnsgp4.lppCorrectionsCPN(secularElemt)
            laspnLPP <- lasgp4.propagateToCPNLPP(secularElemt)
         } yield compareCPN(s"TLE ${tle.satelliteNumber} : LPP Corrections in Polar Nodals/Lara Non Singular comparison in CPN at time $t", pnspnLPP._1, laspnLPP._1, tol)
       }

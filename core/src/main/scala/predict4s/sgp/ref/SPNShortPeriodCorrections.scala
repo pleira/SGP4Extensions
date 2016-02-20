@@ -7,7 +7,7 @@ import spire.implicits._
 import spire.syntax.primitives._
 import predict4s.coord._
 
-trait ShortPeriodPolarNodalCorrections[F] {
+trait SPNShortPeriodCorrections[F] {
   
   def sppCorrections(@sp(Double) ctx: LPPSPNCtx[F])(implicit ev: Field[F], trig: Trig[F], ro: NRoot[F] )
       : SpecialPolarNodal[F] = {

@@ -15,8 +15,7 @@ import predict4s.sgp._
 
 trait LyddaneExtraLongPeriodCorrections[@sp(Double) F] {
   
-  def lylppCorrections(secularElemt : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F])
-      : LyddaneElems[F] = {
+  def lppLydCorrections(secularElemt : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]): LyddaneElems[F] = {
     
     import secularElemt.{_1 => elem,_3 => wgs,_2 => ictx}
     import ictx.{c,s},wgs.`J3/J2`,elem.{a,e,ω,M,I,Ω}

@@ -11,13 +11,13 @@ import predict4s.coord._
 import org.scalactic.Or
 import predict4s.coord.CoordinatesConversions._
 import predict4s.coord.SGPElemsConversions._
-import predict4s.sgp.ref.ShortPeriodPolarNodalCorrections
-import predict4s.sgp.ref.SimpleKeplerEq
 
+// Here are collected SGP4 algorithms that perform short period corrections in polar nodals (SPN variant)
+// among them, Vallado's original
 
 abstract class SGP4WithSPNCorrections[F : Field : NRoot : Order : Trig](
   sec : BrouwerLaneSecularCorrections[F]
-  ) extends SGP4(sec) with ShortPeriodPolarNodalCorrections[F] {
+  ) extends SGP4(sec) with SPNShortPeriodCorrections[F] {
 
   override def periodicCorrections(secularElemt : SGPSecularCtx[F]) :  SGPSPNResult[F] = 
     for {
@@ -32,7 +32,7 @@ class SGP4Vallado[F : Field : NRoot : Order : Trig](
   sec : BrouwerLaneSecularCorrections[F]
   ) extends SGP4WithSPNCorrections(sec) with LyddaneLongPeriodCorrections[F] with TwoTermsKeplerEq {
   
-  def lppCorrections(secularElemt : SGPSecularCtx[F]) : LPPSPNResult[F] = {
+  override def lppCorrections(secularElemt : SGPSecularCtx[F]) : LPPSPNResult[F] = {
     // long period corrections in Lyddane's coordinates
     val lyddaneElems = lylppCorrections(secularElemt)
     for {
@@ -47,8 +47,8 @@ class SGP4ValladoLong[F : Field : NRoot : Order : Trig](
   sec : BrouwerLaneSecularCorrections[F]
   ) extends SGP4WithSPNCorrections(sec) with LyddaneExtraLongPeriodCorrections[F] with TwoTermsKeplerEq {
  
-  def lppCorrections(secularElemt : SGPSecularCtx[F]) : LPPSPNResult[F] = {
-    val lyddaneElems = lylppCorrections(secularElemt)
+  override def lppCorrections(secularElemt : SGPSecularCtx[F]) : LPPSPNResult[F] = {
+    val lyddaneElems = lppLydCorrections(secularElemt)
     for {
       // long period corrections in Lyddane's coordinates
       // To transform to Special Polar Nodals, get the eccentric anomaly
@@ -62,13 +62,7 @@ class SGP4PN[F : Field : NRoot : Order : Trig](
   sec : BrouwerLaneSecularCorrections[F]
   ) extends SGP4WithSPNCorrections(sec) with SPNLongPeriodCorrections[F] with SimpleKeplerEq {
   
-  def lppCorrections(secularElemt : SGPSecularCtx[F])  =
-      propagateToSPNLPP(secularElemt)
-  
-  /**
-   * long period corrections in SpecialPolarNodal coordinates
-   */
-   def propagateToSPNLPP(secularElemt : SGPSecularCtx[F]) : LPPSPNResult[F] = {
+  override def lppCorrections(secularElemt : SGPSecularCtx[F]) : LPPSPNResult[F] = {
     val elem = secularElemt._1
     val wgs = secularElemt._3
     for {
@@ -79,9 +73,9 @@ class SGP4PN[F : Field : NRoot : Order : Trig](
   }
   
   /**
-   * long period corrections in CSpecialPolarNodal coordinates
+   * long period corrections in CSpecialPolarNodal coordinates used to compare with Lara's non singular results
    */
-  def propagateToCPNLPP(secularElemt : SGPSecularCtx[F]) : LPPCPNResult[F] = {
+  def lppCorrectionsCPN(secularElemt : SGPSecularCtx[F]) : LPPCPNResult[F] = {
     val elem = secularElemt._1
     val wgs = secularElemt._3
     for {
