@@ -9,8 +9,15 @@ import spire.math._
 import spire.implicits._
 import spire.syntax.primitives._
   
-// n: mean motion, I: inclination, a: semimajor axis, Ω: ascending node argument
-case class LyddaneElems[@sp(Double) F: Field](I: F, a: F, Ω: F, C: F, S: F, F: F) {
+case class LyddaneElems[@sp(Double) F: Field](
+    I: F, // inclination
+    a: F, // semimajor axis
+    Ω: F, // ascending node argument
+    C: F, 
+    S: F, 
+    F: F) 
+    {
+  // methods used to match Vallado's variables in CPP version 
   def xl = F; def `C´` = C; def `S´` = S ; def `F´` = xl; def h = Ω; def axnl = C; def ecosω = C; def aynl = S ; 
 //  def +(o: LyddaneElems[F]) = LyddaneElems(I + o.I, a - o.a,Ω + o.Ω,C + o.C,S + o.S, F + o.F)
 //  def -(o: LyddaneElems[F]) = LyddaneElems(I - o.I,a - o.a,Ω - o.Ω,C - o.C,S - o.S, F - o.F)  

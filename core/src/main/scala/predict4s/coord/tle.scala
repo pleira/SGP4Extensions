@@ -8,65 +8,69 @@ package coord
  * See Dr. T.S. Kelso comments on TLE at 
  * http://www.celestrak.com/columns/v04n03/
  */
-trait TLE {
-  def lineNumber: Int
-  def satelliteNumber: Int
-  def classification: Char
-  def launchYear: Int
-  def launchNumber: Int
-  def launchPiece: String
-  def ephemerisType: Int
-  def elementNumber: Int
-  def epochyear: Int
-  def year: Int
-  def epoch: String      // day of the year and fractional portion of the day
-  def meanMotion: String
-  def meanMotionFirstDerivative: String
-  def meanMotionSecondDerivative: String
-  def revolutionNumberAtEpoch: Int
-  def atmosphericDragCoeficient: String
-  def eccentricity : String
-  def inclination : String
-  def argumentOfPeriapsis : String
-  def rightAscension : String
-  def meanAnomaly : String
-}
+case class TLE(
+  lineNumber: Int
+  ,satelliteNumber: Int
+  ,classification: Char
+  ,launchYear: Int
+  ,launchNumber: Int
+  ,launchPiece: String
+  ,ephemerisType: Int
+  ,elementNumber: Int
+  ,epochyear: Int
+  ,year: Int
+  ,epoch: String      // day of the year and fractional portion of the day
+  ,meanMotion: String
+  ,meanMotionFirstDerivative: String
+  ,meanMotionSecondDerivative: String
+  ,atmosphericDragCoeficient: String
+  ,eccentricity : String
+  ,inclination : String
+  ,argumentOfPeriapsis : String
+  ,rightAscension : String
+  ,meanAnomaly : String
+  ,revolutionNumberAtEpoch: Int
+)
 
 object TLE {
 
-  def apply(line1 : String, line2: String ) : TLE = new TLE {
-    def lineNumber = parseInt(line1, 1, 1)
-      def satelliteNumber = parseInt(line1, 2, 5)
-      def classification  = line1.charAt(7)
-      def launchYear      = parseYear(line1, 9)
-      def launchNumber    = parseInt(line1, 11, 3)
-      def launchPiece     = line1.substring(14, 17).trim
-      def ephemerisType   = parseInt(line1, 62, 1)
-      def elementNumber   = parseInt(line1, 64, 4)
-      def epochyear       = parseInt(line1, 18, 2)
-      def year            = epochyear + (if (epochyear < 57)  2000 else 1900)
-      
-      def epoch           = parse(line1, 20, 12)  // days of the year
-      // rev/day, 2 * rev/day^2 and 6 * rev/day^3 
-      def meanMotion                 = parse(line2, 52, 11)
+  def apply(line1 : String, line2: String ) : TLE = {
+    val lineNumber = parseInt(line1, 1, 1)
+    val satelliteNumber = parseInt(line1, 2, 5)
+    val classification  = line1.charAt(7)
+    val launchYear      = parseYear(line1, 9)
+    val launchNumber    = parseInt(line1, 11, 3)
+    val launchPiece     = line1.substring(14, 17).trim
+    val ephemerisType   = parseInt(line1, 62, 1)
+    val elementNumber   = parseInt(line1, 64, 4)
+    val epochyear       = parseInt(line1, 18, 2)
+    val year            = epochyear + (if (epochyear < 57)  2000 else 1900)
+    
+    val epoch           = parse(line1, 20, 12)  // days of the year
+    // rev/day, 2 * rev/day^2 and 6 * rev/day^3 
+    val meanMotion                 = parse(line2, 52, 11)
 //        drag                       = line1.parseDouble(33, 10),
-      def meanMotionFirstDerivative  = parse(line1, 33, 10) 
+    val meanMotionFirstDerivative  = parse(line1, 33, 10) 
 //        nddot6                     = ((line1.substring(44, 45) + '.' +
 //                                     line1.substring(45, 50) + 'e' +
 //                                     line1.substring(50, 52)).replace(' ', '0')).toDouble,
-      def meanMotionSecondDerivative = (line1.substring(44, 45) + '.' +
-                                   line1.substring(45, 50) + 'e' +
-                                   line1.substring(50, 52)).replace(' ', '0')
-      def eccentricity = ("." + line2.substring(26, 33).replace(' ', '0'))
-      def inclination = parse(line2, 8, 8)
-      def argumentOfPeriapsis = parse(line2, 34, 8)
-      def rightAscension  = line2.substring(17, 25).replace(' ', '0')
-      def meanAnomaly = parse(line2, 43, 8)
-
-      def revolutionNumberAtEpoch = parseInt(line2, 63, 5)
-      def atmosphericDragCoeficient = (line1.substring(53, 54) + '.' +
-                line1.substring(54, 59) + 'e' +
-                line1.substring(59, 61)).replace(' ', '0')                     
+    val meanMotionSecondDerivative = (line1.substring(44, 45) + '.' +
+                                 line1.substring(45, 50) + 'e' +
+                                 line1.substring(50, 52)).replace(' ', '0')
+    val atmosphericDragCoeficient = (line1.substring(53, 54) + '.' +
+              line1.substring(54, 59) + 'e' +
+              line1.substring(59, 61)).replace(' ', '0')   
+    val eccentricity = ("." + line2.substring(26, 33).replace(' ', '0'))
+    val inclination = parse(line2, 8, 8)
+    val argumentOfPeriapsis = parse(line2, 34, 8)
+    val rightAscension  = line2.substring(17, 25).replace(' ', '0')
+    val meanAnomaly = parse(line2, 43, 8)
+    val revolutionNumberAtEpoch = parseInt(line2, 63, 5)
+    TLE(lineNumber,satelliteNumber,classification,launchYear,launchNumber,
+          launchPiece, ephemerisType, elementNumber, epochyear, year, epoch, meanMotion,
+          meanMotionFirstDerivative, meanMotionSecondDerivative, atmosphericDragCoeficient,
+          eccentricity,inclination, argumentOfPeriapsis,rightAscension, meanAnomaly,
+          revolutionNumberAtEpoch)
   }
   
   def parseInt(line : String, start: Int, length: Int): Int = {

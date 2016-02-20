@@ -13,10 +13,14 @@ import org.scalactic.Bad
 case class SGPElemsCtx[@sp(Double) F: Field: Order](elem: SGPElems[F], iCtx: InclinationCtx[F], eCtx: EccentricityCtx[F], wgs: SGPConstants[F]) {
     import elem.{a,e,n},wgs.{aE,`2pi`}
     
-    // radius of perigee
+    /**
+     *  radius of perigee
+     */
     def rp = a*(1-e)
       
-    // perigee height, altitude relative to the earth's surface
+    /**
+     *  perigee height, altitude relative to the earth's surface
+     */
     def perigeeHeight =  (rp - 1) * aE
     
     def isImpacting : Boolean = rp < (220/aE + 1.as[F])  

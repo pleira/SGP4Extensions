@@ -61,6 +61,7 @@ case class SpecialPolarNodal[@sp(Double) F: Field: Trig](
   def toCPN = CSpecialPolarNodal(cos(I),θ,Ω,r,R,`Θ/r`)
 }
 
+// This class is just used in one test/comparison between Lara's SGP4 algorithm and the one in polar nodals
 case class CSpecialPolarNodal[@sp(Double) F: Field: Trig](
     cosI: F, //  CosI, related to the orbital inclination 
     θ: F,  // the argument of latitude from the ascending node
