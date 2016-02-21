@@ -24,7 +24,7 @@ trait TLE00005 {
   val tle00005 = TLE.parseLines(lines00005).head
   val start00005 = 0
   val end00005 = 4320
-  val step00005 = 360
+  val step00005 = 36
 }
 
 object TLE00005 extends TestTLE with TLE00005 {
@@ -44,7 +44,7 @@ trait TLE06251 {
   val tle06251 = TLE.parseLines(lines06251).head
   val start06251 = 0
   val end06251 = 2880
-  val step06251 = 120
+  val step06251 = 12
 }
 
 object TLE06251 extends TestTLE with TLE06251 {
@@ -63,7 +63,7 @@ trait TLE28057 {
   val tle28057 = TLE.parseLines(lines28057).head
   val start28057 = 0
   val end28057 = 2880
-  val step28057 = 120
+  val step28057 = 12
 }
 
 object TLE28057 extends TestTLE with TLE28057 {
@@ -102,7 +102,7 @@ trait TLE28350 {
   val tle28350 = TLE.parseLines(lines28350).head
   val start28350 = 0
   val end28350 = 2880
-  val step28350 = 120
+  val step28350 = 12
 }
 
 object TLE28350 extends TestTLE with TLE28350 {
@@ -161,7 +161,7 @@ trait TLE29238 {
   val tle29238 = TLE.parseLines(lines29238).head
   val start29238 = 0
   val end29238 = 1440
-  val step29238 = 120
+  val step29238 = 12
 }
 
 object TLE29238 extends TestTLE with TLE29238 {
@@ -180,7 +180,7 @@ trait TLE88888 {
   val tle88888 = TLE.parseLines(lines88888).head
   val start88888 = 0
   val end88888 = 2880
-  val step88888 = 120
+  val step88888 = 12
 }
 
 object TLE88888 extends TestTLE with TLE88888 {

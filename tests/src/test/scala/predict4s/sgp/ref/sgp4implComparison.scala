@@ -5,7 +5,7 @@ package ref
 import org.scalatest.FunSuite
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
-import scala.math._
+import spire.math._
 import predict4s.coord.SGP72Constants
 import predict4s.sgp._
 import predict4s.coord.SGPElemsConversions
@@ -20,6 +20,7 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
   val tol1 = TolerantNumerics.tolerantDoubleEquality(3E-4)
   val tol2 = TolerantNumerics.tolerantDoubleEquality(1.6E-6)
   val tol3 = TolerantNumerics.tolerantDoubleEquality(6E-4)
+  val `2pi` = 2*pi 
   
   import spire.std.any.DoubleAlgebra
   val tles = List(tle00005,tle06251,tle22675,tle24946,tle28057)
@@ -66,8 +67,10 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
       assert(spn1.`Θ/r` === spn2.`Θ/r`)
       assert(spn1.I === spn2.I)
       if (abs(spn1.θ - spn2.θ) > 6) {
-        // different signs, do not compare this one 
-        // assert(spn1.θ === - spn2.θ) 
+        // different signs, correct one by 2pi
+        val o1 = if (spn1.θ < 0) spn1.θ + `2pi` else spn1.θ
+        val o2 = if (spn2.θ < 0) spn2.θ + `2pi` else spn2.θ
+        assert(o1 === o2)         
       } else {
         assert(spn1.θ === spn2.θ) 
       }
@@ -82,8 +85,8 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
       assert(spn1.R === spn2.R)
       if (abs(spn1.Ω - spn2.Ω) > 6) {
         // different signs, correct one by 2Pi
-        val o1 = if (spn1.Ω < 0) spn1.Ω + 2*Pi else spn1.Ω
-        val o2 = if (spn2.Ω < 0) spn2.Ω + 2*Pi else spn2.Ω
+        val o1 = if (spn1.Ω < 0) spn1.Ω + `2pi` else spn1.Ω
+        val o2 = if (spn2.Ω < 0) spn2.Ω + `2pi` else spn2.Ω
         assert(o1 === o2) 
       } else {
         assert(spn1.Ω === spn2.Ω)
@@ -94,8 +97,8 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
         assert(spn1.θ === spn2.θ) 
       } else {
         // different signs, correct one by 2Pi
-        val o1 = if (spn1.θ < 0) spn1.θ + 2*Pi else spn1.θ
-        val o2 = if (spn2.θ < 0) spn2.θ + 2*Pi else spn2.θ
+        val o1 = if (spn1.θ < 0) spn1.θ + `2pi` else spn1.θ
+        val o2 = if (spn2.θ < 0) spn2.θ + `2pi` else spn2.θ
         assert(o1 === o2)         
       }
 

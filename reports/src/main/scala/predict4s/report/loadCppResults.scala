@@ -11,9 +11,11 @@ import spire.math._
 
 trait LoadCppResults {
   
+//  def path(sat: Int) = s"/valladocpp/${sat}_wgs72.txt"
+  def path(sat: Int) = f"/valladocpp/detail/tle${sat}%05d.out"
+
   def loadCppOutputData(sat: Int) : List[CartesianPNLppUnit] = {
-    val path = s"/valladocpp/${sat}_wgs72.txt"
-    val stream = getClass.getResourceAsStream(path)
+    val stream = getClass.getResourceAsStream(path(sat))
     val cppOuts = Source.fromInputStream( stream ).getLines.filter { x => !(x.isEmpty() || x.startsWith("#")) }.toList map (l => CartesianPNLppUnit(l))
     cppOuts
   }

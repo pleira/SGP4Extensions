@@ -183,7 +183,7 @@ different coordinate systems: SimpleKeplerEq, TwoTermsKeplerEq.
 The support in Scala for unicode variables has been used intensively in all Model,
 Coordinate and Correnction classes or traits. That allowed to write
 the equations in the software similar to those given in the literature, with some
-simplifications as no prime or dots for derivatives have been used.
+simplifications as no prime nor overdots for derivatives have been used.
 
 % This method shows the calculation of Lane coefficients of atmospheric drag:
 
@@ -324,7 +324,12 @@ F' &=& (\ell''+g''+h'')-\frac{J_3}{4J_2}\frac{R_\oplus}{p''}C''\frac{3+5\cos{I}'
 S' &=&  e''\sin{g}'' -\frac{J_3}{2J_2}\frac{R_\oplus}{p''}\sin{I}''
 \end{eqnarray*}
 where $C''=e''\cos{g}''$, $p''=a''(1-e''^2)$. The single prime notation means that Lyddane elements include long-period effects. Note that $n'=n''$.
-
+The corresponding expression after unifying variables and removing primes is:
+\begin{eqnarray*}
+F &=&  M + \omega + \Omega - \epsilon_3 s e \cos{\omega}\frac{3+5c}{2(1+c)} \\
+S &=& = e\sin{\omega} - \epsilon_3 s
+\end{eqnarray*}
+where $c=\cos{I}$, $s=\sin{I}$, and $\epsilon_3=\frac{1}{2}(J_3/J_2)(R_\oplus/p)$.
 
 
 It follows a change from Lyddane's to polar variables
@@ -351,17 +356,15 @@ where the true anomaly is obtained without ambiguity from
 Note that, SGP4 computes the correction to $r\dot\theta=\Theta/r$ instead of that for the polar variable $\Theta$.
 
 
-% \subsubsection{Short-period gravitational corrections}
-
-Then, compute $p'=a'\beta'^2$, $c'=\cos{I}'$, $s'=\sin{I}'$, and $\epsilon=\frac{1}{2}J_2(R_\oplus/p')^2$, to obtain the short-period corrections
+Then, compute $p'=a'\beta'^2$, $c'=\cos{I}'$, $s'=\sin{I}'$, and $\epsilon_2=-\frac{1}{4}J_2(R_\oplus/p')^2$, to obtain the short-period corrections
 \begin{eqnarray*}
-r-r' &=& r'\epsilon\left[\frac{p'}{r'}\frac{1}{2}(1-c'^2)\cos2\theta'-\frac{3}{2}\beta'(3c'^2-1)\right] \\
-\theta-\theta' &=& -\epsilon\frac{1}{4}(7c'^2-1)\sin{2\theta'} \\
-h-h' &=& \frac{3}{2}\epsilon c'\cos\theta' \\
-R-R' &=& -p'n'\epsilon(1-c'^2)\sin2\theta' \\
-I-I' &=& \frac{3}{2}\epsilon c'\,s'\cos2\theta' \\
-\frac{\Theta}{r}-\frac{\Theta'}{r'} &=& \frac{\Theta'}{r'}
-\epsilon\frac{r'}{p'}\left[\left(1-c'^2\right)\cos2\theta'+\frac{3}{2}\left(3c'^2-1\right)\right]
+\delta r &=& \epsilon_2\left[3\beta'r'(3c'^2-1)-p's'^2\cos2\theta'\right] \\
+\delta \theta &=& \frac{1}{2}\epsilon_2(7c'^2-1)\sin{2\theta'} \\
+\delta \Omega &=& -3\epsilon_2 c'\sin2\theta' \\
+\delta R &=& 2\epsilon_2 p'n's'^2\sin2\theta' \\
+\delta I &=& -3\epsilon_2 c'\,s'\cos2\theta' \\
+\delta \frac{\Theta}{r} &=&
+- \epsilon_2\frac{\Theta'}{p'}\left[2s'^2\cos2\theta'+3\left(3c'^2-1\right)\right]
 \end{eqnarray*}
 
 
@@ -454,16 +457,6 @@ and $c=H/\Theta$. Remark that $H$ is an integral of the zonal problem and, there
 % TODO: should we revise the Short Period Corrections in non-singular variables?
 %       objective: better match in the plots
 
-\subsection{True anomaly} \label{sec:trueanomaly}
-
-{\color{red}\dots Pablo \dots}
-
-To verify that the order in which the eccentric anomaly is calculated does not have effect,
-two additional algorithms have been done:
-
-Vallado with extra terms for the long period corrections
-
-Polar Nodals variant as in Lara where first solve Kepler Equation and then the Long Period Corrections are calculated in Polar Nodals variables.
 
 %Equations shall be centred in the column and the corresponding number aligned on the right. They shall be referenced using parenthesis, e.g.,~\eqref{eq:ellipse}.
 
@@ -496,43 +489,87 @@ Polar Nodals variant as in Lara where first solve Kepler Equation and then the L
 %following paragraphs within the section should be indented as these paragraphs
 %demonstrate.
 
-\section{SAMPLE TEST CASES}
-\label{sec:sampletestcases}
-
-
-\subsection{Subheadings}
-\label{ssec:subhead}
-
-%Subheadings should appear in lower case (initial word capitalized) in
-%boldface. They should start at the left margin on a separate line.
-
 
 \section{VALIDATION}
 \label{sec:validation}
+[{\color{red}Mart\'in: revisar y comentar}]
 
 The validation of the software has been done by comparing the results with those
-of Vallado's original C++ source. The C++ source has been slightly modified in order
+of Vallado's original C++ source with propagations up to 3 weeks. The C++ source has been slightly modified in order
 to save the cartesian coordinates, the unit vector, the polar nodals coordinates
 and the long period corrections into a file. The outputs were collected
-for the Near Earth test cases. These outputs have been compared with all the propagation
-algorithms in SGP4Extensions.
+for the Near Earth test cases. These have been compared with all the propagation
+algorithms in SGP4Extensions. Plots show the differences observed.
 
-
-The SGP4Vallado algorithm in Scala matches the C++ results with maximum differences
+Most important, the SGP4Vallado algorithm in Scala matches the C++ results with maximum differences
 of the order of 3E-8 for all test propagations.
-When propagating 22312 and 28350, the SGP4Vallado implementation went into error earlier
-than the C++ version because of negative value for the eccentricity:
-22312  454.2028672 474.2028672
-28350  960         1440
-For the satellite 28872, propagation with SGP4Vallado ends by minute 50 as Vallado's cpp.
 
+When propagating satellites 22312 and 28350, the SGP4Vallado implementation went into error at an earlier time
+than the C++ version because of the negative value for the eccentricity, being the times 454.2028672 versus 474.2028672 for 22312 and 960 versus 1440 for 28350.
+For the satellite 28872, propagation with SGP4Vallado ends by epoch minute 50 as in Vallado's C++.
+
+Lara's algorithm is done in non singular variables which are related to polar nodal variables.
+To transform from classical secular elements to those non-singular variables, the eccentric anomaly has to be calculated first.
+Vallado's algorithm does the calculation of the eccentric anomaly after the long period corrections have been applied using Lyddane's variables.
+We have checked that the order in which the eccentric anomaly is calculated does not have an effect in the long period corrections.
+Two algorithms have been developed to test this fact, SGP4PN and SGP4ValladoLong.
+SGP4PN does the calculation of long period corrections in polar nodal variables (SpecialPolarNodal in the code) and therefore requires
+to calculate Kepler equation before the long period corrections as in SGP4Lara. SGP4PN includes the same terms for long period corrections as in SGP4Lara,
+which include some more effects than those in SGP4Vallado. For the comparison, the SGP4ValladoLong algorithm includes the same long period effects expressed
+in Lyddane's variables, and afterwards, solves the Kepler equation as in SGP4Vallado.
+The short period corrections for all SGP4Vallado, SGP4PN and SGP4ValladoLong share the same code expressed in polar nodals variables.
+The results of comparing the output in polar nodals variables in internal units after the periodic corrections were calculated between SGP4ValladoLong and SGP4PN for propagations up to 3 weeks
+gave maximum differences of the order 1.6E-6, which shows no significant effect introduced by the order of the calculation of the eccentric anomaly.
+
+The following figures shows the comparison of propagation results for the test TLE 00005 up to 3 weeks with Vallado's C++ results.
+As mentioned, SGP4Vallado results are coincident with those of the C++ code.
+The inclusion of more terms in the long period corrections for the other algorithms produce differences.
+SGP4PN and SGP4ValladoLong come displayed one a top the other, which shows no effect by the order in the calculation of the eccentric anomaly as mentioned previously.
+Also, the differences between in the short period corrections between Lara and the rest of the algorithms account for the different behaviour of Lara's algorithm.
+
+
+\begin{figure}
+    \input{dx_cartesian_00005}
+    \label{fig:dx}
+    \caption{X difference (km) of SGP4Extension algorithms with C++ results for TLE 00005}
+\end{figure}
+
+\begin{figure}
+    \input{dy_cartesian_00005}
+    \label{fig:dy}
+    \caption{Y difference (km) of SGP4Extension algorithms with C++ results for TLE 00005}
+\end{figure}
+
+\begin{figure}
+    \input{dz_cartesian_00005}
+    \label{fig:dz}
+    \caption{Z difference (km) of SGP4Extension algorithms with C++ results for TLE 00005}
+\end{figure}
+
+\begin{figure}
+    \input{dvx_cartesian_00005}
+    \label{fig:dvx}
+    \caption{Vx difference (km/s) of SGP4Extension algorithms with C++ results for TLE 00005}
+\end{figure}
+
+\begin{figure}
+    \input{dvy_cartesian_00005}
+    \label{fig:dvy}
+    \caption{Vy difference (km/s) of SGP4Extension algorithms with C++ results for TLE 00005}
+\end{figure}
+
+\begin{figure}
+    \input{dvz_cartesian_00005}
+    \label{fig:dvz}
+    \caption{Vz difference (km/s) of SGP4Extension algorithms with C++ results for TLE 00005}
+\end{figure}
 
 %%%
 %%% MAYBE THIS TABLE GETS DISCARDED, or make it smaller
 %%%
 \begin{table*}[p]
 \centering
-\caption{NEAR EARTH TLEs used for testing}\vspace{2mm}
+\caption{Near Earth TLEs used for testing}\vspace{2mm}
 \begin{tabular}{|l|l|p{14cm}|}
 \hline\hline
 Satellite & Category & Comments\\
@@ -555,6 +592,19 @@ error trap (modified eccentricity too low).\\
 \end{tabular}
 \label{tab:res}
 \end{table*}
+
+\section{CONCLUSIONS}
+\label{sec:conclusions}
+
+A new implementation of the SGP4 algorithm in scala is available for the community. It is
+written in a way that allows easy exchange of models and variables used in the theory.
+When doing conjunction analysis for space debris, the fact that no internal state is kept in the algorithm allows for easy
+parallelization. Also the user has the possibility to design
+filter algorithms based on results obtained in polar nodal variables without
+the need to obtain cartesian values. The cartesian values can be easily obtained on demand
+saving computational time and memory requirements. Further speed optimizations in the current
+SGP4 code are possible but those might not have a significant impact when doing conjunction analysis
+where most of the computational time goes into finding the points of close approach.
 
 
 % Figures, tables and equations must be numbered and placed within the designated margins. They may span the two
