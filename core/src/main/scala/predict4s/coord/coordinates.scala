@@ -22,7 +22,7 @@ case class SGPElems[@sp(Double) F](
     epoch : F) // epoch time in days from jan 0, 1950. 0 hr 
     
     
-case class CartesianElems[@sp(Double) F](x: F, y: F, z: F, vx: F, vy: F, vz: F) {
+case class CartesianElems[@sp(Double) F : Field](x: F, y: F, z: F, vx: F, vy: F, vz: F) {
   def pos = Vector[F](x,y,z)
   def vel = Vector[F](vx,vy,vz)
   // Lara uses X,Y,Z for velocities in his formulas. Allow to follow his convention
@@ -30,6 +30,9 @@ case class CartesianElems[@sp(Double) F](x: F, y: F, z: F, vx: F, vy: F, vz: F) 
   def Y = vy
   def Z = vz
   def xdot = vx; def ydot = vy ; def zdot = vz;
+  // used to calculate differences in results or to add corrections
+  def +(c: CartesianElems[F]) = CartesianElems(x+c.x,y+c.y,z+c.z,vx+c.vx,vy+c.vy,vz+c.vz)
+  def -(c: CartesianElems[F]) = CartesianElems(x-c.x,y-c.y,z-c.z,vx-c.vx,vy-c.vy,vz-c.vz)
 }
 
 // Naming of the elements after "Efficient formulation of the periodic corrections in
