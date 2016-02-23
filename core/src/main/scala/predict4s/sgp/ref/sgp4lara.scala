@@ -18,8 +18,32 @@ import predict4s.coord.CoordinatesConversions._
 class SGP4Lara[F : Field : NRoot : Order : Trig](
   sec : BrouwerLaneSecularCorrections[F]
   ) extends SGP4(sec) with LaraFirstOrderCorrections[F] with SimpleKeplerEq {
- 
+   
+//   override def propagate2CartesianContext(t: Minutes) : SGPPropResult[F] = 
+//    for {
+//      secularElemt <- secularCorrections(t)
+//      lns <- periodicCorrectionsLNS(secularElemt)
+//      unitpv = lns2UnitCartesian(lns)
+//      /// FIXME
+//    	_N = lns.`Θ/r`*lns.r*secularElemt._2.c // ictx.c    // N = Θ*cosI , which remains constant      
+//      spn = lns2spn(lns, _N)
+//      pv = scaleUnitCartesians(unitpv,spn.r)
+//    } yield (pv, unitpv, spn) 
+    
   override def periodicCorrections(secularElemt : SGPSecularCtx[F]) : SGPSPNResult[F] = {
+    val elem = secularElemt._1
+		val ictx = secularElemt._2    
+    for {
+    	eaState <- solveKeplerEq(elem.e, elem.M)
+    	spnSecular <- sgpelems2spn(eaState, secularElemt)
+    	_N = spnSecular.`Θ/r`*spnSecular.r*ictx.c    // N = Θ*cosI , which remains constant
+      lns = spn2lns(spnSecular, ictx)
+      corr = allCorrections(lns, secularElemt)   
+      finalSPN = lns2spn(corr, _N)
+    } yield finalSPN
+  }
+    
+ def periodicCorrectionsWithN(secularElemt : SGPSecularCtx[F]) : SGPSPNResult[F] = {
     val elem = secularElemt._1
 		val ictx = secularElemt._2    
     for {
@@ -39,18 +63,12 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
     for {
     	eaState <- solveKeplerEq(elem.e, elem.M)
     	spnSecular <- sgpelems2spn(eaState, secularElemt)
-    	_N = spnSecular.`Θ/r`*spnSecular.r*ictx.c    // N = Θ*cosI , which remains constant
+ //   	_N = spnSecular.`Θ/r`*spnSecular.r*ictx.c    // N = Θ*cosI , which remains constant
       lns = spn2lns(spnSecular, ictx)
       flns = allCorrections(lns, secularElemt)
     } yield flns
   }
    
-  def scalePV(uPV: CartesianElems[F], lns: LaraNonSingular[F]): CartesianElems[F] = {
-      import sec.elem0Ctx.wgs.{aE,vkmpersec}, uPV._, lns.{R,r,`Θ/r`}
-      val (p, v) = ( (aE*r) *: pos,  vkmpersec *: (R *: pos + `Θ/r` *: vel))
-      CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
-  }    
-
   /*
    * This is used/compare to test the LPP corrections in SPN coordinates 
    */
@@ -82,7 +100,7 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
       _N = spnSecular.`Θ/r`*spnSecular.r*ictx.c    // cosI = N/Θ, N remains a constant 
       lns = spn2lns(spnSecular, ictx)    
       lalppcorr = lppCorrections(lns, secularElemt)
-      lppcorr1 = lns2cpn(lalppcorr._1, _N)
+      lppcorr1 = lns2cpn(lalppcorr._1,_N)
     } yield lppcorr1    
   }
 

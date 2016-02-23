@@ -60,7 +60,7 @@ object CoordinatesConversions {
    *  Mathematically involves matrix multiplication  R3(−h) R1(−I) R3(−θ)
    *  where R1 and R3 are the usual rotation matrices about the x and z axes, respectively
    */
-  def polarNodal2UnitCartesian[F: Field: Trig](spn: SpecialPolarNodal[F]) : CartesianElems[F] = {
+  def spn2UnscaledCartesian[F: Field: Trig](spn: SpecialPolarNodal[F]): CartesianElems[F] = {
     import spn._
     val sinI  =  sin(I); val cosI  =  cos(I)
     val sinθ  =  sin(θ); val cosθ  =  cos(θ)
@@ -70,12 +70,45 @@ object CoordinatesConversions {
     val ux    =  xmx * sinθ + cosΩ * cosθ
     val uy    =  xmy * sinθ + sinΩ * cosθ
     val uz    =  sinI * sinθ
-    val vx    =  xmx * cosθ - cosΩ * sinθ
-    val vy    =  xmy * cosθ - sinΩ * sinθ
-    val vz    =  sinI * cosθ
+    val vvx   =  `Θ/r`*(xmx * cosθ - cosΩ * sinθ)
+    val vvy   =  `Θ/r`*(xmy * cosθ - sinΩ * sinθ)
+    val vvz   =  `Θ/r`*(sinI * cosθ)
+    // unscaled velocity vector, not unit velocity
+    val vx    =  R*ux + vvx
+    val vy    =  R*uy + vvy
+    val vz    =  R*uz + vvz    
+    // return unit vectors position and unscaled velocity
+    CartesianElems(ux,uy,uz,vx,vy,vz)
+  }
+
+  def pn2UnitCartesian[F: Field: Trig](spn: SpecialPolarNodal[F]) : CartesianElems[F] = {
+    import spn._
+    // val θ = atan2(ξ,χ)
+    val sinθ  =  sin(θ); val cosθ  =  cos(θ) // to replace
+    // val s = if (sin0 != 0) ξ/sinθ else χ/cosθ  // sinI
+    // val `s2` = ξ2 + χ2
+    // val `c2` = 1 - ξ2 - χ2
+    // val s = sqrt(ξ2 + χ2)
+    // val c = sqrt(1 - ξ2 - χ2)
+    // val Ω = ψ - θ
+    // val sinθ = ξ/s
+    // val cosθ = χ/s
+    // val sinΩ  = sinψ * cosθ - cosψ * sinθ
+    // val cosΩ  = cosψ * cosθ + sinψ * sinθ
+    val sinI  =  sin(I); val cosI  =  cos(I)
+    val sinΩ  =  sin(Ω); val cosΩ  =  cos(Ω)
+    val s = sinI ; val c = cosI; val χ = s * cosθ; val ξ = s * sinθ; 
+    
+    val xmx   = -sinΩ * c
+    val xmy   =  cosΩ * c
+    val ux    = -sinΩ * c * sinθ + cosΩ * cosθ
+    val uy    =  cosΩ * c * sinθ + sinΩ * cosθ
+    val uz    =  ξ // sinI * sinθ
+    val vx    = -sinΩ * c * cosθ - cosΩ * sinθ  
+    val vy    =  cosΩ * c * cosθ - sinΩ * sinθ
+    val vz    =  χ // sinI * cosθ
 
     // return unit vectors position and velocity
     CartesianElems(ux,uy,uz,vx,vy,vz)
-  }
-  
+  }  
 }

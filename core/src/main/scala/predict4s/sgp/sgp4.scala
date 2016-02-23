@@ -34,8 +34,8 @@ abstract class SGP4[@sp(Double) F : Field : NRoot : Order : Trig](
     for {
       secularElemt <- secularCorrections(t)
       spn <- periodicCorrections(secularElemt)
-      unitpv = polarNodal2UnitCartesian(spn)
-      pv = scale2CartesianElems(unitpv, spn)  
+      unitpv = spn2UnscaledCartesian(spn)
+      pv = scaleUnitCartesians(unitpv,spn.r)
     } yield (pv, unitpv, spn) 
   
   def propagate2SPNContext(t: Minutes) = 
@@ -59,21 +59,10 @@ abstract class SGP4[@sp(Double) F : Field : NRoot : Order : Trig](
    * R⊕ in km) and time TU (units of the orbit’s period in min) 
    * TU = 60 * sqrt( (R⊕ km)³ /(μ km³ /s²) ) min
    * where μ is the earth’s gravitational constant; μ = 1 UL³/UT² in internal units.    
-   */
-  def convertAndScale2UnitVectors(pos : Vector[F], vel : Vector[F], mrt: F, mvt: F, rvdot: F): (Vector[F], Vector[F]) = {
-      import sec.elem0Ctx.wgs.{aE,vkmpersec}
-      ( (aE*mrt) *: pos,  vkmpersec *: (mvt *: pos + rvdot *: vel))
-  }
-  
-  def convertAndScale2UnitVectors(pos : Vector[F], vel : Vector[F], spn: SpecialPolarNodal[F]): (Vector[F], Vector[F]) = {
-      import sec.elem0Ctx.wgs.{aE,vkmpersec}, spn._
-      ( (aE*r) *: pos,  vkmpersec *: (R *: pos + `Θ/r` *: vel))
-  }  
- 
-  def scale2CartesianElems(unitElems: CartesianElems[F], spn: SpecialPolarNodal[F]): CartesianElems[F] = {
-      import sec.elem0Ctx.wgs.{aE,vkmpersec}, spn._, unitElems._
-      val (p, v) = ( (aE*r) *: pos,  vkmpersec *: (R *: pos + `Θ/r` *: vel))
-      CartesianElems(p(0),p(1),p(2),v(0),v(1),v(2))
-  }  
-  
+   */ 
+  def scaleUnitCartesians(unitElems: CartesianElems[F], r: F): CartesianElems[F] = {
+      import sec.elem0Ctx.wgs.{aE,vkmpersec}, unitElems._
+      CartesianElems( (aE*r)*x, (aE*r)*y , (aE*r)*z, vkmpersec*vx, vkmpersec*vy, vkmpersec*vz)
+  } 
+    
 }

@@ -23,8 +23,8 @@ trait TLE00005 {
   "2 00005  34.2682 348.7242 1859667 331.7664  19.3264 10.82419157413667     0.00      4320.0        360.00")
   val tle00005 = TLE.parseLines(lines00005).head
   val start00005 = 0
-  val end00005 = 4320
-  val step00005 = 36
+  val end00005 = 420
+  val step00005 = 2
 }
 
 object TLE00005 extends TestTLE with TLE00005 {

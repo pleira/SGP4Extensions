@@ -23,7 +23,7 @@ class CompareAll(all: AllPropagators, tle: TestTLE) extends LoadCppResults with 
   def algosCartesianMaxDiffList = almaxs map {p => f"$SEP ${p._1}%3s $SEP ${sat}%05d  $SEP ${p._2._1}%6.4e $SEP${p._2._2}%6.4e $SEP" }
   val pvDiffs = pvs map { pvl => calculateDiffList(cppOuts, pvl) }
   val algosPvDiffs = algos zip pvDiffs
-  // TODO: applicative ?
+  // TODO: a.zipWithIndex.map{ case (s,i) => myFn(s,i) }
   val algosPvDiffsList = algosPvDiffs map {p =>
     val algo = p._1
     val list = p._2
@@ -139,7 +139,7 @@ object ReportTestNearTLEs extends App {
   import better.files._
   import java.io.{File => JFile}
   def allComp(t: TestTLE) = new CompareAll(AllPropagators(t), t)
-  val tles = List(TLE00005, TLE06251, TLE28057, TLE29238, TLE29141)
+  val tles = List(TLE00005) // , TLE06251, TLE28057, TLE29238, TLE29141)
   val comps = tles map allComp
 
   //  comps map { _.cartesianDiffReport }

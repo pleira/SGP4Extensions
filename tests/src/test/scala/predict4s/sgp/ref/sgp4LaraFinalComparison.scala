@@ -15,24 +15,23 @@ import predict4s.conjunction.TLE22675
 import predict4s.conjunction.TLE24946
 import predict4s.coord.LNSConversions._
 
-class Sgp4LaraPNFinalComparison extends FunSuite with TLE22675 with TLE24946 with TLE00005  with TLE06251 with TLE28057 {
+class Sgp4LaraFinalComparison extends FunSuite with TLE22675 with TLE24946 with TLE00005  with TLE06251 with TLE28057 {
  
   implicit val wgs = SGP72Constants.tleDoubleConstants
-  val tol = TolerantNumerics.tolerantDoubleEquality(3E-5)
+  val tol = TolerantNumerics.tolerantDoubleEquality(3.5E-5)
   
   val tles = List(tle00005,tle06251,tle22675,tle24946,tle28057)
   for (tle <- tles) {
     val elem0AndCtx = SGPElemsConversions.sgpElemsAndContext(tle, wgs).get
     val model = BrouwerLaneSecularCorrections(elem0AndCtx)
-    val pnsgp4 = SGP4PN[Double](model)
     val lasgp4 = SGP4Lara[Double](model)
     val ts = List.range(0, 1000, 100)
     ts foreach { t => 
-      pnsgp4.secularCorrections(t) foreach { secularElemt =>
+      lasgp4.secularCorrections(t) foreach { secularElemt =>
         for {  
-           pnspn <- pnsgp4.periodicCorrections(secularElemt)
-           laspn <- lasgp4.periodicCorrections(secularElemt)
-        } yield compareSPN(s"TLE ${tle.satelliteNumber} : Final Corrections in Polar Nodals/Lara Non Singular comparison in SPN at time $t", pnspn, laspn, tol)
+           spn1 <- lasgp4.periodicCorrections(secularElemt)
+           laspn <- lasgp4.periodicCorrectionsWithN(secularElemt)
+        } yield compareSPN(s"TLE ${tle.satelliteNumber} : Final Corrections in Lara Non Singular comparison in SPN at time $t", spn1, laspn, tol)
       }
     }
   }
