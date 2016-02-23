@@ -19,7 +19,7 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
   implicit val wgs = SGP72Constants.tleDoubleConstants
   val tol1 = TolerantNumerics.tolerantDoubleEquality(3E-4)
   val tol2 = TolerantNumerics.tolerantDoubleEquality(1.6E-6)
-  val tol3 = TolerantNumerics.tolerantDoubleEquality(6E-4)
+  val tol3 = TolerantNumerics.tolerantDoubleEquality(3E-4)
   val `2pi` = 2*pi 
   
   import spire.std.any.DoubleAlgebra
@@ -40,18 +40,11 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
            pnfspn <- pnsgp4.periodicCorrections(secularElemt)
            vlfspn <- vlsgp4.periodicCorrections(secularElemt)
            lafspn <- lasgp4.periodicCorrections(secularElemt)
-           //lafnsing <- lasgp4.periodicCorrections(secularElemt)
-        } yield (vafspn, pnfspn, vlfspn, lafspn) // lafnsing)
+        } yield (vafspn, pnfspn, vlfspn, lafspn)
         if (result.isGood) {
           val (vafspn, pnfspn, vlfspn, lafspn) = result.get
-         // val (vaspnLPP,pnspnLPP, vlspnLPP) = (vafspn._2,pnfspn._2, vlfspn._2)
-          //val (vaspn,pnspn, vlspn, laspn) = (vafspn._1,pnfspn._1, vlfspn._1, lafspn._1)
-//          val laspn = laraNonSingular2SpecialPolarNodal(lafnsing._1, lafnsing._2._2._1.I)
-          
-          //compareSPN(s"TLE ${tle.satelliteNumber} : long period periodic Vallado/Polar Nodals comparison at time $t", vaspnLPP, pnspnLPP, tol1);
           compareSPN(s"TLE ${tle.satelliteNumber} : Vallado/Polar Nodals comparison in SPN at time $t", vafspn, pnfspn, tol1);
-          compareSPN(s"TLE ${tle.satelliteNumber} : Vallado Long/Polar Nodals comparison in SPN at time $t", vlfspn, pnfspn, tol2);
-          
+          compareSPN(s"TLE ${tle.satelliteNumber} : Vallado Long/Polar Nodals comparison in SPN at time $t", vlfspn, pnfspn, tol2);          
           compareSPN2(s"TLE ${tle.satelliteNumber} : Vallado/Lara Non Singular comparison in SPN at time $t", vafspn, lafspn, tol3);
         }
       }
@@ -101,8 +94,8 @@ class Sgp4ImplComparison extends FunSuite with TLE22675 with TLE24946 with TLE00
         val o2 = if (spn2.θ < 0) spn2.θ + `2pi` else spn2.θ
         assert(o1 === o2)         
       }
-
-    }  
+    }
+  
 } 
 
 

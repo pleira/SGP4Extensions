@@ -17,7 +17,7 @@ import predict4s.coord.LNSConversions._
 class Sgp4LaraPNComparison extends FunSuite with TLE22675 with TLE24946 with TLE00005  with TLE06251 with TLE28057 {
  
   implicit val wgs = SGP72Constants.tleDoubleConstants
-  val tol = TolerantNumerics.tolerantDoubleEquality(5E-5)
+  val tol = TolerantNumerics.tolerantDoubleEquality(1.5E-7)
   val `2pi` = 2*pi 
   
   import spire.std.any.DoubleAlgebra

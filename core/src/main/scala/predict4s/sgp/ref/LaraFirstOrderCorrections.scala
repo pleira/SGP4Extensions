@@ -62,33 +62,9 @@ trait LaraFirstOrderCorrections[@sp(Double) F] {
     val δψ = -ϵ2 * ((1+7*c)/(1+c)) * ξ * χ 
     val δξ = -ϵ2 * (`χ²` - 3*`c²`) * ξ
     val δχ =  ϵ2 * (`ξ²` - 3*`c²`) * χ
-    val δr =  ϵ2 * r * (`ξ²` - `χ²` - 3 + 9*`c²`)
+    val δr =  ϵ2 * 2 * r * (`ξ²` - 2 + 5*`c²`)
     val δR =  ϵ2 * 4 * (Θ/r) * ξ * χ
     val δΘ =  ϵ2 * 3 * Θ * (`ξ²` - `χ²`)
-    LaraNonSingular(ψ+δψ,ξ+δξ,χ+δχ,r+δr,R+δR,Θ+δΘ)
-  }
-  
-  def sppCorrectionsAlternative(lppState: (LaraNonSingular[F], SGPSecularCtx[F]))(implicit ev: Field[F]) 
-    : LaraNonSingular[F] = {
-    import lppState.{_1=>lns,_2=>secularElemt}
-    val elem = secularElemt._1
-		val ictx = secularElemt._2    
-    val wgs = secularElemt._3
-    import wgs.J2, ictx.{c,`c²`,s,`s²`}
-    import lns._
-    
-    val p = Θ*Θ 
-    val ϵ2 = -J2/p/p/4
-    val `χ²` = χ*χ
-    val `ξ²` = ξ*ξ
-    val cos2θ = `χ²` - `ξ²`
-    val sin2θ = 2*ξ*χ/`s²`
-    val δψ = -ϵ2 * ((1+7*c)/(1+c)) * ξ * χ 
-    val δξ = -ϵ2 * (`χ²` - 3*`c²`) * ξ
-    val δχ =  ϵ2 * (`ξ²` - 3*`c²`) * χ
-    val δr =  ϵ2 * r * ( - cos2θ - 3 + 9*`c²`)
-    val δR =  ϵ2 * 2 * `s²`* sin2θ * (Θ/r)      // ϵ2 * 4 * (Θ/r) * ξ * χ
-    val δΘ = -ϵ2 * 3 * Θ * cos2θ
     LaraNonSingular(ψ+δψ,ξ+δξ,χ+δχ,r+δr,R+δR,Θ+δΘ)
   }
   
@@ -133,7 +109,7 @@ trait LaraFirstOrderCorrections[@sp(Double) F] {
     val δψs = -ϵ2 * ((1+7*c)/(1+c)) * ξl * χl 
     val δξs = -ϵ2 * (`χl²` - 3*`c²`) * ξl
     val δχs =  ϵ2 * (`ξl²` - 3*`c²`) * χl
-    val δrs =  ϵ2 * rl * (`ξl²` - `χl²` - 3 + 9*`c²`)
+    val δrs =  ϵ2 * 2 * r * (`ξ²` - 2 + 5*`c²`)
     val δRs =  ϵ2 * 4 * (Θl/rl) * ξl * χl
     val δΘs =  ϵ2 * 3 * Θl * (`ξl²` - `χl²`)
     LaraNonSingular(ψl+δψs,ξl+δξs,χl+ δχs,rl+δrs,Rl+δRs,Θl+δΘs)   
