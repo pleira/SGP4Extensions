@@ -160,21 +160,22 @@ Models for the corrections like:
 Resolution of different Kepler equations because of
 different coordinate systems: SimpleKeplerEq, TwoTermsKeplerEq.
 
-[{\color{red}Check that figures are referenced in the final version of the text}]
+[{\color{red}Check that Figs.~(\ref{fig:res}) and (\ref{fig:res0}) are properly cited in the final version of the text}]
 
 % // TODO: introduce the different figures with algorithms
 % Vectorised image formats like .pdf and .eps are preferred -------------------------------------------------------------------------
 \begin{figure}[htb]
   \centering
 	\includegraphics[width=\linewidth]{lara.png}
-\label{fig:res}
 \caption{SGP4 Algorithm in Lara Non Singular variables}
+\label{fig:res}
 \end{figure}
 
 \begin{figure*}[htb]
   \centering
 	\includegraphics[width=\linewidth]{pn.png}
 \caption{SGP4 Algorithm in Polar Nodals}
+\label{fig:res0}
 \end{figure*}
 
 \subsection{Unicode usage}
@@ -266,7 +267,7 @@ First, we recall that Brouwer's gravitational theory relies on the canonical set
 \item $H=G\cos{I}$: projection of the angular momentum on the earth's rotation axis, where $I$ is the orbit inclination
 \end{itemize}
 However, Brouwer's theory finds trouble when evaluating the short-period corrections for the lower eccentricity orbits. The trouble is artificial, and is related to the singularity of Delaunay variables for circular orbits. Hence,
-SGP4 implements a different set of elements based on Lyddane's approach which completely avoids that trouble. In particular, the elements used in the computation of short-period corrections are\footnote{The original variables proposed by Lyddane were $a$, $F$, $e\cos\ell$, $e\sin\ell$, $\sin\frac{1}{2}I\cos{h}$, and $\sin\frac{1}{2}I\sin{h}$. }
+SGP4 implements a different set of elements based on Lyddane's approach which completely avoids that trouble. In particular, the elements used in the computation of short-period corrections are\footnote{The original variables proposed by Lyddane were slightly different, namely $a$, $F$, $e\cos\ell$, $e\sin\ell$, $\sin\frac{1}{2}I\cos{h}$, and $\sin\frac{1}{2}I\sin{h}$. }
 \[
 F=\ell+g+h, \quad C=e\cos\omega, \quad S=e\sin\omega, \quad a, \quad I, \quad h.
 \]
@@ -274,7 +275,7 @@ F=\ell+g+h, \quad C=e\cos\omega, \quad S=e\sin\omega, \quad a, \quad I, \quad h.
 \subsection{Standard implementation of SGP4} \label{sec:vallado}
 
 \subsubsection{Initialization and secular corrections}
-The code, starts from the initial mean elements at epoch $(I_0,\Omega_0,e_0,\omega_0,M_0,n_0)$, where $n$ stands for mean motion, which should be obtained from the so called two line elements, or TLEs.\footnote{The mean motion read from a TLE needs to be converted from Kozai's definition to Brouwer's secular one.} From them, Delaunay elements at epoch $(\ell_0'',g_0'', h_0'',L_0'',G_0'',H_0'')$ are obtained from their definition. The double prime notation is used for ``secular'' elements. In fact, the Delaunay actions, viz.~$L$, $G$, and $H$, are never computed in SGP4, which uses $n=\mu^2/L^3$, $e=\sqrt{1-G^2/L^2}$, and $I=\arccos(H/G)$, instead.
+The code, starts from the initial mean elements at epoch $(I_0,\Omega_0,e_0,\omega_0,M_0,n_0)$, where $n$ stands for mean motion, which should be obtained from the so called two line elements, or TLEs.\footnote{Keep in mind that the TLE mean motion needs to be converted first from Kozai's definition \cite{Kozai1959} to Brouwer's secular one.} From them, Delaunay elements at epoch $(\ell_0'',g_0'', h_0'',L_0'',G_0'',H_0'')$ are obtained from their definition. The double prime notation is used for ``secular'' elements. In fact, the Delaunay actions, viz.~$L$, $G$, and $H$, are never computed in SGP4, which uses $n=\mu^2/L^3$, $e=\sqrt{1-G^2/L^2}$, and $I=\arccos(H/G)$, instead.
 
 From these initial elements, Brouwer's theory provides the secular frequencies $\dot\ell''$, $\dot{g}''$, and $\dot{h}''$, due to the earth's gravitational potential, where the overdot means time derivative. Each of these frequencies is a function of $(n_0,e_0,I_0)$, and remain constant for the evaluation of the theory at different dates. Besides, the initialization process provides a series of coefficients needed to apply drag secular corrections as computed from Lane's theory \cite{Lane1965}.
 \par
@@ -318,19 +319,19 @@ The secular mean motion $n''=(\mu/a''^3)^{1/2}$ is also computed.
 
 % {\color{red}Remind that I do not deal with the deep space secular corrections}
 
-Brouwer long-period gravitational corrections are reformulated in Lyddane's variables. At the precision of SGP4, there are only corrections for $F$ and $S$. At the precision of SGP4, $C'= C''$, $a'=a''$, $h'=h''$, $I'=I''$, and
+Brouwer long-period gravitational corrections are reformulated in Lyddane's variables. At the precision of SGP4, {\color{red}that is, neglecting terms $\mathcal{O}(e^2)$}, there are only corrections for $F$ and $S$. Then, $C'= C''$, $a'=a''$, $h'=h''$, $I'=I''$, and
 \begin{eqnarray*}
 F' &=& (\ell''+g''+h'')-\frac{J_3}{4J_2}\frac{R_\oplus}{p''}C''\frac{3+5\cos{I}''}{1+\cos{I}''}\sin{I}'' \\
 S' &=&  e''\sin{g}'' -\frac{J_3}{2J_2}\frac{R_\oplus}{p''}\sin{I}''
 \end{eqnarray*}
-where $C''=e''\cos{g}''$, $p''=a''(1-e''^2)$. The single prime notation means that Lyddane elements include long-period effects. Note that $n'=n''$.
-The corresponding expression after unifying variables and removing primes is:
+where $C''=e''\cos{g}''$, $p''=a''(1-e''^2)$. The single prime notation means that Lyddane elements include long-period effects. Note that $n'=n''$. Since there is no risk of ambiguity, the notation can be unified and simplified by removing primes, to read
+%{\color{blue}The corresponding expression after unifying variables and removing primes is:
 \begin{eqnarray*}
 F &=&  M + \omega + \Omega - \epsilon_3 s e \cos{\omega}\frac{3+5c}{2(1+c)} \\
-S &=& = e\sin{\omega} - \epsilon_3 s
+S &=& e\sin{\omega} - \epsilon_3 s
 \end{eqnarray*}
 where $c=\cos{I}$, $s=\sin{I}$, and $\epsilon_3=\frac{1}{2}(J_3/J_2)(R_\oplus/p)$.
-
+%}
 
 It follows a change from Lyddane's to polar variables
 \[
@@ -353,10 +354,11 @@ where the true anomaly is obtained without ambiguity from
 \begin{equation} \label{utof}
 \sin{f}'=(a'/r')\beta'\sin{E}',\quad \cos{f}'=(a'/r')(\cos{E}'-e').
 \end{equation}
-Note that, SGP4 computes the correction to $r\dot\theta=\Theta/r$ instead of that for the polar variable $\Theta$.
+Note that, SGP4 computes the correction to $r\dot\theta=\Theta/r$ instead of the correction to the polar variable $\Theta$.
 
 
-Then, compute $p'=a'\beta'^2$, $c'=\cos{I}'$, $s'=\sin{I}'$, and $\epsilon_2=-\frac{1}{4}J_2(R_\oplus/p')^2$, to obtain the short-period corrections
+% \subsubsection{Short-period gravitational corrections}
+Then, compute $p'=a'\beta'^2$, $c'=\cos{I}'$, $s'=\sin{I}'$, and $\epsilon_2=-\frac{1}{4}J_2(R_\oplus/p')^2$, to obtain the SGP4 short-period corrections
 \begin{eqnarray*}
 \delta r &=& \epsilon_2\left[3\beta'r'(3c'^2-1)-p's'^2\cos2\theta'\right] \\
 \delta \theta &=& \frac{1}{2}\epsilon_2(7c'^2-1)\sin{2\theta'} \\
@@ -366,12 +368,13 @@ Then, compute $p'=a'\beta'^2$, $c'=\cos{I}'$, $s'=\sin{I}'$, and $\epsilon_2=-\f
 \delta \frac{\Theta}{r} &=&
 - \epsilon_2\frac{\Theta'}{p'}\left[2s'^2\cos2\theta'+3\left(3c'^2-1\right)\right]
 \end{eqnarray*}
+{\color{red}which neglect terms of $\mathcal{O}(e)$}.
 
 
 Finally, the state vector is computed from the standard transformation from Cartesian to polar-nodal variables
 \[ %\begin{equation} \label{Kepler:Whittaker}
 \left(\begin{array}{cc} x & \dot{x} \\ y & \dot{y} \\ z & \dot{z} \end{array}\right)=
-R_3(-h)\,{R}_1(-I)\,{R}_3(-\theta)\,\left(\begin{array}{cc} r & R \\ 0 & \Theta/r \\ 0 & 0 \end{array}\right)
+R_3(-\Omega)\,{R}_1(-I)\,{R}_3(-\theta)\,\left(\begin{array}{cc} r & R \\ 0 & \Theta/r \\ 0 & 0 \end{array}\right)
 \] %\end{equation}
 where $R_1$ and $R_3$ are the usual rotation matrices about the $x$ and $z$ axes, respectively
 
@@ -380,7 +383,7 @@ where $R_1$ and $R_3$ are the usual rotation matrices about the $x$ and $z$ axes
 
 A straightforward alternative to the SGP4 implementation is to proceed in Lara's non-singular variables \cite{Lara2015MPE} both for the long- and short-period gravitational corrections. The modifications to the SGP4 algorithm start from Section \ref{s:SGP4lp} as follows.
 
-Now, Kepler equation $\ell''=E''-e''\sin{E}''$ must be solved first to compute first the (secular) eccentric anomaly, and then the (secular) true anomaly
+Now, Kepler equation $\ell''=E''-e''\sin{E}''$ must be solved first to compute the (secular) eccentric anomaly, and then the (secular) true anomaly
 \[
 f''=2\arctan\left(\sqrt{\frac{1+e''}{1-e''}}\tan\frac{E''}{2}\right).
 \]
@@ -389,60 +392,62 @@ f''=2\arctan\left(\sqrt{\frac{1+e''}{1-e''}}\tan\frac{E''}{2}\right).
 Next, Delaunay variables are transformed to polar variables using the same equations as Eqs.~(\ref{utor})--(\ref{utof}) but now with double prime variables, which in turn are transformed to Lara's non-singular variables
 %$\psi=\theta+h$, $\xi=\sin{I}\sin\theta$, $\chi=\sin{I}\cos\theta$, $r$, $R$, $\Theta$
 \[
-\psi=\theta+h,\quad \xi=\sin{I}\sin\theta,\quad \chi=\sin{I}\cos\theta,\quad r,\; R,\; \Theta.
+\psi=\theta+\Omega,\quad \xi=\sin{I}\sin\theta,\quad \chi=\sin{I}\cos\theta,\quad r,\; R,\; \Theta.
 \]
 
-Then, apply the long-period corrections (simplified according SGP4 criteria)
+{\color{red}
+Then, apply the long-period corrections
 \begin{eqnarray*} \label{dyns}
-\delta\psi &=& 2\epsilon_3\,\chi
+\delta\psi &=& \epsilon_3\left[2 \chi+(\kappa  \chi -c \xi  \sigma)/(1+c)\right],
 \\  \label{dxins}
-\delta\xi &=&  % 2\epsilon_3\chi^2=
-\chi\,\delta\psi
+\delta\xi &=& 
+\epsilon_3\left[2 \chi ^2+\kappa  \left(1-\xi ^2\right) \right],
 \\ \label{dchins}
 \delta\chi &=& %-2\epsilon_3\,\chi\,\xi=
--\xi\,\delta\psi
+-\epsilon_3\left[c^2 \sigma +(2+\kappa) \xi  \chi \right],
 \\ \label{drns}
-\delta{r} &=& p\epsilon_3\,\xi,
+\delta{r} &=& \epsilon_3\,\xi\,p,
 \\ \label{dRRns}
 \delta{R} &=& % ({\Theta}/{p})\,\epsilon_3\,\chi=
-(\Theta/r)\,\epsilon_3\,(p/r)\,\chi
+\epsilon_3\,(1+\kappa)\,\chi\,\Theta/r,
 \\ \label{dZZns}
-\delta\Theta &=& \Theta\epsilon_3\left[\left(\frac{p}{r}-1\right)\xi-\frac{p R}{\Theta}\chi\right].
+\delta\Theta &=&\epsilon_3(\kappa\xi-\sigma\chi)\,\Theta,
 %\\ \label{dNNns} \color{red}
 %\delta{N} &=& 0,
 \end{eqnarray*}
-where, $\epsilon_3=\frac{1}{2}(J_3/J_2)(R_\oplus/p)$.
+where $c=\sqrt{1-\xi^2-\chi^2}$, $\kappa=-1+p/r$, $\sigma=pR/\Theta$, and $p=\Theta^2/\mu$. Note that this corrections have no contributions of $\mathcal{O}(e^2)$ and, therefore, do not accept any simplification at the precision of SGP4. The notation has been simplified avoiding primes because there is no risk of confusion.
 \par
+}
 
-It follows the computation of the short-period corrections (simplified according SGP4 criteria)
+It follows the computation of the short-period corrections
 \begin{eqnarray*}
-\Delta\psi &=& -\epsilon_2\frac{1+7c}{1+c}\,\xi\,\chi,
+\Delta\psi &=& -\epsilon_2\frac{1+7c}{1+c}\,\xi\,\chi
 \\
-\Delta\xi &=& -\epsilon_2\left(\chi^2-3c^2\right)\xi,
+\Delta\xi &=& -\epsilon_2\left(\chi^2-3c^2\right)\xi
 \\[1ex]
-\Delta\chi &=& \epsilon_2\left(\xi^2-3c^2\right)\chi,
+\Delta\chi &=& \epsilon_2\left(\xi^2-3c^2\right)\chi
 \\
-\Delta{r} &=& % \epsilon_2p\left[(\xi^2-\chi^2)+3(2-3s^2)\right]=
-\epsilon_2r\left[(\xi^2-\chi^2)-3(1-3c^2)\right],
+\Delta{r} &=& % \epsilon_2p\left[(\xi^2-\chi^2)-3(1-3c^2)\right]=
+\color{red}2\epsilon_2r\left(\xi^2-2+5c^2\right)
 \\
 \Delta{R} &=& %4\epsilon_2\,(\Theta/p)\xi\,\chi=
-4\epsilon_2\,(\Theta/r)\xi\,\chi,
+4\epsilon_2\,(\Theta/r)\xi\,\chi
 \\
-\Delta\Theta &=&  3\epsilon_2\,\Theta(\xi^2-\chi^2),
+\Delta\Theta &=&  3\epsilon_2\,\Theta(\xi^2-\chi^2)
 \end{eqnarray*}
-where $c=\cos{I}$, $s=\sin{I}$, and $\epsilon_2=-\frac{1}{4}(R_\oplus/p)^2J_2$.
+where $c=\cos{I}$, $s=\sin{I}$, and $\epsilon_2=-\frac{1}{4}(R_\oplus/p)^2J_2$, {\color{red}which have been simplifyed neglecting terms of $\mathcal{O}(e)$ according to SGP4 criteria}.
 \par
 
 Finally, the state vector is computed from
 \begin{eqnarray*} \label{ns2x}
-x &=& r\,(b\cos\psi+q\sin\psi), \\ \label{ns2y}
-y &=& r\,(b\sin\psi-q\cos\psi), \\
-z &=& r\,\xi, \\
+x &=& r\,(b\cos\psi+q\sin\psi) \\ \label{ns2y}
+y &=& r\,(b\sin\psi-q\cos\psi) \\
+z &=& r\,\xi \\
 X &=& x\,(R/r) %(b\cos\psi+q\sin\psi)
- - ({\Theta}/{r})\,(q\cos\psi+\tau\sin\psi), \\ \label{ns2Y}
+ - ({\Theta}/{r})\,(q\cos\psi+\tau\sin\psi) \\ \label{ns2Y}
 Y &=& y\,(R/r) %(b\sin\psi-q\cos\psi)
- - ({\Theta}/{r})\,(q\sin\psi-\tau\cos\psi), \\  \label{ns2zz}
-Z &=& z\,(R/r)+(\Theta/r)\,\chi,
+ - ({\Theta}/{r})\,(q\sin\psi-\tau\cos\psi) \\  \label{ns2zz}
+Z &=& z\,(R/r)+(\Theta/r)\,\chi
 \end{eqnarray*}
 where
 \[%\begin{equation} \label{tq}
@@ -458,70 +463,37 @@ and $c=H/\Theta$. Remark that $H$ is an integral of the zonal problem and, there
 %       objective: better match in the plots
 
 
-%Equations shall be centred in the column and the corresponding number aligned on the right. They shall be referenced using parenthesis, e.g.,~\eqref{eq:ellipse}.
 
-%\begin{equation}
-%r=\dfrac{p}{1+e\cos\theta}
-%\label{eq:ellipse}
-%\end{equation}
-
-%The paper title (on the first page) should begin 1.38 inches (35 mm) from the
-%top edge of the page, centered, completely capitalized, and in Times 14-point,
-%boldface type.  The authors' name(s) and affiliation(s) appear below the title
-%in capital and lower case letters.  Papers with multiple authors and
-%affiliations may require two or more lines for this information.
-
-%\section{TYPE-STYLE AND FONTS}
-%\label{sec:typestyle}
-
-%To achieve the best rendering, only use Times-Roman font. In addition, this will give
-%the proceedings a more uniform look.  Use a font that is no smaller than nine
-%point type throughout the paper, including figure captions.
-
-%In nine point type font, capital letters are 2 mm high.  {\bf If you use the
-%smallest point size, there should be no more than 3.2 lines/cm (8 lines/inch)
-%vertically.}  This is a minimum spacing; 2.75 lines/cm (7 lines/inch) will make
-%the paper much more readable.  Larger type sizes require correspondingly larger
-%vertical spacing.  Please do not double-space your paper.  TrueType or
-%Postscript Type 1 fonts are preferred.
-
-%The first paragraph in each section should not be indented, but all the
-%following paragraphs within the section should be indented as these paragraphs
-%demonstrate.
-
-
-\section{VALIDATION}
-\label{sec:validation}
-[{\color{red}Mart\'in: revisar y comentar}]
+\section{Validation} \label{sec:validation}
 
 The validation of the software has been done by comparing the results with those
 of Vallado's original C++ source with propagations up to 3 weeks. The C++ source has been slightly modified in order
 to save the cartesian coordinates, the unit vector, the polar nodals coordinates
 and the long period corrections into a file. The outputs were collected
 for the Near Earth test cases. These have been compared with all the propagation
-algorithms in SGP4Extensions. Plots show the differences observed.
+algorithms in SGP4Extensions. {\color{red} The cases tested are detailed in Table \ref{tab:res}. Plots in Figs.~(\ref{fig:dx})--(\ref{fig:dvz}) illustrate the differences observed for the particular case of TLE 00005}.
 
 Most important, the SGP4Vallado algorithm in Scala matches the C++ results with maximum differences
 of the order of 3E-8 for all test propagations.
 
-When propagating satellites 22312 and 28350, the SGP4Vallado implementation went into error at an earlier time
+When propagating satellites 22312 and 28350, the SGP4-Vallado implementation went into error at an earlier time
 than the C++ version because of the negative value for the eccentricity, being the times 454.2028672 versus 474.2028672 for 22312 and 960 versus 1440 for 28350.
 For the satellite 28872, propagation with SGP4Vallado ends by epoch minute 50 as in Vallado's C++.
 
 Lara's algorithm is done in non singular variables which are related to polar nodal variables.
-To transform from classical secular elements to those non-singular variables, the eccentric anomaly has to be calculated first.
-Vallado's algorithm does the calculation of the eccentric anomaly after the long period corrections have been applied using Lyddane's variables.
-We have checked that the order in which the eccentric anomaly is calculated does not have an effect in the long period corrections.
+To transform from classical secular elements to those non-singular variables, the eccentric anomaly has to be calculated first, {\color{red} as described in Section \ref{sec:lara}}.
+Vallado's algorithm does the calculation of the eccentric anomaly after the long period corrections have been applied using Lyddane's variables, {\color{red} and needs to solve a modified Kepler equation that requires more computational effort than the solution of the standard Kepler equation}.
+We have checked that, {\color{red}as expected}, the order in which the eccentric anomaly is calculated has negligible effect in the long period corrections.
 Two algorithms have been developed to test this fact, SGP4PN and SGP4ValladoLong.
 SGP4PN does the calculation of long period corrections in polar nodal variables (SpecialPolarNodal in the code) and therefore requires
 to calculate Kepler equation before the long period corrections as in SGP4Lara. SGP4PN includes the same terms for long period corrections as in SGP4Lara,
 which include some more effects than those in SGP4Vallado. For the comparison, the SGP4ValladoLong algorithm includes the same long period effects expressed
-in Lyddane's variables, and afterwards, solves the Kepler equation as in SGP4Vallado.
+in Lyddane's variables, {\color{red} that is, without neglecting long-period corrections of $\mathcal{O}(e^2)$ and higher}, and afterwards, solves the Kepler equation as in SGP4Vallado.
 The short period corrections for all SGP4Vallado, SGP4PN and SGP4ValladoLong share the same code expressed in polar nodals variables.
 The results of comparing the output in polar nodals variables in internal units after the periodic corrections were calculated between SGP4ValladoLong and SGP4PN for propagations up to 3 weeks
 gave maximum differences of the order 1.6E-6, which shows no significant effect introduced by the order of the calculation of the eccentric anomaly.
 
-The following figures shows the comparison of propagation results for the test TLE 00005 up to 3 weeks with Vallado's C++ results.
+Figures (\ref{fig:dx})--(\ref{fig:dvz}) show the comparison of propagation results for the test TLE 00005 up to 3 weeks with Vallado's C++ results.
 As mentioned, SGP4Vallado results are coincident with those of the C++ code.
 The inclusion of more terms in the long period corrections for the other algorithms produce differences.
 SGP4PN and SGP4ValladoLong come displayed one a top the other, which shows no effect by the order in the calculation of the eccentric anomaly as mentioned previously.
@@ -530,38 +502,38 @@ Also, the differences between in the short period corrections between Lara and t
 
 \begin{figure}
     \input{dx_cartesian_00005}
-    \label{fig:dx}
     \caption{X difference (km) of SGP4Extension algorithms with C++ results for TLE 00005}
+    \label{fig:dx}
 \end{figure}
 
 \begin{figure}
     \input{dy_cartesian_00005}
-    \label{fig:dy}
     \caption{Y difference (km) of SGP4Extension algorithms with C++ results for TLE 00005}
+    \label{fig:dy}
 \end{figure}
 
 \begin{figure}
     \input{dz_cartesian_00005}
-    \label{fig:dz}
     \caption{Z difference (km) of SGP4Extension algorithms with C++ results for TLE 00005}
+    \label{fig:dz}
 \end{figure}
 
 \begin{figure}
     \input{dvx_cartesian_00005}
-    \label{fig:dvx}
     \caption{Vx difference (km/s) of SGP4Extension algorithms with C++ results for TLE 00005}
+    \label{fig:dvx}
 \end{figure}
 
 \begin{figure}
     \input{dvy_cartesian_00005}
-    \label{fig:dvy}
     \caption{Vy difference (km/s) of SGP4Extension algorithms with C++ results for TLE 00005}
+    \label{fig:dvy}
 \end{figure}
 
 \begin{figure}
     \input{dvz_cartesian_00005}
-    \label{fig:dvz}
     \caption{Vz difference (km/s) of SGP4Extension algorithms with C++ results for TLE 00005}
+    \label{fig:dvz}
 \end{figure}
 
 %%%
