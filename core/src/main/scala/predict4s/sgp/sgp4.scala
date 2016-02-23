@@ -38,6 +38,14 @@ abstract class SGP4[@sp(Double) F : Field : NRoot : Order : Trig](
       pv = scaleUnitCartesians(unitpv,spn.r)
     } yield (pv, unitpv, spn) 
   
+    
+  def corrections2CartesianContext(secularElemt : SGPSecularCtx[F]) : SGPPropResult[F] = 
+    for {
+      spn <- periodicCorrections(secularElemt)
+      unitpv = spn2UnscaledCartesian(spn)
+      pv = scaleUnitCartesians(unitpv,spn.r)
+    } yield (pv, unitpv, spn) 
+      
   def propagate2SPNContext(t: Minutes) = 
     for {
      sc <- secularCorrections(t)

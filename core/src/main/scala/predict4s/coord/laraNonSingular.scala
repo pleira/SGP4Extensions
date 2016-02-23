@@ -67,7 +67,6 @@ object LNSConversions {
   def lns2spn[@sp(Double) F: Field: NRoot: Order: Trig](lns: LaraNonSingular[F], N: F): SpecialPolarNodal[F] = {
 	  import lns._
 	  // atan2 uniquely uses the principal value in the range (−π, π]
-//	  val θ = atan2(ξ,χ)
 	  val θ = atan2(ξ,χ)
     // convert ν to -2pi,2pi range
 	  val ν = (ψ - θ)%`2pi`

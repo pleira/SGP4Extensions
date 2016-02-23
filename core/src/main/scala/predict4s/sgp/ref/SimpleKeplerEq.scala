@@ -13,7 +13,7 @@ import predict4s.coord._
 trait SimpleKeplerEq {
 
   /**
-   * Solve Kepler's equation expressed in Delauney's variables 
+   * Solve Kepler's equation
    * 		M = E − e sinE
    * to compute E the eccentric anomaly.
    * The Newton-Raphson iterations start from E0 = M = (l in Delauneys).
