@@ -1,0 +1,237 @@
+\documentclass[10pt, compress, xcolor={usenames,dvipsnames}]{beamer}
+\usepackage[utf8x]{inputenc}
+
+%%% Theme and style
+\usetheme{metropolis}
+\metroset{progressbar=frametitle}
+\metroset{numbering=fraction}
+
+%%% Packages %%%
+
+% Use T1 and a modern font family for better support of accents, etc.
+\usepackage[T1]{fontenc}
+\usepackage{palatino}  % Palatino
+
+% Language support
+\usepackage[english]{babel}
+
+% Support for easily changing the enumerator in
+% enumerate-environments.
+\usepackage{enumerate}
+
+% Support for importing images
+%\usepackage{graphicx}
+
+% Use hyperlinks
+\usepackage{hyperref}
+
+% Don't load xcolors package in beamer: use document class option
+% instead...
+%\usepackage[usenames,dvipsnames]{xcolor}
+
+% Use colors in tables
+%\usepackage[pdftex]{colortbl}
+
+% A nice monospace font for listings, etc.
+\usepackage[scaled]{beramono}
+%\usepackage{inconsolata}
+
+% Using TikZ for diagrams
+\usepackage{tikz}
+\usetikzlibrary{shapes,mindmap}
+%\usetikzlibrary{er,mindmap,calc,intersections,shapes,arrows,fit,matrix,positioning,decorations.pathmorphing,topaths,trees,automata}
+\usepackage{tikz-cd} % for CM-arrow tips.
+
+% Don't use externalize with gradients!!!
+%\usetikzlibrary{external,arrows,fit,matrix,positioning}
+%\tikzexternalize % Activate externalizing TikZ graphics.
+
+\usepackage{pifont} % for ding
+\usepackage[inline]{enumitem}
+\usepackage{xspace}
+\usepackage{listings}
+
+% Scala listings.  Use colored Scala style by default.
+\usepackage{lstscala}
+\lstnewenvironment{lstscalasmall}{%
+  \lstset{style=scala-color,basicstyle=\scriptsize\tt}}{}
+
+\colorlet{ImportantCode}{ForestGreen}
+\colorlet{ImportantCode2}{RubineRed}
+
+\lstset{style=scala-color}
+
+\lstnewenvironment{C}
+  {\lstset{
+    language=C,
+    flexiblecolumns=false,
+    mathescape=false,
+    moredelim=**[is][\color{ImportantCode}]{@}{@},
+    moredelim=**[is][\color{ImportantCode2}]{§}{§},
+    basicstyle=\small\color{blue!30!darkgray}\tt,
+commentstyle=\color{CadetBlue}}}
+  {}
+\lstnewenvironment{Scala}
+  {\lstset{
+    style=scala-color,
+    flexiblecolumns=false,
+    mathescape=false,
+    basicstyle=\small\color{blue!30!darkgray}\tt}}
+  {}
+
+
+%%%% Custom macros %%%%
+\newif\ifcompileTreeSlides
+%\compileTreeSlidesfalse
+\compileTreeSlidestrue
+
+\newcommand{\SmallArrow}{\ding{228}}
+\newcommand{\BigArrow}{$\longrightarrow$\xspace}
+\newcommand{\Triangle}{$\triangleright$\xspace}
+\renewcommand{\emph}[1]{\alert{#1}}
+\newcommand{\light}{\color{TealBlue}}
+\renewcommand{\hbar}{{\color{mLightBrown}\hrulefill}}
+
+% http://tex.stackexchange.com/a/56585/77356
+\tikzset{
+  invisible/.style={opacity=0},
+  visible on/.style={alt=#1{}{invisible}},
+  alt/.code args={<#1>#2#3}{%
+    \alt<#1>{\pgfkeysalso{#2}}{\pgfkeysalso{#3}} % \pgfkeysalso doesn't change the path
+  },
+}
+
+%%% Document info %%%
+
+\title{An implementation of SGP4 in non-singular variables \\
+              using a functional paradigm}
+
+\author{Pablo Pita Leira}
+
+% To show the TOC at the beginning of each section, uncomment this:
+% \AtBeginSection[]
+% {
+%   \begin{frame}<beamer>{Outline}
+%     \tableofcontents[currentsection]
+%   \end{frame}
+% }
+
+% To show the TOC at the beginning of each subsection, uncomment this:
+% \AtBeginSubsection[]
+% {
+%   \begin{frame}<beamer>{Outline}
+%     \tableofcontents[currentsection,currentsubsection]
+%   \end{frame}
+% }
+
+
+% To uncover everything in a step-wise fashion, uncomment this:
+% \beamerdefaultoverlayspecification{<+->}
+
+
+\date{%
+  \small March 2016\\[2em]
+%  \includegraphics[height=7mm]{img/epfl-logo}}
+
+
+%%% Start of the actual document %%%
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% No outline, too short a talk...
+% \begin{frame}{Outline}
+%   \tableofcontents
+%   % You might wish to add the option [pausesections]
+% \end{frame}
+
+\section{Motivation}
+
+\begin{frame}[fragile]{SGP4}
+Simplified General Perturbations 4) orbit propagator 
+
+Inputs: two line elements diseminated by NORAD
+
+widely used tool for the fast, short term propagation of earth satellite orbits
+
+thoroughly described in the SPACETRACK report \#3 
+
+numerous versions of SGP4: FORTRAN, C++, Java, MATLAB 
+
+  \vspace{1em}
+
+
+\end{frame}
+
+\begin{frame}[fragile]{Why one more version}
+
+SGP4Extensions
+
+  \begin{itemize}[label=\SmallArrow]
+  \item  It is heavily influenced by the functional software paradigm.
+  \item  Equations have been expressed almost always literally writing the algebraic equations in the code as expressed in the papers
+  \item  Implementations using other variables and/or extra terms can be easily introduced into the propagation algorithm
+  \item  Provides more options and flexibility when being used within other algorithms, like those performing space debris conjunction analysis
+
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{Scala}
+
+  \begin{itemize}[label=\SmallArrow]
+    \item Unicode support to express equations
+	\item Lyddane 2nd Order Long Period Corrections:
+  \end{itemize}
+
+  \begin{Scala}
+val δI =  ϵ3*esinω* c
+val δa =  0
+val δh = -ϵ3*ecosω* c/s
+val δC = -ϵ3*ecosω* esinω * (1/s - 2*s)
+val δS =  ϵ3*s - ϵ3*`η²`*s - 2*ϵ3*`ecosω²`*s + ϵ3*`ecosω²`/s
+val δF =  ϵ3*s* ecosω * (1 - 2*`η²`/(1+η)) / 2
+  \end{Scala}
+
+\end{frame}
+
+\begin{frame}[fragile]{Scala}
+
+
+  \begin{itemize}[label=\SmallArrow]
+    \item Hybrid object oriented/functional 
+    \item Rich type system
+    \item compiled to java byte code
+    \item designed for creating DSL on top: expessive
+  \end{itemize}
+
+\end{frame}
+
+\section{What's next}
+
+\begin{frame}[fragile]{Future's work}
+  \begin{itemize}[label=\SmallArrow]
+    \item Propagation of the whole catalog
+    \item Collision analysis
+  \end{itemize}
+
+  \vspace{3em}
+  \pause
+
+  \begin{itemize}[label=\Triangle]
+    \item Support for floating point types (|float|, |double|).
+    \item Support for @BigInt@, @Real@, e.g. using GMP.
+    \item Support for heap allocated arrays, e.g. using |malloc|.
+  \end{itemize}
+\end{frame}
+
+\plain{\Huge Questions?}
+
+\end{document}
+
+% vim: spell spelllang=en_gb
+% vim: set tabstop=2 softtabstop=2 shiftwidth=2 textwidth=80: %
+

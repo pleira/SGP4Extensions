@@ -4,39 +4,9 @@
 % --------------------------------------------------------------------------
 \documentclass{article}
 \usepackage{spconf,amsmath,graphicx}
-\usepackage{listings}
-\usepackage{color}
+\usepackage{unicode-math}
 \usepackage[breaklinks=true, colorlinks=true, pdfstartview=FitV, linkcolor=blue, citecolor=black, urlcolor=black]{hyperref}
-
-
-% Example definitions.
-% --------------------
-%\def\x{{\mathbf x}}
-%\def\L{{\cal L}}
-
-\definecolor{dkgreen}{rgb}{0,0.6,0}
-\definecolor{gray}{rgb}{0.5,0.5,0.5}
-\definecolor{mauve}{rgb}{0.58,0,0.82}
-
-\lstdefinestyle{myScalastyle}{
-  frame=tb,
-  language=scala,
-  aboveskip=3mm,
-  belowskip=3mm,
-  showstringspaces=false,
-  columns=flexible,
-  basicstyle={\small\ttfamily},
-  numbers=none,
-  numberstyle=\tiny\color{gray},
-  keywordstyle=\color{blue},
-  commentstyle=\color{dkgreen},
-  stringstyle=\color{mauve},
-  frame=single,
-  breaklines=true,
-  breakatwhitespace=true,
-  tabsize=3,
-}
-\lstset{language=Pascal}
+\usepackage{minted}
 
 % Title.
 % ------
@@ -61,7 +31,7 @@
 %
 \begin{abstract}
 
-A new implementation of the SGP4 algorithm is presented, which allows for choosing different sets of variables in the computation of the periodic corrections. The project is implemented in Scala, a hybrid functional/object oriented programming language running in the Java Virtual Machine that allows for incorporating functional features in the project design.
+A new implementation of the SGP4 algorithm is presented, which allows for choosing different sets of variables in the computation of the periodic corrections. The project is implemented in Scala, a hybrid functional/object oriented programming language running in the Java Virtual Machine.
 Validation of the new implementations is made by carrying out different tests based on Vallado's results. Finally, applicability for massive data processing tasks like prediction of orbital collision events and performance are discussed.
 
 \end{abstract}
@@ -76,69 +46,113 @@ SGP4, Orbital Propagation, Scala, Perturbation theory, non-singular variables
 The SGP4 (Simplified General Perturbations 4) orbit propagator is a widely used tool for the fast, short term propagation of earth satellite orbits. The algorithms in which it is based are thoroughly described in the SPACETRACK report \#3 \cite{HootsRoehrich1980}, as well as in Vallado et al.~update \cite{ValladoCrawfordHujsakKelso2006}. Current implementations of SGP4 are based on Brouwer's gravity solution \cite{Brouwer1959} and Lane atmospheric model \cite{Lane1965}, but using Lyddane's modifications for avoiding loss of precision in the evaluation of the periodic corrections \cite{Lyddane1963}, which are, besides, notably simplified for improving evaluation efficiency. Different alternatives in the literature discuss other variable sets, either canonical or not, that can be used in the computation of periodic corrections (see, for instance, \cite{Izsak1963AJ,Aksnes1972,Hoots1981,Lara2015MPE}).
 \par
 
-Due to its popularity, there are numerous versions of SGP4 in several programming languages. The most important implementation comes from Vallado \cite{ValladoCrawfordHujsakKelso2006} who has done a comprehensive analysis of the algorithm. Many other versions are derived from his work. The work presented in this paper also derives from Vallado's software. This new implementation, called SGP4Extensions is written in a programming language called Scala. It is hosted in http://github.com/pleira/SGP4Extensions and licensed with an open source Apache Version 2 license.
-
-The SGP4Extensions software differs from Vallado's software in three main points:
+Due to its popularity, there are numerous versions of SGP4 in several programming languages. The most important implementation comes from Vallado \cite{ValladoCrawfordHujsakKelso2006} who has done a comprehensive analysis of the algorithm. Many other versions are derived from his work. The work presented in this paper, SGP4Extensions, also derives from Vallado's software.
+It is written in Scala and can be compiled to run in the Java Virtual Machine or in the browser with the scala.js compiler backend. The SGP4Extensions software however is designed differently to those versions from Vallado:
 \begin{enumerate}
-  \item  It is heavily influenced by the functional software paradigm,
-  \item  equations have been expressed almost always literally writing the algebraic equations in the code as expressed in the papers
-  \item  implementations using other variables and/or extra terms can be easily introduced into the propagation algorithm.
+  \item  It is heavily influenced by the functional software paradigm.
+  \item  Equations have been expressed almost always literally writing the algebraic equations in the code as expressed in the papers
+  \item  Implementations using other variables and/or extra terms can be easily introduced into the propagation algorithm
+  \item  Provides more options and flexibility when being used within other algorithms, like those performing space debris conjunction analysis
 \end{enumerate}
 In particular, the usage of Lara's non-singular variables \cite{Lara2015MPE} is optional for all periodic corrections, in this way avoiding the mixture of Lyddane's and polar variables used for the long- and short-period corrections, respectively, in the original implementation.
 
-Besides, SGP4Extensions is designed to provide more options when being used within other algorithms, like those performing space debris conjunction analysis.
-
 In the current version of SGP4Extensions, only extensions around SGP4 are implemented. The deep space algorithm SDP4 is not implemented.
+The project is hosted in http://github.com/pleira/SGP4Extensions and it is licensed with an open source Apache Version 2 license.
 
-\section{SCALA}
+\section{FUNCTIONAL PROGRAMMING IN SCALA}
 \label{sec:scala}
 
-Scala has been created by Martin Odersky as an hybrid language allowing for architecting software in object oriented and functional paradigms \cite{scala-overview-tech-report}. It is designed with Java compatibility in mind. Users normally compile scala programs to Java byte code that will run in the Java Virtual Machine.
+Scala has been created by Martin Odersky as an statically typed language fusing the object oriented and functional paradigms \cite{scala-overview-tech-report}. It is designed with Java compatibility in mind. Users normally compile scala programs to Java byte code that will run in the Java Virtual Machine.
 
 As software complexity increases due to demands like concurrent tasks and parallelism,
 there has been a trend in the last years to introduce the functional paradigm where
-functions are implemented in a referential transparent way, with no side effects \cite{ChBj}.
-No mutable state is kept within the functions. Effects are moved to the outer layers
-of the program. All this allows for simpler reasoning about the program which enables
-implementing concurrent and parallel solutions more effectively.
+functions are implemented in a referential transparent way, called pure functions
+with no side effects \cite[p. ~3]{ChBj}. As no mutable state is kept within the functions and the effects that are produced are
+just moved to the outer layers of the program, this allows for simpler reasoning about
+the core program.
 
-The SGP4 algorithm is implemented foremost with the Interpreter Pattern in mind.
-There is an intentional
-separation of the run time part that has state, like reading/writing to files, called
+The SGP4 algorithms are implemented in SGP4Extensions with a intentional
+separation of the run time part, like reading/writing from/to files, called
 generally the interpreter, from a pure functional part, the description, which is just
 responsible to describe the algorithms that will be applied.
-Therefore, mutable state and side effects are avoided in the description part.
-The algorithms just return new immutable structures
-with the calculations carried out.
+Mutable state and side effects have been completely avoided in the description part.
+The algorithms in the description just return new immutable structures
+with the calculations carried out. The intention of this architecture is to enable
+automatic testing and using the algorithm within other concurrent and parallel solutions.
+
 
 \subsection{Spire}
 \label{sec:spire}
 
-A scala library called spire is used for providing different efficient numeric types
-and their mathematical functions.
-The implementation of almost all functions and methods in SGP4Extensions
-are parameterized in the numeric types. As example, this function is parameterized
-in F which is constraint to have Field operations:
+The code uses several Scala libraries. Most important is a library for providing efficient numeric types
+and mathematical functions called Spire \cite{Spire2011}. The implementation of most of the functions and methods in SGP4Extensions
+are parameterized with these Spire's type classes which provide operations to other numeric types:
+\begin{itemize}
+  \item  Field: provides for the sum, product and division operation following associative laws.
+  \item  Trig: provides trigonometric functions.
+  \item  NRoot: provides fractional exponents, square root and nroots.
+  \item  Order: type-safe equivalence and comparison functions.
+\end{itemize}
+The trigonometric series of the geopotential use these four type classes.
+The algorithm to calculate Lane's coefficients just needs Field as
+the operations are products and sums:
+%\begin{lstlisting}
+\begin{minted}{scala}
+private def calcLaneCoefs[@sp(Double) F : Field]
+   (gcoefs : GeoPotentialCoefs[F]) : LaneCoefs[F] = {
+  import gcoefs._ ; val `C1²` = C1*C1
+  LaneCoefs(
+       3*C1/2,
+       D2 + 2*`C1²`,
+       (3*D3 + C1*(12*D2 + 10 * `C1²`))/4,
+       (3*D4 + 12*C1*D3 + 6*D2*D2 + 15*`C1²`*(2*D2+`C1²`))/5)
+}
+\end{minted}
+%\end{lstlisting}
 
-Field is a type in spire that provides for the sum, product and division operation
-following associative laws. The algorithm to calculate Lane Coefficients is expressed in Field terms.
-There is no problem to call it with types like Double or Reals as the compiler can
-convert them to Fields by using Type Classes [{\color{red}provide reference}].
+The user has then a choice of a particular numeric class to define a SGP4 propagator.
+The Double type has been used for testing SGP4Extensions
+as it is fast and sufficient for almost all cases. The @sp annotation means that the Double type
+is @specialized, that is, the Scala compile is going to optimize this method for Doubles by
+working with the primitive representation in the Java Virtual Machine avoiding the creation
+of objects. But the user has a choice for other numeric types. As example, an exact numeric type like Real
+could be used. A numeric type like Interval[Double] would allow for automatic calculation of errors
+when those are defined as intervals. These numeric types can have uses in certain areas
+but their execution times are several orders of magnitude slower than Double.
 
-The user has a tradeoff where she can use numeric types with different properties,
-like being more exact or carrying its error interval
-at the expense of longer computation types.
+\subsection{Unicode usage}
+\label{sec:unicodeusage}
 
-For testing SGP4Extensions, Double has been used as it is fast and sufficient in SGP4 for almost all cases.
-Using an exact numeric type like Real resulted in execution types two orders of magnitude slower.
+The support in Scala for unicode variables has been used intensively to write
+the equations in the software similar to those given in the literature, and in particular,
+in this article. Some simplifications as no prime nor overdots for derivatives
+have been done in the code to aliviate the notation.
 
+As example, the code for the Lyddane 2nd Order Long Period Corrections is:
+%\begin{Scala}
+\begin{minted}{scala}
+val δI =  ϵ3*esinω* c
+val δa =  0
+val δh = -ϵ3*ecosω* c/s
+val δC = -ϵ3*ecosω* esinω * (1/s - 2*s)
+val δS =  ϵ3*s - ϵ3*`η²`*s - 2*ϵ3*`ecosω²`*s + ϵ3*`ecosω²`/s
+val δF =  ϵ3*s* ecosω * (1 - 2*`η²`/(1+η)) / 2
+\end{minted}
+
+\subsection{Optimizations}
+\label{sec:optimizations}
+
+All numeric methods use the @specialized compiler feature for the Double numeric type.
+The convenient usage of primitive types like Double in generic collections comes with
+the cost of boxing/unboxing operations. The compiler
+must create wrapper objects for that, an operation called boxing. With @specialized
+the compiler will support creating specialized methods or classes for the
+declared primitive types that avoid creating the boxing objects.
 
 \subsection{Description of the types used}
 \label{sec:typesystem}
 
-Numerous types are used to make clear the data structures and processing
-steps involved in this new SGP4 implementation.
-
+Several types are defined to make clear the processing steps involved in this new SGP4 implementation.
 Coordinate types and supporting classes for coordinate transformations:
 \begin{itemize}
 \item SGPElems: classical keplerian elements plus bStar and a julian date)
@@ -177,48 +191,6 @@ different coordinate systems: SimpleKeplerEq, TwoTermsKeplerEq.
 \caption{SGP4 Algorithm in Polar Nodals}
 \label{fig:res0}
 \end{figure*}
-
-\subsection{Unicode usage}
-\label{sec:unicodeusage}
-
-The support in Scala for unicode variables has been used intensively in all Model,
-Coordinate and Correnction classes or traits. That allowed to write
-the equations in the software similar to those given in the literature, with some
-simplifications as no prime nor overdots for derivatives have been used.
-
-% This method shows the calculation of Lane coefficients of atmospheric drag:
-
-%\begin{lstlisting}%[style=myScalastyle]
-%private def calcLaneCoefs[@sp(Double) F : Field](gcoefs : GeoPotentialCoefs[F]) : LaneCoefs[F] = {
-%  import gcoefs._
-%  val `C1²` = C1*C1
-%  LaneCoefs(
-%       3*C1/2,
-%       D2 + 2*`C1²`,
-%       (3*D3 + C1*(12*D2 + 10 * `C1²`))/4,
-%       (3*D4 + 12*C1*D3 + 6*D2*D2 + 15*`C1²`*(2*D2+`C1²`))/5)
-%}
-%\end{lstlisting}
-
-As example, here is the Lyddane 2nd Order Long Period Corrections:
-\begin{lstlisting}%[style=myScalastyle]
-val δI =   ϵ3 * esinω * c
-val δa =   0
-val δh = - ϵ3 * ecosω * c/s_
-val δC = - ϵ3 * ecosω * esinω * (1/s_ - 2*s_)
-val δS =   ϵ3 * s_ - ϵ3*`η²`*s_ - 2*ϵ3*`ecosω²`*s_ + ϵ3*`ecosω²`/s_
-val δF =   ϵ3 * s * ecosω * (1 - 2*`η²`/(1+η)) / 2
-\end{lstlisting}
-
-\subsection{Optimizations}
-\label{sec:optimizations}
-
-All numeric methods use the @specialized compiler feature for the Double numeric type.
-The convenient usage of primitive types like Double in generic collections comes with
-the cost of boxing/unboxing operations. The compiler
-must create wrapper objects for that, an operation called boxing. With @specialized
-the compiler will support creating specialized methods or classes for the
-declared primitive types that avoid creating the boxing objects.
 
 % // TODO: can we have cache friendly data structures?
 % // TODO: can we have primitive type friendly collections (no box/unbox)?
@@ -289,25 +261,6 @@ Brouwer's gravitational corrections are applied first
 \ell''_j=M_0+\dot\ell''\,t, \quad g''_j=\omega_0+\dot{g}''\,t, \quad h''_j=\Omega_0+\dot{h}''\,t, %\qquad L''_j=L_0, \quad G''_j=G_0, \quad H''=H_0
 \]
 where the subindex $j$ stands for gravitational effects only. Besides, corrections due to the atmospheric drag, which are not discussed in the paper, are incorporated at this stage.
-%\begin{eqnarray*}
-%\delta_h &=&  ({21}/{4})J_2({R_\oplus^2}/{p_0^2})\beta_0^2\cos{I}_0\,(n_0C_1t^2) % {\color{red}\quad\verb.units?.}
-%\\
-%\delta_L &=&  (L''/L_0)=1 - C_1t - D_2t^2 - D_3t^3 - D_4t^4 \\
-%\delta_e &=&  (e_0''-e'')=B^*C_4t \\
-%\delta_\ell &=&  (\ell''-\ell_j'')/n_0''=T_2\,t^2+T_3\,t^3+T_4\,t^4+T_5\,t^5
-%\end{eqnarray*}
-%where $\beta_0^2=1-e_0^2$, and $p=a_0\beta_0^2$.
-%The necessary constants and coefficients $C_k$, $D_k$, $T_k$, $B^*$, etc.~have been evaluated at the initialization stage.
-%Then compute the secular elements (not exactly secular: they mix long-period terms from drag)
-%\begin{eqnarray*}
-%\ell'' &=&  \ell''_j+n_0''\delta_\ell + {\color{red}\Delta_\ell} \\
-%g'' &=&  g''_j - {\color{red}\Delta_\ell} \\
-%h'' &=&  h''_j+\delta_h \\
-%a'' &=& {L''^2}/{\mu}=({L_0^2}/{\mu})\,({L''}/{L_0})^2=a_0\,\delta_L^2=({\mu}/{n_0^2})^{1/3}\delta_L^2 \\
-%e'' &=& e''_0-\delta_e - B^*C_5\left[\sin(\ell_j''+{\color{red}\Delta_\ell})-\sin\ell_0''\right]\\
-%I'' &=&  I''_0 .
-%\end{eqnarray*}
-%where ${\color{red}\Delta_\ell}$ is a long-period correction (see \cite{HootsRoehrich1980}, p.~41).
 
 After that, we obtain the set of secular elements
 \[
@@ -317,9 +270,7 @@ The secular mean motion $n''=(\mu/a''^3)^{1/2}$ is also computed.
 
 \subsubsection{Geopotential periodic corrections} \label{s:SGP4lp}
 
-% {\color{red}Remind that I do not deal with the deep space secular corrections}
-
-Brouwer long-period gravitational corrections are reformulated in Lyddane's variables. At the precision of SGP4, {\color{red}that is, neglecting terms $\mathcal{O}(e^2)$}, there are only corrections for $F$ and $S$. Then, $C'= C''$, $a'=a''$, $h'=h''$, $I'=I''$, and
+Brouwer long-period gravitational corrections are reformulated in Lyddane's variables. At the precision of SGP4, that is, neglecting terms $\mathcal{O}(e^2)$, there are only corrections for $F$ and $S$. Then, $C'= C''$, $a'=a''$, $h'=h''$, $I'=I''$, and
 \begin{eqnarray*}
 F' &=& (\ell''+g''+h'')-\frac{J_3}{4J_2}\frac{R_\oplus}{p''}C''\frac{3+5\cos{I}''}{1+\cos{I}''}\sin{I}'' \\
 S' &=&  e''\sin{g}'' -\frac{J_3}{2J_2}\frac{R_\oplus}{p''}\sin{I}''
@@ -368,7 +319,7 @@ Then, compute $p'=a'\beta'^2$, $c'=\cos{I}'$, $s'=\sin{I}'$, and $\epsilon_2=-\f
 \delta \frac{\Theta}{r} &=&
 - \epsilon_2\frac{\Theta'}{p'}\left[2s'^2\cos2\theta'+3\left(3c'^2-1\right)\right]
 \end{eqnarray*}
-{\color{red}which neglect terms of $\mathcal{O}(e)$}.
+which neglect terms of $\mathcal{O}(e)$.
 
 
 Finally, the state vector is computed from the standard transformation from Cartesian to polar-nodal variables
@@ -395,12 +346,12 @@ Next, Delaunay variables are transformed to polar variables using the same equat
 \psi=\theta+\Omega,\quad \xi=\sin{I}\sin\theta,\quad \chi=\sin{I}\cos\theta,\quad r,\; R,\; \Theta.
 \]
 
-{\color{red}
+
 Then, apply the long-period corrections
 \begin{eqnarray*} \label{dyns}
 \delta\psi &=& \epsilon_3\left[2 \chi+(\kappa  \chi -c \xi  \sigma)/(1+c)\right],
 \\  \label{dxins}
-\delta\xi &=& 
+\delta\xi &=&
 \epsilon_3\left[2 \chi ^2+\kappa  \left(1-\xi ^2\right) \right],
 \\ \label{dchins}
 \delta\chi &=& %-2\epsilon_3\,\chi\,\xi=
@@ -417,7 +368,7 @@ Then, apply the long-period corrections
 \end{eqnarray*}
 where $c=\sqrt{1-\xi^2-\chi^2}$, $\kappa=-1+p/r$, $\sigma=pR/\Theta$, and $p=\Theta^2/\mu$. Note that this corrections have no contributions of $\mathcal{O}(e^2)$ and, therefore, do not accept any simplification at the precision of SGP4. The notation has been simplified avoiding primes because there is no risk of confusion.
 \par
-}
+
 
 It follows the computation of the short-period corrections
 \begin{eqnarray*}
@@ -428,14 +379,14 @@ It follows the computation of the short-period corrections
 \Delta\chi &=& \epsilon_2\left(\xi^2-3c^2\right)\chi
 \\
 \Delta{r} &=& % \epsilon_2p\left[(\xi^2-\chi^2)-3(1-3c^2)\right]=
-\color{red}2\epsilon_2r\left(\xi^2-2+5c^2\right)
+2\epsilon_2r\left(\xi^2-2+5c^2\right)
 \\
 \Delta{R} &=& %4\epsilon_2\,(\Theta/p)\xi\,\chi=
 4\epsilon_2\,(\Theta/r)\xi\,\chi
 \\
 \Delta\Theta &=&  3\epsilon_2\,\Theta(\xi^2-\chi^2)
 \end{eqnarray*}
-where $c=\cos{I}$, $s=\sin{I}$, and $\epsilon_2=-\frac{1}{4}(R_\oplus/p)^2J_2$, {\color{red}which have been simplifyed neglecting terms of $\mathcal{O}(e)$ according to SGP4 criteria}.
+where $c=\cos{I}$, $s=\sin{I}$, and $\epsilon_2=-\frac{1}{4}(R_\oplus/p)^2J_2$, which have been simplifyed neglecting terms of $\mathcal{O}(e)$ according to SGP4 criteria.
 \par
 
 Finally, the state vector is computed from
@@ -471,7 +422,7 @@ of Vallado's original C++ source with propagations up to 3 weeks. The C++ source
 to save the cartesian coordinates, the unit vector, the polar nodals coordinates
 and the long period corrections into a file. The outputs were collected
 for the Near Earth test cases. These have been compared with all the propagation
-algorithms in SGP4Extensions. {\color{red} The cases tested are detailed in Table \ref{tab:res}. Plots in Figs.~(\ref{fig:dx})--(\ref{fig:dvz}) illustrate the differences observed for the particular case of TLE 00005}.
+algorithms in SGP4Extensions. The cases tested are detailed in Table \ref{tab:res}. Plots in Figs.~(\ref{fig:dx})--(\ref{fig:dvz}) illustrate the differences observed for the particular case of TLE 00005.
 
 Most important, the SGP4Vallado algorithm in Scala matches the C++ results with maximum differences
 of the order of 3E-8 for all test propagations.
@@ -481,20 +432,21 @@ than the C++ version because of the negative value for the eccentricity, being t
 For the satellite 28872, propagation with SGP4Vallado ends by epoch minute 50 as in Vallado's C++.
 
 Lara's algorithm is done in non singular variables which are related to polar nodal variables.
-To transform from classical secular elements to those non-singular variables, the eccentric anomaly has to be calculated first, {\color{red} as described in Section \ref{sec:lara}}.
-Vallado's algorithm does the calculation of the eccentric anomaly after the long period corrections have been applied using Lyddane's variables, {\color{red} and needs to solve a modified Kepler equation that requires more computational effort than the solution of the standard Kepler equation}.
-We have checked that, {\color{red}as expected}, the order in which the eccentric anomaly is calculated has negligible effect in the long period corrections.
+To transform from classical secular elements to those non-singular variables, the eccentric anomaly has to be calculated first, as described in Section \ref{sec:lara}.
+Vallado's algorithm does the calculation of the eccentric anomaly after the long period corrections have been applied using Lyddane's variables.
+We have checked that, as expected, the order in which the eccentric anomaly is calculated has negligible effect in the long period corrections.
 Two algorithms have been developed to test this fact, SGP4PN and SGP4ValladoLong.
 SGP4PN does the calculation of long period corrections in polar nodal variables (SpecialPolarNodal in the code) and therefore requires
 to calculate Kepler equation before the long period corrections as in SGP4Lara. SGP4PN includes the same terms for long period corrections as in SGP4Lara,
 which include some more effects than those in SGP4Vallado. For the comparison, the SGP4ValladoLong algorithm includes the same long period effects expressed
-in Lyddane's variables, {\color{red} that is, without neglecting long-period corrections of $\mathcal{O}(e^2)$ and higher}, and afterwards, solves the Kepler equation as in SGP4Vallado.
+in Lyddane's variables, that is, without neglecting long-period corrections of $\mathcal{O}(e^2)$ and higher, and afterwards, solves the Kepler equation as in SGP4Vallado.
 The short period corrections for all SGP4Vallado, SGP4PN and SGP4ValladoLong share the same code expressed in polar nodals variables.
 The results of comparing the output in polar nodals variables in internal units after the periodic corrections were calculated between SGP4ValladoLong and SGP4PN for propagations up to 3 weeks
 gave maximum differences of the order 1.6E-6, which shows no significant effect introduced by the order of the calculation of the eccentric anomaly.
 
-Figures (\ref{fig:dx})--(\ref{fig:dvz}) show the comparison of propagation results for the test TLE 00005 up to 3 weeks with Vallado's C++ results.
-As mentioned, SGP4Vallado results are coincident with those of the C++ code.
+Tests of propagations of up to 3 weeks
+of near earth TLEs show that the results of SGP4Vallado are coincident with those of the C++ code.
+Figures (\ref{fig:dx})--(\ref{fig:dr}) show the comparison of propagation results for the test TLE 00005 for 1 day with Vallado's C++ results for the different algorithms.
 The inclusion of more terms in the long period corrections for the other algorithms produce differences.
 SGP4PN and SGP4ValladoLong come displayed one a top the other, which shows no effect by the order in the calculation of the eccentric anomaly as mentioned previously.
 Also, the differences between in the short period corrections between Lara and the rest of the algorithms account for the different behaviour of Lara's algorithm.
@@ -539,37 +491,37 @@ Also, the differences between in the short period corrections between Lara and t
 \begin{figure}
     \input{dI_pn_00005}
     \caption{dI for TLE 00005}
-    \label{fig:dx}
+    \label{fig:dI}
 \end{figure}
 
 \begin{figure}
     \input{dθ_pn_00005}
     \caption{θ difference for TLE 00005}
-    \label{fig:dy}
+    \label{fig:dθ}
 \end{figure}
 
 \begin{figure}
     \input{dΩ_pn_00005}
     \caption{Ω difference for TLE 00005}
-    \label{fig:dz}
+    \label{fig:dΩ}
 \end{figure}
 
 \begin{figure}
     \input{dr_pn_00005}
     \caption{r difference (km) of SGP4Extension algorithms with C++ results for TLE 00005}
-    \label{fig:dvx}
+    \label{fig:dr}
 \end{figure}
 
 \begin{figure}
     \input{dRV_pn_00005}
     \caption{Radial Velocity difference (rad/s) of SGP4Extension algorithms with C++ results for TLE 00005}
-    \label{fig:dvy}
+    \label{fig:dRV}
 \end{figure}
 
 \begin{figure}
     \input{drθdot_pn_00005}
     \caption{rθdot difference (km/s) of SGP4Extension algorithms with C++ results for TLE 00005}
-    \label{fig:dvz}
+    \label{fig:drdot}
 \end{figure}
 
 
