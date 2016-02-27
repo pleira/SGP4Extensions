@@ -71,8 +71,8 @@ with no side effects \cite[p. ~3]{ChBj}. As no mutable state is kept within the 
 just moved to the outer layers of the program, this allows for simpler reasoning about
 the core program.
 
-The SGP4 algorithms are implemented in SGP4Extensions with a intentional
-separation of the run time part, like reading/writing from/to files, called
+The programs using the SGP4 algorithms are implemented following the interpreter pattern \cite[p. ~243]{GoF}.
+There is a separation of the run time part, like reading/writing from/to files, called
 generally the interpreter, from a pure functional part, the description, which is just
 responsible to describe the algorithms that will be applied.
 Mutable state and side effects have been completely avoided in the description part.
@@ -96,19 +96,23 @@ are parameterized with these Spire's type classes which provide operations to ot
 The trigonometric series of the geopotential use these four type classes.
 The algorithm to calculate Lane's coefficients just needs Field as
 the operations are products and sums:
-%\begin{lstlisting}
-\begin{minted}{scala}
-private def calcLaneCoefs[@sp(Double) F : Field]
+\begin{minted}[mathescape,
+               numbersep=2pt,
+               gobble=1,
+               fontsize=\small,
+               framesep=1mm]{scala}
+ private def calcLaneCoefs[@sp(Double) F : Field]
    (gcoefs : GeoPotentialCoefs[F]) : LaneCoefs[F] = {
-  import gcoefs._ ; val `C1²` = C1*C1
+  import gcoefs._
+  val `C1²` = C1*C1
   LaneCoefs(
-       3*C1/2,
-       D2 + 2*`C1²`,
-       (3*D3 + C1*(12*D2 + 10 * `C1²`))/4,
-       (3*D4 + 12*C1*D3 + 6*D2*D2 + 15*`C1²`*(2*D2+`C1²`))/5)
+   3*C1/2,
+   D2 + 2*`C1²`,
+   (3*D3 + C1*(12*D2 + 10 * `C1²`))/4,
+   (3*D4 + 12*C1*D3 + 6*D2*D2
+         + 15*`C1²`*(2*D2+`C1²`))/5)
 }
 \end{minted}
-%\end{lstlisting}
 
 The user has then a choice of a particular numeric class to define a SGP4 propagator.
 The Double type has been used for testing SGP4Extensions
@@ -128,17 +132,6 @@ the equations in the software similar to those given in the literature, and in p
 in this article. Some simplifications as no prime nor overdots for derivatives
 have been done in the code to aliviate the notation.
 
-As example, the code for the Lyddane 2nd Order Long Period Corrections is:
-%\begin{Scala}
-\begin{minted}{scala}
-val δI =  ϵ3*esinω* c
-val δa =  0
-val δh = -ϵ3*ecosω* c/s
-val δC = -ϵ3*ecosω* esinω * (1/s - 2*s)
-val δS =  ϵ3*s - ϵ3*`η²`*s - 2*ϵ3*`ecosω²`*s + ϵ3*`ecosω²`/s
-val δF =  ϵ3*s* ecosω * (1 - 2*`η²`/(1+η)) / 2
-\end{minted}
-
 \subsection{Optimizations}
 \label{sec:optimizations}
 
@@ -155,11 +148,10 @@ declared primitive types that avoid creating the boxing objects.
 Several types are defined to make clear the processing steps involved in this new SGP4 implementation.
 Coordinate types and supporting classes for coordinate transformations:
 \begin{itemize}
-\item SGPElems: classical keplerian elements plus bStar and a julian date)
+\item SGPElems: classical keplerian elements plus bStar and a julian date
 \item Cartesian: orbital position and velocity in cartesian
 \item SpecialPolarNodal: polar nodal coordinates with the inclination instead of the polar component of the angular momentum
-\item PolarNodal: \cite{}
-\item LaraNonSingular
+\item LaraNonSingular: non singular variables
 \item LyddaneElems
 \end{itemize}
 
@@ -171,8 +163,9 @@ Models for the corrections like:
 \item LaraFirstOrderCorrections
 \end{itemize}
 
-Resolution of different Kepler equations because of
-different coordinate systems: SimpleKeplerEq, TwoTermsKeplerEq.
+Resolution of different Kepler equations because of the different coordinate systems: SimpleKeplerEq, TwoTermsKeplerEq.
+
+All those types are mixed in the SGP4 algorithm classes, like SGP4Vallado in Fig.~(\ref{fig:valladoeps}) and SGP4Lara in Fig.~(\ref{fig:laraeps}.
 
 [{\color{red}Check that Figs.~(\ref{fig:res}) and (\ref{fig:res0}) are properly cited in the final version of the text}]
 
@@ -448,84 +441,45 @@ gave maximum differences of the order 1.6E-6, which shows no significant effect 
 
 Tests of propagations of up to 3 weeks
 of near earth TLEs show that the results of SGP4Vallado are coincident with those of the C++ code.
-Figures (\ref{fig:dx})--(\ref{fig:dr}) show the comparison of propagation results for the test TLE 00005 for 1 day with Vallado's C++ results for the different algorithms.
+Figures (\ref{fig:pos05})--(\ref{fig:vel05}) show the comparison of propagation results for the test TLE 00005 for 1 day with Vallado's C++ results for the different algorithms.
+Note that the C++ results are coincident with the SGP4Vallado results to a high degree, so the difference for this
+algorithm is not represented.
 The inclusion of more terms in the long period corrections for the other algorithms produce differences.
 SGP4PN and SGP4ValladoLong come displayed one a top the other, which shows no effect by the order in the calculation of the eccentric anomaly as mentioned previously.
 Also, the differences between in the short period corrections between Lara and the rest of the algorithms account for the different behaviour of Lara's algorithm.
 
-
-\begin{figure}
-    \input{dx_cartesian_00005}
-    \caption{X difference (km) of SGP4Extension algorithms with C++ results for TLE 00005}
-    \label{fig:dx}
+\begin{figure}[htb]
+  \input{dx_cartesian_00005}
+  \input{dy_cartesian_00005}
+  \input{dz_cartesian_00005}
+\caption{Difference (km) of SGP4Extension algorithms Lara, Vallado Long and Polar Nodals with Vallado's C++ results for TLE 00005}
+\label{fig:pos05}
 \end{figure}
 
-\begin{figure}
-    \input{dy_cartesian_00005}
-    \caption{Y difference (km) of SGP4Extension algorithms with C++ results for TLE 00005}
-    \label{fig:dy}
+
+\begin{figure}[htb]
+  \input{dvx_cartesian_00005}
+  \input{dvy_cartesian_00005}
+  \input{dvz_cartesian_00005}
+\caption{Difference (km/s) of SGP4Extension algorithms Lara, Vallado Long and Polar Nodals with Vallado's C++ results for TLE 00005}
+\label{fig:vel05}
 \end{figure}
 
-\begin{figure}
-    \input{dz_cartesian_00005}
-    \caption{Z difference (km) of SGP4Extension algorithms with C++ results for TLE 00005}
-    \label{fig:dz}
+\begin{figure}[htb]
+  \input{dI_pn_00005}
+  \input{dθ_pn_00005}
+  \input{dΩ_pn_00005}
+\caption{Difference (radians) of SGP4Extension algorithms Lara, Vallado Long and Polar Nodals with Vallado's C++ results for TLE 00005}
+\label{fig:arg05}
 \end{figure}
 
-\begin{figure}
-    \input{dvx_cartesian_00005}
-    \caption{Vx difference (km/s) of SGP4Extension algorithms with C++ results for TLE 00005}
-    \label{fig:dvx}
+\begin{figure}[htb]
+  \input{dr_pn_00005}
+  \input{dRV_pn_00005}
+  \input{drθdot_pn_00005}
+\caption{Difference for r, radial velocity and angular momentum from SGP4Extension algorithms Lara, Vallado Long and Polar Nodals with Vallado's C++ results for TLE 00005}
+\label{fig:rv05}
 \end{figure}
-
-\begin{figure}
-    \input{dvy_cartesian_00005}
-    \caption{Vy difference (km/s) of SGP4Extension algorithms with C++ results for TLE 00005}
-    \label{fig:dvy}
-\end{figure}
-
-\begin{figure}
-    \input{dvz_cartesian_00005}
-    \caption{Vz difference (km/s) of SGP4Extension algorithms with C++ results for TLE 00005}
-    \label{fig:dvz}
-\end{figure}
-
-\begin{figure}
-    \input{dI_pn_00005}
-    \caption{dI for TLE 00005}
-    \label{fig:dI}
-\end{figure}
-
-\begin{figure}
-    \input{dθ_pn_00005}
-    \caption{θ difference for TLE 00005}
-    \label{fig:dθ}
-\end{figure}
-
-\begin{figure}
-    \input{dΩ_pn_00005}
-    \caption{Ω difference for TLE 00005}
-    \label{fig:dΩ}
-\end{figure}
-
-\begin{figure}
-    \input{dr_pn_00005}
-    \caption{r difference (km) of SGP4Extension algorithms with C++ results for TLE 00005}
-    \label{fig:dr}
-\end{figure}
-
-\begin{figure}
-    \input{dRV_pn_00005}
-    \caption{Radial Velocity difference (rad/s) of SGP4Extension algorithms with C++ results for TLE 00005}
-    \label{fig:dRV}
-\end{figure}
-
-\begin{figure}
-    \input{drθdot_pn_00005}
-    \caption{rθdot difference (km/s) of SGP4Extension algorithms with C++ results for TLE 00005}
-    \label{fig:drdot}
-\end{figure}
-
 
 %%%
 %%% MAYBE THIS TABLE GETS DISCARDED, or make it smaller
