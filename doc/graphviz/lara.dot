@@ -4,14 +4,13 @@ node  [shape="record", style="filled"]
 
 edge  [arrowtail="none"]
 
-"predict4s.sgp.SGP4" [fillcolor="#7996AC"]
-"predict4s.sgp.SimpleKeplerEq" [fillcolor="#799F5A"]
-"predict4s.sgp.ref.LaraFirstOrderCorrections" [fillcolor="#799F5A"]
-"predict4s.sgp.ref.SGP4Lara" [fillcolor="#7996AC"]
+"p.s.SGP4" [fillcolor="#7996AC"]
+"p.s.r.LaraFirstOrderCorrections" [fillcolor="#799F5A"]
+"p.s.r.SGP4Lara" [fillcolor="#7996AC"]
+"p.s.r.SimpleKeplerEq" [fillcolor="#799F5A"]
 
-"predict4s.sgp.ref.LaraFirstOrderCorrections" -> "predict4s.sgp.SimpleKeplerEq"
-"predict4s.sgp.ref.SGP4Lara" -> "predict4s.sgp.SGP4"
-"predict4s.sgp.ref.SGP4Lara" -> "predict4s.sgp.ref.LaraFirstOrderCorrections"
+"p.s.r.SGP4Lara" -> "p.s.SGP4"
+"p.s.r.SGP4Lara" -> "p.s.r.SimpleKeplerEq"
+"p.s.r.SGP4Lara" -> "p.s.r.LaraFirstOrderCorrections"
 
 }
-

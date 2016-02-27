@@ -4,21 +4,17 @@ node  [shape="record", style="filled"]
 
 edge  [arrowtail="none"]
 
-"predict4s.sgp.SGP4" [fillcolor="#7996AC"]
-"predict4s.sgp.ShortPeriodPolarNodalCorrections" [fillcolor="#799F5A"]
-"predict4s.sgp.SimpleKeplerEq" [fillcolor="#799F5A"]
-"predict4s.sgp.ref.LongPeriodSPNCorrections" [fillcolor="#799F5A"]
-"predict4s.sgp.ref.SGP4PN" [fillcolor="#7996AC"]
-"predict4s.sgp.ref.SGP4WithSPNCorrections" [fillcolor="#7996AC"]
-"predict4s.sgp.ref.SPNLongPeriodCorrections" [fillcolor="#799F5A"]
+"p.s.SGP4" [fillcolor="#7996AC"]
+"p.s.r.SGP4PN" [fillcolor="#7996AC"]
+"p.s.r.SGP4WithSPNCorrections" [fillcolor="#7996AC"]
+"p.s.r.SPNLongPeriodCorrections" [fillcolor="#799F5A"]
+"p.s.r.SPNShortPeriodCorrections" [fillcolor="#799F5A"]
+"p.s.r.SimpleKeplerEq" [fillcolor="#799F5A"]
 
-"predict4s.sgp.ref.SPNLongPeriodCorrections" -> "predict4s.sgp.ref.LongPeriodSPNCorrections"
-"predict4s.sgp.ref.SPNLongPeriodCorrections" -> "predict4s.sgp.SimpleKeplerEq"
-"predict4s.sgp.ref.SGP4WithSPNCorrections" -> "predict4s.sgp.SGP4"
-"predict4s.sgp.ref.SGP4WithSPNCorrections" -> "predict4s.sgp.ref.LongPeriodSPNCorrections"
-"predict4s.sgp.ref.SGP4WithSPNCorrections" -> "predict4s.sgp.ShortPeriodPolarNodalCorrections"
-"predict4s.sgp.ref.SGP4PN" -> "predict4s.sgp.ref.SGP4WithSPNCorrections"
-"predict4s.sgp.ref.SGP4PN" -> "predict4s.sgp.ref.SPNLongPeriodCorrections"
+"p.s.r.SGP4WithSPNCorrections" -> "p.s.SGP4"
+"p.s.r.SGP4WithSPNCorrections" -> "p.s.r.SPNShortPeriodCorrections"
+"p.s.r.SGP4PN" -> "p.s.r.SGP4WithSPNCorrections"
+"p.s.r.SGP4PN" -> "p.s.r.SPNLongPeriodCorrections"
+"p.s.r.SGP4PN" -> "p.s.r.SimpleKeplerEq"
 
 }
-
