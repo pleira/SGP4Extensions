@@ -11,7 +11,7 @@ lazy val commonSettings = Seq(
     "org.scalatest" %%% "scalatest" % "3.0.0-M15" % "test"
   ),
 // Compiler settings. Use scalac -X for other options and their description.
-// See Here for more info http://www.scala-lang.org/files/archive/nightly/docs/manual/html/scalac.html 
+// See Here for more info http://www.scala-lang.org/files/archive/nightly/docs/manual/html/scalac.html
   scalacOptions ++= Seq(
     "-deprecation", "-unchecked", "-Xlint", "-encoding", "UTF-8","-language:implicitConversions","-language:higherKinds", "-feature"
   ),
@@ -28,13 +28,13 @@ lazy val noPublish = Seq(
   publishLocal := {},
   publishArtifact := false)
 
-//lazy val root = project.in(file("."))
-//  .aggregate(
-//    core, tests, reports
-//  )
-//  .settings(name := "root")
-//  .settings(commonSettings: _*)
-//  .settings(noPublish: _*)
+lazy val root = project.in(file("."))
+  .aggregate(
+    core, tests, reports
+  )
+  .settings(name := "root")
+  .settings(commonSettings: _*)
+  .settings(noPublish: _*)
 
 //lazy val core = crossProject.crossType(CrossType.Pure).in(file("core"))
 lazy val core = project.in(file("core"))
@@ -54,7 +54,7 @@ lazy val reports = project.in(file("reports"))
   .settings(commonSettings:_*)
   .dependsOn(core,tests  % "compile->compile;test->test")
   .settings(libraryDependencies +=
-    "com.github.pathikrit" %% "better-files" % "2.14.0") 
+    "com.github.pathikrit" %%% "better-files" % "2.15.0")
   .settings(noPublish: _*)
 
 lazy val thymeBenchmarks = project.in(file("thymeBenchmarks"))
@@ -76,4 +76,3 @@ lazy val thymeBenchmarks = project.in(file("thymeBenchmarks"))
 // subeclipse settings
 
 EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
-
