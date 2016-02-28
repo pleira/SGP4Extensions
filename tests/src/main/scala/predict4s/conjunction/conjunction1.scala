@@ -40,35 +40,41 @@ object ConjunctionInterpreterExperiment1 extends App with TLE22675 with TLE24946
   var t = 0.0;
   import scala.collection.mutable.ListBuffer
   val lb = new ListBuffer[Double]
-  while (t < 2*1440) {
-    val (s0t,_,_) = sgp24946.secularCorrections(t).get
-    val (s1t,_,_) = sgp22675.secularCorrections(t + diffMinutes).get
-    val m1ω = (s1t.M - s1t.ω)
-    val m0ω = (s0t.M - s0t.ω)
-    val dm = (m1ω - m0ω) % (2*pi)
-    val dΩ = s1t.Ω - s0t.Ω
-    val dt =
-      if (dm > pi/4) 10
-      else if (dm > pi/8) 3
-      else {
-        // IGNORE: just some trials
-        // if both s0t.M or s1t.M are near the inclination of the other orbit)
-        if (Interval(s1t.I-0.1,s1t.I+0.1).contains(m0ω) &&
-            Interval(s0t.I-0.1,s0t.I+0.1).contains(m1ω)) {
-          lb += t
-          1
-        } else if (Interval(s1t.I-0.2,s1t.I+0.2).contains(m0ω) &&
-            Interval(s0t.I-0.2,s0t.I+0.2).contains(m1ω)) {
-          2
-        } else if (Interval(s1t.I-0.3,s1t.I+0.3).contains(m0ω) &&
-            Interval(s0t.I-0.3,s0t.I+0.3).contains(m1ω)) {
-          3
-        } else
-          10
-      }
-    t += dt
-
-  }
+  val (s0t,_,_) = sgp24946.secularCorrections(t).get
+  val (s1t,_,_) = sgp22675.secularCorrections(t + diffMinutes).get
+  // TODO: with the secular elements, estimate characteristics related to both orbital planes.
+  // At the end, it is to find the passing times in the plane crossings
+  // and check for conjunction overthere
+  // while (t < 2*1440) {
+  //   val (s0t,_,_) = sgp24946.secularCorrections(t).get
+  //   val (s1t,_,_) = sgp22675.secularCorrections(t + diffMinutes).get
+  //   // TODO: with the secular elements,
+  //   val m1ω = (s1t.M - s1t.ω)
+  //   val m0ω = (s0t.M - s0t.ω)
+  //   val dm = (m1ω - m0ω) % (2*pi)
+  //   val dΩ = s1t.Ω - s0t.Ω
+  //   val dt =
+  //     if (dm > pi/4) 10
+  //     else if (dm > pi/8) 3
+  //     else {
+  //       // IGNORE: just some trials
+  //       // if both s0t.M or s1t.M are near the inclination of the other orbit)
+  //       if (Interval(s1t.I-0.1,s1t.I+0.1).contains(m0ω) &&
+  //           Interval(s0t.I-0.1,s0t.I+0.1).contains(m1ω)) {
+  //         lb += t
+  //         1
+  //       } else if (Interval(s1t.I-0.2,s1t.I+0.2).contains(m0ω) &&
+  //           Interval(s0t.I-0.2,s0t.I+0.2).contains(m1ω)) {
+  //         2
+  //       } else if (Interval(s1t.I-0.3,s1t.I+0.3).contains(m0ω) &&
+  //           Interval(s0t.I-0.3,s0t.I+0.3).contains(m1ω)) {
+  //         3
+  //       } else
+  //         10
+  //     }
+  //   t += dt
+  //
+  // }
 
   // We have some collection of interesting times
   Console.println(lb)

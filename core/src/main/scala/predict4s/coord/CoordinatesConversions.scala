@@ -4,14 +4,13 @@ package coord
 import spire.algebra._
 import spire.math._
 import spire.implicits._
-import spire.syntax.primitives._
 
 object CoordinatesConversions {
 
-  /** 
+  /**
   * The direct transformation from nonsingular to Cartesian variables is obtained
 	* by means of the usual rotations applied to the projections of the position and
-	* velocity vectors in the orbital frame. Thus R3 (−ν) ◦ R1 (−I) ◦ R3 (−θ) 
+	* velocity vectors in the orbital frame. Thus R3 (−ν) ◦ R1 (−I) ◦ R3 (−θ)
 	* with I the orbital inclination where R1 , R3 , are the usual rotation matrices
 	*/
   def polarNodal2Cartesian[F: Field: NRoot: Trig](pn: PolarNodalElems[F]) : CartesianElems[F] = {
@@ -29,11 +28,11 @@ object CoordinatesConversions {
     val q = ξ*χ / (1+c)
     val t = 1 + ξ*ξ / (1+c)
     val τ = 1 - χ*χ / (1+c)
-     
+
     val ux = (t * cosψ + q * sinψ)
     val uy = (t * sinψ - q * cosψ)
     val uz = ξ
-     
+
     CartesianElems(
          r * ux,
          r * uy,
@@ -42,17 +41,17 @@ object CoordinatesConversions {
          R * uy - Θ / r * (q * sinψ - τ * cosψ),
          R * uz + Θ / r * χ )
   }
-  
+
   def polarNodal2SpecialPolarNodal[F: Field: Trig](pn: PolarNodalElems[F]) : SpecialPolarNodal[F] = {
-    import pn._    
+    import pn._
     SpecialPolarNodal(acos(N/Θ),θ,ν,r,R,r*Θ)
   }
-  
+
   def specialPolarNodal2PolarNodal[F: Field: Trig](spn: SpecialPolarNodal[F]) = {
     import spn._
     PolarNodalElems(r,θ,Ω,R,Θ,Θ*cos(I))
   }
-    
+
   /**
    *  Standard transformation from polar-nodal to Cartesian variables
    *  (r,0,0, rdot=R, rθdot = Θ/r, 0) -> (x,y,z, vx,vy,vz)
@@ -65,8 +64,8 @@ object CoordinatesConversions {
     val sinI  =  sin(I); val cosI  =  cos(I)
     val sinθ  =  sin(θ); val cosθ  =  cos(θ)
     val sinΩ  =  sin(Ω); val cosΩ  =  cos(Ω)
-    val xmx   = -sinΩ * cosI
-    val xmy   =  cosΩ * cosI
+    val xmx : F = -sinΩ * cosI
+    val xmy : F =  cosΩ * cosI
     val ux    =  xmx * sinθ + cosΩ * cosθ
     val uy    =  xmy * sinθ + sinΩ * cosθ
     val uz    =  sinI * sinθ
@@ -76,7 +75,7 @@ object CoordinatesConversions {
     // unscaled velocity vector, not unit velocity
     val vx    =  R*ux + vvx
     val vy    =  R*uy + vvy
-    val vz    =  R*uz + vvz    
+    val vz    =  R*uz + vvz
     // return unit vectors position and unscaled velocity
     CartesianElems(ux,uy,uz,vx,vy,vz)
   }
@@ -97,18 +96,18 @@ object CoordinatesConversions {
     // val cosΩ  = cosψ * cosθ + sinψ * sinθ
     val sinI  =  sin(I); val cosI  =  cos(I)
     val sinΩ  =  sin(Ω); val cosΩ  =  cos(Ω)
-    val s = sinI ; val c = cosI; val χ = s * cosθ; val ξ = s * sinθ; 
-    
+    val s = sinI ; val c = cosI; val χ = s * cosθ; val ξ = s * sinθ;
+
     val xmx   = -sinΩ * c
     val xmy   =  cosΩ * c
     val ux    = -sinΩ * c * sinθ + cosΩ * cosθ
     val uy    =  cosΩ * c * sinθ + sinΩ * cosθ
     val uz    =  ξ // sinI * sinθ
-    val vx    = -sinΩ * c * cosθ - cosΩ * sinθ  
+    val vx    = -sinΩ * c * cosθ - cosΩ * sinθ
     val vy    =  cosΩ * c * cosθ - sinΩ * sinθ
     val vz    =  χ // sinI * cosθ
 
     // return unit vectors position and velocity
     CartesianElems(ux,uy,uz,vx,vy,vz)
-  }  
+  }
 }

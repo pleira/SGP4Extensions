@@ -73,7 +73,11 @@ class BrouwerLaneSecularCorrections[@sp(Double) F : Field : NRoot : Order : Trig
     val ℓm = Mm_ + ωm + Ωm
     val lm = ℓm  % `2pi`
     val Mm = (lm - ω_ - Ω_) % `2pi`
-    val elems = SGPElems(nm, em, I, ω_, Ω_, Mm, am, bStar, epoch)
+
+    // provide the julian day corresponding to these elements
+    val jd = epoch + t/1440
+
+    val elems = SGPElems(nm, em, I, ω_, Ω_, Mm, am, bStar, jd)
     val elemCtx = (elems,iCtx,wgs)
     Good(elemCtx)
   }

@@ -21,8 +21,8 @@ import spire.syntax.primitives.IntAs
 object TimeUtils {
 
   val `2pi` = 2*pi
-    
-  def revPerDay2RadPerMin[@sp(Double) F: Field](rpd: F) : F = `2pi` * rpd / 1440 
+
+  def revPerDay2RadPerMin[@sp(Double) F: Field](rpd: F) : F = `2pi` * rpd / 1440
 
   /**
   *                           function gstime
@@ -48,22 +48,22 @@ object TimeUtils {
   *  references    :
   *    vallado       2004, 191, eq 3-45
   */
-  
+
   def  gstime[@sp(Double) F : Field: Order](jdut1: F) : F = {
        val deg2rad = pi / 180
-  
+
        val tut1 = (jdut1 - 2451545) / 36525
        var temp = -6.2e-6* tut1 * tut1 * tut1 + 0.093104 * tut1 * tut1 +
                (876600.0*3600 + 8640184.812866) * tut1 + 67310.54841  // sec
        temp = EuclideanRing[F].mod(temp * deg2rad / 240, `2pi`.as[F]) //360/86400 = 1/240, to deg, to rad
-  
+
        // ------------------------ check quadrants ---------------------
-       if (temp < 0.as[F])  temp += `2pi`
-  
+       if (temp < 0)  temp += `2pi`
+
        temp
   }  // end gstime
-  
-   
+
+
   // use old way of finding gst
   // count integer number of days from 0 jan 1970
   def oldGst(epoch: Double) : Double = {
@@ -110,7 +110,7 @@ object TimeUtils {
   *    vallado       2007, 189, alg 14, ex 3-14
   *
   */
-  
+
   def jday( year : Int,  mon : Int,  day : Int,  hr : Int,  minute : Int, sec : Double) : Double =
        367 * year -
             floor((7 * (year + floor((mon + 9) / 12.0))) * 0.25) +
@@ -157,15 +157,15 @@ object TimeUtils {
   */
 
   def  days2mdhms(year: Int, days : Double) = {
-     
-  val lmonth : Vector[Int] = 
+
+  val lmonth : Vector[Int] =
        if ( (year % 4) == 0 )
          Vector(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-       else 
+       else
          Vector(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
   val   dayofyr : Int = floor(days).toInt
-     
+
      /* ----------------- find month and day of month ---------------- */
 
   var i = 1
@@ -176,7 +176,7 @@ object TimeUtils {
    }
    val   mon = i
    val   day = dayofyr - inttemp
-  
+
    /* ----------------- find hours minutes and seconds ------------- */
    var   temp = (days - dayofyr) * 24.0
    val   hr   = floor(temp).toInt
@@ -248,5 +248,5 @@ object TimeUtils {
      val sec = sec0 - 0.00000086400
       (year, mon, day, hr, minute, sec)
    }  // end invjday
-  
+
 }
