@@ -47,7 +47,7 @@ SGP4, Orbital Propagation, Scala, Perturbation theory, non-singular variables
 The SGP4 (Simplified General Perturbations 4) orbit propagator is a widely used tool for the fast, short term propagation of earth satellite orbits. The algorithms in which it is based are thoroughly described in the SPACETRACK report \#3 \cite{HootsRoehrich1980}, as well as in Vallado et al.~update \cite{ValladoCrawfordHujsakKelso2006}. Current implementations of SGP4 are based on Brouwer's gravity solution \cite{Brouwer1959} and Lane atmospheric model \cite{Lane1965}, but using Lyddane's modifications for avoiding loss of precision in the evaluation of the periodic corrections \cite{Lyddane1963}, which are, besides, notably simplified for improving evaluation efficiency. Different alternatives in the literature discuss other variable sets, either canonical or not, that can be used in the computation of periodic corrections (see, for instance, \cite{Izsak1963AJ,Aksnes1972,Hoots1981,Lara2015MPE}).
 \par
 
-Due to its popularity, there are numerous versions of SGP4 in several programming languages. The most important implementation comes from David Vallado \cite{ValladoCrawfordHujsakKelso2006} who has done a comprehensive analysis of the algorithm. Many other versions are derived from his work. The work presented in this paper, \href{http://github.com/pleira/SGP4Extensions}{SGP4Extensions}, also derives from his software.
+Due to its popularity, there are numerous versions of SGP4 in several programming languages. The most important implementation comes from David Vallado \cite{ValladoCrawfordHujsakKelso2006} who has done a comprehensive analysis of the algorithm. Many other versions are derived from his work. The work presented in this paper, \href{https://github.com/pleira/SGP4Extensions}{SGP4Extensions}, also derives from his software.
 It is written in Scala and can be compiled to run in the Java Virtual Machine or in the browser with the scala.js compiler backend. The SGP4Extensions software however is designed differently to those versions from Vallado:
 \begin{enumerate}
   \item  It is heavily influenced by the functional software paradigm.
@@ -59,7 +59,7 @@ In particular, the usage of Lara's non-singular variables \cite{Lara2015MPE} is 
 In the current version of SGP4Extensions, only extensions around SGP4 are implemented. The deep space algorithm SDP4 is not implemented.
 
 The project is hosted in\\
-\url{http://github.com/pleira/SGP4Extensions} \\
+\url{https://github.com/pleira/SGP4Extensions} \\
 and it is licensed with an open source Apache Version 2 license.
 
 \section{SCALA FEATURES}
@@ -302,7 +302,7 @@ f''=2\arctan\left(\sqrt{\frac{1+e''}{1-e''}}\tan\frac{E''}{2}\right).
 \]
 \par
 
-Next, Delaunay variables are transformed to polar variables using the same equations as Eqs.~(\ref{utor})--(\ref{utof}) but now with double prime variables, which in turn are transformed to Lara's non-singular variables
+Next, Delaunay variables are transformed to polar variables using the same equations as Eqs.~(\ref{eq:utor})--(\ref{eq:utof}) but now with double prime variables, which in turn are transformed to Lara's non-singular variables
 %$\psi=\theta+h$, $\xi=\sin{I}\sin\theta$, $\chi=\sin{I}\cos\theta$, $r$, $R$, $\Theta$
 \[
 \psi=\theta+\Omega,\quad \xi=\sin{I}\sin\theta,\quad \chi=\sin{I}\cos\theta,\quad r,\; R,\; \Theta.
@@ -374,26 +374,51 @@ and $c=H/\Theta$. Remark that $H$ is an integral of the zonal problem and, there
 %       objective: better match in the plots
 
 
-\section{VALIDATION} \label{sec:validation}
+\section{VALIDATION}
+\label{sec:validation}
 
 The validation of the software has been done by comparing the results with those
 of Vallado's original C++ source with propagations up to 3 weeks. The C++ source has been slightly modified in order
 to save the cartesian coordinates, the unit vector, the polar nodals coordinates
-and the long period corrections into a file. The outputs were collected
-for the Near Earth test cases. These have been compared with all the propagation
-algorithms in SGP4Extensions. The cases tested are detailed in Table \ref{tab:res}. Plots in Figs.~(\ref{fig:dx})--(\ref{fig:dvz}) illustrate the differences observed for the particular case of TLE 00005.
+and the long period corrections into a file. The modified sources and output file results are available as
+well online at \\
+\url{https://github.com/pleira/sgpvallado} \\
+The outputs were collected for the Near Earth test cases detailed in Table \ref{tab:res}.
 
-Most important, the SGP4Vallado algorithm in Scala matches the C++ results with maximum differences
-of the order of 3E-8 for all test propagations.
+\begin{table*}[htb]
+\centering
+\caption{Near Earth TLEs used for testing}\vspace{2mm}
+\begin{tabular}{ll}
+\hline
+Satellite & Comment \\
+\hline
+00005 & TEME example satellite.\\
+06251 & Normal drag case, perigee 377.26 km.\\
+22312 & Low perigee (86.98 km).\\
+28057 & Normal drag case, low eccentricity (0.000 088 4).\\
+28350 & Low perigee (127.20 km).\\
+28872 & Perigee 51 km used to test error handling.\\
+29141 & Last stages of decay.\\
+29238 & Perigee 212.24 km, simplified drag branch.\\
+\hline\hline
+\end{tabular}
+\label{tab:res}
+\end{table*}
+
+The results for the SGP4Vallado algorithm in Scala matches the C++ results with neglible differences for all test propagations (maximum differences of the order of 3E-8).
 
 When propagating satellites 22312 and 28350, the SGP4-Vallado implementation went into error at an earlier time
 than the C++ version because of the negative value for the eccentricity, being the times 454.2028672 versus 474.2028672 for 22312 and 960 versus 1440 for 28350.
 For the satellite 28872, propagation with SGP4Vallado ends by epoch minute 50 as in Vallado's C++.
 
+\subsection{Test for eccentric anomaly}
+\label{sec:trueanomaly}
+
 Lara's algorithm is done in non singular variables which are related to polar nodal variables.
 To transform from classical secular elements to those non-singular variables, the eccentric anomaly has to be calculated first, as described in Section \ref{sec:lara}.
 Vallado's algorithm does the calculation of the eccentric anomaly after the long period corrections have been applied using Lyddane's variables.
 We have checked that, as expected, the order in which the eccentric anomaly is calculated has negligible effect in the long period corrections.
+
 Two algorithms have been developed to test this fact, SGP4PN and SGP4ValladoLong.
 SGP4PN does the calculation of long period corrections in polar nodal variables (SpecialPolarNodal in the code) and therefore requires
 to calculate Kepler equation before the long period corrections as in SGP4Lara. SGP4PN includes the same terms for long period corrections as in SGP4Lara,
@@ -403,11 +428,7 @@ The short period corrections for all SGP4Vallado, SGP4PN and SGP4ValladoLong sha
 The results of comparing the output in polar nodals variables in internal units after the periodic corrections were calculated between SGP4ValladoLong and SGP4PN for propagations up to 3 weeks
 gave maximum differences of the order 1.6E-6, which shows no significant effect introduced by the order of the calculation of the eccentric anomaly.
 
-Tests of propagations of up to 3 weeks
-of near earth TLEs show that the results of SGP4Vallado are coincident with those of the C++ code.
-Figures (\ref{fig:pos05})--(\ref{fig:vel05}) show the comparison of propagation results for the test TLE 00005 for 1 day with Vallado's C++ results for the different algorithms.
-Note that the C++ results are coincident with the SGP4Vallado results to a high degree, so the difference for this
-algorithm is not represented.
+Figures (\ref{fig:pos05})--(\ref{fig:vel05}) show the comparison of propagation results for the test TLE 00005 for 1 day with SGP4Vallado (which correspond to Vallado's C++ results) to the other three different algorithms.
 The inclusion of more terms in the long period corrections for the other algorithms produce differences.
 SGP4PN and SGP4ValladoLong come displayed one a top the other, which shows no effect by the order in the calculation of the eccentric anomaly as mentioned previously.
 Also, the differences between in the short period corrections between Lara and the rest of the algorithms account for the different behaviour of Lara's algorithm.
@@ -445,48 +466,36 @@ Also, the differences between in the short period corrections between Lara and t
 \label{fig:rv05}
 \end{figure}
 
-%%%
-%%% MAYBE THIS TABLE GETS DISCARDED, or make it smaller
-%%%
-\begin{table*}[p]
-\centering
-\caption{Near Earth TLEs used for testing}\vspace{2mm}
-\begin{tabular}{|l|l|p{14cm}|}
-\hline\hline
-Satellite & Category & Comments\\
-\hline
-00005 & Near Earth & TEME example satellite.\\
-06251 &  Near Earth  & Near Earth normal drag case. The perigee of 377.26 km is low, but above the threshold of 220
-km for simplified equations, so moderate drag case.\\
-22312  & NE/S  & Near Earth with very low perigee (86.98 km) that uses the second branch (perigee < 98 km)
-for limiting the ‘s4’ drag coefficient to 20. Propagation beyond approximately 2840 min
-should result in error trap (modified eccentricity too low).\\
-28057 &  Near Earth  & Near Earth normal drag case but with low eccentricity (0.000 088 4) so certain drag terms are
-set to zero to avoid math errors / loss of precision.\\
-28350 & NE/S  & Near Earth low perigee (127.20 km) that uses the branch (perigee \textless 156 km) for modifying
-the ‘s4’ drag coefficient. Propagation beyond approximately 1460 minutes should result in
-error trap (modified eccentricity too low).\\
-28872  & NE/S  & Sub-orbital case (perigee 51 km, lost about 50 minutes from epoch) used to test error handling.\\
-29141  & Near Earth  & Last stages of decay.\\
-29238  & NE/S  & Near Earth with perigee 212.24 km, thus uses simplified drag branch (perigee \textless 220 km) test.\\
-\hline\hline
-\end{tabular}
-\label{tab:res}
-\end{table*}
+
+\section{APPLICATIONS}
+\label{sec:applications}
+SGP4Extensions produces the same results as other SGP4 implementations.
+Its interest resides in the flexibility to introduce and test new ideas related to SGP4 itself.
+As example when doing conjunction analysis for space debris, the user has the possibility to design
+filter algorithms based on results obtained in polar nodal variables without
+the need to obtain cartesian values. One possibility when comparing two objects
+is to find out the crossing points of the orbital planes and then estimate the passing times
+at those points with the true anomaly \cite[sec. 9.6]{Aba2012}.
+
+As concerns like errors and uncertainties have also to be taken into account when designing these
+algorithms, more special numeric types related to Intervals can be introduced to automatically
+calculate such uncertainties with the normal conjunction algorithm.
+
+For other filter possibilities, the cartesian values can be easily obtained on demand, saving computational time and memory requirements.
+
+Regarding speed optimizations in the current SGP4 code, when doing conjunction analysis most of the computational time goes into finding the points of close approach. Therefore, speed optimizations at SGP4 level might not have a significant impact compared with the actual design of the conjunction analysis strategy.
+
 
 \section{CONCLUSIONS}
 \label{sec:conclusions}
 
-A new implementation of the SGP4 algorithm in scala is available for the community. It is
-written in a way that allows easy exchange of models and variables used in the theory.
-When doing conjunction analysis for space debris, the fact that no internal state is kept in the algorithm allows for easy
-parallelization. Also the user has the possibility to design
-filter algorithms based on results obtained in polar nodal variables without
-the need to obtain cartesian values. The cartesian values can be easily obtained on demand
-saving computational time and memory requirements. Further speed optimizations in the current
-SGP4 code are possible but those might not have a significant impact when doing conjunction analysis
-where most of the computational time goes into finding the points of close approach.
-
+A new implementation of the SGP4 algorithm in scala is available for the community.
+It provides implementations of the models using a unicode notation resembling the
+actual descriptions of the models in the literature. It also allows to easily
+introduce alternative models and variables related to the theory.
+The software is designed for parallelization and for fine grain access to the data generated by
+the propagation steps. This provides an
+interesting base for massive conjunction analysis tasks.
 
 % Figures, tables and equations must be numbered and placed within the designated margins. They may span the two
 % columns. Every figure and table must also be captioned.
