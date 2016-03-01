@@ -5,9 +5,29 @@
 \documentclass{article}
 \usepackage{spconf,amsmath,graphicx}
 %\usepackage{unicode-math}
-\usepackage[breaklinks=true, colorlinks=true, pdfstartview=FitV, linkcolor=blue, citecolor=black, urlcolor=black]{hyperref}
+\usepackage[breaklinks=true, colorlinks=true, pdfstartview=FitV, linkcolor=black, citecolor=black, urlcolor=black]{hyperref}
+%\usepackage[breaklinks=true, pdfstartview=FitV]{hyperref}
 \usepackage{minted}
 \usepackage{hyperref}
+%\usepackage{caption}
+%\usepackage{subcaption}
+\usepackage{unicode-math}
+
+%\usepackage{minted} % uses minted 2.0+
+
+%\usepackage{etoolbox}
+\usepackage{newunicodechar}
+
+\newtoggle{inminted}
+\newunicodechar{²}{\iftoggle{inminted}{²}{^2}}
+\newunicodechar{δ}{\iftoggle{inminted}{δ}{\delta}}
+\newunicodechar{κ}{\iftoggle{inminted}{κ}{$\kappa$}}
+\newunicodechar{χ}{\iftoggle{inminted}{χ}{$\xi$}}
+\newunicodechar{ξ}{\iftoggle{inminted}{ξ}{$\chi$}}
+\newunicodechar{ϵ}{\iftoggle{inminted}{ϵ}{\epsilon}}
+\newunicodechar{σ}{\iftoggle{inminted}{σ}{\sigma}}
+\newunicodechar{Θ}{\iftoggle{inminted}{Θ}{\Theta}}
+\AtBeginEnvironment{minted}{\toggletrue{inminted}}
 
 % Title.
 % ------
@@ -72,67 +92,54 @@ In this implementation of SGP4, mutable state and side effects have been complet
 
 Scala's support for unicode to represent algebraic equations has been explored in the literature \cite{DBLP:journals/corr/abs-1112-1751}. Unicode is used intensively in SGP4Extensions with some simplifications to alleviate the notation: no primes nor overdots for derivatives have been done in the code.
 As example, equations giving Lara's corrections in Sec.\ref{sec:lara} are so stated in the code in the scala trait LaraFirstOrderCorrections.
+%
+% TODO: I do not get the code unicode output in Latex well shown. Is it OK in the Mac ?
+%
 %As example, these are Lara's corrections for the radial distance, the radial velocity and the angular momentum in the code:
-%\begin{minted}[mathescape,encoding=UTF8,
-%               numbersep=2pt
-%               gobble=2,
-%               fontsize=\small,
-%               framesep=1mm]{scala}
+%\begin{minted}[mathescape,               numbersep=2pt,               gobble=2,               fontsize=\small,               framesep=1mm]{scala}
 % val δr =  ϵ3 * p * ξ
 % val δR =  ϵ3 * (Θ/r) * (1 + κ) * χ
-% val δΘ =  ϵ3 * Θ * (κ*ξ - σ*χ)$
+% val δΘ =  ϵ3 * Θ * (κ*ξ - σ*χ)
 %\end{minted}
 %These can be compared with Eqs.\ref{eq:drns},\ref{eq:dRRns} and \ref{eq:dZZns}.
-%\begin{minted}[mathescape,
-%               numbersep=5pt,
-%               gobble=2,
-%               frame=lines,
-%               framesep=2mm]{csharp}
-%string title = "This is a Unicode π in the sky"
-%/*
-%Defined as $\pi=\lim_{n\to\infty}\frac{P_n}{d}$ where $P$ is the perimeter
-%of an $n$-sided regular polygon circumscribing a
-%circle of diameter $d$.
-%*/
-%const double pi = 3.1415926535
-%\end{minted}
+
 
 Regarding optimizations, SGP4Extensions uses the @specialized annotation for the Double numeric type. The usage of primitive types like Double comes with the cost of boxing/unboxing operations when working with unspecialized methods as the compiler creates wrapper objects for that, an operation called boxing. With @specialized the compiler will support creating specialized methods or classes for the declared primitive types that avoids creating the boxing objects.
 
 
-\subsection{Spire}
-\label{sec:spire}
+\subsection{Scala libraries used}
+\label{sec:libraries}
 
-The code uses several Scala libraries. Most important is a library for providing efficient numeric types
-and mathematical functions called Spire \cite{Spire2011}. The implementation of most of the functions and methods in SGP4Extensions
-are parameterized with these Spire's type classes which provide operations to other numeric types:
+The current version of the SGP4Extensions code uses the Scala libraries Spire \cite{Spire2011}, Scalactic \cite{Scalactic2015} and Scalatest \cite{Scalatest2009}.
+
+Spire is a library that provides efficient numeric types and mathematical functions. The implementation of most of the functions and methods in SGP4Extensions are parameterized through Spire's type classes.
+As example, the algorithm to calculate Lane's coefficients for atmospheric drag just needs Spire's Field type class
+as its operations are expressed via products and sums:
+\begin{minted}[mathescape,
+               numbersep=1pt,
+               gobble=1,
+               fontsize=\small]{scala}
+ def calcLaneCoefs[@sp(Double) F : Field]
+  (gcoefs : GeoPotentialCoefs[F]) : LaneCoefs[F] = {
+  import gcoefs._
+  val `C1²` = C1*C1
+  LaneCoefs(
+    3*C1/2,
+    D2 + 2*`C1²`,
+    (3*D3 + C1*(12*D2 + 10 * `C1²`))/4,
+    (3*D4 + 12*C1*D3 + 6*D2*D2
+                     + 15*`C1²`*(2*D2+`C1²`))/5)
+ }
+\end{minted}
+For most of the methods, the following type classes are needed:
 \begin{itemize}
   \item  Field: provides for the sum, product and division operation following associative laws.
   \item  Trig: provides trigonometric functions.
   \item  NRoot: provides fractional exponents, square root and nroots.
   \item  Order: type-safe equivalence and comparison functions.
 \end{itemize}
-The trigonometric series of the geopotential use these four type classes.
-The algorithm to calculate Lane's coefficients just needs Field as
-the operations are products and sums: % as shown in Fig.~(\ref{fig:lanecode}).
-%\begin{figure*}[htb]
-\begin{minted}[mathescape,
-               numbersep=1pt,
-               gobble=1,
-               fontsize=\small]{scala}
- def calcLaneCoefs[@sp(Double) F : Field]
-  (gcoefs : GeoPotentialCoefs[F])
-  : LaneCoefs[F] = {
-  import gcoefs._
-  val `C1²` = C1*C1
-  LaneCoefs(
-   3*C1/2,
-   D2 + 2*`C1²`,
-   (3*D3 + C1*(12*D2 + 10 * `C1²`))/4,
-   (3*D4 + 12*C1*D3 + 6*D2*D2
-         + 15*`C1²`*(2*D2+`C1²`))/5)
- }
-\end{minted}
+As example, the trigonometric series for the geopotential coefficients use these four type classes.
+
 %\caption{Algorithm to calculate Lane's coefficients}
 %\label{fig:lanecode}
 %\end{figure*}
@@ -143,6 +150,20 @@ as it is fast and sufficient for almost all cases. The @sp annotation is an alia
 @specialized, and therefore, a version of this method is created by the compiler using the primitive representation of double in the Java Virtual Machine avoiding the creation of objects. But the user has a choice for other numeric types. As example, an exact numeric type like Real could be used. A numeric type like Interval[Double] would allow for automatic calculation of errors
 when those are defined as intervals. These numeric types can have uses in certain areas
 but their execution times are several orders of magnitude slower than Double.
+
+Scalactic provides support for types expressing either the good result or an error message
+and for comparing Doubles with a certain tolerance.
+\begin{minted}[mathescape,
+               numbersep=1pt,
+               gobble=1,
+               fontsize=\small]{scala}
+ // final results in cartesians
+ type SGPPropCtx[F] = (CartesianElems[F],
+              CartesianElems[F], SpecialPolarNodal[F])
+ type SGPPropResult[F] = SGPPropCtx[F] Or ErrorMessage
+\end{minted}
+
+Scalatest is used to automatically check the results of the different algorithms.
 
 \subsection{Description of the types used}
 \label{sec:typesystem}
@@ -169,14 +190,14 @@ Resolution of different Kepler equations because of the different coordinate sys
 
 All those types are mixed in the SGP4 algorithm subclasses, like SGP4Vallado in Fig.~(\ref{fig:valladoeps}) and SGP4Lara in Fig.~(\ref{fig:laraeps}).
 
-\begin{figure*}[htb]
+\begin{figure*}[!htbp]
   \centering
 	\includegraphics[width=\linewidth]{vallado.eps}
 \caption{Structure of SGP4Vallado algorithm}
 \label{fig:valladoeps}
 \end{figure*}
 
-\begin{figure}[htb]
+\begin{figure}[!htbp]
   \centering
 	\includegraphics[width=\linewidth]{lara.eps}
 \caption{Structure of SGP4Lara algorithm}
@@ -385,7 +406,7 @@ well online at \\
 \url{https://github.com/pleira/sgpvallado} \\
 The outputs were collected for the Near Earth test cases detailed in Table \ref{tab:res}.
 
-\begin{table*}[htb]
+\begin{table*}[!htbp]
 \centering
 \caption{Near Earth TLEs used for testing}\vspace{2mm}
 \begin{tabular}{ll}
@@ -393,14 +414,14 @@ The outputs were collected for the Near Earth test cases detailed in Table \ref{
 Satellite & Comment \\
 \hline
 00005 & TEME example satellite.\\
-06251 & Normal drag case, perigee 377.26 km.\\
-22312 & Low perigee (86.98 km).\\
-28057 & Normal drag case, low eccentricity (0.000 088 4).\\
-28350 & Low perigee (127.20 km).\\
-28872 & Perigee 51 km used to test error handling.\\
+06251 & Normal drag case, perigee 377.26 km is low, but above the threshold of 220 km for simplified equations.\\
+22312 & Very low perigee (86.98 km) that uses the branch perigee \textless 98 km for the atmospheric fitting parameter.\\
+28057 & Normal drag case, low eccentricity (0.000 088 4), so certain drag terms are set to zero to avoid math errors.\\
+28350 & Low perigee (127.20 km) that uses the branch perigee \textless 156 km for the atmospheric fitting parameter.\\
+28872 & Perigee 51 km, lost about 50 minutes from epoch, used to test error handling.\\
 29141 & Last stages of decay.\\
-29238 & Perigee 212.24 km, simplified drag branch.\\
-\hline\hline
+29238 & Perigee 212.24 km, simplified drag branch (perigee \textless 220 km) test.\\
+\hline
 \end{tabular}
 \label{tab:res}
 \end{table*}
@@ -428,44 +449,10 @@ The short period corrections for all SGP4Vallado, SGP4PN and SGP4ValladoLong sha
 The results of comparing the output in polar nodals variables in internal units after the periodic corrections were calculated between SGP4ValladoLong and SGP4PN for propagations up to 3 weeks
 gave maximum differences of the order 1.6E-6, which shows no significant effect introduced by the order of the calculation of the eccentric anomaly.
 
-Figures (\ref{fig:pos05})--(\ref{fig:vel05}) show the comparison of propagation results for the test TLE 00005 for 1 day with SGP4Vallado (which correspond to Vallado's C++ results) to the other three different algorithms.
+Figures (\ref{fig:pv0005}) and (\ref{fig:pn0005}) show the comparison of propagation results for the test TLE 00005 for 1 day with SGP4Vallado (which correspond to Vallado's C++ results) to the other three different algorithms.
 The inclusion of more terms in the long period corrections for the other algorithms produce differences.
 SGP4PN and SGP4ValladoLong come displayed one a top the other, which shows no effect by the order in the calculation of the eccentric anomaly as mentioned previously.
 Also, the differences between in the short period corrections between Lara and the rest of the algorithms account for the different behaviour of Lara's algorithm.
-
-\begin{figure}[htb]
-  \input{dx_cartesian_00005}
-  \input{dy_cartesian_00005}
-  \input{dz_cartesian_00005}
-\caption{Difference (km) of SGP4Extension algorithms Lara, Vallado Long and Polar Nodals with Vallado's C++ results for TLE 00005}
-\label{fig:pos05}
-\end{figure}
-
-
-\begin{figure}[htb]
-  \input{dvx_cartesian_00005}
-  \input{dvy_cartesian_00005}
-  \input{dvz_cartesian_00005}
-\caption{Difference (km/s) of SGP4Extension algorithms Lara, Vallado Long and Polar Nodals with Vallado's C++ results for TLE 00005}
-\label{fig:vel05}
-\end{figure}
-
-\begin{figure}[htb]
-  \input{dI_pn_00005}
-  \input{dθ_pn_00005}
-  \input{dΩ_pn_00005}
-\caption{Difference (radians) of SGP4Extension algorithms Lara, Vallado Long and Polar Nodals with Vallado's C++ results for TLE 00005}
-\label{fig:arg05}
-\end{figure}
-
-\begin{figure}[htb]
-  \input{dr_pn_00005}
-  \input{dRV_pn_00005}
-  \input{drθdot_pn_00005}
-\caption{Difference for r, radial velocity and angular momentum from SGP4Extension algorithms Lara, Vallado Long and Polar Nodals with Vallado's C++ results for TLE 00005}
-\label{fig:rv05}
-\end{figure}
-
 
 \section{APPLICATIONS}
 \label{sec:applications}
@@ -504,6 +491,93 @@ interesting base for massive conjunction analysis tasks.
 
 % For tables, the example on how they shall be captioned and formatted is provided in Table~\ref{tab:res}.
 
+
+\begin{figure*}
+  \begin{minipage}[b]{.48\linewidth}
+    \centering
+  \input{dx_cartesian_00005}
+  %\includegraphics[width=\textwidth]{dx_cartesian_00005}
+    \centerline{x coordinate differences to Vallado's SGP4}\medskip
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.48\linewidth}
+      \centering
+      \input{dy_cartesian_00005}
+  %\includegraphics[width=\textwidth]{dy_cartesian_00005}
+  \centerline{y coordinate differences to Vallado's SGP4}\medskip
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.48\linewidth}
+    \centering
+      \input{dz_cartesian_00005}
+  %\includegraphics[width=\textwidth]{dz_cartesian_00005}
+  \centerline{z coordinate differences to Vallado's SGP4}\medskip
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.48\linewidth}
+    \centering
+      \input{dvx_cartesian_00005}
+    \centerline{$v_x$ coordinate differences to Vallado's SGP4}\medskip
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.48\linewidth}
+    \centering
+      \input{dvy_cartesian_00005}
+    \centerline{$v_y$ coordinate differences to Vallado's SGP4}\medskip
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.48\linewidth}
+    \centering
+      \input{dvz_cartesian_00005}
+    \centerline{$v_z$ coordinate differences to Vallado's SGP4}\medskip
+  \end{minipage}
+  \caption{Differences for the cartesian coordinates position (km) and velocity (km/s) of SGP4Extension algorithms Vallado Long, Polar Nodals and Lara with SGP4Vallado/Vallado's C++ results for TLE 00005 test case}
+\label{fig:pv0005}
+\end{figure*}
+
+
+\begin{figure*}
+  \begin{minipage}[b]{.48\linewidth}
+    \centering
+    \input{dI_pn_00005}
+  %\includegraphics[width=\textwidth]{dx_pn_00005}
+    \centerline{Inclination differences (radians) to Vallado's SGP4}\medskip
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.48\linewidth}
+    \centering
+      \input{dθ_pn_00005}
+  %\includegraphics[width=\textwidth]{dy_pn_00005}
+  \centerline{Argument of latitude diffs (radians) to Vallado's SGP4}\medskip
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.48\linewidth}
+    \centering
+      \input{dΩ_pn_00005}
+  %\includegraphics[width=\textwidth]{dz_pn_00005}
+  \centerline{Ascending node differences (radians) to Vallado's SGP4}\medskip
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.48\linewidth}
+    \centering
+      \input{dr_pn_00005}
+    \centerline{radial distance diffs (km) to Vallado's SGP4}\medskip
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.48\linewidth}
+    \centering
+      \input{dRV_pn_00005}
+    \centerline{radial velocity diffs (internal units) to Vallado's SGP4}\medskip
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.48\linewidth}
+    \centering
+      \input{drθdot_pn_00005}
+    \centerline{angular momentum diffs (internal units) to Vallado's SGP4}\medskip
+  \end{minipage}
+  \caption{Differences for the Polar Nodal coordinates in internal units of the SGP4Extension algorithms Vallado Long, Polar Nodals and  Lara with SGP4Vallado/Vallado's C++ results for TLE 00005 test case}
+\label{fig:pn0005}
+\end{figure*}
 
 % To start a new column (but not a new page) and help balance the last-page
 % column length use \vfill\pagebreak.
