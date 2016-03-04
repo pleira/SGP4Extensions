@@ -4,30 +4,11 @@
 % --------------------------------------------------------------------------
 \documentclass{article}
 \usepackage{spconf,amsmath,graphicx}
-%\usepackage{unicode-math}
 \usepackage[breaklinks=true, colorlinks=true, pdfstartview=FitV, linkcolor=black, citecolor=black, urlcolor=black]{hyperref}
-%\usepackage[breaklinks=true, pdfstartview=FitV]{hyperref}
 \usepackage{minted}
 \usepackage{hyperref}
-%\usepackage{caption}
-%\usepackage{subcaption}
-\usepackage{unicode-math}
-
-%\usepackage{minted} % uses minted 2.0+
-
-%\usepackage{etoolbox}
-\usepackage{newunicodechar}
-
-\newtoggle{inminted}
-\newunicodechar{²}{\iftoggle{inminted}{²}{^2}}
-\newunicodechar{δ}{\iftoggle{inminted}{δ}{\delta}}
-\newunicodechar{κ}{\iftoggle{inminted}{κ}{$\kappa$}}
-\newunicodechar{χ}{\iftoggle{inminted}{χ}{$\xi$}}
-\newunicodechar{ξ}{\iftoggle{inminted}{ξ}{$\chi$}}
-\newunicodechar{ϵ}{\iftoggle{inminted}{ϵ}{\epsilon}}
-\newunicodechar{σ}{\iftoggle{inminted}{σ}{\sigma}}
-\newunicodechar{Θ}{\iftoggle{inminted}{Θ}{\Theta}}
-\AtBeginEnvironment{minted}{\toggletrue{inminted}}
+\usepackage{fontspec}
+\setmonofont[Scale=0.86]{DejaVu Sans Mono}
 
 % Title.
 % ------
@@ -91,18 +72,19 @@ Scala fully supports the functional paradigm where functions are implemented in 
 In this implementation of SGP4, mutable state and side effects have been completely avoided in the algorithm allowing easily to support software concerns like testability and parallelism.
 
 Scala's support for unicode to represent algebraic equations has been explored in the literature \cite{DBLP:journals/corr/abs-1112-1751}. Unicode is used intensively in SGP4Extensions with some simplifications to alleviate the notation: no primes nor overdots for derivatives have been done in the code.
-As example, equations giving Lara's corrections in Sec.\ref{sec:lara} are so stated in the code in the scala trait LaraFirstOrderCorrections.
+As example, equations \ref{eq:dyns} giving Lara's long period corrections in Sec.\ref{sec:lara} are so stated in the code in the scala trait LaraFirstOrderCorrections:
 %
 % TODO: I do not get the code unicode output in Latex well shown. Is it OK in the Mac ?
 %
 %As example, these are Lara's corrections for the radial distance, the radial velocity and the angular momentum in the code:
-%\begin{minted}[mathescape,               numbersep=2pt,               gobble=2,               fontsize=\small,               framesep=1mm]{scala}
-% val δr =  ϵ3 * p * ξ
-% val δR =  ϵ3 * (Θ/r) * (1 + κ) * χ
-% val δΘ =  ϵ3 * Θ * (κ*ξ - σ*χ)
-%\end{minted}
-%These can be compared with Eqs.\ref{eq:drns},\ref{eq:dRRns} and \ref{eq:dZZns}.
-
+\begin{minted}[fontsize=\small]{scala}
+  val δψ =  ϵ3 * (2*χ + (κ*χ - c*σ*ξ)/(1+c))
+  val δξ =  ϵ3 * (2*`χ²` + κ*(1 - `ξ²`))
+  val δχ = -ϵ3 * (`c²`*σ + (2 + κ)*ξ*χ)
+  val δr =  ϵ3 * p * ξ
+  val δR =  ϵ3 * (Θ/r) * (1 + κ) * χ
+  val δΘ =  ϵ3 * Θ * (κ*ξ - σ*χ)
+\end{minted}
 
 Regarding optimizations, SGP4Extensions uses the @specialized annotation for the Double numeric type. The usage of primitive types like Double comes with the cost of boxing/unboxing operations when working with unspecialized methods as the compiler creates wrapper objects for that, an operation called boxing. With @specialized the compiler will support creating specialized methods or classes for the declared primitive types that avoids creating the boxing objects.
 
@@ -115,11 +97,8 @@ The current version of the SGP4Extensions code uses the Scala libraries Spire \c
 Spire is a library that provides efficient numeric types and mathematical functions. The implementation of most of the functions and methods in SGP4Extensions are parameterized through Spire's type classes.
 As example, the algorithm to calculate Lane's coefficients for atmospheric drag just needs Spire's Field type class
 as its operations are expressed via products and sums:
-\begin{minted}[mathescape,
-               numbersep=1pt,
-               gobble=1,
-               fontsize=\small]{scala}
- def calcLaneCoefs[@sp(Double) F : Field]
+\begin{minted}[fontsize=\footnotesize]{scala}
+def calcLaneCoefs[@sp(Double) F : Field]
   (gcoefs : GeoPotentialCoefs[F]) : LaneCoefs[F] = {
   import gcoefs._
   val `C1²` = C1*C1
@@ -127,9 +106,8 @@ as its operations are expressed via products and sums:
     3*C1/2,
     D2 + 2*`C1²`,
     (3*D3 + C1*(12*D2 + 10 * `C1²`))/4,
-    (3*D4 + 12*C1*D3 + 6*D2*D2
-                     + 15*`C1²`*(2*D2+`C1²`))/5)
- }
+    (3*D4 + 12*C1*D3 + 6*D2*D2 + 15*`C1²`*(2*D2+`C1²`))/5)
+}
 \end{minted}
 For most of the methods, the following type classes are needed:
 \begin{itemize}
@@ -153,14 +131,11 @@ but their execution times are several orders of magnitude slower than Double.
 
 Scalactic provides support for types expressing either the good result or an error message
 and for comparing Doubles with a certain tolerance.
-\begin{minted}[mathescape,
-               numbersep=1pt,
-               gobble=1,
-               fontsize=\small]{scala}
- // final results in cartesians
- type SGPPropCtx[F] = (CartesianElems[F],
-              CartesianElems[F], SpecialPolarNodal[F])
- type SGPPropResult[F] = SGPPropCtx[F] Or ErrorMessage
+\begin{minted}[fontsize=\footnotesize]{scala}
+// final results in cartesians
+type SGPPropCtx[F] = (CartesianElems[F],
+      CartesianElems[F], SpecialPolarNodal[F])
+type SGPPropResult[F] = SGPPropCtx[F] Or ErrorMessage
 \end{minted}
 
 Scalatest is used to automatically check the results of the different algorithms.
@@ -168,25 +143,18 @@ Scalatest is used to automatically check the results of the different algorithms
 \subsection{Description of the types used}
 \label{sec:typesystem}
 
-Several types are defined to make clear the processing steps involved in this new SGP4 implementation.
-Coordinate types and supporting classes for coordinate transformations:
+Several groups of types are defined to make clear the processing steps involved in this new SGP4 implementation.
+First, the coordinate types in the TEME (True Equator Mean Equinox) reference system and supporting classes for coordinate transformations:
 \begin{itemize}
-\item SGPElems: classical keplerian elements plus bStar and julian day
-\item Cartesian: orbital position and velocity in cartesian
+\item SGPElems: classical keplerian elements plus bStar drag coefficient and julian day
+\item CartesianElems: orbital position and velocity reference frame
 \item SpecialPolarNodal: polar nodal coordinates with the inclination instead of the polar component of the angular momentum
 \item LaraNonSingular: non singular variables
 \item LyddaneElems
 \end{itemize}
-
-Models for the corrections like:
-\begin{itemize}
-\item BrouwerLaneSecularCorrections
-\item LyddaneLongPeriodCorrections
-\item Lyddane2ndOrderLongPeriodCorrections
-\item LaraFirstOrderCorrections
-\end{itemize}
-
-Resolution of different Kepler equations because of the different coordinate systems: SimpleKeplerEq, TwoTermsKeplerEq.
+Then, models for the corrections like BrouwerLaneSecularCorrections, LyddaneLongPeriodCorrections, Lyddane2ndOrderLongPeriodCorrections, LaraFirstOrderCorrections. For the resolution of
+the different Kepler equations because of the different coordinate systems,
+there are SimpleKeplerEq and TwoTermsKeplerEq.
 
 All those types are mixed in the SGP4 algorithm subclasses, like SGP4Vallado in Fig.~(\ref{fig:valladoeps}) and SGP4Lara in Fig.~(\ref{fig:laraeps}).
 
@@ -428,7 +396,7 @@ Satellite & Comment \\
 
 The results for the SGP4Vallado algorithm in Scala matches the C++ results with neglible differences for all test propagations (maximum differences of the order of 3E-8).
 
-When propagating satellites 22312 and 28350, the SGP4-Vallado implementation went into error at an earlier time
+When propagating satellites 22312 and 28350, the SGP4Vallado implementation went into error at an earlier time
 than the C++ version because of the negative value for the eccentricity, being the times 454.2028672 versus 474.2028672 for 22312 and 960 versus 1440 for 28350.
 For the satellite 28872, propagation with SGP4Vallado ends by epoch minute 50 as in Vallado's C++.
 
@@ -465,7 +433,7 @@ is to find out the crossing points of the orbital planes and then estimate the p
 at those points with the true anomaly \cite[sec. 9.6]{Aba2012}.
 
 As concerns like errors and uncertainties have also to be taken into account when designing these
-algorithms, more special numeric types related to Intervals can be introduced to automatically
+algorithms, more special numeric types related to Spire's Intervals can be introduced to automatically
 calculate such uncertainties with the normal conjunction algorithm.
 
 For other filter possibilities, the cartesian values can be easily obtained on demand, saving computational time and memory requirements.
@@ -582,7 +550,7 @@ interesting base for massive conjunction analysis tasks.
 % To start a new column (but not a new page) and help balance the last-page
 % column length use \vfill\pagebreak.
 % -------------------------------------------------------------------------
-
+\vfill\pagebreak
 \bibliographystyle{IEEEbib}
 \bibliography{refs}
 
