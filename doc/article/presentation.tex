@@ -1,5 +1,5 @@
 \documentclass[10pt, compress, xcolor={usenames,dvipsnames}]{beamer}
-\usepackage[utf8x]{inputenc}
+
 
 %%% Theme and style
 \usetheme{metropolis}
@@ -11,6 +11,7 @@
 % Use T1 and a modern font family for better support of accents, etc.
 \usepackage[T1]{fontenc}
 \usepackage{palatino}  % Palatino
+% \usepackage{lmodern}
 
 % Language support
 \usepackage[english]{babel}
@@ -33,8 +34,9 @@
 %\usepackage[pdftex]{colortbl}
 
 % A nice monospace font for listings, etc.
-\usepackage[scaled]{beramono}
+%\usepackage[scaled]{beramono}
 %\usepackage{inconsolata}
+\setmonofont{DejaVu Sans Mono}
 
 % Using TikZ for diagrams
 \usepackage{tikz}
@@ -50,6 +52,7 @@
 \usepackage[inline]{enumitem}
 \usepackage{xspace}
 \usepackage{listings}
+\usepackage{minted}
 
 % Scala listings.  Use colored Scala style by default.
 \usepackage{lstscala}
@@ -61,16 +64,6 @@
 
 \lstset{style=scala-color}
 
-\lstnewenvironment{C}
-  {\lstset{
-    language=C,
-    flexiblecolumns=false,
-    mathescape=false,
-    moredelim=**[is][\color{ImportantCode}]{@}{@},
-    moredelim=**[is][\color{ImportantCode2}]{§}{§},
-    basicstyle=\small\color{blue!30!darkgray}\tt,
-commentstyle=\color{CadetBlue}}}
-  {}
 \lstnewenvironment{Scala}
   {\lstset{
     style=scala-color,
@@ -103,8 +96,9 @@ commentstyle=\color{CadetBlue}}}
 
 %%% Document info %%%
 
-\title{An implementation of SGP4 in non-singular variables \\
-              using a functional paradigm}
+\title{An implementation of SGP4  \\
+in non-singular variables  \\
+using a functional paradigm}
 
 \author{Pablo Pita Leira}
 
@@ -130,7 +124,7 @@ commentstyle=\color{CadetBlue}}}
 
 
 \date{%
-  \small March 2016\\[2em]
+  \small 15th March 2016\\[2em]}
 %  \includegraphics[height=7mm]{img/epfl-logo}}
 
 
@@ -151,24 +145,64 @@ commentstyle=\color{CadetBlue}}}
 \section{Motivation}
 
 \begin{frame}[fragile]{SGP4}
-Simplified General Perturbations 4) orbit propagator 
+Simplified General Perturbations 4 orbit propagator
 
-Inputs: two line elements diseminated by NORAD
+\begin{itemize}[label=\SmallArrow]
+\item  widely used tool for the fast, short term propagation of earth satellite orbits
+\item  thoroughly described in the SPACETRACK report \#3 by Hoots et al.
+\item  numerous versions of SGP4: FORTRAN, C++, Java, MATLAB
+\item  Inputs: two line elements (TLE) disseminated by NORAD
+\end{itemize}
 
-widely used tool for the fast, short term propagation of earth satellite orbits
-
-thoroughly described in the SPACETRACK report \#3 
-
-numerous versions of SGP4: FORTRAN, C++, Java, MATLAB 
-
-  \vspace{1em}
-
+%  \vspace{1em}
 
 \end{frame}
 
-\begin{frame}[fragile]{Why one more version}
+\begin{frame}[fragile]{SGP4 Algorithm Description}
 
-SGP4Extensions
+\begin{itemize}[label=\SmallArrow]
+\item applied for all orbits with periods of T <= 225 min.
+\item secular rates of change due to the zonal harmonics J2 and J4 of the Earth potential,
+ and due to drag perturbations in an atmosphere with a power-law altitude profile of air density
+\item long period corrections perturbations due to J3
+\item first-order, short-period perturbation corrections due to J2
+\end{itemize}
+
+%  \vspace{1em}
+
+\end{frame}
+
+
+\begin{frame}[fragile]{SGP4Extensions: why one more version?}
+
+SGP4 is used in a broader context like conjunction analysis.
+
+Scala can be interesting for the design of algorithms in this broader context
+
+By having a version of SGP4 in Scala, the integration of SGP4 in the algorithms is easier.
+
+SGP4Extensions exposes new function calls that enables new conjunction algorithms
+
+No implementation of SDP4
+
+\end{frame}
+
+\section{SGP4Extensions}
+
+\begin{frame}[fragile]{Scala}
+
+Developed by Martin Odersky in the EPFL since 2001.
+
+  \begin{itemize}[label=\SmallArrow]
+    \item Hybrid object oriented/functional
+    \item Rich type system
+    \item compiled to java byte code, also possible javascript
+    \item designed for creating DSL on top: expressive
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]{SGP4Extensions: characteristics}
 
   \begin{itemize}[label=\SmallArrow]
   \item  It is heavily influenced by the functional software paradigm.
@@ -180,34 +214,57 @@ SGP4Extensions
 
 \end{frame}
 
-\begin{frame}[fragile]{Scala}
+\begin{frame}[fragile]{Unicode support}
 
   \begin{itemize}[label=\SmallArrow]
     \item Unicode support to express equations
 	\item Lyddane 2nd Order Long Period Corrections:
   \end{itemize}
 
-  \begin{Scala}
-val δI =  ϵ3*esinω* c
-val δa =  0
-val δh = -ϵ3*ecosω* c/s
-val δC = -ϵ3*ecosω* esinω * (1/s - 2*s)
-val δS =  ϵ3*s - ϵ3*`η²`*s - 2*ϵ3*`ecosω²`*s + ϵ3*`ecosω²`/s
-val δF =  ϵ3*s* ecosω * (1 - 2*`η²`/(1+η)) / 2
-  \end{Scala}
+  %\begin{minted}{scala}
+%  \begin{Scala}
+
+val $\delta I =  \epsilon 3*e\sin\omega * c$
+
+val $\delta a =  0$
+
+val $\delta h = -\epsilon 3*e\cos\omega* c/s$
+
+val $\delta C = -\epsilon 3*e\cos\omega* e\sin\omega * (1/s - 2*s)$
+
+val $\delta S =  \epsilon 3*s - \epsilon 3*`\eta^2`*s - 2*\epsilon 3*`e\cos\omega ^2`*s + \epsilon 3*`e\cos\omega ^2`/s$
+
+val $\delta F =  \epsilon 3*s* e\cos\omega * (1 - 2*`\eta^2`/(1+\eta)) / 2$
+
+Note: $e\cos\omega ^2$ that the product $e\cos\omega$ is squared.
+
+%\end{Scala}
+%\end{minted}
 
 \end{frame}
 
-\begin{frame}[fragile]{Scala}
 
+\begin{frame}[fragile]{SGP4 Vallado model}
+  \begin{figure}
+    \centering
+    \includegraphics[width = 1.0\textwidth]{vallado}
+  \end{figure}
+\end{frame}
 
+\begin{frame}[fragile]{SGP4 Lara model}
+  \begin{figure}
+    \centering
+    \includegraphics[width = 1.0\textwidth]{lara}
+  \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Validation results}
+Tested with TLEs for near Earth used by David Vallado
   \begin{itemize}[label=\SmallArrow]
-    \item Hybrid object oriented/functional 
-    \item Rich type system
-    \item compiled to java byte code
-    \item designed for creating DSL on top: expessive
+    \item SGP4Vallado match C++ results (max diffs $10^{-8}$) at 30000 min
+    \item Order of calculation of Kepler equation does not introduce significant effects
+    \item There are small differences between other algorithms like PolarNodals, Lara and ValladoLong with SGP4Vallado
   \end{itemize}
-
 \end{frame}
 
 \section{What's next}
@@ -217,15 +274,6 @@ val δF =  ϵ3*s* ecosω * (1 - 2*`η²`/(1+η)) / 2
     \item Propagation of the whole catalog
     \item Collision analysis
   \end{itemize}
-
-  \vspace{3em}
-  \pause
-
-  \begin{itemize}[label=\Triangle]
-    \item Support for floating point types (|float|, |double|).
-    \item Support for @BigInt@, @Real@, e.g. using GMP.
-    \item Support for heap allocated arrays, e.g. using |malloc|.
-  \end{itemize}
 \end{frame}
 
 \plain{\Huge Questions?}
@@ -234,4 +282,3 @@ val δF =  ϵ3*s* ecosω * (1 - 2*`η²`/(1+η)) / 2
 
 % vim: spell spelllang=en_gb
 % vim: set tabstop=2 softtabstop=2 shiftwidth=2 textwidth=80: %
-
