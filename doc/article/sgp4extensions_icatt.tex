@@ -436,6 +436,13 @@ As concerns like errors and uncertainties have also to be taken into account whe
 algorithms, more special numeric types related to Spire's Intervals can be introduced to automatically
 calculate such uncertainties with the normal conjunction algorithm.
 
+Other possible application is a kind of conjunction analysis to have two or more objects in the field of view of
+an optical camera, without considering their relative distance. One of the objects could be a satellite that
+already is tracked with high precision ephemerids. The optical track left in a camera by this satellite could
+be compared with the optical track of the secondary object. The measured values
+can be compared with the values given by the propagation and conjuction model and get
+a more precise estimation of the orbital elements for the secondary object.
+
 For other filter possibilities, the cartesian values can be easily obtained on demand, saving computational time and memory requirements.
 
 Regarding speed optimizations in the current SGP4 code, when doing conjunction analysis most of the computational time goes into finding the points of close approach. Therefore, speed optimizations at SGP4 level might not have a significant impact compared with the actual design of the conjunction analysis strategy.
