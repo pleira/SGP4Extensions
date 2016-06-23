@@ -3,8 +3,8 @@
 
 lazy val commonSettings = Seq(
   organization := "org.sgp4s",
-  scalaVersion := "2.11.7",
-  crossScalaVersions := Seq("2.11.7"),
+  scalaVersion := "2.11.8",
+  crossScalaVersions := Seq("2.11.8"),
   libraryDependencies ++= Seq(
     "org.spire-math" %%% "spire" % "0.11.0",
     "org.scalactic" %%% "scalactic" % "3.0.0-M15",
