@@ -10,6 +10,70 @@ This implementation is also an exercise of having cleaner code written in Scala.
 
 The numerical library Spire is used. In particular, the user can work with other numerical types that can offer more precision than Double. That can be of interest near conflictive points in the theory (low inclinations, and 63 deg) at the expense of longer running time. 
 
+The SGP4 pipeline
+====================
+
+All propagator variants share the same front end:
+
+    TLE -> SGP elements in context (SGPElemsConversions)
+        -> Brouwer/Lane secular corrections (BrouwerLaneSecularCorrections)
+        -> periodic corrections
+        -> position and velocity in the TEME frame
+
+The secular part propagates the mean elements in time with the J2, J3 and J4
+gravitational terms plus Lane's exponential atmospheric drag. The variants
+differ only in the periodic corrections, the step that turns the mean elements
+at time t into osculating position and velocity:
+
+| Propagator | Long-period corrections | Short-period corrections |
+|---|---|---|
+| `SGP4Vallado` | Vallado's fixups in Lyddane's variables, Kepler's equation solved in Lyddane form | in Special Polar Nodals |
+| `SGP4ValladoLong` | as SGP4Vallado, plus extra long-period terms | in Special Polar Nodals |
+| `SGP4PN` | computed directly in Special Polar Nodals | in Special Polar Nodals |
+| `SGP4Lara` | first-order terms in Lara's non-singular variables | in Lara's non-singular variables |
+
+A description of the near-Earth SGP4 algorithm is in [sgp4.md](sgp4.md); the
+design rationale of this implementation is in [doc/proposal.md](doc/proposal.md).
+
+What Lara changes
+--------------------
+
+Vallado's reference algorithm evaluates the long-period corrections in
+Lyddane's variables: element combinations introduced so that Brouwer's periodic
+corrections can be evaluated without the perigee and node singularities. The
+correction terms in current SGP4 implementations are the closed-form fixups of
+the C++ reference code.
+
+The alternative suggested by [Martin Lara](http://arxiv.org/pdf/1407.8076.pdf)
+derives the first-order corrections directly in a non-singular variable set
+(ψ, ξ, χ, r, R, Θ): the node and the argument of latitude are combined into
+ψ = Ω + θ, and ξ = s sin θ, χ = s cos θ with s = sin i. `SGP4Lara` transforms
+the secular state into these variables, applies the corrections there, and
+transforms back to polar nodals.
+
+Two properties of the formulation are visible in the code:
+
+* each family of corrections is proportional to one small parameter:
+  ϵ3 = (J3/J2)/2p for the J3 long-period terms and ϵ2 = −J2/4p² for the J2
+  short-period terms (`LaraFirstOrderCorrections`), so the structure of the
+  perturbation theory reads directly from the code;
+* the inclination is never a propagated variable: N = Θ cos i is evaluated once
+  from the secular state and is all that the polar nodal <-> non-singular
+  round trip needs (`spn2lns`, `lns2spn`).
+
+The comparison tests verify the Lara route against Vallado's reference outputs
+and against the polar-nodal route, with tight tolerances.
+
+Project layout
+--------------------
+
+* `core`: the SGP4 library — TLE parsing, coordinate sets and transformations,
+  the secular corrections model, and the propagator variants
+* `tests`: the reference test suite (Vallado's C++ outputs, the python3-sgp4
+  cross-check, algorithm-to-algorithm comparisons) and the TLE fixtures
+* `reports`: command line programs that write comparison reports
+* `benchmarks`: the JMH micro-benchmarks
+
 
 Copyright and License
 ====================
@@ -84,7 +148,7 @@ Check them (e.g. in CI):
 
 Useful commands
 -----------------
-The former will run a scala REPL with all the project dependencies available. The later will autoscan and run a Main class (see the reports module for the available report programs, e.g. `reports/runMain predict4s.report.PropagateTLE28xxx`).
+The former starts a Scala REPL with all the project dependencies available. The latter autoscans and runs a Main class (see the reports module for the available report programs, e.g. `reports/runMain predict4s.report.PropagateTLE28xxx`).
 	> console
 	> run
 
@@ -115,15 +179,16 @@ Reference results on one machine (JDK 21, average time per propagation):
 
 | Benchmark | TLE 00005 | TLE 06251 |
 |---|---|---|
-| valladoPropagate | ~393 ns | ~364 ns |
-| valladoLongPropagate | ~391 ns | ~374 ns |
-| polarNodalsPropagate | ~484 ns | ~505 ns |
-| laraPropagate | ~485 ns | ~466 ns |
-| buildAndValladoPropagate | ~1183 ns | ~1135 ns |
+| valladoPropagate | ~393 ns | ~369 ns |
+| valladoLongPropagate | ~396 ns | ~377 ns |
+| polarNodalsPropagate | ~459 ns | ~460 ns |
+| laraPropagate | ~463 ns | ~499 ns |
+| buildAndValladoPropagate | ~1142 ns | ~1128 ns |
 
-Each propagation allocates about 2.6-3.1 KB (result chain of Or, tuples and case
-classes). If throughput at scale ever becomes a problem, that allocation churn,
-not the generic spire arithmetic, is where to look.
+Each propagation allocates about 2.3-3.3 KB (the Or/tuple/case-class result
+chain; the generic spire arithmetic is not the cost, the code is @specialized
+for Double and dispatches to primitive-signature methods). If throughput at
+scale ever becomes a problem, that allocation churn is where to look.
 
 For a description of the algorithm itself, see [sgp4.md](sgp4.md).
 
