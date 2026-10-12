@@ -61,14 +61,8 @@ class SGP4Lara[F: Field: NRoot: Order: Trig: TruncatedDivision](
 
 }
 
-object SGP4Lara {
+object SGP4Lara extends SGP4Companion[SGP4Lara] {
 
   def apply[F: Field: NRoot: Order: Trig: TruncatedDivision](sec: BrouwerLaneSecularCorrections[F]): SGP4Lara[F] =
     new SGP4Lara(sec)
-
-  def fromTLE[F: Field: NRoot: Order: Trig: TruncatedDivision](
-      tle: TLE,
-      wgs: SGPConstants[F]
-  ): SGP4Lara[F] Or ErrorMessage =
-    BrouwerLaneSecularCorrections.fromTLE(tle, wgs).map(SGP4Lara(_))
 }

@@ -87,41 +87,21 @@ class SGP4PN[F: Field: NRoot: Order: Trig: TruncatedDivision](
     } yield lppcorr
 }
 
-object SGP4Vallado {
+object SGP4Vallado extends SGP4Companion[SGP4Vallado] {
 
   def apply[F: Field: NRoot: Order: Trig: TruncatedDivision](sec: BrouwerLaneSecularCorrections[F]): SGP4Vallado[F] =
     new SGP4Vallado(sec)
-
-  def fromTLE[F: Field: NRoot: Order: Trig: TruncatedDivision](
-      tle: TLE,
-      wgs: SGPConstants[F]
-  ): SGP4Vallado[F] Or ErrorMessage =
-    BrouwerLaneSecularCorrections.fromTLE(tle, wgs).map(SGP4Vallado(_))
 }
 
-object SGP4PN {
+object SGP4PN extends SGP4Companion[SGP4PN] {
 
   def apply[F: Field: NRoot: Order: Trig: TruncatedDivision](sec: BrouwerLaneSecularCorrections[F]): SGP4PN[F] =
     new SGP4PN(sec)
-
-  def fromTLE[F: Field: NRoot: Order: Trig: TruncatedDivision](
-      tle: TLE,
-      wgs: SGPConstants[F]
-  ): SGP4PN[F] Or ErrorMessage =
-    BrouwerLaneSecularCorrections.fromTLE(tle, wgs).map(SGP4PN(_))
-
 }
 
-object SGP4ValladoLong {
+object SGP4ValladoLong extends SGP4Companion[SGP4ValladoLong] {
 
   def apply[F: Field: NRoot: Order: Trig: TruncatedDivision](
       sec: BrouwerLaneSecularCorrections[F]
   ): SGP4ValladoLong[F] = new SGP4ValladoLong(sec)
-
-  def fromTLE[F: Field: NRoot: Order: Trig: TruncatedDivision](
-      tle: TLE,
-      wgs: SGPConstants[F]
-  ): SGP4ValladoLong[F] Or ErrorMessage =
-    BrouwerLaneSecularCorrections.fromTLE(tle, wgs).map(SGP4ValladoLong(_))
-
 }
