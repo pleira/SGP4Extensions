@@ -67,8 +67,18 @@ and against the polar-nodal route, with tight tolerances.
 Project layout
 --------------------
 
-* `core`: the SGP4 library — TLE parsing, coordinate sets and transformations,
-  the secular corrections model, and the propagator variants
+The package structure mirrors the python sgp4 package:
+
+* `sgp4.io`: TLE parsing (python: `sgp4.io` with `twoline2rv`)
+* `sgp4.earth_gravity`: the WGS-72/84 constants (python: `sgp4.earth_gravity` with `wgs72`, `wgs84`)
+* `sgp4.coord`: coordinate sets and transformations (no python equivalent)
+* `sgp4.propagation`: the secular corrections model and the periodic correction
+  traits (python: `sgp4.propagation`)
+* `sgp4.model`: the propagator variants (python: `sgp4.model` with `Satrec`)
+
+By module:
+
+* `core`: the SGP4 library
 * `tests`: the reference test suite (Vallado's C++ outputs, the python3-sgp4
   cross-check, algorithm-to-algorithm comparisons) and the TLE fixtures
 * `reports`: command line programs that write comparison reports
@@ -148,7 +158,7 @@ Check them (e.g. in CI):
 
 Useful commands
 -----------------
-The former starts a Scala REPL with all the project dependencies available. The latter autoscans and runs a Main class (see the reports module for the available report programs, e.g. `reports/runMain predict4s.report.PropagateTLE28xxx`).
+The former starts a Scala REPL with all the project dependencies available. The latter autoscans and runs a Main class (see the reports module for the available report programs, e.g. `reports/runMain sgp4.report.PropagateTLE28xxx`).
 	> console
 	> run
 

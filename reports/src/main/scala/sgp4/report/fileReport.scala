@@ -1,0 +1,80 @@
+package sgp4.report
+import sgp4.io.TLE
+
+import better.files._
+import better.files.Dsl._
+import sgp4.coord._
+
+abstract class FileReport[F] {
+
+  def path(tle: TLE) = s"../doc/reports/${propagator}_${tle.satelliteNumber}_${tle.year}_${tle.epoch}.md"
+
+  def propagator: String
+
+  def save(
+      pnr: IndexedSeq[((SpecialPolarNodal[F], SpecialPolarNodal[F]), SGPElems[F])],
+      tle: TLE,
+      lines: List[String],
+      times: IndexedSeq[Int]
+  ) = {
+    val f = File(path(tle))
+    implicit val oo = File.OpenOptions.append
+    f << s"# ${propagator} algorithm\n"
+
+    f << "\n\n#### Input TLE\n"
+    lines foreach (f << "  " + _ + "\n")
+
+    f << "\n\n#### propagation times in min "
+    f << times.toString() < "\n"
+    f << "\n\nUnits: radians for the angles, normalized Earth's radius (aE=1) and MU (MU=1)"
+
+    f << "\n\n#### Computed Final State in Special Polar Nodal coordinates\n"
+    f << "| inclination | argument of latitude | ascending node | radial distance (aE=1) | radial velocity | `Θ/r` "
+    f << "| ----------- | -------------------  | -------------- | ---------------------- | --------------- | ----- "
+    pnr foreach { p =>
+      f << p._1._1.toString().replaceAll(",|SpecialPolarNodal\\(|\\)|\\(", "|")
+    }
+
+    f << "\n\n#### Long period state in Special Polar Nodal coordinates\n"
+    f << "| inclination | argument of latitude | ascending node | radial distance (aE=1) | radial velocity | `Θ/r` "
+    f << "| ----------- | -------------------  | -------------- | ---------------------- | --------------- | ----- "
+
+    pnr foreach { p =>
+      f << p._1._2.toString().replaceAll(",|SpecialPolarNodal\\(|\\)|\\(", "|")
+    }
+
+//    f << "\n\n#### Anomaly calculation \n"
+//    f << "| E   | cosE | sinE | ecosE | esinE"
+//    f << "| --- | ---  | ---- | ----- | ---"
+//    pnr foreach { p =>
+//      f << p._1._4.toString().replaceAll(",|AnomalyState\\(|\\)|\\(", "|")
+//    }
+
+    f << "\n\n#### Orbital elements with secular corrections \n"
+    f << "| mean motion | eccentricity | inclination | argument Of perigee | ascending node | mean anomaly | semimajor axis | atmospheric Drag | epoch time in days from jan 0 1950. 0 hr"
+    f << "| ----------- | -----------  | ----------- | ------------------- | -------------- | ------------ | -------------- | ---------        | --------------"
+    pnr foreach { p =>
+      f << p._2.toString().replaceAll(",|SGPElems\\(|\\)|\\(", "|")
+    }
+  }
+}
+
+object PolarNodalFileReport extends FileReport[Double] {
+
+  def propagator: String = "sgp4pn"
+}
+
+object LaraFileReport extends FileReport[Double] {
+
+  def propagator: String = "sgp4lara"
+}
+
+object ValladoLongFileReport extends FileReport[Double] {
+
+  def propagator: String = "sgp4valladoLong"
+}
+
+object ValladoSimpleFileReport extends FileReport[Double] {
+
+  def propagator: String = "sgp4vallado"
+}
