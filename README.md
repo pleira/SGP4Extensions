@@ -109,13 +109,20 @@ Clone and test the project
     > test
 
 The test suite includes hardcoded reference values from Vallado's C++ code, and
-a cross-check of the propagation results against the [python3-sgp4](https://pypi.org/project/sgp4/)
-library. The reference data for the latter is regenerated with
+two cross-checks of the propagation results against the
+[python3-sgp4](https://pypi.org/project/sgp4/) library: one on the 2006 era
+reference TLEs, and one on *current* TLEs downloaded from
+[celestrak.org](https://celestrak.org). The reference data is regenerated with
 
-    $ python3 scripts/gen-python-sgp4-reference.py
+    $ python3 scripts/gen-python-sgp4-reference.py     # 2006 era reference TLEs
+    $ python3 scripts/gen-celestrak-reference.py        # current TLEs snapshot
 
-which writes `tests/src/test/resources/pythonSgp4Reference.csv` (only rows for
-which the reference implementation reports no error are included).
+which write `tests/src/test/resources/pythonSgp4Reference.csv` and
+`celestrakReference.csv` (only rows for which the reference implementation
+reports no error are included). On the current TLEs, SGP4Vallado agrees with
+python3-sgp4 to about 1e-9 km; the periodic correction variants (ValladoLong,
+PN, Lara) stay within their expected envelope of well under 1 km over a 6 day
+propagation grid.
 
 IDE
 ---------------
