@@ -53,7 +53,7 @@ class BrouwerLaneSecularCorrections[@sp(Double) F: Field: NRoot: Order: Trig: Tr
 
     // Compute the secular elements (not exactly secular as they mix long-period terms from drag)
     val am: F = ((KE / n) fpow `2/3`) * δL * δL // a * tempa**2
-    val nm: F = KE / (am pow 1.5)
+    val nm: F = KE / (am fpow 1.5.as[F])
     val em_ : F = e - δe
 
     // fix tolerance for error recognition
@@ -107,18 +107,18 @@ class BrouwerLaneSecularCorrections[@sp(Double) F: Field: NRoot: Order: Trig: Tr
     // 220 kilometers, the equations for a and Lane's are truncated after the C1 term,
     // and the terms involving C5 , δω, and δM are dropped.
     if (isImpacting)
-      return DragSecular(1 - C1 * t, bStar * C4 * t, T2 * `t²`, ωdf, Mdf, Ωm)
+      return DragSecular(1.0.as[F] - C1 * t, bStar * C4 * t, T2 * `t²`, ωdf, Mdf, Ωm)
 
     val `t³` = `t²` * t
     val `t⁴` = `t²` * `t²`
-    val delM0: F = (1 + η * cos(M)) ** 3
-    val delMdf: F = (1 + η * cos(Mdf)) ** 3
+    val delM0: F = (1.0.as[F] + η * cos(M)) ** 3
+    val delMdf: F = (1.0.as[F] + η * cos(Mdf)) ** 3
     val δω = ωcof * t
     val δM = Mcof * (delMdf - delM0)
     val Mpm_ = Mdf + δω + δM
     val ωm_ = ωdf - δω - δM
 
-    val δL = 1 - C1 * t - D2 * `t²` - D3 * `t³` - D4 * `t⁴` // (L´´/L0)
+    val δL = 1.0.as[F] - C1 * t - D2 * `t²` - D3 * `t³` - D4 * `t⁴` // (L´´/L0)
     val δe = bStar * (C4 * t + C5 * (sin(Mpm_) - sin(M))) // sin(M) === sin(M0)
     val δℓ = T2 * `t²` + T3 * `t³` + `t⁴` * (T4 + t * T5) // (ℓ´´ - ℓj´´)/ n0
 

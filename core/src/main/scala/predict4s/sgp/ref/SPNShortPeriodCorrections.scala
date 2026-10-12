@@ -24,8 +24,16 @@ trait SPNShortPeriodCorrections[F] {
 //    val δR = - `J2/p/2` * `s²` * sin2θ * n / KE  // rdot, angular velocity
 //    val δrvdot =  `J2/p/2` * (`s²` * cos2θ + 1.5 * `3c²-1`) * n / KE
 
-    val δspp = SpecialPolarNodal(δI, δθ, δΩ, δr, δR, δrvdot)
-    lppPN + δspp
+    // the short period corrections are directly added to the long period result,
+    // avoiding an intermediate SpecialPolarNodal
+    SpecialPolarNodal(
+      lppPN.I + δI,
+      lppPN.θ + δθ,
+      lppPN.Ω + δΩ,
+      lppPN.r + δr,
+      lppPN.R + δR,
+      lppPN.`Θ/r` + δrvdot
+    )
   }
 
 }

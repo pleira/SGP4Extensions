@@ -56,7 +56,7 @@ object CoordinatesConversions {
     * matrix multiplication R3(−h) R1(−I) R3(−θ) where R1 and R3 are the usual rotation matrices about the x and z axes,
     * respectively
     */
-  def spn2UnscaledCartesian[F: Field: Trig](spn: SpecialPolarNodal[F]): CartesianElems[F] = {
+  def spn2UnscaledCartesian[@sp(Double) F: Field: Trig](spn: SpecialPolarNodal[F]): CartesianElems[F] = {
     import spn._
     val sinI = sin(I); val cosI = cos(I)
     val sinθ = sin(θ); val cosθ = cos(θ)
