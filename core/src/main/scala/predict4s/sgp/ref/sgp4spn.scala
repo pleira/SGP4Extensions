@@ -18,10 +18,7 @@ abstract class SGP4WithSPNCorrections[F: Field: NRoot: Order: Trig: TruncatedDiv
     with SPNShortPeriodCorrections[F] {
 
   override def periodicCorrections(secularElemt: SGPSecularCtx[F]): SGPSPNResult[F] =
-    for {
-      lc <- lppCorrections(secularElemt)
-      finalSPN = sppCorrections(lc)
-    } yield finalSPN
+    lppCorrections(secularElemt).map(sppCorrections)
 
   def lppCorrections(secularElemt: SGPSecularCtx[F]): LPPSPNResult[F]
 }
@@ -50,9 +47,9 @@ class SGP4ValladoLong[F: Field: NRoot: Order: Trig: TruncatedDivision](
     with TwoTermsKeplerEq {
 
   override def lppCorrections(secularElemt: SGPSecularCtx[F]): LPPSPNResult[F] = {
+    // long period corrections in Lyddane's coordinates
     val lydElems = lppLydCorrections(secularElemt)
     for {
-      // long period corrections in Lyddane's coordinates
       // To transform to Special Polar Nodals, get the eccentric anomaly
       eaState <- solveKeplerEq(lydElems)
       spnctx <- lyd2spn(eaState, lydElems)
