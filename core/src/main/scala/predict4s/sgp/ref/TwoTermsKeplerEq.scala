@@ -21,10 +21,10 @@ trait TwoTermsKeplerEq {
    * and g is the argument of the perigee (ω).
    * The Newton-Raphson iterations start from Ψ0 = U.
    */
-  def solveKeplerEq[@sp(Double) F: Field: Trig: Order](elems: LyddaneElems[F]) : AnomalyResult[F]  = {
+  def solveKeplerEq[@sp(Double) F: Field: Trig: Order: TruncatedDivision](elems: LyddaneElems[F]) : AnomalyResult[F]  = {
     import elems._   
     // U = F' - h' = M" + g"; 
-    val u = Field[F].mod(xl - Ω, 2.as[F]*pi)  
+    val u = TruncatedDivision[F].tmod(xl - Ω, 2.as[F]*pi)  
 
     def loop(U: F, remainingIters: Int) : AnomalyResult[F] = {
       val sinU = sin(U)

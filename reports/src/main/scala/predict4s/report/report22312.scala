@@ -43,10 +43,10 @@ class Propagate(val ttle: TestTLE) extends LoadCppResults {
 
 class Propagate22312D extends Propagate(TLE22312) {
   val seq = for {
-      t <- TLE22312.startD to TLE22312.end by TLE22312.step.toDouble 
+      t <- Iterator.iterate(TLE22312.startD)(_ + TLE22312.step.toDouble).takeWhile(_ <= TLE22312.end)
       pv = vasgp4.propagate(t) 
     } yield (pv, t)
-  val sgpOutsD = (vasgp4.propagate(0),0.0) +: seq 
+  val sgpOutsD = (vasgp4.propagate(0), 0.0) +: seq.toIndexedSeq
   // Check that results contain ErrorMessages from the propagation
   override val errors = sgpOutsD.filter(pvt => pvt._1.isBad)
   override val goods = sgpOutsD.filter(pvt => pvt._1.isGood)

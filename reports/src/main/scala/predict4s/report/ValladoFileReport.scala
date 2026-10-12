@@ -1,6 +1,7 @@
 package predict4s.report
 import predict4s.coord.TLE
 import better.files._
+import better.files.Dsl._
 import java.io.{File => JFile}
 import predict4s.sgp.ref.SGP4Vallado
 import predict4s.coord._

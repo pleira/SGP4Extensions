@@ -2,7 +2,8 @@ package predict4s
 package sgp
 package ref
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalactic.TripleEquals._
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
 import spire.std.any.DoubleAlgebra
@@ -15,7 +16,7 @@ import predict4s.conjunction.TLE22675
 import predict4s.conjunction.TLE24946
 import predict4s.coord.LNSConversions._
 
-class Sgp4LaraPNFinalComparison extends FunSuite with TLE22675 with TLE24946 with TLE00005  with TLE06251 with TLE28057 {
+class Sgp4LaraPNFinalComparison extends AnyFunSuite with TLE22675 with TLE24946 with TLE00005  with TLE06251 with TLE28057 {
  
   implicit val wgs = SGP72Constants.tleDoubleConstants
   val tol = TolerantNumerics.tolerantDoubleEquality(3E-5)

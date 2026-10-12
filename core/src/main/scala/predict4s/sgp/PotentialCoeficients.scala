@@ -13,7 +13,7 @@ case class GeoPotentialCoefs[@sp(Double) F](C1: F, C2: F, C3: F, C4: F, C5: F, D
 
 trait GeoPotentialAndAtmosphere2ndOrderModel {
 
-  def geoPotentialCoefs[@sp(Double) F: Field : NRoot : Order : Trig](elem0Ctx: SGPElemsCtx[F])
+  def geoPotentialCoefs[@sp(Double) F: Field : NRoot : Order : Trig : TruncatedDivision](elem0Ctx: SGPElemsCtx[F])
       : GeoPotentialCtx[F] = {
     import elem0Ctx.{elem,iCtx,eCtx,wgs,perigeeHeight}
     import wgs.{J2,J3,`J3/J2`,aE}

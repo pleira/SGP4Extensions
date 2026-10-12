@@ -15,7 +15,7 @@ import predict4s.coord.LNSConversions._
 import predict4s.coord.SGPElemsConversions._
 import predict4s.coord.CoordinatesConversions._
 
-class SGP4Lara[F : Field : NRoot : Order : Trig](
+class SGP4Lara[F : Field : NRoot : Order : Trig : TruncatedDivision](
   sec : BrouwerLaneSecularCorrections[F]
   ) extends SGP4(sec) with LaraFirstOrderCorrections[F] with SimpleKeplerEq {
    
@@ -109,9 +109,9 @@ class SGP4Lara[F : Field : NRoot : Order : Trig](
 
 object SGP4Lara {
   
-  def apply[F : Field : NRoot : Order : Trig](sec: BrouwerLaneSecularCorrections[F]) :  SGP4Lara[F] = new SGP4Lara(sec)
+  def apply[F : Field : NRoot : Order : Trig : TruncatedDivision](sec: BrouwerLaneSecularCorrections[F]) :  SGP4Lara[F] = new SGP4Lara(sec)
   
-  def build[F : Field : NRoot : Order : Trig](tle: TLE, wgs: SGPConstants[F]) :  SGP4Lara[F] Or ErrorMessage = for {
+  def build[F : Field : NRoot : Order : Trig : TruncatedDivision](tle: TLE, wgs: SGPConstants[F]) :  SGP4Lara[F] Or ErrorMessage = for {
     elem0AndCtx <- SGPElemsConversions.sgpElemsAndContext(tle, wgs)
     secular = BrouwerLaneSecularCorrections(elem0AndCtx)
   } yield SGP4Lara[F](secular)

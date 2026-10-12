@@ -2,7 +2,8 @@ package predict4s
 package sgp
 package ref
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalactic.TripleEquals._
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
 
@@ -17,7 +18,7 @@ import predict4s.coord.SGPElemsConversions
 //  def lines = List(lines00005,lines06251,lines28057)
 //}
 
-trait ValladoNearTLEsTest extends TLE00005 with TLE06251 with TLE28057 with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] { self : FunSuite => 
+trait ValladoNearTLEsTest extends TLE00005 with TLE06251 with TLE28057 with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] { self : AnyFunSuite => 
 
   implicit val wgs = SGP72Constants.tleDoubleConstants
   
@@ -37,7 +38,7 @@ trait ValladoNearTLEsTest extends TLE00005 with TLE06251 with TLE28057 with Vall
 }
 
 
-class HardcodedValladoCheck extends FunSuite with TLE00005 with TLE06251 with TLE28057 with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] {
+class HardcodedValladoCheck extends AnyFunSuite with TLE00005 with TLE06251 with TLE28057 with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] {
  
   val wgs = SGP72Constants.tleDoubleConstants
   val toMinus9 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1E-9)

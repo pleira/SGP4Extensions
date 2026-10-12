@@ -22,7 +22,7 @@ object SGPElemsConversions {
    * Builds SGPElems with original mean motion (n0'', n0dp) and semimajor axis (a0'' , a0dp).
    *
    */
-  def sgpElemsAndContext[@sp(Double) F: Field: Trig: NRoot: Order](tle: TLE, wgs: SGPConstants[F])
+  def sgpElemsAndContext[@sp(Double) F: Field: Trig: NRoot: Order: TruncatedDivision](tle: TLE, wgs: SGPConstants[F])
       :  SGPElemsResult[F] = {
     val e0 = tle.eccentricity.toDouble.as[F]
     val i0 = tle.inclination.toDouble.toRadians.as[F]
@@ -44,7 +44,7 @@ object SGPElemsConversions {
     calcContextAndOriginalMotionAndSemimajorAxis(e0,i0,ω0,Ω0,M0, bStar,epoch, radPerMin0, wgs)
   }
 
-  private def calcContextAndOriginalMotionAndSemimajorAxis[F: Field: NRoot : Order: Trig](
+  private def calcContextAndOriginalMotionAndSemimajorAxis[F: Field: NRoot : Order: Trig : TruncatedDivision](
     e: F,I: F,ω: F,Ω: F,M: F, bStar: F,epoch: F, radPerMin: F, wgs: SGPConstants[F])
       : SGPElemsResult[F] =
     for {
@@ -55,7 +55,7 @@ object SGPElemsConversions {
     } yield SGPElemsCtx(SGPElems(n,e,I,ω,Ω,M,a,bStar,epoch), iCtx, eCtx, wgs)
 
 
-  private def calcOriginalMotionAndSemimajorAxis[@sp(Double) F: Field: NRoot : Order: Trig](n: F, iCtx: InclinationCtx[F], eCtx : EccentricityCtx[F], wgs: SGPConstants[F])
+  private def calcOriginalMotionAndSemimajorAxis[@sp(Double) F: Field: NRoot : Order: Trig : TruncatedDivision](n: F, iCtx: InclinationCtx[F], eCtx : EccentricityCtx[F], wgs: SGPConstants[F])
       : (F, F) = {
     import wgs.{KE,J2,`2/3`,`1/3`}
     import iCtx.`3c²-1`,eCtx.`β0³`
@@ -70,7 +70,7 @@ object SGPElemsConversions {
     (n0dp, a0dp)
   }
 
-  def sgpelems2spn[@sp(Double) F: Field: Trig: NRoot: Order](eaState: AnomalyState[F], secularCtx : SGPSecularCtx[F]): SpecialPolarNodal[F] Or ErrorMessage = {
+  def sgpelems2spn[@sp(Double) F: Field: Trig: NRoot: Order: TruncatedDivision](eaState: AnomalyState[F], secularCtx : SGPSecularCtx[F]): SpecialPolarNodal[F] Or ErrorMessage = {
     import eaState._
     import secularCtx.{_1 => elem}, elem.{a,I,e,n,ω,Ω}
     import secularCtx.{_3 => wgs}, wgs.`2pi`
@@ -91,7 +91,7 @@ object SGPElemsConversions {
     // comes from -pi,pi
     val f = atan2(sinf, cosf)
     val θ0to2pi = f + ω
-    val θ = (f + ω) % `2pi`  // if (θ0to2pi > pi.as[F]) θ0to2pi - `2pi` else θ0to2pi
+    val θ = (f + ω) tmod `2pi`.as[F]  // if (θ0to2pi > pi.as[F]) θ0to2pi - `2pi` else θ0to2pi
     Good(SpecialPolarNodal(I,θ,Ω,r,R,Θ/r))
   }
 }

@@ -8,7 +8,7 @@ import spire.algebra.Field
 import spire.math._
 
 class AllAlgos(val tle: TLE, val wgs: SGPConstants[Double], val start: Int, val end: Int, val step: Int)  {
-  val times = new Range(start, end, step) // times in minutes  
+  val times = Range(start, end, step) // times in minutes  
   val vasgp4 = SGP4Vallado.build(tle, wgs).get
   val pnsgp4 = SGP4PN(vasgp4.sec)
   val vlsgp4 = SGP4ValladoLong(vasgp4.sec)

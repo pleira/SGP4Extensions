@@ -1,12 +1,13 @@
 package predict4s
 package sgp
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalactic.TripleEquals._
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
 import predict4s.coord._
 
-class GeoPotentialStateCheck extends FunSuite with TLE00005 with TLE06251  {
+class GeoPotentialStateCheck extends AnyFunSuite with TLE00005 with TLE06251  {
   
   implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(1E-9)
   implicit val wgs = SGP72Constants.tleDoubleConstants

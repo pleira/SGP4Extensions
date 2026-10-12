@@ -21,77 +21,60 @@ The software contains parts adapted from an SGP 4 s/w implementation in the publ
 
 Requires
 ---------------
-* Please download latest version of SBT.
-* [sbt 0.13.9](http://www.scala-sbt.org)
+* JDK 11 or newer (a current LTS JDK such as 21 is recommended).
+* [sbt 1.x](https://www.scala-sbt.org) (the build uses sbt 1.13.0, declared in `project/build.properties`).
+* The code runs on Scala 2.13.18 with Spire 0.18.0, ScalaTest 3.2.20 and better-files 3.9.2.
 
 Use
 ---------------
-Clone and test the project 
+Clone and test the project
 
-    git clone https://github.com/pleira/sgp4_11.git
-    $ cd sgp4_11
+    git clone https://github.com/pleira/SGP4Extensions.git
+    $ cd SGP4Extensions
     $ sbt
     > test
 
+The test suite includes hardcoded reference values from Vallado's C++ code, and
+a cross-check of the propagation results against the [python3-sgp4](https://pypi.org/project/sgp4/)
+library. The reference data for the latter is regenerated with
+
+    $ python3 scripts/gen-python-sgp4-reference.py
+
+which writes `tests/src/test/resources/pythonSgp4Reference.csv` (only rows for
+which the reference implementation reports no error are included).
+
 IDE
 ---------------
-* Intellij IDEA (13 | 14). Intellij has great support for Scala, and works fast on this setup.
-	> gen-idea
+Any modern IDE imports this sbt project natively; no plugin-generated project
+files are needed.
 
-	* [Intellij IDEA 14](http://www.jetbrains.com/idea/download/). Community edition with Scala plugin is enough.
-
-* Scala IDE: Uses Eclipse. Lagging behind Intellij in features, but offers the familiar feel of Eclipse development. 	
-	> eclipse
-	
-	* Read [sbt eclipse](https://github.com/typesafehub/sbteclipse/wiki/Using-sbteclipse) for more details.
-	* [Scala IDE 3](http://scala-ide.org). Install at least the ScalaTest plugin, Play plugin if you are building a web app using it.
+* IntelliJ IDEA: File > Open, point it at the repository root.
+* VS Code with Metals: open the repository root (a `.metals` folder already exists).
+* Eclipse: File > Import > Existing Projects into Workspace from the sbt import wizard.
 
 Test
 ------------------
 The best feature of SBT is incremental compilation. This is most evident when testing.
 
-	> ~ test
+	> ~test
 
 Be warned, it's addictive. You'll never want to code in any other statically compiled language without this feature.
 
 Test a single TestSuite
 
-	> test-only package.subpackage.Class
+	> testOnly package.subpackage.Class
 
 Test and Jenkins
 -------------------
 
-ScalaTest is been configured to produce test reports in the JUnit XML format that Jenkins can understand in target/junit-xml-reports.
+ScalaTest is been configured to produce test reports in the JUnit XML format that Jenkins can understand in target/test-reports.
 Configure Jenkins to use this folder. For many more options to configure, use the [ScalaTest runner documentation](http://www.scalatest.org/user_guide/using_the_runner)
-
-Integration Test
--------------------
-Abbreviated as it. A bit fiddly, since it will require every setting defined for test to also be defined for it.
-
-	> it:test
 
 Useful commands
 -----------------
-The former will run a scala REPL with all the project dependencies available. The later will autoscan and run a Main class.
+The former will run a scala REPL with all the project dependencies available. The later will autoscan and run a Main class (see the reports module for the available report programs, e.g. `reports/runMain predict4s.report.PropagateTLE28xxx`).
 	> console
 	> run
-
-Code Coverage
-------------------
-Uses Scoverage as a code coverage tool. The main advantage over other coverage tools is that it understands expressions, as opposed to lines.
-
-	> test
-	> coverageReport
-
-See [Scoverage Plugin](https://github.com/scoverage/sbt-scoverage)
-
-Read documentation details, specially if using integration tests.
-
-Style Checker
--------------------
-Uses [ScalaStyle](http://www.scalastyle.org)
-
-	> scalastyle
 
 Author
 --------------------

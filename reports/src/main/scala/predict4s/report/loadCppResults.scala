@@ -95,7 +95,7 @@ trait DiffResults {
       case s if s(0) <= s(1) => max(s drop 1)
       case s => max((s drop 1).updated(0, s(0)))
     }
-    val (ldp, ldv) =  os zip pvs map diffPosVel unzip
+    val (ldp, ldv) = (os zip pvs map diffPosVel).unzip
 
     (max(ldp).get, max(ldv).get)
   }    

@@ -16,7 +16,7 @@ case class DragSecularCoefs[@sp(Double) F](Mcof: F, ωcof: F, Ωcof: F)
 
 case class LaneCoefs[@sp(Double) F](T2: F, T3: F, T4: F, T5: F)
 
-class BrouwerLaneSecularCorrections[@sp(Double) F : Field : NRoot : Order : Trig](
+class BrouwerLaneSecularCorrections[@sp(Double) F : Field : NRoot : Order : Trig : TruncatedDivision](
     val elem0Ctx: SGPElemsCtx[F],
     val geoPotCtx: GeoPotentialCtx[F],
     val laneCoefs : LaneCoefs[F],
@@ -66,13 +66,13 @@ class BrouwerLaneSecularCorrections[@sp(Double) F : Field : NRoot : Order : Trig
     val Mm_ = Mp + n*δℓ
 
     // modulus so that the angles are in the range 0,2pi
-    val Ω_ = Ωm  % `2pi`
-    val ω_ = ωm  % `2pi`
+    val Ω_ = Ωm  tmod `2pi`.as[F]
+    val ω_ = ωm  tmod `2pi`.as[F]
 
     // Lyddane's variables and back
     val ℓm = Mm_ + ωm + Ωm
-    val lm = ℓm  % `2pi`
-    val Mm = (lm - ω_ - Ω_) % `2pi`
+    val lm = ℓm  tmod `2pi`.as[F]
+    val Mm = (lm - ω_ - Ω_) tmod `2pi`.as[F]
 
     // provide the julian day corresponding to these elements
     val jd = epoch + t/1440
@@ -130,7 +130,7 @@ object BrouwerLaneSecularCorrections extends GeoPotentialAndAtmosphere2ndOrderMo
    * Factory method to produce all inputs needed to create the propagator for SecularCorrections.
    * Here we are starting with a SGP Elements directly obtained from a TLE.
    */
-  def apply[@sp(Double) F : Field : NRoot : Order : Trig](elem0Ctx: SGPElemsCtx[F]) = {
+  def apply[@sp(Double) F : Field : NRoot : Order : Trig : TruncatedDivision](elem0Ctx: SGPElemsCtx[F]) = {
     val geoPotCtx = geoPotentialCoefs(elem0Ctx)
     val geoPotCoefs = geoPotCtx._1
     val laneCoefs = calcLaneCoefs(geoPotCoefs)
@@ -139,11 +139,11 @@ object BrouwerLaneSecularCorrections extends GeoPotentialAndAtmosphere2ndOrderMo
     new BrouwerLaneSecularCorrections(elem0Ctx,geoPotCtx, laneCoefs, secularFrequencies, dragSecularCoefs)
   }
 
-  def build[@sp(Double) F : Field : NRoot : Order : Trig](tle: TLE, wgs: SGPConstants[F]) :  BrouwerLaneSecularCorrections[F] Or ErrorMessage = for {
+  def build[@sp(Double) F : Field : NRoot : Order : Trig : TruncatedDivision](tle: TLE, wgs: SGPConstants[F]) :  BrouwerLaneSecularCorrections[F] Or ErrorMessage = for {
     elem0AndCtx <- SGPElemsConversions.sgpElemsAndContext(tle, wgs)
   } yield BrouwerLaneSecularCorrections(elem0AndCtx)
 
-  private def calcSecularFrequencies[@sp(Double) F : Field : NRoot : Order : Trig](elem0Ctx: SGPElemsCtx[F])
+  private def calcSecularFrequencies[@sp(Double) F : Field : NRoot : Order : Trig : TruncatedDivision](elem0Ctx: SGPElemsCtx[F])
       : (SecularFrequencies[F], F) = {
     import elem0Ctx.{elem,iCtx,eCtx,wgs}
     import wgs._,iCtx._,eCtx._
@@ -174,7 +174,7 @@ object BrouwerLaneSecularCorrections extends GeoPotentialAndAtmosphere2ndOrderMo
     (secularFrequencies, hdot)
   }
 
-  private def calcSecularDragCoefs[@sp(Double) F : Field : NRoot : Order : Trig](hdot: F, elem0Ctx: SGPElemsCtx[F], gctx : GeoPotentialCtx[F])
+  private def calcSecularDragCoefs[@sp(Double) F : Field : NRoot : Order : Trig : TruncatedDivision](hdot: F, elem0Ctx: SGPElemsCtx[F], gctx : GeoPotentialCtx[F])
       : DragSecularCoefs[F] = {
 
     import gctx.{_1=>gcoef,_2=>geoctx}

@@ -1,10 +1,11 @@
 package predict4s.sgp
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalactic.TripleEquals._
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
 
-trait ValladoNearTLEsCheck[F] extends ValladoTLE00005Check[F] with ValladoTLE06251Check[F] with ValladoTLE28057Check[F] { self :  FunSuite => 
+trait ValladoNearTLEsCheck[F] extends ValladoTLE00005Check[F] with ValladoTLE06251Check[F] with ValladoTLE28057Check[F] { self :  AnyFunSuite => 
 
   val check00005  = List(checkSgp4_5_0 ,checkSgp4_5_360 , sgp4CheckSat5_720 , sgp4CheckSat5_1080 , sgp4CheckSat5_1440 , sgp4CheckSat5_1800 , sgp4CheckSat5_2160 ,
                sgp4CheckSat5_2520 , sgp4CheckSat5_2880 , sgp4CheckSat5_3240 , sgp4CheckSat5_3600 , sgp4CheckSat5_3960 , sgp4CheckSat5_4320)
@@ -28,7 +29,7 @@ trait ValladoNearTLEsCheck[F] extends ValladoTLE00005Check[F] with ValladoTLE062
   def tlesTimes = List(times00005, times06251, times28057)
 }
 
-trait ValladoNearTLEsPVCheck[F] extends ValladoTLE00005PVCheck[F] with ValladoTLE06251PVCheck[F] with ValladoTLE28057PVCheck[F] { self :  FunSuite =>  
+trait ValladoNearTLEsPVCheck[F] extends ValladoTLE00005PVCheck[F] with ValladoTLE06251PVCheck[F] with ValladoTLE28057PVCheck[F] { self :  AnyFunSuite =>  
 
   val pvCheck00005  = List(pvCheckSgp4_5_0 ,pvCheckSgp4_5_360 , sgp4PVCheckSat5_720 , sgp4PVCheckSat5_1080 , sgp4PVCheckSat5_1440 , sgp4PVCheckSat5_1800 , sgp4PVCheckSat5_2160 ,
                sgp4PVCheckSat5_2520 , sgp4PVCheckSat5_2880 , sgp4PVCheckSat5_3240 , sgp4PVCheckSat5_3600 , sgp4PVCheckSat5_3960 , sgp4PVCheckSat5_4320 )
@@ -49,7 +50,7 @@ trait ValladoNearTLEsPVCheck[F] extends ValladoTLE00005PVCheck[F] with ValladoTL
 
 // FIXME : assert(  xlcof  ===    0.001289058 ); assert(  aycof  ===   0.000660216 ); assert(  delmo  ===  4.873084659 );
 // 
-trait  ValladoTLE00005Check[F] { self :  FunSuite => 
+trait  ValladoTLE00005Check[F] { self :  AnyFunSuite => 
                                    // ------------------after initl  :---------------
 val checkIntl5 = (ini : Initl[F]) => { implicit equ: Equality[F] =>
   import ini._
@@ -318,7 +319,7 @@ val sgp4CheckSat5_4320 = (res: Sgp4Result[F]) => { implicit equ: Equality[F] =>
 }
 
 // FIXME : assert(  xlcof  ===    0.001836762 );  assert(  aycof  ===     0.000994993 );  assert(  delmo  ===   0.863016906 );
-trait ValladoTLE06251Check[F] { self :  FunSuite => 
+trait ValladoTLE06251Check[F] { self :  AnyFunSuite => 
   // implicit def doubleEqualityTLE06251 = TolerantNumerics.tolerantDoubleEquality(1E-9)
 // ------------------after initl  :---------------
 val checkIntl6251 = (ini : Initl[F]) => { implicit equ: Equality[F] =>
@@ -663,7 +664,7 @@ val sgp4CheckSat6251_2880 = (res: Sgp4Result[F]) => { implicit equ: Equality[F] 
 }
 
 // FIXME assert(  xlcof  ===   0.001540606 );  assert(  delmo  ===   1.000092295 );
-trait ValladoTLE28057Check[F] { self :  FunSuite => 
+trait ValladoTLE28057Check[F] { self :  AnyFunSuite => 
   
   //                                     ------------------after sgp4   :---------------
 val sgp4CheckSat28057_0 = (res: Sgp4Result[F]) => { implicit equ: Equality[F] =>
@@ -957,7 +958,7 @@ val sgp4CheckSat28057_2520 = (res: Sgp4Result[F]) => { implicit equ: Equality[F]
 
 
 
-trait  ValladoTLE00005PVCheck[F] { self :  FunSuite => 
+trait  ValladoTLE00005PVCheck[F] { self :  AnyFunSuite => 
    // here, we are comparing km and km/s
   
 val pvCheckSgp4_5_0 = (res: PosVel[F]) => { implicit equ: Equality[F] =>
@@ -1018,7 +1019,7 @@ assert(  error  ===               0 ); assert(      x  === -9060.473735694 ); as
 } 
 }
 
-trait  ValladoTLE06251PVCheck[F] { self :  FunSuite => 
+trait  ValladoTLE06251PVCheck[F] { self :  AnyFunSuite => 
    // here, we are comparing km
   // implicit val pv06251DoubleEquality = TolerantNumerics.tolerantDoubleEquality(0.08)
   
@@ -1124,7 +1125,7 @@ assert(  error  ===               0 ); assert(      x  ===  1159.278028972 ); as
 } 
 }
 
-trait  ValladoTLE28057PVCheck[F] { self :  FunSuite => 
+trait  ValladoTLE28057PVCheck[F] { self :  AnyFunSuite => 
    // here, we are comparing km
   //implicit val pv28057DoubleEquality[F] = TolerantNumerics.tolerantDoubleEquality(0.08)
 val sgp4PVCheckSat28057_0 = (res: PosVel[F]) => { implicit equ: Equality[F] =>

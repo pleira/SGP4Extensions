@@ -137,6 +137,7 @@ class CompareAll(all: AllPropagators, tle: TestTLE) extends LoadCppResults with 
 
 object ReportTestNearTLEs extends App {
   import better.files._
+import better.files.Dsl._
   import java.io.{File => JFile}
   def allComp(t: TestTLE) = new CompareAll(AllPropagators(t), t)
   val tles = List(TLE00005) // , TLE06251, TLE28057, TLE29238, TLE29141)

@@ -2,7 +2,8 @@ package predict4s
 package sgp
 package ref
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalactic.TripleEquals._
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
 import spire.algebra._
@@ -13,12 +14,12 @@ import spire.syntax.primitives._
 // Tests of the algorithm used in solving Kepler's equation 
 // Solutions are compared with the results obtained in Wolframalpha.com for Kepler's equation
 
-class KeplerAndTrueAnomalyTest extends FunSuite  {
+class KeplerAndTrueAnomalyTest extends AnyFunSuite  {
   
   object kepler extends SimpleKeplerEq 
   
   // e: eccentricity, M: mean anomaly, E: expected eccentric anomaly
-  def solveKeplerAndCheckE(e : Double, M: Double, E: Double) = for {
+  def solveKeplerAndCheckE(e : Double, M: Double, E: Double)(implicit equ: Equality[Double]) = for {
       eas <- kepler.solveKeplerEq(e, M.toRadians)
       xEd = eas.E.toDegrees
       // Console.println(s"calculated eccentric anomaly: ${Ed} , expected eccentric anomaly: ${E} ")

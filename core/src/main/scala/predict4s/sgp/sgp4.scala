@@ -20,7 +20,7 @@ import predict4s.coord.CoordinatesConversions._
  * of first-order, short-period perturbation amplitudes due to J2.
  * (from Space Debris, by H. Klinkrad, pag 216).
  */
-abstract class SGP4[@sp(Double) F : Field : NRoot : Order : Trig](
+abstract class SGP4[@sp(Double) F : Field : NRoot : Order : Trig : TruncatedDivision](
     val sec : BrouwerLaneSecularCorrections[F]
     ) {
 

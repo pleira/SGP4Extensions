@@ -2,7 +2,7 @@ package predict4s.coord
 
 import scala.Vector
 
-import spire.algebra.EuclideanRing
+import spire.algebra.TruncatedDivision
 import spire.algebra.Field
 import spire.algebra.Order
 import spire.implicits.DoubleAlgebra
@@ -49,13 +49,13 @@ object TimeUtils {
   *    vallado       2004, 191, eq 3-45
   */
 
-  def  gstime[@sp(Double) F : Field: Order](jdut1: F) : F = {
+  def  gstime[@sp(Double) F : Field: Order : TruncatedDivision](jdut1: F) : F = {
        val deg2rad = pi / 180
 
        val tut1 = (jdut1 - 2451545) / 36525
        var temp = -6.2e-6* tut1 * tut1 * tut1 + 0.093104 * tut1 * tut1 +
                (876600.0*3600 + 8640184.812866) * tut1 + 67310.54841  // sec
-       temp = EuclideanRing[F].mod(temp * deg2rad / 240, `2pi`.as[F]) //360/86400 = 1/240, to deg, to rad
+       temp = TruncatedDivision[F].tmod(temp * deg2rad / 240, `2pi`.as[F]) //360/86400 = 1/240, to deg, to rad
 
        // ------------------------ check quadrants ---------------------
        if (temp < 0)  temp += `2pi`
@@ -75,7 +75,7 @@ object TimeUtils {
      val thgr70= 1.7321343856509374
      val fk5r  = 5.07551419432269442e-15
      val c1p2p = c1 + `2pi`
-     var gsto  = EuclideanRing[Double].mod( thgr70 + c1*ds70 + c1p2p*tfrac + ts70*ts70*fk5r, `2pi`)
+     var gsto  = (thgr70 + c1*ds70 + c1p2p*tfrac + ts70*ts70*fk5r) % `2pi`
      if ( gsto < 0.0 ) gsto + `2pi` else gsto
   }
 
