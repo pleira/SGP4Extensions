@@ -88,31 +88,30 @@ object TLE {
 
   
   def parseFile(path: String): List[TLE] = {
-    parseLines(io.Source.fromFile(path).getLines.toList)
-  }
-  
-  def parseResource(path: String): List[TLE] = {
-    parseLines(io.Source.fromInputStream(getClass.getResourceAsStream(path)).getLines.toList)
+    val source = io.Source.fromFile(path)
+    try parseLines(source.getLines().toList)
+    finally source.close()
   }
 
-  def parseLines(list: List[String]) : List[TLE] = {
-    var queue = new scala.collection.mutable.Queue[TLE]() // scala.collection.mutable.LinkedList[TLE]();
-    val iter = list.iterator
-    while (iter.hasNext) {
-      val line1 = iter.next()
-      if (!line1.startsWith("#")) {
-        val line2 = iter.next()
-        if (!line2.startsWith("#")) {
-          queue += apply(line1, line2)           
-        }
-      }
-    }
-    queue.toList  
+  def parseResource(path: String): List[TLE] = {
+    val source = io.Source.fromInputStream(getClass.getResourceAsStream(path))
+    try parseLines(source.getLines().toList)
+    finally source.close()
   }
-  
-  
-  import java.util.regex.Pattern;
-  
+
+  /**
+   * Ignores comment lines starting with '#' and pairs the remaining lines in
+   * order into TLEs.
+   */
+  def parseLines(list: List[String]) : List[TLE] =
+    list.filterNot(_.startsWith("#"))
+      .grouped(2)
+      .collect { case Seq(line1, line2) => apply(line1, line2) }
+      .toList
+
+
+  import java.util.regex.Pattern
+
   val LINE_1_PATTERN : Pattern =
       Pattern.compile("1 [ 0-9]{5}U [ 0-9]{5}[ A-Z]{3} [ 0-9]{5}[.][ 0-9]{8} [ +-][.][ 0-9]{8} " +
                       "[ +-][ 0-9]{5}[+-][ 0-9] [ +-][ 0-9]{5}[+-][ 0-9] [ 0-9] [ 0-9]{4}[ 0-9]")
@@ -121,26 +120,12 @@ object TLE {
       Pattern.compile("2 [ 0-9]{5} [ 0-9]{3}[.][ 0-9]{4} [ 0-9]{3}[.][ 0-9]{4} [ 0-9]{7} " +
                       "[ 0-9]{3}[.][ 0-9]{4} [ 0-9]{3}[.][ 0-9]{4} [ 0-9]{2}[.][ 0-9]{13}[ 0-9]")
 
-  def isFormatOK(line1: String, line2: String) : Boolean = {
-      if (!LINE_1_PATTERN.matcher(line1).matches() ||
-          !LINE_2_PATTERN.matcher(line2).matches()) 
-         return false
-
-      val satNum  = parseInt(line1, 2, 5)
-      val satNum2 = parseInt(line2, 2, 5)
-      if (satNum != satNum2) return false
-
-      // check sums
-      val checksum1 = checksum(line1)
-      if (line1.substring(68).toInt != (checksum1 % 10)) 
-        return false
-      
-      val checksum2 = checksum(line2)
-      if (line2.substring(68).toInt != (checksum2 % 10)) 
-        return false
-      
-      true
-  }
+  def isFormatOK(line1: String, line2: String) : Boolean =
+    LINE_1_PATTERN.matcher(line1).matches &&
+    LINE_2_PATTERN.matcher(line2).matches &&
+    parseInt(line1, 2, 5) == parseInt(line2, 2, 5) &&
+    line1.substring(68).toInt == checksum(line1) % 10 &&
+    line2.substring(68).toInt == checksum(line2) % 10
 
   def checksum(line: String): Int = {
       var sum: Int = 0

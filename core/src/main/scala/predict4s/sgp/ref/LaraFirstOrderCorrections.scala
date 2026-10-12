@@ -2,14 +2,8 @@ package predict4s
 package sgp
 package ref
 
-import org.scalactic.Or
-import org.scalactic.Good
-import org.scalactic.Bad
 import spire.algebra._
-import spire.math._
 import spire.implicits._
-import spire.syntax.primitives._
-import predict4s.sgp._
 import predict4s.coord._
 
 trait LaraFirstOrderCorrections[@sp(Double) F] {
@@ -20,7 +14,7 @@ trait LaraFirstOrderCorrections[@sp(Double) F] {
 		val ictx = secularElemt._2    
     val wgs = secularElemt._3
     import lns._
-    import elem.{a,e}, wgs.`J3/J2`, ictx.{s,c,`c²`}
+    import elem.{a,e}, wgs.`J3/J2`, ictx.{c,`c²`}
     
     val `e²` = e*e
     val p = a*(1 - `e²`)  // semilatus rectum , as MU=1
@@ -48,10 +42,9 @@ trait LaraFirstOrderCorrections[@sp(Double) F] {
   def sppCorrections(lppState: (LaraNonSingular[F], SGPSecularCtx[F]))(implicit ev: Field[F]) 
     : LaraNonSingular[F] = {
     import lppState.{_1=>lns,_2=>secularElemt}
-    val elem = secularElemt._1
 		val ictx = secularElemt._2    
     val wgs = secularElemt._3
-    import wgs.J2, ictx.{c,`c²`,s}
+    import wgs.J2, ictx.{c,`c²`}
     import lns._
     
     val p = Θ*Θ 
@@ -74,7 +67,7 @@ trait LaraFirstOrderCorrections[@sp(Double) F] {
 		val ictx = secularElemt._2    
     val wgs = secularElemt._3
     import lns._
-    import elem.{a,e}, wgs.{`J3/J2`,J2}, ictx.{s,c,`c²`}
+    import elem.{a,e}, wgs.{`J3/J2`,J2}, ictx.{c,`c²`}
     
     val `e²` = e*e
     val p = a*(1 - `e²`)  // semilatus rectum , as MU=1

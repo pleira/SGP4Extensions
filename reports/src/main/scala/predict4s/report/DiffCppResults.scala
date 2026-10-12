@@ -1,10 +1,7 @@
 package predict4s.report
 
-import predict4s.sgp._
 import predict4s.coord._
 import predict4s.sgp._
-import spire.implicits._
-import spire.math._
 
 
 class CompareAll(all: AllPropagators, tle: TestTLE) extends LoadCppResults with DiffResults {
@@ -102,21 +99,21 @@ class CompareAll(all: AllPropagators, tle: TestTLE) extends LoadCppResults with 
     println("### Maximum Differences between final results in cartesian elements from Vallado to the algorithms\n")
     cartesianMaxDiffReportHeader map println
     algosCartesianMaxDiffList map println
-    println
+    println()
   }
   
   def cartesianDiffReport() = {
     println("### Differences between cartesian final results from Vallado to the algorithms\n")
     cartesianDiffReportHeader map println
     algosPvDiffsList map { ls => ls map { println } }
-    println
+    println()
   }
   
   def pnDiffReport() = {
     println("### Differences between final results from Vallado in polar nodals using internal units to the algorithms\n")
     pnDiffReportHeader map println
     algosPnDiffsList map { ls => ls map { println } }
-    println
+    println()
   }
   
 //  def pnLppDiffReport() = {
@@ -130,7 +127,7 @@ class CompareAll(all: AllPropagators, tle: TestTLE) extends LoadCppResults with 
     println("### Differences between final polar nodals results from Vallado Long and Polar Nodals algorithms using internal units\n")
     vlpnFinalPNDiffReportHeader map println
     vlpnPnDiffsList map println 
-    println
+    println()
   }  
   
 }
@@ -138,7 +135,6 @@ class CompareAll(all: AllPropagators, tle: TestTLE) extends LoadCppResults with 
 object ReportTestNearTLEs extends App {
   import better.files._
 import better.files.Dsl._
-  import java.io.{File => JFile}
   def allComp(t: TestTLE) = new CompareAll(AllPropagators(t), t)
   val tles = List(TLE00005) // , TLE06251, TLE28057, TLE29238, TLE29141)
   val comps = tles map allComp

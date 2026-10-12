@@ -98,8 +98,6 @@ object CoordinatesConversions {
     val sinΩ  =  sin(Ω); val cosΩ  =  cos(Ω)
     val s = sinI ; val c = cosI; val χ = s * cosθ; val ξ = s * sinθ;
 
-    val xmx   = -sinΩ * c
-    val xmy   =  cosΩ * c
     val ux    = -sinΩ * c * sinθ + cosΩ * cosθ
     val uy    =  cosΩ * c * sinθ + sinΩ * cosθ
     val uz    =  ξ // sinI * sinθ

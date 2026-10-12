@@ -3,14 +3,11 @@ package sgp
 package ref
 
 import org.scalatest.funsuite.AnyFunSuite
-import org.scalactic.TripleEquals._
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
 
 import predict4s.coord.SGP72Constants
 import predict4s.sgp._
-import predict4s.coord.SGPElems
-import predict4s.coord.SGPElemsConversions
 
 /* Near earth examples from Vallado's */
 //trait NearTLEs extends TLE00005 with TLE06251 with TLE28057 {
@@ -20,7 +17,7 @@ import predict4s.coord.SGPElemsConversions
 
 trait ValladoNearTLEsTest extends TLE00005 with TLE06251 with TLE28057 with ValladoNearTLEsCheck[Double] with ValladoNearTLEsPVCheck[Double] { self : AnyFunSuite => 
 
-  implicit val wgs = SGP72Constants.tleDoubleConstants
+  implicit val wgs : SGP72Constants[Double] = SGP72Constants.tleDoubleConstants
   
   // Propagators for all TLEs
   def propags : List[SGP4Vallado[Double]]
@@ -29,8 +26,7 @@ trait ValladoNearTLEsTest extends TLE00005 with TLE06251 with TLE28057 with Vall
   
   val tles = List(tle00005,tle06251,tle28057)
   
-  def results = (propags,tles, tlesTimes).zipped.toList map { p  =>  // tuple of propagator,  tle and the propagation times   
-    val sgp4 = p._1 ; val tle = p._2; val times = p._3
+  def results = propags.zip(tles).zip(tlesTimes).toList map { case ((sgp4, tle), times) => // propagator, tle and its propagation times
     val res = for (t <- times) yield (sgp4.propagate(t), t)
     (sgp4, res, tle)
   } 
@@ -42,7 +38,6 @@ class HardcodedValladoCheck extends AnyFunSuite with TLE00005 with TLE06251 with
  
   val wgs = SGP72Constants.tleDoubleConstants
   val toMinus9 : Equality[Double]= TolerantNumerics.tolerantDoubleEquality(1E-9)
-  import spire.std.any.DoubleAlgebra
   val tles = List(tle00005,tle06251,tle28057)
   def propags : List[SGP4Vallado[Double]] = tles map {tle => 
     import spire.std.any.DoubleAlgebra

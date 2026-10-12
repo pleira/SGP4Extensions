@@ -29,7 +29,7 @@ class BrouwerLaneSecularCorrections[@sp(Double) F : Field : NRoot : Order : Trig
   def secularCorrections(t: Minutes): SGPSecularResult[F] = {
 
     import secularFreqs._  // {ωdot,Ωdot,mdot=>Mdot,Ωcof}
-    import elem0Ctx.{elem,iCtx,eCtx,wgs}
+    import elem0Ctx.{elem,iCtx,wgs}
     import elem._,wgs.{KE,`2/3`,`2pi`}
 
     // Brouwer’s gravitational corrections are applied first
@@ -57,7 +57,7 @@ class BrouwerLaneSecularCorrections[@sp(Double) F : Field : NRoot : Order : Trig
     if (em_ <= 0 || em_ >= 1)
       {
         // sgp4fix to return if there is an error in eccentricity
-        return Bad(s"Secular eccentricity $em_ outside valid range")
+        return Bad(SGP4Error.SecularEccentricityOutOfRange(em_))
       }
 
     // sgp4fix fix tolerance to avoid a divide by zero
@@ -94,8 +94,8 @@ class BrouwerLaneSecularCorrections[@sp(Double) F : Field : NRoot : Order : Trig
     import dragCoefs._ // {ωcof,delM0,sinM0,Mcof}
     import geoPotCtx.{_1=>gcoefs,_2=>gctx}
     import gctx.η,gcoefs._
-    import elem0Ctx.{elem,iCtx,eCtx,wgs,isImpacting}
-    import elem._,wgs.{KE,`2/3`,`2pi`}
+    import elem0Ctx.{elem,isImpacting}
+    import elem._
 
     val `t²` = t*t
     val Ωm  = Ωdf + Ωcof*`t²`
@@ -147,7 +147,7 @@ object BrouwerLaneSecularCorrections extends GeoPotentialAndAtmosphere2ndOrderMo
       : (SecularFrequencies[F], F) = {
     import elem0Ctx.{elem,iCtx,eCtx,wgs}
     import wgs._,iCtx._,eCtx._
-    import elem.{e => e0,n => n0,a => a0,ω => ω0, M => M0,bStar}
+    import elem.{n => n0,a => a0}
 
     val p = a0 * `β0²` // a0 * (1 - `e²`) // semilatus rectum , which also is G²/μ, with G as the Delauney's action, the total angular momentum
     val `p²` = p*p
@@ -180,7 +180,7 @@ object BrouwerLaneSecularCorrections extends GeoPotentialAndAtmosphere2ndOrderMo
     import gctx.{_1=>gcoef,_2=>geoctx}
     import gcoef.{C1,C3},geoctx.{e0η, `ξ⁴(q0-s)⁴`}
     import elem0Ctx.{elem,eCtx,wgs},eCtx.`β0²`,wgs.`2/3`
-    import elem.{e => e0,n => n0,a => a0,ω => ω0, bStar}
+    import elem.{e => e0,ω => ω0, bStar}
 
     // other derived coeficients and variables that are used related to drag corrections
     DragSecularCoefs(

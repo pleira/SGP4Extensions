@@ -4,10 +4,8 @@ package bench
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole
-import predict4s.coord.SGPElemsConversions
 import predict4s.coord.SGP72Constants
 import predict4s.coord.TLE
-import predict4s.sgp.BrouwerLaneSecularCorrections
 import predict4s.sgp.TLE00005
 import predict4s.sgp.TLE06251
 import predict4s.sgp.ref.SGP4Lara
@@ -33,7 +31,7 @@ import predict4s.sgp.ref.SGP4ValladoLong
 class SGP4PropagationBench {
 
   import spire.std.any.DoubleAlgebra
-  implicit val wgs = SGP72Constants.tleDoubleConstants
+  implicit val wgs : SGP72Constants[Double] = SGP72Constants.tleDoubleConstants
 
   @Param(Array("00005", "06251"))
   var tleId: String = null

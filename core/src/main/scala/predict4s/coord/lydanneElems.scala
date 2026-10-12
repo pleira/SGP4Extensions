@@ -40,7 +40,7 @@ object LyddaneConversions {
     
     val `el²` =  `C´`* `C´` + `S´`*`S´` 
     val pl = a*(1 - `el²`)  // semilatus rectum , as MU=1, p=Z²
-    if (pl < 0.as[F]) return Bad(s"lyddane2SpecialPolarNodal: Problem with semilatus rectum p: $pl")
+    if (pl < 0.as[F]) return Bad(SGP4Error.NegativeSemilatusRectum(pl))
     val `√pl`  = sqrt(pl)
     val rl     = a * (1 - ecosU)          // r´        
     val rdotl  = sqrt(a) * esinU/rl       // R´

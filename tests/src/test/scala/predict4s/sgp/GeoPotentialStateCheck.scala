@@ -2,15 +2,14 @@ package predict4s
 package sgp
 
 import org.scalatest.funsuite.AnyFunSuite
-import org.scalactic.TripleEquals._
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
 import predict4s.coord._
 
 class GeoPotentialStateCheck extends AnyFunSuite with TLE00005 with TLE06251  {
   
-  implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(1E-9)
-  implicit val wgs = SGP72Constants.tleDoubleConstants
+  implicit val doubleEquality : Equality[Double] = TolerantNumerics.tolerantDoubleEquality(1E-9)
+  implicit val wgs : SGP72Constants[Double] = SGP72Constants.tleDoubleConstants
   def sgpImpl : String = "Vallado SGP4"
   
   def buildGeoPotential(tle: TLE) = {
@@ -35,9 +34,9 @@ class GeoPotentialStateCheck extends AnyFunSuite with TLE00005 with TLE06251  {
   }
   
   def checkSgp4GeoPotential_5(elem0Ctx: SGPElemsCtx[Double], geoPot: GeoPotentialCtx[Double]) = {
-    import elem0Ctx.{elem,iCtx,eCtx,wgs,rp} 
+    import elem0Ctx.{elem,iCtx,eCtx,rp}
     import elem._,iCtx.`3c²-1`,eCtx.`β0²` // rteosq
-    import geoPot.{_1=>gcoef,_2=>geoctx},gcoef._,geoctx._
+    import geoPot.{_1=>gcoef},gcoef._
     val ωcof = C3*bStar*math.cos(ω)
    
     assert(  n      ===     0.047206302); assert(   a  ===     1.353899821); 
@@ -53,9 +52,9 @@ class GeoPotentialStateCheck extends AnyFunSuite with TLE00005 with TLE06251  {
 
 
   def checkSgp4GeoPotential_06251(elem0Ctx: SGPElemsCtx[Double], geoPot: GeoPotentialCtx[Double]) = {
-    import elem0Ctx.{elem,iCtx,eCtx,wgs,rp} 
+    import elem0Ctx.{elem,iCtx,eCtx,rp}
     import elem._,iCtx.`3c²-1`,eCtx.`β0²` // rteosq
-    import geoPot.{_1=>gcoef,_2=>geoctx},gcoef._,geoctx._
+    import geoPot.{_1=>gcoef},gcoef._
     val ωcof = C3*bStar*math.cos(ω)
     
     assert(  n      ===     0.067918037); assert(   a  ===     1.062338933); 

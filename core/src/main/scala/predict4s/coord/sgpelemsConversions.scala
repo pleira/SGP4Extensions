@@ -7,11 +7,10 @@ import spire.implicits._
 import spire.syntax.primitives._
 import org.scalactic.Or
 import org.scalactic.Good
-import org.scalactic.Bad
 
 case class AnomalyState[@sp(Double) F](E : F, cosE: F, sinE: F, ecosE: F, esinE: F) {
   // define alternative methods to allow expressing a different Anomaly U (not the Eccentric Anomaly)
-  def U = E; def cosU: F = cosE; def sinU: F = sinE; def ecosU: F = ecosE; def esinU: F = esinE;
+  def U : F = E; def cosU: F = cosE; def sinU: F = sinE; def ecosU: F = ecosE; def esinU: F = esinE;
 }
 
 case class SPNAuxVariables[@sp(Double) F](p: F, κ: F, σ: F, n: F, β: F)
@@ -30,7 +29,6 @@ object SGPElemsConversions {
     val raan = tle.rightAscension.toDouble.toRadians.as[F]
     val meanAnomaly =  tle.meanAnomaly.toDouble.toRadians.as[F]
     val meanMotionPerDay = tle.meanMotion.toDouble.as[F]
-    val year = tle.year
     val bStar = tle.atmosphericDragCoeficient.toDouble.as[F]
     // in julian days
     val epoch : F = {
@@ -72,7 +70,7 @@ object SGPElemsConversions {
 
   def sgpelems2spn[@sp(Double) F: Field: Trig: NRoot: Order: TruncatedDivision](eaState: AnomalyState[F], secularCtx : SGPSecularCtx[F]): SpecialPolarNodal[F] Or ErrorMessage = {
     import eaState._
-    import secularCtx.{_1 => elem}, elem.{a,I,e,n,ω,Ω}
+    import secularCtx.{_1 => elem}, elem.{a,I,e,ω,Ω}
     import secularCtx.{_3 => wgs}, wgs.`2pi`
 
     val `e²` = e*e
@@ -86,11 +84,8 @@ object SGPElemsConversions {
     val denom = (cosE - e)
     val sinf = a/r*numer
     val cosf = a/r*denom
-    val esinf = e*sinf
-    val ecosf = e*cosf
     // comes from -pi,pi
     val f = atan2(sinf, cosf)
-    val θ0to2pi = f + ω
     val θ = (f + ω) tmod `2pi`.as[F]  // if (θ0to2pi > pi.as[F]) θ0to2pi - `2pi` else θ0to2pi
     Good(SpecialPolarNodal(I,θ,Ω,r,R,Θ/r))
   }

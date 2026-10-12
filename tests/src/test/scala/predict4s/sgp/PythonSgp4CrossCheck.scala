@@ -18,7 +18,7 @@ import scala.io.Source
 class PythonSgp4CrossCheck extends AnyFunSuite {
 
   import spire.std.any.DoubleAlgebra
-  implicit val wgs = SGP72Constants.tleDoubleConstants
+  implicit val wgs : SGP72Constants[Double] = SGP72Constants.tleDoubleConstants
 
 
   case class TleWithGrid(tle: TLE, line1: String, line2: String, start: Double, end: Double, step: Double) {
@@ -36,7 +36,9 @@ class PythonSgp4CrossCheck extends AnyFunSuite {
       val line1 = iter.next()
       if (!line1.startsWith("#") && line1.trim.nonEmpty) {
         val line2 = iter.next()
-        val Array(start, end, step) = line2.split("\\s+").takeRight(3).map(_.toDouble)
+        val grid = line2.trim.split("\\s+").takeRight(3).map(_.toDouble)
+        require(grid.length == 3, s"expected start, end, step at the end of TLE line 2: $line2")
+        val (start, end, step) = (grid(0), grid(1), grid(2))
         tles += TleWithGrid(TLE.parseLines(List(line1, line2)).head, line1, line2, start, end, step)
       }
     }

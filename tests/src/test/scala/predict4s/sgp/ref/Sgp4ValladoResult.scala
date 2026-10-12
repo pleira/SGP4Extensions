@@ -2,7 +2,6 @@ package predict4s
 package sgp
 package ref
 
-import predict4s.sgp.Sgp4Near
 import predict4s.coord.CartesianElems
 import predict4s.sgp.Sgp4Result
 import predict4s.coord._

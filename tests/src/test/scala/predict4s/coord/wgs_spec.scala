@@ -1,15 +1,12 @@
 package predict4s.coord
 
-import org.scalatest._
 import org.scalatest.funsuite.AnyFunSuite
-import org.scalactic.TripleEquals._
 
 class wgs_spec extends AnyFunSuite {
   
   test("Check WGS values") {
     val wgs = WGS72Constants.tleDoubleConstants
 
-import predict4s.coord.WGS72Constants;
 import wgs._
     assert(aE === 6378.135)
     assert(J2 === 0.001082616)

@@ -2,9 +2,6 @@ package predict4s
 package sgp
 package ref
 
-import org.scalactic.Or
-import org.scalactic.Good
-import org.scalactic.Bad
 import spire.algebra._
 import spire.math._
 import spire.implicits._

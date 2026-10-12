@@ -3,13 +3,9 @@ package sgp
 package ref
 
 import spire.algebra._
-import spire.math._
-import spire.implicits._
-import spire.syntax.primitives._
 import predict4s.sgp._
 import predict4s.coord._
 import org.scalactic.Or
-import predict4s.coord.CoordinatesConversions._
 import predict4s.coord.SGPElemsConversions._
 import predict4s.coord.LyddaneConversions._
 
@@ -65,7 +61,6 @@ class SGP4PN[F : Field : NRoot : Order : Trig : TruncatedDivision](
   
   override def lppCorrections(secularElemt : SGPSecularCtx[F]) : LPPSPNResult[F] = {
     val elem = secularElemt._1
-    val wgs = secularElemt._3
     for {
       eaState <- solveKeplerEq(elem.e, elem.M)
       spnSecular <- sgpelems2spn(eaState, secularElemt)
@@ -78,7 +73,6 @@ class SGP4PN[F : Field : NRoot : Order : Trig : TruncatedDivision](
    */
   def cpnLPPCorrections(secularElemt : SGPSecularCtx[F]) : LPPCPNResult[F] = {
     val elem = secularElemt._1
-    val wgs = secularElemt._3
     for {
       eaState <- solveKeplerEq(elem.e, elem.M)
       spnSecular <- sgpelems2spn(eaState, secularElemt)
@@ -87,34 +81,28 @@ class SGP4PN[F : Field : NRoot : Order : Trig : TruncatedDivision](
   }  
 }
 
-object SGP4Vallado  {
-  
+object SGP4Vallado {
+
   def apply[F : Field : NRoot : Order : Trig : TruncatedDivision](sec: BrouwerLaneSecularCorrections[F]) : SGP4Vallado[F] = new SGP4Vallado(sec)
-  
-  def build[F : Field : NRoot : Order : Trig : TruncatedDivision](tle: TLE, wgs: SGPConstants[F]) : SGP4Vallado[F] Or ErrorMessage  =  for {
-    elem0AndCtx <- SGPElemsConversions.sgpElemsAndContext(tle, wgs)
-    secular = BrouwerLaneSecularCorrections(elem0AndCtx)
-  } yield SGP4Vallado[F](secular)
+
+  def build[F : Field : NRoot : Order : Trig : TruncatedDivision](tle: TLE, wgs: SGPConstants[F]) : SGP4Vallado[F] Or ErrorMessage =
+    BrouwerLaneSecularCorrections.build(tle, wgs).map(SGP4Vallado(_))
 }
 
-object SGP4PN  {
-  
+object SGP4PN {
+
   def apply[F : Field : NRoot : Order : Trig : TruncatedDivision](sec: BrouwerLaneSecularCorrections[F]) :  SGP4PN[F] = new SGP4PN(sec)
-  
-  def build[F : Field : NRoot : Order : Trig : TruncatedDivision](tle: TLE, wgs: SGPConstants[F]) : SGP4PN[F] Or ErrorMessage  =  for {
-    elem0AndCtx <- SGPElemsConversions.sgpElemsAndContext(tle, wgs)
-    secular = BrouwerLaneSecularCorrections(elem0AndCtx)
-  } yield SGP4PN[F](secular)
+
+  def build[F : Field : NRoot : Order : Trig : TruncatedDivision](tle: TLE, wgs: SGPConstants[F]) : SGP4PN[F] Or ErrorMessage =
+    BrouwerLaneSecularCorrections.build(tle, wgs).map(SGP4PN(_))
 
 }
 
-object SGP4ValladoLong  {
-  
-  def apply[F : Field : NRoot : Order : Trig : TruncatedDivision](sec: BrouwerLaneSecularCorrections[F]) :  SGP4ValladoLong[F] = new SGP4ValladoLong(sec)
-  
-  def build[F : Field : NRoot : Order : Trig : TruncatedDivision](tle: TLE, wgs: SGPConstants[F]) : SGP4ValladoLong[F] Or ErrorMessage = for {
-      elem0AndCtx <- SGPElemsConversions.sgpElemsAndContext(tle, wgs)
-      secular = BrouwerLaneSecularCorrections(elem0AndCtx)
-    } yield SGP4ValladoLong[F](secular)
+object SGP4ValladoLong {
+
+  def apply[F : Field : NRoot : Order : Trig : TruncatedDivision](sec: BrouwerLaneSecularCorrections[F]) : SGP4ValladoLong[F] = new SGP4ValladoLong(sec)
+
+  def build[F : Field : NRoot : Order : Trig : TruncatedDivision](tle: TLE, wgs: SGPConstants[F]) : SGP4ValladoLong[F] Or ErrorMessage =
+    BrouwerLaneSecularCorrections.build(tle, wgs).map(SGP4ValladoLong(_))
 
 }

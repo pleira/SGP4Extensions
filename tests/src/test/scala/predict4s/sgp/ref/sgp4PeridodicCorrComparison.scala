@@ -3,7 +3,6 @@ package sgp
 package ref
 
 import org.scalatest.funsuite.AnyFunSuite
-import org.scalactic.TripleEquals._
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
 import spire.math._
@@ -13,11 +12,10 @@ import predict4s.coord.SGPElemsConversions
 import predict4s.coord.SpecialPolarNodal
 import predict4s.conjunction.TLE22675
 import predict4s.conjunction.TLE24946
-import predict4s.coord.LNSConversions._
 
 class Sgp4PeriodicCorrectionImplComparison extends AnyFunSuite with TLE22675 with TLE24946 with TLE00005  with TLE06251 with TLE28057 {
  
-  implicit val wgs = SGP72Constants.tleDoubleConstants
+  implicit val wgs : SGP72Constants[Double] = SGP72Constants.tleDoubleConstants
   val tol1 = TolerantNumerics.tolerantDoubleEquality(3E-4)
   val tol2 = TolerantNumerics.tolerantDoubleEquality(1.6E-6)
   val tol3 = TolerantNumerics.tolerantDoubleEquality(3E-4)

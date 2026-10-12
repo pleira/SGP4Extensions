@@ -3,7 +3,6 @@ package sgp
 package ref
 
 import spire.algebra._
-import spire.math._
 import spire.implicits._
 import spire.syntax.primitives._
 import predict4s.coord._
@@ -14,8 +13,8 @@ trait Lyddane2ndOrderLongPeriodCorrections[@sp(Double) F] extends LyddaneLongPer
   override def lylppCorrectionsCtx(secularCtx : SGPSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F])
       : LyddaneResult[F]  = {
     
-    import secularCtx.{_1 => elem,_3 => wgs,_2 => ictx}
-    import ictx.{c,s},wgs.`J3/J2`,elem.{a,e,ω,M,I,Ω}
+    import secularCtx.{_2 => ictx}
+    import ictx.{c,s}
    
     // apply the first order long-period corrections to compute the "prime" variables
     val (ly1, ly2) = super.lylppCorrectionsCtx(secularCtx)
@@ -30,7 +29,6 @@ trait Lyddane2ndOrderLongPeriodCorrections[@sp(Double) F] extends LyddaneLongPer
     val s_ = if (s < 1.5e-12.as[F]) 1.5e-12.as[F] else s
       
     val δI =   ϵ3 * esinω * c
-    val δa =   0
     val δh = - ϵ3 * ecosω * c/s_
     val δC = - ϵ3 * ecosω * esinω * (1/s_ - 2*s_)
     val δS =   ϵ3 * s_ - ϵ3*`η²`*s_ - 2*ϵ3*`ecosω²`*s_ + ϵ3*`ecosω²`/s_

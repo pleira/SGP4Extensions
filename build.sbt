@@ -7,7 +7,7 @@ lazy val commonSettings = Seq(
     "org.scalatest" %% "scalatest" % "3.2.20" % Test
   ),
   scalacOptions ++= Seq(
-    "-deprecation", "-unchecked", "-Xlint", "-encoding", "UTF-8",
+    "-deprecation", "-unchecked", "-Xlint", "-Wunused:imports,locals,privates,nowarn", "-encoding", "UTF-8",
     "-language:implicitConversions", "-language:higherKinds", "-feature"
   ),
   licenses += ("Apache License, Version 2.0", url("http://www.apache.org/licenses/LICENSE-2.0.txt")),

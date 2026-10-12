@@ -4,8 +4,6 @@ import predict4s.coord._
 import predict4s.sgp.TestTLE
 import predict4s.sgp.ref._
 import spire.implicits._
-import spire.algebra.Field
-import spire.math._
 
 class AllPropagators(val tle: TLE, val wgs: SGPConstants[Double], val start: Int, val end: Int, val step: Int)  {
   val times = Range(start, end, step) // times in minutes  

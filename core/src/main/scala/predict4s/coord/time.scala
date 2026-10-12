@@ -15,7 +15,6 @@ import spire.implicits.partialOrderOps
 import spire.math.floor
 import spire.math.pi
 import spire.syntax.primitives.DoubleAs
-import spire.syntax.primitives.IntAs
 
 
 object TimeUtils {
@@ -75,7 +74,7 @@ object TimeUtils {
      val thgr70= 1.7321343856509374
      val fk5r  = 5.07551419432269442e-15
      val c1p2p = c1 + `2pi`
-     var gsto  = (thgr70 + c1*ds70 + c1p2p*tfrac + ts70*ts70*fk5r) % `2pi`
+     val gsto = (thgr70 + c1*ds70 + c1p2p*tfrac + ts70*ts70*fk5r) % `2pi`
      if ( gsto < 0.0 ) gsto + `2pi` else gsto
   }
 

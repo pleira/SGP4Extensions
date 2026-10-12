@@ -1,11 +1,7 @@
 package predict4s.report
 
-import java.io.InputStream
-import java.io.FileInputStream
 import scala.io.Source
-import predict4s.sgp._
 import predict4s.coord._
-import predict4s.sgp._
 import spire.implicits._
 import spire.math._
 
@@ -17,7 +13,7 @@ trait LoadCppResults {
   def loadCppOutputData(sat: Int) : List[CartesianPNLppUnit] = {
     val relpath = path(sat)
     val stream = getClass.getResourceAsStream(relpath)
-    val cppOuts = Source.fromInputStream( stream ).getLines.filter { x => !(x.isEmpty() || x.startsWith("#")) }.toList map (l => CartesianPNLppUnit(l))
+    val cppOuts = Source.fromInputStream( stream ).getLines().filter { x => !(x.isEmpty() || x.startsWith("#")) }.toList map (l => CartesianPNLppUnit(l))
     cppOuts
   }
 
@@ -89,15 +85,9 @@ trait DiffResults {
   
   def diffListPosVel(os: List[CartesianPNLppUnit], pvs: IndexedSeq[CartesianElems[Double]]) : (Double, Double) = {
             
-    def max[A <% Ordered[A]](xs: Seq[A]): Option[A] = xs match {
-      case s if s.isEmpty || !s.hasDefiniteSize => None
-      case s if s.size == 1 => Some(s(0))
-      case s if s(0) <= s(1) => max(s drop 1)
-      case s => max((s drop 1).updated(0, s(0)))
-    }
     val (ldp, ldv) = (os zip pvs map diffPosVel).unzip
 
-    (max(ldp).get, max(ldv).get)
+    (ldp.max, ldv.max)
   }    
   
 }

@@ -83,18 +83,18 @@ class WGS84Constants[F: Field]() extends WGS[F] {
 }
   
 object WGS721Constants {
-  implicit lazy val tleDoubleConstants = new WGS721Constants[Double]()  
-  implicit lazy val tleRealConstants = new WGS721Constants[Real]()
+  implicit lazy val tleDoubleConstants : WGS721Constants[Double] = new WGS721Constants[Double]()  
+  implicit lazy val tleRealConstants : WGS721Constants[Real] = new WGS721Constants[Real]()
 }
 
 object WGS72Constants {
-  implicit lazy val tleDoubleConstants = new WGS72Constants[Double]()  
-  implicit lazy val tleRealConstants = new WGS72Constants[Real]()
+  implicit lazy val tleDoubleConstants : WGS72Constants[Double] = new WGS72Constants[Double]()  
+  implicit lazy val tleRealConstants : WGS72Constants[Real] = new WGS72Constants[Real]()
 }
 
 object WGS84Constants {
-  implicit lazy val tleDoubleConstants = new WGS84Constants[Double]()  
-  implicit lazy val tleRealConstants = new WGS84Constants[Real]() 
+  implicit lazy val tleDoubleConstants : WGS84Constants[Double] = new WGS84Constants[Double]()  
+  implicit lazy val tleRealConstants : WGS84Constants[Real] = new WGS84Constants[Real]() 
 }
 
 trait SGPConstants[@sp(Double) F] { 
@@ -169,18 +169,18 @@ class SGP84Constants[@sp(Double) F: Field](wgs: WGS84Constants[F]) extends SGPCo
 }
 
 object SGP721Constants {
-  implicit lazy val tleDoubleConstants = new SGP721Constants[Double](WGS721Constants.tleDoubleConstants)  
-  implicit lazy val tleRealConstants = new SGP721Constants[Real](WGS721Constants.tleRealConstants)
+  implicit lazy val tleDoubleConstants : SGP721Constants[Double] = new SGP721Constants[Double](WGS721Constants.tleDoubleConstants)  
+  implicit lazy val tleRealConstants : SGP721Constants[Real] = new SGP721Constants[Real](WGS721Constants.tleRealConstants)
 }
 
 object SGP72Constants {
-  implicit lazy val tleDoubleConstants = new SGP72Constants[Double](WGS72Constants.tleDoubleConstants)  
-  implicit lazy val tleRealConstants = new SGP72Constants[Real](WGS72Constants.tleRealConstants)
+  implicit lazy val tleDoubleConstants : SGP72Constants[Double] = new SGP72Constants[Double](WGS72Constants.tleDoubleConstants)  
+  implicit lazy val tleRealConstants : SGP72Constants[Real] = new SGP72Constants[Real](WGS72Constants.tleRealConstants)
 }
 
 object SGP84Constants {
-  implicit lazy val tleDoubleConstants = new SGP84Constants[Double](WGS84Constants.tleDoubleConstants)  
-  implicit lazy val tleRealConstants = new SGP84Constants[Real](WGS84Constants.tleRealConstants) 
+  implicit lazy val tleDoubleConstants : SGP84Constants[Double] = new SGP84Constants[Double](WGS84Constants.tleDoubleConstants)  
+  implicit lazy val tleRealConstants : SGP84Constants[Real] = new SGP84Constants[Real](WGS84Constants.tleRealConstants) 
 }
 // Variable name Definition Value as given in Hoots document
 //CK2 = 5.413080E-4 // 1/2 J2aE

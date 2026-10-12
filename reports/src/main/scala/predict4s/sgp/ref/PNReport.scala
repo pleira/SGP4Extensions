@@ -1,7 +1,6 @@
 package predict4s.sgp.ref
 
 import predict4s.sgp._
-import predict4s.report.PolarNodalFileReport
 import predict4s.coord._
 
 

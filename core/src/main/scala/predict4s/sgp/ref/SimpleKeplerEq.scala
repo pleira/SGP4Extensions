@@ -7,6 +7,7 @@ import spire.math.{sin,cos,abs}
 import spire.implicits._
 import spire.syntax.primitives._
 import org.scalactic.Good
+import scala.annotation.tailrec
 import org.scalactic.Bad
 import predict4s.coord._
 
@@ -19,6 +20,7 @@ trait SimpleKeplerEq {
    * The Newton-Raphson iterations start from E0 = M = (l in Delauneys).
    */
    def solveKeplerEq[@sp(Double) F: Field: Trig: Order](e: F, M : F): AnomalyResult[F] = {
+    @tailrec
      def loop(E: F, remainingIters: Int) : AnomalyResult[F] = {
       val sinE = sin(E)
       val cosE = cos(E)
@@ -30,7 +32,7 @@ trait SimpleKeplerEq {
       if (abs(incr) < 1e-12.as[F]) {
         Good(AnomalyState(E,cosE,sinE,ecosE,esinE))   
       } else if (remainingIters < 0) {
-        Bad(s"No convergence while solving Kepler equation: incr=$incr, E=$E")
+        Bad(SGP4Error.KeplerNoConvergence(incr, E))
       } else {
         loop(E+incr, remainingIters - 1)
       }

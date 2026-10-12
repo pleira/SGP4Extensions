@@ -16,7 +16,7 @@ trait GeoPotentialAndAtmosphere2ndOrderModel {
   def geoPotentialCoefs[@sp(Double) F: Field : NRoot : Order : Trig : TruncatedDivision](elem0Ctx: SGPElemsCtx[F])
       : GeoPotentialCtx[F] = {
     import elem0Ctx.{elem,iCtx,eCtx,wgs,perigeeHeight}
-    import wgs.{J2,J3,`J3/J2`,aE}
+    import wgs.{J2,`J3/J2`,aE}
     import elem.{e=>e0,n=>n0,ω=>ω0,a=>a0,bStar},iCtx.{sinI0,`θ²`},eCtx.`β0²`
 
     val s0 = fittingAtmosphericParameter(perigeeHeight, aE)

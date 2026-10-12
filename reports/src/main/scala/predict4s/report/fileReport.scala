@@ -1,9 +1,7 @@
 package predict4s.report
 
-import java.io.{ File => JFile }
 import better.files._
 import better.files.Dsl._
-import predict4s.sgp.SGP4
 import predict4s.coord._
 
 abstract class FileReport[F] {

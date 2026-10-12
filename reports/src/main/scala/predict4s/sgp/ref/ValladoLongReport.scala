@@ -1,6 +1,5 @@
 package predict4s.sgp.ref
 
-import predict4s.report.ValladoLongFileReport
 import predict4s.sgp._
 import predict4s.coord._
 

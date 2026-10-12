@@ -1,8 +1,6 @@
 package predict4s.sgp
 
 import org.scalatest.funsuite.AnyFunSuite
-import org.scalactic.TripleEquals._
-import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
 
 trait ValladoNearTLEsCheck[F] extends ValladoTLE00005Check[F] with ValladoTLE06251Check[F] with ValladoTLE28057Check[F] { self :  AnyFunSuite => 

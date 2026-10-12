@@ -3,13 +3,10 @@ package sgp
 package ref
 
 import org.scalatest.funsuite.AnyFunSuite
-import org.scalactic.TripleEquals._
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
-import spire.algebra._
 import spire.math._
 import spire.implicits._
-import spire.syntax.primitives._
 
 // Tests of the algorithm used in solving Kepler's equation 
 // Solutions are compared with the results obtained in Wolframalpha.com for Kepler's equation
@@ -57,7 +54,7 @@ class KeplerAndTrueAnomalyTest extends AnyFunSuite  {
     all foreach { p =>
       val M = p._1; val E = p._2; val f = p._3; val r = p._4
       val orEas = solveKeplerAndCheckE(e, M, E)
-      if (orEas.isBad) fail
+      if (orEas.isBad) fail()
       else {
         val eas = orEas.get
         import eas._

@@ -7,10 +7,9 @@ import spire.math.{sin,cos,abs,pi}
 import spire.implicits._
 import spire.syntax.primitives._
 import predict4s.coord._
-import predict4s.sgp._
-import org.scalactic.Or
 import org.scalactic.Good
 import org.scalactic.Bad
+import scala.annotation.tailrec
 
 trait TwoTermsKeplerEq {
    
@@ -26,6 +25,7 @@ trait TwoTermsKeplerEq {
     // U = F' - h' = M" + g"; 
     val u = TruncatedDivision[F].tmod(xl - Ω, 2.as[F]*pi)  
 
+    @tailrec
     def loop(U: F, remainingIters: Int) : AnomalyResult[F] = {
       val sinU = sin(U)
       val cosU = cos(U)
@@ -38,7 +38,7 @@ trait TwoTermsKeplerEq {
         // NOTE: as we have Lyddane's variables here, the eccentric anomaly is U - ω when comparing 
         Good(AnomalyState(U,cosU,sinU,ecosU,esinU))   
       } else if (remainingIters < 0) {
-        Bad(s"No convergence while solving Kepler equation: incr=$incr, U=$U")
+        Bad(SGP4Error.LyddaneKeplerNoConvergence(incr, U))
       } else {
         loop(U + incr, remainingIters - 1)
       }

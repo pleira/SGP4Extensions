@@ -1,10 +1,6 @@
 package predict4s.report
 
 import predict4s.sgp._
-import predict4s.coord._
-import spire.implicits._
-import spire.math._
-import predict4s.sgp.ref.SGP4Vallado
 
 object PropagateTLE28xxx extends App {
   

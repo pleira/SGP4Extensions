@@ -3,7 +3,6 @@ package coord
 
 import spire.algebra.Trig
 import spire.algebra.Field
-import spire.algebra.NRoot
 import spire.math._
 import spire.implicits._
 import scala.Vector
@@ -22,13 +21,13 @@ case class SGPElems[@sp(Double) F](
 
 
 case class CartesianElems[@sp(Double) F : Field](x: F, y: F, z: F, vx: F, vy: F, vz: F) {
-  def pos = Vector[F](x,y,z)
-  def vel = Vector[F](vx,vy,vz)
+  def pos : Vector[F] = Vector[F](x,y,z)
+  def vel : Vector[F] = Vector[F](vx,vy,vz)
   // Lara uses X,Y,Z for velocities in his formulas. Allow to follow his convention
-  def X = vx
-  def Y = vy
-  def Z = vz
-  def xdot = vx; def ydot = vy ; def zdot = vz;
+  def X : F = vx
+  def Y : F = vy
+  def Z : F = vz
+  def xdot : F = vx; def ydot : F = vy ; def zdot : F = vz;
   // used to calculate differences in results or to add corrections
   def +(c: CartesianElems[F]) = CartesianElems(x+c.x,y+c.y,z+c.z,vx+c.vx,vy+c.vy,vz+c.vz)
   def -(c: CartesianElems[F]) = CartesianElems(x-c.x,y-c.y,z-c.z,vx-c.vx,vy-c.vy,vz-c.vz)
@@ -53,14 +52,14 @@ case class SpecialPolarNodal[@sp(Double) F: Field: Trig](
     R: F,  // the radial velocity
     `Θ/r` : F  // related to the total angular momentum
   ) {
-  def su = θ; def su0 = su; def mrt = r; def mvt = R; def rdot0 = mvt;
+  def su : F = θ; def su0 : F = su; def mrt : F = r; def mvt : F = R; def rdot0 : F = mvt;
   // Note: Vallado's SGP4 uses rθdot = Θ/r instead of Θ, used by Lara
-  def rvdot = `Θ/r`;
-  def Θ = `Θ/r`*r;
-  def rθdot = Θ/r
+  def rvdot : F = `Θ/r`;
+  def Θ : F = `Θ/r`*r;
+  def rθdot : F = `Θ/r`
   def +(o: SpecialPolarNodal[F]) = SpecialPolarNodal(I+o.I,θ+o.θ,Ω+o.Ω,r+o.r,R+o.R,`Θ/r`+o.`Θ/r`)
   def -(o: SpecialPolarNodal[F]) = SpecialPolarNodal(I-o.I,θ-o.θ,Ω-o.Ω,r-o.r,R-o.R,`Θ/r`-o.`Θ/r`)
-  def toCPN = CSpecialPolarNodal(cos(I),θ,Ω,r,R,`Θ/r`)
+  def toCPN : CSpecialPolarNodal[F] = CSpecialPolarNodal(cos(I),θ,Ω,r,R,`Θ/r`)
 }
 
 // This class is just used in one test/comparison between Lara's SGP4 algorithm and the one in polar nodals
@@ -72,10 +71,10 @@ case class CSpecialPolarNodal[@sp(Double) F: Field: Trig](
     R: F,  // the radial velocity
     `Θ/r` : F  // related to the total angular momentum
   ) {
-  def su = θ; def su0 = su; def mrt = r; def mvt = R; def rdot0 = mvt;
+  def su : F = θ; def su0 : F = su; def mrt : F = r; def mvt : F = R; def rdot0 : F = mvt;
   // Note: Vallado's SGP4 uses rθdot = Θ/r instead of Θ, used by Lara
-  def rvdot = `Θ/r`;
-  def Θ = `Θ/r`*r;
-  def rθdot = Θ/r
-  def toSPN = SpecialPolarNodal(acos(cosI),θ,Ω,r,R,`Θ/r`)
+  def rvdot : F = `Θ/r`;
+  def Θ : F = `Θ/r`*r;
+  def rθdot : F = `Θ/r`
+  def toSPN : SpecialPolarNodal[F] = SpecialPolarNodal(acos(cosI),θ,Ω,r,R,`Θ/r`)
 }

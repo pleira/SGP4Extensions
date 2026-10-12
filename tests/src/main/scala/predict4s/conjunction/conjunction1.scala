@@ -7,7 +7,6 @@ import predict4s.coord.SGP72Constants
 import predict4s.sgp._
 import predict4s.sgp.ref.SGP4Vallado
 import predict4s.coord.SGPElemsConversions
-import predict4s.coord.SpecialPolarNodal
 
 // the idea is to find out algorithms that give interesting propagation times for conjunction analysis
 // In this case, the problem is about relating the classical elements of two satellites in different orbits

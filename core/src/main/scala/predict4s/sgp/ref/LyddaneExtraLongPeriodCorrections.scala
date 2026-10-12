@@ -5,11 +5,7 @@ package ref
 import spire.algebra._
 import spire.math._
 import spire.implicits._
-import scala.{ specialized => spec }
 import spire.syntax.primitives._
-import org.scalactic.Or
-import org.scalactic.Good
-import org.scalactic.Bad
 import predict4s.coord._
 import predict4s.sgp._
 

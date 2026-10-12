@@ -66,6 +66,6 @@ object EccentricityCtx {
       if (e > 0 && e < 1)
         Good(EccentricityCtx(e,e*e, 1-e*e))
       else
-        Bad(s"Problem with eccentricity $e")
+        Bad(SGP4Error.NegativeEccentricity(e))
 
 }

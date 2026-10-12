@@ -8,9 +8,9 @@ import spire.syntax.primitives._
 
 // abbreviated LNS
 case class LaraNonSingular[@sp(Double) F: Field](ψ : F, ξ: F, χ: F, r: F, R: F, Θ: F) {
-  def +(o: LaraNonSingular[F]) = LaraNonSingular(ψ + o.ψ,ξ+ o.ξ,χ+ o.χ,r+ o.r,R+ o.R,Θ+ o.Θ)
-  def -(o: LaraNonSingular[F]) = LaraNonSingular(ψ - o.ψ,ξ- o.ξ,χ- o.χ,r- o.r,R- o.R,Θ- o.Θ)
-  def `Θ/r` = Θ/r
+  def +(o: LaraNonSingular[F]) : LaraNonSingular[F] = LaraNonSingular(ψ + o.ψ,ξ+ o.ξ,χ+ o.χ,r+ o.r,R+ o.R,Θ+ o.Θ)
+  def -(o: LaraNonSingular[F]) : LaraNonSingular[F] = LaraNonSingular(ψ - o.ψ,ξ- o.ξ,χ- o.χ,r- o.r,R- o.R,Θ- o.Θ)
+  def `Θ/r` : F = Θ/r
 }
 
 object LNSConversions {
@@ -143,7 +143,6 @@ object LNSConversions {
     import lns._
     val `ξ²` = ξ*ξ
     val `χ²` = χ*χ
-    val `R/r` : F = R/r
     val `Θ/r` : F = Θ/r
     val c = N/Θ
     val cosψ = cos(ψ)
@@ -170,7 +169,6 @@ object LNSConversions {
 
     val `ξ²` = ξ*ξ
     val `χ²` = χ*χ
-    val `R/r` : F = R/r
     val `Θ/r` : F = Θ/r
     val c = N/Θ
     val cosψ = cos(ψ)
@@ -229,8 +227,6 @@ object LNSConversions {
 
     val `ξ²` = ξ*ξ
     val `χ²` = χ*χ
-    val `R/r` : F = R/r
-    val `Θ/r` : F = Θ/r
     val cosψ = cos(ψ)
     val sinψ = sin(ψ)
     val q = ξ * χ / (1 + c)
@@ -264,8 +260,6 @@ object LNSConversions {
     val sinΩ  = sinψ * cosθ - cosψ * sinθ
     val cosΩ  = cosψ * cosθ + sinψ * sinθ
 
-    val xmx   = -sinΩ * c
-    val xmy   =  cosΩ * c
     val ux    = -sinΩ * c * sinθ + cosΩ * cosθ
     // val ux    = -sinψ * cosθ * c + cosψ * sinθ * c +  cosψ * cosθ * cosθ + sinψ * sinθ * cosθ
 //    val ux    =  cosψ * (sinθ * c +  cosθ * cosθ) + sinψ * ( sinθ * cosθ - cosθ * c)

@@ -1,10 +1,6 @@
 package predict4s.report
 
 import predict4s.sgp._
-import predict4s.coord._
-import predict4s.sgp._
-import spire.implicits._
-import spire.math._
 
 
 class CompareAlgos(all: AllAlgos, tle: TestTLE) {
@@ -54,14 +50,14 @@ class CompareAlgos(all: AllAlgos, tle: TestTLE) {
     println("### Differences between cartesian final results from SGP4Vallado to the other algorithms\n")
     cartesianDiffReportHeader map println
     algosPvDiffsList map { ls => ls map { println } }
-    println
+    println()
   }
   
   def pnDiffReport() = {
     println("### Differences between final results from SGP4Vallado in polar nodals using internal units to the other algorithms\n")
     pnDiffReportHeader map println
     algosPnDiffsList map { ls => ls map { println } }
-    println
+    println()
   }
     
 }
@@ -69,7 +65,6 @@ class CompareAlgos(all: AllAlgos, tle: TestTLE) {
 object ReportAlgorithmsWithTestNearTLEs extends App {
   import better.files._
 import better.files.Dsl._
-  import java.io.{File => JFile}
   def allComp(t: TestTLE) = new CompareAlgos(AllAlgos(t), t)
   val tles = List(TLE00005) // , TLE06251, TLE28057, TLE29238, TLE29141)
   val comps = tles map allComp

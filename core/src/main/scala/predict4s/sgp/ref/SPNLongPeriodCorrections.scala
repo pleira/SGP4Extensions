@@ -2,9 +2,6 @@ package predict4s
 package sgp
 package ref
 
-import org.scalactic.Or
-import org.scalactic.Good
-import org.scalactic.Bad
 import spire.algebra._
 import spire.math._
 import spire.implicits._
@@ -17,8 +14,8 @@ trait SPNLongPeriodCorrections[@sp(Double) F] {
   def lppCorrectionsSPN(spnCtx: SPNSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]): (SpecialPolarNodal[F], LongPeriodContext[F]) = {
     import spnCtx.{_1 => spn}, spn._, spnCtx.{_2 => secularCtx}, secularCtx.{_1 => elem}
     import elem.{Ω=>_, _} // do not import Ω from secular elements, just use spn version
-    import secularCtx._2.{c,s,`s²`}
-    import secularCtx._3.{KE,`J3/J2`,`2pi`}
+    import secularCtx._2.{c,s}
+    import secularCtx._3.{`J3/J2`,`2pi`}
 
     val p = a*(1 - e*e)  // semilatus rectum , as MU=1, p=Z²
     val ϵ3 = `J3/J2`/p/2 // ϵ3 = 1/2 aE/p C30/C20 in Lara's
@@ -69,9 +66,9 @@ trait SPNLongPeriodCorrections[@sp(Double) F] {
     val Θl = Θ+δΘ // angular momentum
     
     // recalculate the "state" variables here
+    // val a = rl /(1 - ecosE) 
     val sin2θ = sin(2*θl) // 2 * cos(θl) * sin(θl)
     val cos2θ = cos(2*θl) // 1 - 2 * sin(θl) * sin(θl)
-    // val a = rl /(1 - ecosE) 
     val pl = Θl*Θl // MU=1
     val κl = pl/rl - 1
     val σl = pl*Rl/Θl
@@ -81,12 +78,12 @@ trait SPNLongPeriodCorrections[@sp(Double) F] {
   }
 
   // this one is just used to do a test with Lara's lpp corrections
-  def lppCorrectionsCPN(spnCtx: SPNSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]) 
+  def lppCorrectionsCPN(spnCtx: SPNSecularCtx[F])(implicit ev: Field[F], trig: Trig[F], or: Order[F]) 
        : CSpecialPolarNodal[F] = {
     import spnCtx.{_1 => spn}, spn._, spnCtx.{_2 => secularCtx}, secularCtx.{_1 => elem}
     import elem.{Ω=>_, _} // do not import Ω from secular elements, just use spn version
-    import secularCtx._2.{c,s,`s²`}
-    import secularCtx._3.{KE,`J3/J2`,`2pi`}
+    import secularCtx._2.{c,s}
+    import secularCtx._3.{`J3/J2`,`2pi`}
 
     val p = a*(1 - e*e)  // semilatus rectum , as MU=1, p=Z²
     val ϵ3 = `J3/J2`/p/2 // ϵ3 = 1/2 aE/p C30/C20 in Lara's
@@ -137,14 +134,7 @@ trait SPNLongPeriodCorrections[@sp(Double) F] {
     val Θl = Θ+δΘ // angular momentum
     
     // recalculate the "state" variables here
-    val sin2θ = sin(2*θl) // 2 * cos(θl) * sin(θl)
-    val cos2θ = cos(2*θl) // 1 - 2 * sin(θl) * sin(θl)
     // val a = rl /(1 - ecosE) 
-    val pl = Θl*Θl // MU=1
-    val κl = pl/rl - 1
-    val σl = pl*Rl/Θl
-    val `el²` = κl*κl + σl*σl
-    val βl = sqrt(1 - `el²`)
     CSpecialPolarNodal(cosI, θl, Ωl, rl, Rl, Θl/rl)
   }
  
