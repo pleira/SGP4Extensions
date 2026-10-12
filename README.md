@@ -70,6 +70,18 @@ Test and Jenkins
 ScalaTest is been configured to produce test reports in the JUnit XML format that Jenkins can understand in target/test-reports.
 Configure Jenkins to use this folder. For many more options to configure, use the [ScalaTest runner documentation](http://www.scalatest.org/user_guide/using_the_runner)
 
+Formatting
+-------------------
+Uses [scalafmt](https://github.com/scalameta/scalafmt); the configuration lives in `.scalafmt.conf`.
+
+Format all sources:
+
+	> scalafmtAll
+
+Check them (e.g. in CI):
+
+	> scalafmtCheckAll
+
 Useful commands
 -----------------
 The former will run a scala REPL with all the project dependencies available. The later will autoscan and run a Main class (see the reports module for the available report programs, e.g. `reports/runMain predict4s.report.PropagateTLE28xxx`).

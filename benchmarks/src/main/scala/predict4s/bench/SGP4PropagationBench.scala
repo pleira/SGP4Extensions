@@ -13,15 +13,12 @@ import predict4s.sgp.ref.SGP4PN
 import predict4s.sgp.ref.SGP4Vallado
 import predict4s.sgp.ref.SGP4ValladoLong
 
-/**
- * Measures one full propagation (secular + long/short period corrections to
- * Cartesian TEME) of each SGP4 algorithm variant, with the propagator built
- * once in the setup. Also measures the cost of rebuilding the propagator on
- * every call, which is the common misuse to avoid.
- *
- * Run with allocation profiling to also get per-op allocation:
- *   benchmarks/jmh:run -prof gc
- */
+/** Measures one full propagation (secular + long/short period corrections to Cartesian TEME) of each SGP4 algorithm
+  * variant, with the propagator built once in the setup. Also measures the cost of rebuilding the propagator on every
+  * call, which is the common misuse to avoid.
+  *
+  * Run with allocation profiling to also get per-op allocation: benchmarks/jmh:run -prof gc
+  */
 @State(Scope.Benchmark)
 @BenchmarkMode(Array(Mode.AverageTime))
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -31,7 +28,7 @@ import predict4s.sgp.ref.SGP4ValladoLong
 class SGP4PropagationBench {
 
   import spire.std.any.DoubleAlgebra
-  implicit val wgs : SGP72Constants[Double] = SGP72Constants.tleDoubleConstants
+  implicit val wgs: SGP72Constants[Double] = SGP72Constants.tleDoubleConstants
 
   @Param(Array("00005", "06251"))
   var tleId: String = null

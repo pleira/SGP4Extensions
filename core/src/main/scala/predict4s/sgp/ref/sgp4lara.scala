@@ -11,100 +11,104 @@ import predict4s.coord._
 import predict4s.coord.LNSConversions._
 import predict4s.coord.SGPElemsConversions._
 
-class SGP4Lara[F : Field : NRoot : Order : Trig : TruncatedDivision](
-  sec : BrouwerLaneSecularCorrections[F]
-  ) extends SGP4(sec) with LaraFirstOrderCorrections[F] with SimpleKeplerEq {
-   
-//   override def propagate2CartesianContext(t: Minutes) : SGPPropResult[F] = 
+class SGP4Lara[F: Field: NRoot: Order: Trig: TruncatedDivision](
+    sec: BrouwerLaneSecularCorrections[F]
+) extends SGP4(sec)
+    with LaraFirstOrderCorrections[F]
+    with SimpleKeplerEq {
+
+//   override def propagate2CartesianContext(t: Minutes) : SGPPropResult[F] =
 //    for {
 //      secularElemt <- secularCorrections(t)
 //      lns <- periodicCorrectionsLNS(secularElemt)
 //      unitpv = lns2UnitCartesian(lns)
 //      /// FIXME
-//    	_N = lns.`Θ/r`*lns.r*secularElemt._2.c // ictx.c    // N = Θ*cosI , which remains constant      
+//    	_N = lns.`Θ/r`*lns.r*secularElemt._2.c // ictx.c    // N = Θ*cosI , which remains constant
 //      spn = lns2spn(lns, _N)
 //      pv = scaleUnitCartesians(unitpv,spn.r)
-//    } yield (pv, unitpv, spn) 
-    
-  override def periodicCorrections(secularElemt : SGPSecularCtx[F]) : SGPSPNResult[F] = {
+//    } yield (pv, unitpv, spn)
+
+  override def periodicCorrections(secularElemt: SGPSecularCtx[F]): SGPSPNResult[F] = {
     val elem = secularElemt._1
-		val ictx = secularElemt._2    
+    val ictx = secularElemt._2
     for {
-    	eaState <- solveKeplerEq(elem.e, elem.M)
-    	spnSecular <- sgpelems2spn(eaState, secularElemt)
-    	_N = spnSecular.`Θ/r`*spnSecular.r*ictx.c    // N = Θ*cosI , which remains constant
+      eaState <- solveKeplerEq(elem.e, elem.M)
+      spnSecular <- sgpelems2spn(eaState, secularElemt)
+      _N = spnSecular.`Θ/r` * spnSecular.r * ictx.c // N = Θ*cosI , which remains constant
       lns = spn2lns(spnSecular, ictx)
-      corr = allCorrections(lns, secularElemt)   
+      corr = allCorrections(lns, secularElemt)
       finalSPN = lns2spn(corr, _N)
     } yield finalSPN
   }
-    
- def periodicCorrectionsWithN(secularElemt : SGPSecularCtx[F]) : SGPSPNResult[F] = {
+
+  def periodicCorrectionsWithN(secularElemt: SGPSecularCtx[F]): SGPSPNResult[F] = {
     val elem = secularElemt._1
-		val ictx = secularElemt._2    
+    val ictx = secularElemt._2
     for {
-    	eaState <- solveKeplerEq(elem.e, elem.M)
-    	spnSecular <- sgpelems2spn(eaState, secularElemt)
-    	_N = spnSecular.`Θ/r`*spnSecular.r*ictx.c    // N = Θ*cosI , which remains constant
+      eaState <- solveKeplerEq(elem.e, elem.M)
+      spnSecular <- sgpelems2spn(eaState, secularElemt)
+      _N = spnSecular.`Θ/r` * spnSecular.r * ictx.c // N = Θ*cosI , which remains constant
       lns = spn2lns(spnSecular, ictx)
-      corr = allCorrections(lns, secularElemt)   
+      corr = allCorrections(lns, secularElemt)
       finalSPN = lns2spn(corr, _N)
     } yield finalSPN
   }
 
   // periodic corrections results in Lara Non Singular (LNS)
-  def periodicCorrectionsLNS(secularElemt : SGPSecularCtx[F]): SGPLNSResult[F] = {
+  def periodicCorrectionsLNS(secularElemt: SGPSecularCtx[F]): SGPLNSResult[F] = {
     val elem = secularElemt._1
-		val ictx = secularElemt._2    
+    val ictx = secularElemt._2
     for {
-    	eaState <- solveKeplerEq(elem.e, elem.M)
-    	spnSecular <- sgpelems2spn(eaState, secularElemt)
- //   	_N = spnSecular.`Θ/r`*spnSecular.r*ictx.c    // N = Θ*cosI , which remains constant
+      eaState <- solveKeplerEq(elem.e, elem.M)
+      spnSecular <- sgpelems2spn(eaState, secularElemt)
+      //   	_N = spnSecular.`Θ/r`*spnSecular.r*ictx.c    // N = Θ*cosI , which remains constant
       lns = spn2lns(spnSecular, ictx)
       flns = allCorrections(lns, secularElemt)
     } yield flns
   }
-   
+
   /*
-   * This is used/compare to test the LPP corrections in SPN coordinates 
+   * This is used/compare to test the LPP corrections in SPN coordinates
    */
-  def propagateToSPNLPP(secularElemt : SGPSecularCtx[F]) : LPPSPNResult[F] = {
+  def propagateToSPNLPP(secularElemt: SGPSecularCtx[F]): LPPSPNResult[F] = {
     val elem = secularElemt._1
-		val ictx = secularElemt._2    
+    val ictx = secularElemt._2
     for {
       eaState <- solveKeplerEq(elem.e, elem.M)
       spnSecular <- sgpelems2spn(eaState, secularElemt)
-      _N = spnSecular.`Θ/r`*spnSecular.r*ictx.c    // cosI = N/Θ =>  
-      lns = spn2lns(spnSecular, ictx)    
+      _N = spnSecular.`Θ/r` * spnSecular.r * ictx.c // cosI = N/Θ =>
+      lns = spn2lns(spnSecular, ictx)
       lalppcorr = lppCorrections(lns, secularElemt)
       lppcorr1 = lns2spn(lalppcorr._1, _N)
-    } yield (lppcorr1, LongPeriodContext(0.as[F],0.as[F],0.as[F],0.as[F],0.as[F],0.as[F]), secularElemt)    
+    } yield (lppcorr1, LongPeriodContext(0.as[F], 0.as[F], 0.as[F], 0.as[F], 0.as[F], 0.as[F]), secularElemt)
   }
 
-
   /*
-   * This is used to test/compare the LPP corrections in CPN coordinates 
+   * This is used to test/compare the LPP corrections in CPN coordinates
    */
-  def cpnLPPCorrections(secularElemt : SGPSecularCtx[F]) : LPPCPNResult[F] = {
+  def cpnLPPCorrections(secularElemt: SGPSecularCtx[F]): LPPCPNResult[F] = {
     val elem = secularElemt._1
-		val ictx = secularElemt._2    
+    val ictx = secularElemt._2
     for {
       eaState <- solveKeplerEq(elem.e, elem.M)
       spnSecular <- sgpelems2spn(eaState, secularElemt)
-      _N = spnSecular.`Θ/r`*spnSecular.r*ictx.c    // cosI = N/Θ, N remains a constant 
-      lns = spn2lns(spnSecular, ictx)    
+      _N = spnSecular.`Θ/r` * spnSecular.r * ictx.c // cosI = N/Θ, N remains a constant
+      lns = spn2lns(spnSecular, ictx)
       lalppcorr = lppCorrections(lns, secularElemt)
-      lppcorr1 = lns2cpn(lalppcorr._1,_N)
-    } yield lppcorr1    
+      lppcorr1 = lns2cpn(lalppcorr._1, _N)
+    } yield lppcorr1
   }
 
 }
 
-
 object SGP4Lara {
-  
-  def apply[F : Field : NRoot : Order : Trig : TruncatedDivision](sec: BrouwerLaneSecularCorrections[F]) :  SGP4Lara[F] = new SGP4Lara(sec)
-  
-  def build[F : Field : NRoot : Order : Trig : TruncatedDivision](tle: TLE, wgs: SGPConstants[F]) :  SGP4Lara[F] Or ErrorMessage =
+
+  def apply[F: Field: NRoot: Order: Trig: TruncatedDivision](sec: BrouwerLaneSecularCorrections[F]): SGP4Lara[F] =
+    new SGP4Lara(sec)
+
+  def build[F: Field: NRoot: Order: Trig: TruncatedDivision](
+      tle: TLE,
+      wgs: SGPConstants[F]
+  ): SGP4Lara[F] Or ErrorMessage =
     BrouwerLaneSecularCorrections.build(tle, wgs).map(SGP4Lara(_))
 }

@@ -1,7 +1,6 @@
 package predict4s
 package conjunction
 
-
 import spire.math._
 import predict4s.coord.SGP72Constants
 import predict4s.sgp._
@@ -17,7 +16,7 @@ object ConjunctionInterpreterExperiment1 extends App with TLE22675 with TLE24946
   val wgs = SGP72Constants.tleDoubleConstants
 
   import spire.std.any.DoubleAlgebra
-  val tles = List(tle22675,tle24946)
+  val tles = List(tle22675, tle24946)
   val sgp4s = for {
     tle <- tles
     elem0AndCtx = SGPElemsConversions.sgpElemsAndContext(tle, wgs).get
@@ -39,8 +38,8 @@ object ConjunctionInterpreterExperiment1 extends App with TLE22675 with TLE24946
   var t = 0.0;
   import scala.collection.mutable.ListBuffer
   val lb = new ListBuffer[Double]
-  val (s0t,_,_) = sgp24946.secularCorrections(t).get
-  val (s1t,_,_) = sgp22675.secularCorrections(t + diffMinutes).get
+  val (s0t, _, _) = sgp24946.secularCorrections(t).get
+  val (s1t, _, _) = sgp22675.secularCorrections(t + diffMinutes).get
   // TODO: with the secular elements, estimate characteristics related to both orbital planes.
   // At the end, it is to find the passing times in the plane crossings
   // and check for conjunction overthere

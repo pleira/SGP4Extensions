@@ -10,114 +10,118 @@ trait WGSConstants[@sp(Double) F] {
 
   /** sqrt(Grativational Constant * Earths's Mass) */
   def MU: F
-  /** Equatorial radius of the Earth in km */ 
+
+  /** Equatorial radius of the Earth in km */
   def aE: F
   // def EARTH_RADIUS = aE
-  /**  sqrt (Grativational Constant * Earths's Mass)  in units (Earths Radii)** 1.5 / minute */
+  /** sqrt (Grativational Constant * Earths's Mass)  in units (Earths Radii)** 1.5 / minute */
   def KE: F
+
   /** J2 spherical harmonic value */
   def J2: F
+
   /** J3 spherical harmonic value */
   def J3: F
+
   /** J3 spherical harmonic value */
-  def J4: F  
+  def J4: F
   def CK2: F = K2 // = 5.413080E-4.as[F] // 1/2 J2aE
-  def CK4: F = K4  // = -3*J4* aE⁴ / 8
-  def K2: F 
-  def K4: F 
-  def A30 : F
-  def A3OVK2 : F // def K2: F   // units of (Earth radii) ]
-  
+  def CK4: F = K4 // = -3*J4* aE⁴ / 8
+  def K2: F
+  def K4: F
+  def A30: F
+  def A3OVK2: F // def K2: F   // units of (Earth radii) ]
+
 }
 
 abstract class WGS[@sp(Double) F: Field]() extends WGSConstants[F] {
-  def K2    = J2 * aE  / 2 // We use Vallado's, in reality J2 * aE² / 2
-  def K4    = -3*J4* aE * aE * aE * aE / 8
-  def A3OVK2 = - J3 / K2
-  def A30    = - J3 * aE * aE * aE
-  override def CK2   = K2
-  override def CK4   = K4
+  def K2 = J2 * aE / 2 // We use Vallado's, in reality J2 * aE² / 2
+  def K4 = -3 * J4 * aE * aE * aE * aE / 8
+  def A3OVK2 = -J3 / K2
+  def A30 = -J3 * aE * aE * aE
+  override def CK2 = K2
+  override def CK4 = K4
 }
 
 // old WGS72 constants
 class WGS721Constants[F: Field]() extends WGS[F] {
-  val MU     =   398600.8.as[F]
-  val aE     =   6378.135.as[F]
-  val KE     =   0.0743669161.as[F] // units 1/min = 60/sqrt(aE³/μ)
-  val J2     =   0.001082616.as[F]
-  val J3     =  -0.00000253881.as[F]
-  val J4     =  -0.00000165597.as[F]
-  val vkmpersec =  aE * KE/60
-  val `J2/J3` : F = J2/J3
-  val `J3/J2` : F = J3/J2
-  override val K2     =   super.K2
-  override val K4     =   super.K4
+  val MU = 398600.8.as[F]
+  val aE = 6378.135.as[F]
+  val KE = 0.0743669161.as[F] // units 1/min = 60/sqrt(aE³/μ)
+  val J2 = 0.001082616.as[F]
+  val J3 = -0.00000253881.as[F]
+  val J4 = -0.00000165597.as[F]
+  val vkmpersec = aE * KE / 60
+  val `J2/J3`: F = J2 / J3
+  val `J3/J2`: F = J3 / J2
+  override val K2 = super.K2
+  override val K4 = super.K4
 }
 
 class WGS72Constants[F: Field]() extends WGS[F] {
-  val MU     =   398600.79964.as[F] 
-  val aE     =   6378.135.as[F]
-  val KE     =   0.07436691613317.as[F]       //   60 / (aE³/ MU).sqrt  // /min
-  val J2     =   0.001082616.as[F]
-  val J3     =  -0.00000253881.as[F]
-  val J4     =  -0.00000165597.as[F]
-  override val K2     =   super.K2
-  override val K4     =   super.K4
-  val `J2/J3` : F = J2/J3
-  val `J3/J2` : F = J3/J2
-  val α : F = aE                        // Earth's equatorial radius  
+  val MU = 398600.79964.as[F]
+  val aE = 6378.135.as[F]
+  val KE = 0.07436691613317.as[F] //   60 / (aE³/ MU).sqrt  // /min
+  val J2 = 0.001082616.as[F]
+  val J3 = -0.00000253881.as[F]
+  val J4 = -0.00000165597.as[F]
+  override val K2 = super.K2
+  override val K4 = super.K4
+  val `J2/J3`: F = J2 / J3
+  val `J3/J2`: F = J3 / J2
+  val α: F = aE // Earth's equatorial radius
 }
 
 class WGS84Constants[F: Field]() extends WGS[F] {
-  val MU     =   398600.5.as[F]            
-  val aE     =   6378.137.as[F]
-  val KE     =   0.07436685316871.as[F]   //   60 / (aE³/ MU).sqrt   //  /min
-  val J2     =   0.00108262998905.as[F]
-  val J3     =  -0.00000253215306.as[F]
-  val J4     =  -0.00000161098761.as[F]
-  override val K2     =   super.K2
-  override val K4     =   super.K4
-  val `J2/J3` : F = J2/J3
-  val `J3/J2` : F = J3/J2
-  val α : F = aE                        // Earth's equatorial radius
+  val MU = 398600.5.as[F]
+  val aE = 6378.137.as[F]
+  val KE = 0.07436685316871.as[F] //   60 / (aE³/ MU).sqrt   //  /min
+  val J2 = 0.00108262998905.as[F]
+  val J3 = -0.00000253215306.as[F]
+  val J4 = -0.00000161098761.as[F]
+  override val K2 = super.K2
+  override val K4 = super.K4
+  val `J2/J3`: F = J2 / J3
+  val `J3/J2`: F = J3 / J2
+  val α: F = aE // Earth's equatorial radius
 }
-  
+
 object WGS721Constants {
-  implicit lazy val tleDoubleConstants : WGS721Constants[Double] = new WGS721Constants[Double]()  
-  implicit lazy val tleRealConstants : WGS721Constants[Real] = new WGS721Constants[Real]()
+  implicit lazy val tleDoubleConstants: WGS721Constants[Double] = new WGS721Constants[Double]()
+  implicit lazy val tleRealConstants: WGS721Constants[Real] = new WGS721Constants[Real]()
 }
 
 object WGS72Constants {
-  implicit lazy val tleDoubleConstants : WGS72Constants[Double] = new WGS72Constants[Double]()  
-  implicit lazy val tleRealConstants : WGS72Constants[Real] = new WGS72Constants[Real]()
+  implicit lazy val tleDoubleConstants: WGS72Constants[Double] = new WGS72Constants[Double]()
+  implicit lazy val tleRealConstants: WGS72Constants[Real] = new WGS72Constants[Real]()
 }
 
 object WGS84Constants {
-  implicit lazy val tleDoubleConstants : WGS84Constants[Double] = new WGS84Constants[Double]()  
-  implicit lazy val tleRealConstants : WGS84Constants[Real] = new WGS84Constants[Real]() 
+  implicit lazy val tleDoubleConstants: WGS84Constants[Double] = new WGS84Constants[Double]()
+  implicit lazy val tleRealConstants: WGS84Constants[Real] = new WGS84Constants[Real]()
 }
 
-trait SGPConstants[@sp(Double) F] { 
+trait SGPConstants[@sp(Double) F] {
   def MU: F
   def aE: F
   def J2: F
   def J3: F
-  def J4: F  
+  def J4: F
   def KE: F
-  def vkmpersec: F 
-  def α : F
-  def `J2/J3` : F
-  def `J3/J2` : F
-  def μ : F
-  def `2pi` = 2*pi 
-  def `2/3` : F
-  def `1/3` : F
+  def vkmpersec: F
+  def α: F
+  def `J2/J3`: F
+  def `J3/J2`: F
+  def μ: F
+  def `2pi` = 2 * pi
+  def `2/3`: F
+  def `1/3`: F
 //  def CK2: F = wgs.K2 // = 5.413080E-4.as[F] // 1/2 J2aE
 //  def CK4: F = wgs.K4  // = -3*J4* aE⁴ / 8
 //  def K2: F =  wgs.K2
-//  def K4: F = wgs.K4 
+//  def K4: F = wgs.K4
 //  def A30 : F = wgs.A30
-//  def A3OVK2 : F  = wgs.A3OVK2  // def K2: F   // units of (Earth radii) ]  
+//  def A3OVK2 : F  = wgs.A3OVK2  // def K2: F   // units of (Earth radii) ]
 }
 
 class SGP721Constants[@sp(Double) F: Field](wgs: WGS721Constants[F]) extends SGPConstants[F] {
@@ -126,14 +130,14 @@ class SGP721Constants[@sp(Double) F: Field](wgs: WGS721Constants[F]) extends SGP
   override def KE: F = wgs.KE
   override def J2: F = wgs.J2
   override def J3: F = wgs.J3
-  override def J4: F = wgs.J4    
-  val vkmpersec =  aE * KE/60
-  override val `J2/J3` : F = J2/J3
-  override val `J3/J2` : F = J3/J2
-  override val α : F = aE                        // Earth's equatorial radius
-  override val μ : F = wgs.MU
-  override val `2/3` = 2.as[F]/3.as[F]
-  override val `1/3` = 1.as[F]/3.as[F]
+  override def J4: F = wgs.J4
+  val vkmpersec = aE * KE / 60
+  override val `J2/J3`: F = J2 / J3
+  override val `J3/J2`: F = J3 / J2
+  override val α: F = aE // Earth's equatorial radius
+  override val μ: F = wgs.MU
+  override val `2/3` = 2.as[F] / 3.as[F]
+  override val `1/3` = 1.as[F] / 3.as[F]
 }
 
 class SGP72Constants[@sp(Double) F: Field](wgs: WGS72Constants[F]) extends SGPConstants[F] {
@@ -142,14 +146,14 @@ class SGP72Constants[@sp(Double) F: Field](wgs: WGS72Constants[F]) extends SGPCo
   override def KE: F = wgs.KE
   override def J2: F = wgs.J2
   override def J3: F = wgs.J3
-  override def J4: F = wgs.J4    
-  val vkmpersec =  aE * KE/60
-  override val `J2/J3` : F = J2/J3
-  override val `J3/J2` : F = J3/J2
-  override val α : F = aE                        // Earth's equatorial radius
-  override val μ : F = wgs.MU
-  override val `2/3` = 2.as[F]/3.as[F]
-  override val `1/3` = 1.as[F]/3.as[F]
+  override def J4: F = wgs.J4
+  val vkmpersec = aE * KE / 60
+  override val `J2/J3`: F = J2 / J3
+  override val `J3/J2`: F = J3 / J2
+  override val α: F = aE // Earth's equatorial radius
+  override val μ: F = wgs.MU
+  override val `2/3` = 2.as[F] / 3.as[F]
+  override val `1/3` = 1.as[F] / 3.as[F]
 }
 
 class SGP84Constants[@sp(Double) F: Field](wgs: WGS84Constants[F]) extends SGPConstants[F] {
@@ -158,29 +162,33 @@ class SGP84Constants[@sp(Double) F: Field](wgs: WGS84Constants[F]) extends SGPCo
   override def KE: F = wgs.KE
   override def J2: F = wgs.J2
   override def J3: F = wgs.J3
-  override def J4: F = wgs.J4    
-  val vkmpersec =  aE * KE/60
-  override val `J2/J3` : F = J2/J3
-  override val `J3/J2` : F = J3/J2
-  override val α : F = aE                        // Earth's equatorial radius
-  override val μ : F = wgs.MU
-  override val `2/3` = 2.as[F]/3.as[F]
-  override val `1/3` = 1.as[F]/3.as[F]
+  override def J4: F = wgs.J4
+  val vkmpersec = aE * KE / 60
+  override val `J2/J3`: F = J2 / J3
+  override val `J3/J2`: F = J3 / J2
+  override val α: F = aE // Earth's equatorial radius
+  override val μ: F = wgs.MU
+  override val `2/3` = 2.as[F] / 3.as[F]
+  override val `1/3` = 1.as[F] / 3.as[F]
 }
 
 object SGP721Constants {
-  implicit lazy val tleDoubleConstants : SGP721Constants[Double] = new SGP721Constants[Double](WGS721Constants.tleDoubleConstants)  
-  implicit lazy val tleRealConstants : SGP721Constants[Real] = new SGP721Constants[Real](WGS721Constants.tleRealConstants)
+  implicit lazy val tleDoubleConstants: SGP721Constants[Double] =
+    new SGP721Constants[Double](WGS721Constants.tleDoubleConstants)
+  implicit lazy val tleRealConstants: SGP721Constants[Real] =
+    new SGP721Constants[Real](WGS721Constants.tleRealConstants)
 }
 
 object SGP72Constants {
-  implicit lazy val tleDoubleConstants : SGP72Constants[Double] = new SGP72Constants[Double](WGS72Constants.tleDoubleConstants)  
-  implicit lazy val tleRealConstants : SGP72Constants[Real] = new SGP72Constants[Real](WGS72Constants.tleRealConstants)
+  implicit lazy val tleDoubleConstants: SGP72Constants[Double] =
+    new SGP72Constants[Double](WGS72Constants.tleDoubleConstants)
+  implicit lazy val tleRealConstants: SGP72Constants[Real] = new SGP72Constants[Real](WGS72Constants.tleRealConstants)
 }
 
 object SGP84Constants {
-  implicit lazy val tleDoubleConstants : SGP84Constants[Double] = new SGP84Constants[Double](WGS84Constants.tleDoubleConstants)  
-  implicit lazy val tleRealConstants : SGP84Constants[Real] = new SGP84Constants[Real](WGS84Constants.tleRealConstants) 
+  implicit lazy val tleDoubleConstants: SGP84Constants[Double] =
+    new SGP84Constants[Double](WGS84Constants.tleDoubleConstants)
+  implicit lazy val tleRealConstants: SGP84Constants[Real] = new SGP84Constants[Real](WGS84Constants.tleRealConstants)
 }
 // Variable name Definition Value as given in Hoots document
 //CK2 = 5.413080E-4 // 1/2 J2aE
@@ -196,26 +204,25 @@ object SGP84Constants {
 //AE = 1.0 // distance units/Earth radii
 //DE2RA = 0.174532925E-1 // radians/degree
 //PI = 3.14159265 // π
-//PIO2 = 1.57079633 // π/2 
+//PIO2 = 1.57079633 // π/2
 //`2pi` =  6.2831853 // 2π
-//X3PIO2 = 4.71238898  // 3π/2 
+//X3PIO2 = 4.71238898  // 3π/2
 
 //object TLEConstants {
 //  val TLEConstantsD = new TLEConstants[Double]
 //  val TLEConstantsR = new TLEConstants[Real]
 //  val TLEConstantsBD = new TLEConstants[BigDecimal]
-//  
+//
 //  import reflect.runtime.universe._
-//  def getTLEConstants[T](implicit tag: TypeTag[T]) : TLEConstants[T] = 
+//  def getTLEConstants[T](implicit tag: TypeTag[T]) : TLEConstants[T] =
 //    typeOf[T] match {
-//      case t if (t <:< typeOf[Double])      => TLEConstantsD 
+//      case t if (t <:< typeOf[Double])      => TLEConstantsD
 //      case t if (t <:< typeOf[Real])        => TLEConstantsR
 //      case t if (t <:< typeOf[BigDecimal])  => TLEConstantsBD
 //      // case t if (t <:< typeOf[Field[_]])  => TLEConstants[t]()
 //      case _ => throw new IllegalArgumentException()
 //  }
 //}
-
 
 /*
           // -- wgs-72 low precision str#3 constants --
@@ -249,4 +256,4 @@ object SGP84Constants {
            j3     =  -0.00000253215306;
            j4     =  -0.00000161098761;
            j3oj2  =  j3 / j2;
-*/
+ */

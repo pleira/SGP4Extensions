@@ -6,13 +6,11 @@ import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole
 import predict4s.sgp.ref.SimpleKeplerEq
 
-/**
- * Compares the generic (spire type classes, F = Double) Kepler equation
- * solver used by SGP4PN against an equivalent hand-written primitive Double
- * Newton loop. The generic code is @specialized for Double and spire's
- * Double type class instances use primitive JVM signatures, so after JIT
- * warmup both run at the same speed; this benchmark documents that.
- */
+/** Compares the generic (spire type classes, F = Double) Kepler equation solver used by SGP4PN against an equivalent
+  * hand-written primitive Double Newton loop. The generic code is @specialized for Double and spire's Double type class
+  * instances use primitive JVM signatures, so after JIT warmup both run at the same speed; this benchmark documents
+  * that.
+  */
 @State(Scope.Benchmark)
 @BenchmarkMode(Array(Mode.AverageTime))
 @OutputTimeUnit(TimeUnit.NANOSECONDS)

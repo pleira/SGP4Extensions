@@ -1,11 +1,9 @@
 package predict4s
 package coord
 
-/**
- * The failure type used across the SGP4 propagation pipeline, replacing the
- * former plain-string errors. Each case is matchable and carries the values
- * involved; `message` keeps the human-readable rendering used in reports.
- */
+/** The failure type used across the SGP4 propagation pipeline, replacing the former plain-string errors. Each case is
+  * matchable and carries the values involved; `message` keeps the human-readable rendering used in reports.
+  */
 sealed trait SGP4Error extends Product with Serializable {
   def message: String
   override def toString: String = message

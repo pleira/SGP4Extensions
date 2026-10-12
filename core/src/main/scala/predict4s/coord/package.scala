@@ -6,7 +6,7 @@ package object coord {
 
   type sp = scala.specialized
 
-  type ErrorMessage =  SGP4Error
+  type ErrorMessage = SGP4Error
 
   // for secular corrections
   type SGPSecularCtx[F] = (SGPElems[F], InclinationCtx[F], SGPConstants[F])
