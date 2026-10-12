@@ -4,8 +4,6 @@ import spire.algebra.{Order, Ring, Signed}
 
 package object sgp {
 
-  type GeoPotentialCtx[F] = (GeoPotentialCoefs[F], GeoPotentialContext[F])
-
   /** Derives a Signed instance from Order and Ring. This replicates the derivation that spire 0.11 provided in
     * spire.algebra.Signed's companion object and that newer spire versions removed. It keeps the generic SGP4 code free
     * of explicit Signed bounds, as in the original code.

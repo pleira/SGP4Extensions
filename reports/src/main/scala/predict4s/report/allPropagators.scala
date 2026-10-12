@@ -7,7 +7,7 @@ import spire.implicits._
 
 class AllPropagators(val tle: TLE, val wgs: SGPConstants[Double], val start: Int, val end: Int, val step: Int) {
   val times = Range(start, end, step) // times in minutes
-  val vasgp4 = SGP4Vallado.build(tle, wgs).get
+  val vasgp4 = SGP4Vallado.fromTLE(tle, wgs).get
   val pnsgp4 = SGP4PN(vasgp4.sec)
   val vlsgp4 = SGP4ValladoLong(vasgp4.sec)
   val lasgp4 = SGP4Lara(vasgp4.sec)

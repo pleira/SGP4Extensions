@@ -9,7 +9,7 @@ class Propagate(val ttle: TestTLE) extends LoadCppResults {
 
   val cppOuts = loadCppOutputData(ttle.tle.satelliteNumber)
 
-  val vasgp4 = SGP4Vallado.build(ttle.tle, SGP72Constants.tleDoubleConstants).get
+  val vasgp4 = SGP4Vallado.fromTLE(ttle.tle, SGP72Constants.tleDoubleConstants).get
 
   def pvts =
     for {

@@ -36,7 +36,7 @@ class GeoPotentialStateCheck extends AnyFunSuite with TLE00005 with TLE06251 {
   def checkSgp4GeoPotential_5(elem0Ctx: SGPElemsCtx[Double], geoPot: GeoPotentialCtx[Double]) = {
     import elem0Ctx.{elem, iCtx, eCtx, rp}
     import elem._, iCtx.`3c²-1`, eCtx.`β0²` // rteosq
-    import geoPot.{_1 => gcoef}, gcoef._
+    import geoPot.coefs._
     val ωcof = C3 * bStar * math.cos(ω)
 
     assert(n === 0.047206302); assert(a === 1.353899821);
@@ -53,7 +53,7 @@ class GeoPotentialStateCheck extends AnyFunSuite with TLE00005 with TLE06251 {
   def checkSgp4GeoPotential_06251(elem0Ctx: SGPElemsCtx[Double], geoPot: GeoPotentialCtx[Double]) = {
     import elem0Ctx.{elem, iCtx, eCtx, rp}
     import elem._, iCtx.`3c²-1`, eCtx.`β0²` // rteosq
-    import geoPot.{_1 => gcoef}, gcoef._
+    import geoPot.coefs._
     val ωcof = C3 * bStar * math.cos(ω)
 
     assert(n === 0.067918037); assert(a === 1.062338933);

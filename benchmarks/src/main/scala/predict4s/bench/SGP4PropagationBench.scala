@@ -47,10 +47,10 @@ class SGP4PropagationBench {
       case "06251" => TLE06251.tle
       case _       => TLE00005.tle
     }
-    va = SGP4Vallado.build(tle, wgs).get
-    pn = SGP4PN.build(tle, wgs).get
-    vl = SGP4ValladoLong.build(tle, wgs).get
-    la = SGP4Lara.build(tle, wgs).get
+    va = SGP4Vallado.fromTLE(tle, wgs).get
+    pn = SGP4PN.fromTLE(tle, wgs).get
+    vl = SGP4ValladoLong.fromTLE(tle, wgs).get
+    la = SGP4Lara.fromTLE(tle, wgs).get
   }
 
   @Benchmark
@@ -71,5 +71,5 @@ class SGP4PropagationBench {
 
   @Benchmark
   def buildAndValladoPropagate(bh: Blackhole): Unit =
-    bh.consume(SGP4Vallado.build(tle, wgs).get.propagate(t))
+    bh.consume(SGP4Vallado.fromTLE(tle, wgs).get.propagate(t))
 }

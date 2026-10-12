@@ -19,7 +19,7 @@ case class Sgp4ValladoResult(
   import sgp.sec.elem0Ctx
   import elem0Ctx._, iCtx._, eCtx._
   // import elem0Ctx.isImpacting
-  import sgp.sec.geoPotCtx.{_1 => gcoef, _2 => geoctx}
+  import sgp.sec.geoPotCtx.{coefs => gcoef, context => geoctx}
   import gcoef._
   import sgp.sec.{dragCoefs, secularFreqs, laneCoefs}
   val error = 0

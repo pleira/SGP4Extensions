@@ -11,6 +11,9 @@ import predict4s.coord._
 
 case class GeoPotentialCoefs[@sp(Double) F](C1: F, C2: F, C3: F, C4: F, C5: F, D2: F, D3: F, D4: F)
 
+/** The geo potential coefficients and their context, both evaluated at epoch. */
+final case class GeoPotentialCtx[@sp(Double) F](coefs: GeoPotentialCoefs[F], context: GeoPotentialContext[F])
+
 trait GeoPotentialAndAtmosphere2ndOrderModel {
 
   def geoPotentialCoefs[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision](
@@ -47,7 +50,7 @@ trait GeoPotentialAndAtmosphere2ndOrderModel {
     val D2 = 4 * a0 * ξ * `C1²`
     val D3 = D2 * (17 * a0 + s) * C1 * ξ / 3
     val D4 = D2 * D2 * ξ * (221 * a0 + 31 * s) / 24
-    (GeoPotentialCoefs(C1, C2, C3, C4, C5, D2, D3, D4), gctx)
+    GeoPotentialCtx(GeoPotentialCoefs(C1, C2, C3, C4, C5, D2, D3, D4), gctx)
   }
 
   def fittingAtmosphericParameter[@sp(Double) F: Field: Order](perigeeHeight: F, aE: F): F = {

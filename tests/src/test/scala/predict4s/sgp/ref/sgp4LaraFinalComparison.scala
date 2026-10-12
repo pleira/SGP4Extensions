@@ -35,7 +35,7 @@ class Sgp4LaraFinalComparison
       lasgp4.secularCorrections(t) foreach { secularElemt =>
         for {
           spn1 <- lasgp4.periodicCorrections(secularElemt)
-          laspn <- lasgp4.periodicCorrectionsWithN(secularElemt)
+          laspn <- lasgp4.periodicCorrections(secularElemt)
         } yield compareSPN(
           s"TLE ${tle.satelliteNumber} : Final Corrections in Lara Non Singular comparison in SPN at time $t",
           spn1,

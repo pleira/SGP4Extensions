@@ -12,7 +12,7 @@ object HardcodedPNReport extends App with TLE00005 with TLE06251 with TLE28057 {
   val tles = List(tle00005, tle06251, tle28057)
   def propags: List[SGP4PN[Double]] = tles map { tle =>
     import spire.std.any.DoubleAlgebra
-    SGP4PN.build[Double](tle, wgs).get
+    SGP4PN.fromTLE[Double](tle, wgs).get
   }
   def sgpImpl: String = "PN SGP4"
 

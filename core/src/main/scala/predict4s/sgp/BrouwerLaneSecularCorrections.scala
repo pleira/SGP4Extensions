@@ -91,7 +91,7 @@ class BrouwerLaneSecularCorrections[@sp(Double) F: Field: NRoot: Order: Trig: Tr
 
     import laneCoefs._
     import dragCoefs._ // {ωcof,delM0,sinM0,Mcof}
-    import geoPotCtx.{_1 => gcoefs, _2 => gctx}
+    import geoPotCtx.{coefs => gcoefs, context => gctx}
     import gctx.η, gcoefs._
     import elem0Ctx.{elem, isImpacting}
     import elem._
@@ -132,7 +132,7 @@ object BrouwerLaneSecularCorrections extends GeoPotentialAndAtmosphere2ndOrderMo
       elem0Ctx: SGPElemsCtx[F]
   ): BrouwerLaneSecularCorrections[F] = {
     val geoPotCtx: GeoPotentialCtx[F] = geoPotentialCoefs(elem0Ctx)
-    val laneCoefs = calcLaneCoefs(geoPotCtx._1)
+    val laneCoefs = calcLaneCoefs(geoPotCtx.coefs)
     val (secularFrequencies, hdot) = calcSecularFrequencies(elem0Ctx)
     val dragSecularCoefs = calcSecularDragCoefs(hdot, elem0Ctx, geoPotCtx)
     new BrouwerLaneSecularCorrections(elem0Ctx, geoPotCtx, laneCoefs, secularFrequencies, dragSecularCoefs)
@@ -141,7 +141,7 @@ object BrouwerLaneSecularCorrections extends GeoPotentialAndAtmosphere2ndOrderMo
   /** Builds the secular corrections model from a TLE: the TLE is converted to SGP elements in context, which can fail,
     * and then the factory is applied.
     */
-  def build[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision](
+  def fromTLE[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision](
       tle: TLE,
       wgs: SGPConstants[F]
   ): BrouwerLaneSecularCorrections[F] Or ErrorMessage =
@@ -186,7 +186,7 @@ object BrouwerLaneSecularCorrections extends GeoPotentialAndAtmosphere2ndOrderMo
       gctx: GeoPotentialCtx[F]
   ): DragSecularCoefs[F] = {
 
-    import gctx.{_1 => gcoef, _2 => geoctx}
+    import gctx.{coefs => gcoef, context => geoctx}
     import gcoef.{C1, C3}, geoctx.{e0η, `ξ⁴(q0-s)⁴`}
     import elem0Ctx.{elem, eCtx, wgs}, eCtx.`β0²`, wgs.`2/3`
     import elem.{e => e0, ω => ω0, bStar}

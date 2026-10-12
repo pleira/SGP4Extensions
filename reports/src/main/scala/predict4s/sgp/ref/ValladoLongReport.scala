@@ -12,7 +12,7 @@ object HardcodedLydanneLongReport extends App with TLE00005 with TLE06251 with T
   val tles = List(tle00005, tle06251, tle28057)
   def propags: List[SGP4ValladoLong[Double]] = tles map { tle =>
     import spire.std.any.DoubleAlgebra
-    SGP4ValladoLong.build[Double](tle, wgs).get
+    SGP4ValladoLong.fromTLE[Double](tle, wgs).get
   }
   def sgpImpl: String = "Vallado-Lydanne LONG SGP4"
 

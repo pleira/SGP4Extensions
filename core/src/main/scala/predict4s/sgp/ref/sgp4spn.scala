@@ -66,25 +66,28 @@ class SGP4PN[F: Field: NRoot: Order: Trig: TruncatedDivision](
     with SPNLongPeriodCorrections[F]
     with SimpleKeplerEq {
 
-  override def lppCorrections(secularElemt: SGPSecularCtx[F]): LPPSPNResult[F] = {
+  /** Secular elements transformed to Special Polar Nodals, solving Kepler's equation for the eccentric anomaly. */
+  private def spnSecularCtx(secularElemt: SGPSecularCtx[F]): SpecialPolarNodal[F] Or ErrorMessage = {
     val elem = secularElemt._1
     for {
       eaState <- solveKeplerEq(elem.e, elem.M)
       spnSecular <- sgpelems2spn(eaState, secularElemt)
+    } yield spnSecular
+  }
+
+  override def lppCorrections(secularElemt: SGPSecularCtx[F]): LPPSPNResult[F] =
+    for {
+      spnSecular <- spnSecularCtx(secularElemt)
       lppcorr = lppCorrectionsSPN((spnSecular, secularElemt))
     } yield (lppcorr._1, lppcorr._2, secularElemt)
-  }
 
   /** long period corrections in CSpecialPolarNodal coordinates used to compare with Lara's non singular results
     */
-  def cpnLPPCorrections(secularElemt: SGPSecularCtx[F]): LPPCPNResult[F] = {
-    val elem = secularElemt._1
+  def cpnLPPCorrections(secularElemt: SGPSecularCtx[F]): LPPCPNResult[F] =
     for {
-      eaState <- solveKeplerEq(elem.e, elem.M)
-      spnSecular <- sgpelems2spn(eaState, secularElemt)
+      spnSecular <- spnSecularCtx(secularElemt)
       lppcorr = lppCorrectionsCPN((spnSecular, secularElemt))
     } yield lppcorr
-  }
 }
 
 object SGP4Vallado {
@@ -92,11 +95,11 @@ object SGP4Vallado {
   def apply[F: Field: NRoot: Order: Trig: TruncatedDivision](sec: BrouwerLaneSecularCorrections[F]): SGP4Vallado[F] =
     new SGP4Vallado(sec)
 
-  def build[F: Field: NRoot: Order: Trig: TruncatedDivision](
+  def fromTLE[F: Field: NRoot: Order: Trig: TruncatedDivision](
       tle: TLE,
       wgs: SGPConstants[F]
   ): SGP4Vallado[F] Or ErrorMessage =
-    BrouwerLaneSecularCorrections.build(tle, wgs).map(SGP4Vallado(_))
+    BrouwerLaneSecularCorrections.fromTLE(tle, wgs).map(SGP4Vallado(_))
 }
 
 object SGP4PN {
@@ -104,11 +107,11 @@ object SGP4PN {
   def apply[F: Field: NRoot: Order: Trig: TruncatedDivision](sec: BrouwerLaneSecularCorrections[F]): SGP4PN[F] =
     new SGP4PN(sec)
 
-  def build[F: Field: NRoot: Order: Trig: TruncatedDivision](
+  def fromTLE[F: Field: NRoot: Order: Trig: TruncatedDivision](
       tle: TLE,
       wgs: SGPConstants[F]
   ): SGP4PN[F] Or ErrorMessage =
-    BrouwerLaneSecularCorrections.build(tle, wgs).map(SGP4PN(_))
+    BrouwerLaneSecularCorrections.fromTLE(tle, wgs).map(SGP4PN(_))
 
 }
 
@@ -118,10 +121,10 @@ object SGP4ValladoLong {
       sec: BrouwerLaneSecularCorrections[F]
   ): SGP4ValladoLong[F] = new SGP4ValladoLong(sec)
 
-  def build[F: Field: NRoot: Order: Trig: TruncatedDivision](
+  def fromTLE[F: Field: NRoot: Order: Trig: TruncatedDivision](
       tle: TLE,
       wgs: SGPConstants[F]
   ): SGP4ValladoLong[F] Or ErrorMessage =
-    BrouwerLaneSecularCorrections.build(tle, wgs).map(SGP4ValladoLong(_))
+    BrouwerLaneSecularCorrections.fromTLE(tle, wgs).map(SGP4ValladoLong(_))
 
 }

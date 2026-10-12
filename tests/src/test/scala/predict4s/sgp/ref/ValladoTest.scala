@@ -52,7 +52,7 @@ class HardcodedValladoCheck
   val tles = List(tle00005, tle06251, tle28057)
   def propags: List[SGP4Vallado[Double]] = tles map { tle =>
     import spire.std.any.DoubleAlgebra
-    SGP4Vallado.build[Double](tle, wgs).get
+    SGP4Vallado.fromTLE[Double](tle, wgs).get
   }
   def sgpImpl: String = "Vallado SGP4"
 

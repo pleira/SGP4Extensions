@@ -57,7 +57,7 @@ class PythonSgp4CrossCheck extends AnyFunSuite {
 
   for (tleWithGrid <- readTles) {
     val satnum = tleWithGrid.tle.satelliteNumber
-    val vasgp4 = SGP4Vallado.build(tleWithGrid.tle, wgs).get
+    val vasgp4 = SGP4Vallado.fromTLE(tleWithGrid.tle, wgs).get
     for (t <- tleWithGrid.times) {
       reference.get((satnum, t)) match {
         case None                              => // python3-sgp4 reported an error for this time, skip
