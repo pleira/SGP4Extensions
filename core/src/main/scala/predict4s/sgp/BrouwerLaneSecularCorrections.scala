@@ -128,21 +128,24 @@ object BrouwerLaneSecularCorrections extends GeoPotentialAndAtmosphere2ndOrderMo
   /** Factory method to produce all inputs needed to create the propagator for SecularCorrections. Here we are starting
     * with a SGP Elements directly obtained from a TLE.
     */
-  def apply[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision](elem0Ctx: SGPElemsCtx[F]) = {
-    val geoPotCtx = geoPotentialCoefs(elem0Ctx)
-    val geoPotCoefs = geoPotCtx._1
-    val laneCoefs = calcLaneCoefs(geoPotCoefs)
+  def apply[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision](
+      elem0Ctx: SGPElemsCtx[F]
+  ): BrouwerLaneSecularCorrections[F] = {
+    val geoPotCtx: GeoPotentialCtx[F] = geoPotentialCoefs(elem0Ctx)
+    val laneCoefs = calcLaneCoefs(geoPotCtx._1)
     val (secularFrequencies, hdot) = calcSecularFrequencies(elem0Ctx)
     val dragSecularCoefs = calcSecularDragCoefs(hdot, elem0Ctx, geoPotCtx)
     new BrouwerLaneSecularCorrections(elem0Ctx, geoPotCtx, laneCoefs, secularFrequencies, dragSecularCoefs)
   }
 
+  /** Builds the secular corrections model from a TLE: the TLE is converted to SGP elements in context, which can fail,
+    * and then the factory is applied.
+    */
   def build[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision](
       tle: TLE,
       wgs: SGPConstants[F]
-  ): BrouwerLaneSecularCorrections[F] Or ErrorMessage = for {
-    elem0AndCtx <- SGPElemsConversions.sgpElemsAndContext(tle, wgs)
-  } yield BrouwerLaneSecularCorrections(elem0AndCtx)
+  ): BrouwerLaneSecularCorrections[F] Or ErrorMessage =
+    SGPElemsConversions.sgpElemsAndContext(tle, wgs).map(BrouwerLaneSecularCorrections(_))
 
   private def calcSecularFrequencies[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision](
       elem0Ctx: SGPElemsCtx[F]
