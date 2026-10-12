@@ -37,6 +37,8 @@ case class InclinationCtx[@sp(Double) F: Field](c: F, s: F) {
   lazy val `c³` = `c²` * c
   lazy val `c⁴` = `c²` * `c²`
   lazy val `3c²-1` = 3 * `c²` - 1
+  lazy val `7c²-1` = 7 * `c²` - 1
+  lazy val `(1+7c)/(1+c)` = (1 + 7 * c) / (1 + c)
   def cosI0 = c
   def `cos²I0` = `c²`
   def sinI0 = s

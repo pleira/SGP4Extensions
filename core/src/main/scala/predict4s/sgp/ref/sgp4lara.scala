@@ -17,36 +17,31 @@ class SGP4Lara[F: Field: NRoot: Order: Trig: TruncatedDivision](
     with LaraFirstOrderCorrections[F]
     with SimpleKeplerEq {
 
-  /** Secular elements in Lara Non Singular coordinates, together with the constant angular momentum component N =
-    * Θ*cosI, solving Kepler's equation for the eccentric anomaly on the way.
+  /** Secular elements in Lara Non Singular coordinates, solving Kepler's equation for the eccentric anomaly on the way.
+    * The constant angular momentum component N = Θ*cosI is derived from the result where needed.
     */
-  private def lnsAndN(secularElemt: SGPSecularCtx[F]): (LaraNonSingular[F], F) Or ErrorMessage = {
+  private def lnsSecular(secularElemt: SGPSecularCtx[F]): LaraNonSingular[F] Or ErrorMessage = {
     val elem = secularElemt._1
     val ictx = secularElemt._2
-    for {
-      eaState <- solveKeplerEq(elem.e, elem.M)
-      spnSecular <- sgpelems2spn(eaState, secularElemt)
-      _N = spnSecular.`Θ/r` * spnSecular.r * ictx.c // N = Θ*cosI , which remains constant
-      lns = spn2lns(spnSecular, ictx)
-    } yield (lns, _N)
+    solveKeplerEq(elem.e, elem.M).map(eaState => spn2lns(sgpelems2spn(eaState, secularElemt), ictx))
   }
 
   override def periodicCorrections(secularElemt: SGPSecularCtx[F]): SGPSPNResult[F] =
-    lnsAndN(secularElemt).map { case (lns, _N) =>
+    lnsSecular(secularElemt).map { lns =>
+      val _N = lns.Θ * secularElemt._2.c // N = Θ*cosI , which remains constant
       lns2spn(allCorrections(lns, secularElemt), _N)
     }
 
   // periodic corrections results in Lara Non Singular (LNS)
   def periodicCorrectionsLNS(secularElemt: SGPSecularCtx[F]): SGPLNSResult[F] =
-    lnsAndN(secularElemt).map { case (lns, _) =>
-      allCorrections(lns, secularElemt)
-    }
+    lnsSecular(secularElemt).map(lns => allCorrections(lns, secularElemt))
 
   /*
    * This is used/compare to test the LPP corrections in SPN coordinates
    */
   def propagateToSPNLPP(secularElemt: SGPSecularCtx[F]): LPPSPNResult[F] =
-    lnsAndN(secularElemt).map { case (lns, _N) =>
+    lnsSecular(secularElemt).map { lns =>
+      val _N = lns.Θ * secularElemt._2.c // cosI = N/Θ, N remains a constant
       val lppcorr1 = lns2spn(lppCorrections(lns, secularElemt)._1, _N)
       (lppcorr1, LongPeriodContext(0.as[F], 0.as[F], 0.as[F], 0.as[F], 0.as[F], 0.as[F]), secularElemt)
     }
@@ -55,7 +50,8 @@ class SGP4Lara[F: Field: NRoot: Order: Trig: TruncatedDivision](
    * This is used to test/compare the LPP corrections in CPN coordinates
    */
   def cpnLPPCorrections(secularElemt: SGPSecularCtx[F]): LPPCPNResult[F] =
-    lnsAndN(secularElemt).map { case (lns, _N) =>
+    lnsSecular(secularElemt).map { lns =>
+      val _N = lns.Θ * secularElemt._2.c // cosI = N/Θ, N remains a constant
       lns2cpn(lppCorrections(lns, secularElemt)._1, _N)
     }
 

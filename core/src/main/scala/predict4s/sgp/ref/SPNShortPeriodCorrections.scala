@@ -11,14 +11,12 @@ trait SPNShortPeriodCorrections[F] {
     import ctx.{_1 => lppPN, _2 => lppc, _3 => secular}
     import lppPN.r, lppc.{pl, βl, `√pl`, cos2θ, sin2θ}
     import secular.{_2 => ictx, _3 => wgs}
-    import wgs.J2, ictx.{c, s, `c²`, `s²`}
-
-    val `3c²-1` = 3 * `c²` - 1
+    import wgs.J2, ictx.{c, s, `3c²-1`, `7c²-1`, `s²`}
     val `βl³/√pl` = βl * βl * βl / `√pl`
     val ϵ2 = -J2 / pl / pl / 4
 
     val δI = -3 * ϵ2 * c * s * cos2θ
-    val δθ = ϵ2 * (7 * `c²` - 1) * sin2θ / 2
+    val δθ = ϵ2 * `7c²-1` * sin2θ / 2
     val δΩ = -3 * ϵ2 * c * sin2θ
     val δr = ϵ2 * (3 * r * βl * `3c²-1` - pl * `s²` * cos2θ)
     val δR = 2 * ϵ2 * `s²` * sin2θ * `βl³/√pl` // rdot, angular velocity

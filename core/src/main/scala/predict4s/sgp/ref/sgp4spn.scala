@@ -66,10 +66,7 @@ class SGP4PN[F: Field: NRoot: Order: Trig: TruncatedDivision](
   /** Secular elements transformed to Special Polar Nodals, solving Kepler's equation for the eccentric anomaly. */
   private def spnSecularCtx(secularElemt: SGPSecularCtx[F]): SpecialPolarNodal[F] Or ErrorMessage = {
     val elem = secularElemt._1
-    for {
-      eaState <- solveKeplerEq(elem.e, elem.M)
-      spnSecular <- sgpelems2spn(eaState, secularElemt)
-    } yield spnSecular
+    solveKeplerEq(elem.e, elem.M).map(eaState => sgpelems2spn(eaState, secularElemt))
   }
 
   override def lppCorrections(secularElemt: SGPSecularCtx[F]): LPPSPNResult[F] =

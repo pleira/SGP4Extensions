@@ -14,6 +14,11 @@ case class SecularFrequencies[@sp(Double) F](Mdot: F, ωdot: F, Ωdot: F)
 
 case class DragSecularCoefs[@sp(Double) F](Mcof: F, ωcof: F, Ωcof: F)
 
+/** The secular changes due to atmospheric drag: δL, δe, δℓ and the resulting ω, M, Ω. A case class instead of a tuple
+  * so that, for F = Double, the fields stay unboxed on the hot path.
+  */
+final case class DragSecular[@sp(Double) F](δL: F, δe: F, δℓ: F, ωm: F, Mp: F, Ωm: F)
+
 case class LaneCoefs[@sp(Double) F](T2: F, T3: F, T4: F, T5: F)
 
 class BrouwerLaneSecularCorrections[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision](
@@ -43,9 +48,8 @@ class BrouwerLaneSecularCorrections[@sp(Double) F: Field: NRoot: Order: Trig: Tr
     // which also take long period terms from drag;
     // in particular δh, δL, δe, δℓ
 
-    val (δL, δe, δℓ, ωm, xMp, xΩm): (F, F, F, F, F, F) = dragSecularCorrections(t, ωdf, Mdf, Ωdf)
-    val Ωm = xΩm // it seems Scala has some trouble with certain variable names
-    val Mp = xMp
+    val dsc = dragSecularCorrections(t, ωdf, Mdf, Ωdf)
+    import dsc.{δL, δe, δℓ, ωm, Mp, Ωm}
 
     // Compute the secular elements (not exactly secular as they mix long-period terms from drag)
     val am: F = ((KE / n) fpow `2/3`) * δL * δL // a * tempa**2
@@ -87,7 +91,7 @@ class BrouwerLaneSecularCorrections[@sp(Double) F: Field: NRoot: Order: Trig: Tr
    * have been evaluated at the initialization stage.
    * δL,δe,δℓ,δh
    */
-  private def dragSecularCorrections(t: Minutes, ωdf: F, Mdf: F, Ωdf: F): (F, F, F, F, F, F) = {
+  private def dragSecularCorrections(t: Minutes, ωdf: F, Mdf: F, Ωdf: F): DragSecular[F] = {
 
     import laneCoefs._
     import dragCoefs._ // {ωcof,delM0,sinM0,Mcof}
@@ -103,7 +107,7 @@ class BrouwerLaneSecularCorrections[@sp(Double) F: Field: NRoot: Order: Trig: Tr
     // 220 kilometers, the equations for a and Lane's are truncated after the C1 term,
     // and the terms involving C5 , δω, and δM are dropped.
     if (isImpacting)
-      return (1 - C1 * t, bStar * C4 * t, T2 * `t²`, ωdf, Mdf, Ωm)
+      return DragSecular(1 - C1 * t, bStar * C4 * t, T2 * `t²`, ωdf, Mdf, Ωm)
 
     val `t³` = `t²` * t
     val `t⁴` = `t²` * `t²`
@@ -118,7 +122,7 @@ class BrouwerLaneSecularCorrections[@sp(Double) F: Field: NRoot: Order: Trig: Tr
     val δe = bStar * (C4 * t + C5 * (sin(Mpm_) - sin(M))) // sin(M) === sin(M0)
     val δℓ = T2 * `t²` + T3 * `t³` + `t⁴` * (T4 + t * T5) // (ℓ´´ - ℓj´´)/ n0
 
-    (δL, δe, δℓ, ωm_, Mpm_, Ωm)
+    DragSecular(δL, δe, δℓ, ωm_, Mpm_, Ωm)
   }
 
 }

@@ -44,7 +44,7 @@ trait LaraFirstOrderCorrections[@sp(Double) F] {
     import lppState.{_1 => lns, _2 => secularElemt}
     val ictx = secularElemt._2
     val wgs = secularElemt._3
-    import wgs.J2, ictx.{c, `c²`}
+    import wgs.J2, ictx.{`c²`, `(1+7c)/(1+c)`}
     import lns._
 
     val p = Θ * Θ
@@ -52,7 +52,7 @@ trait LaraFirstOrderCorrections[@sp(Double) F] {
 
     val `χ²` = χ * χ
     val `ξ²` = ξ * ξ
-    val δψ = -ϵ2 * ((1 + 7 * c) / (1 + c)) * ξ * χ
+    val δψ = -ϵ2 * `(1+7c)/(1+c)` * ξ * χ
     val δξ = -ϵ2 * (`χ²` - 3 * `c²`) * ξ
     val δχ = ϵ2 * (`ξ²` - 3 * `c²`) * χ
     val δr = ϵ2 * 2 * r * (`ξ²` - 2 + 5 * `c²`)
@@ -68,7 +68,7 @@ trait LaraFirstOrderCorrections[@sp(Double) F] {
     val ictx = secularElemt._2
     val wgs = secularElemt._3
     import lns._
-    import elem.{a, e}, wgs.{`J3/J2`, J2}, ictx.{c, `c²`}
+    import elem.{a, e}, wgs.{`J3/J2`, J2}, ictx.{c, `c²`, `(1+7c)/(1+c)`}
 
     val `e²` = e * e
     val p = a * (1 - `e²`) // semilatus rectum , as MU=1
@@ -100,7 +100,7 @@ trait LaraFirstOrderCorrections[@sp(Double) F] {
     val ϵ2 = -J2 / pl / pl / 4
     val `χl²` = χl * χl
     val `ξl²` = ξl * ξl
-    val δψs = -ϵ2 * ((1 + 7 * c) / (1 + c)) * ξl * χl
+    val δψs = -ϵ2 * `(1+7c)/(1+c)` * ξl * χl
     val δξs = -ϵ2 * (`χl²` - 3 * `c²`) * ξl
     val δχs = ϵ2 * (`ξl²` - 3 * `c²`) * χl
     val δrs = ϵ2 * 2 * r * (`ξ²` - 2 + 5 * `c²`)

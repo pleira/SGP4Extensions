@@ -5,8 +5,6 @@ import spire.algebra._
 import spire.math._
 import spire.implicits._
 import spire.syntax.primitives._
-import org.scalactic.Or
-import org.scalactic.Good
 
 case class AnomalyState[@sp(Double) F](E: F, cosE: F, sinE: F, ecosE: F, esinE: F) {
   // define alternative methods to allow expressing a different Anomaly U (not the Eccentric Anomaly)
@@ -82,7 +80,7 @@ object SGPElemsConversions {
   def sgpelems2spn[@sp(Double) F: Field: Trig: NRoot: Order: TruncatedDivision](
       eaState: AnomalyState[F],
       secularCtx: SGPSecularCtx[F]
-  ): SpecialPolarNodal[F] Or ErrorMessage = {
+  ): SpecialPolarNodal[F] = {
     import eaState._
     import secularCtx.{_1 => elem}, elem.{a, I, e, ω, Ω}
     import secularCtx.{_3 => wgs}, wgs.`2pi`
@@ -101,6 +99,6 @@ object SGPElemsConversions {
     // comes from -pi,pi
     val f = atan2(sinf, cosf)
     val θ = (f + ω) tmod `2pi`.as[F] // if (θ0to2pi > pi.as[F]) θ0to2pi - `2pi` else θ0to2pi
-    Good(SpecialPolarNodal(I, θ, Ω, r, R, Θ / r))
+    SpecialPolarNodal(I, θ, Ω, r, R, Θ / r)
   }
 }
