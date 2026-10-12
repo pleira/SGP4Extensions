@@ -24,7 +24,7 @@ lazy val noPublish = Seq(
   publishArtifact := false)
 
 lazy val root = (project in file("."))
-  .aggregate(core, tests, reports)
+  .aggregate(core, tests, reports, benchmarks)
   .settings(name := "root")
   .settings(commonSettings: _*)
   .settings(noPublish: _*)
@@ -48,6 +48,11 @@ lazy val reports = (project in file("reports"))
   .settings(libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.9.2")
   .settings(noPublish: _*)
 
-// The thymeBenchmarks module was dropped: its benchmarking library (Thyme)
-// is no longer available at the old GitHub download URL and it only worked
-// with Scala 2.11.
+// JMH micro-benchmarks for the propagation hot path; replaced the old
+// thymeBenchmarks module, whose Thyme dependency is no longer available.
+lazy val benchmarks = (project in file("benchmarks"))
+  .settings(name := "sgp4ext-benchmarks")
+  .settings(commonSettings: _*)
+  .dependsOn(core, tests)
+  .enablePlugins(JmhPlugin)
+  .settings(noPublish: _*)

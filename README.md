@@ -76,6 +76,45 @@ The former will run a scala REPL with all the project dependencies available. Th
 	> console
 	> run
 
+Benchmarks
+-------------------
+The `benchmarks` module contains [JMH](https://github.com/openjdk/jmh) micro-benchmarks
+for the propagation hot path. It replaces the old `thymeBenchmarks` module, whose Thyme
+dependency is no longer available. It measures:
+
+* one full propagation of each SGP4 algorithm variant (Vallado, Vallado Long,
+  Polar Nodals, Lara), with the propagator built once, and
+* the cost of rebuilding the propagator on every call (`buildAndValladoPropagate`),
+  which is the common misuse to avoid: build once, propagate many times,
+* the generic spire Kepler equation solver against an equivalent hand-written
+  primitive Double loop (they run at the same speed: the code is `@specialized`
+  for Double and spire's Double type class instances use primitive JVM signatures).
+
+Run all benchmarks:
+
+	> benchmarks/jmh:run
+
+Run a subset, or include per-operation allocation with the JMH GC profiler:
+
+	> benchmarks/jmh:run -prof gc .*ValladoPropagate.*
+	> benchmarks/jmh:run -wi 5 -i 5 -f 1
+
+Reference results on one machine (JDK 21, average time per propagation):
+
+| Benchmark | TLE 00005 | TLE 06251 |
+|---|---|---|
+| valladoPropagate | ~393 ns | ~364 ns |
+| valladoLongPropagate | ~391 ns | ~374 ns |
+| polarNodalsPropagate | ~484 ns | ~505 ns |
+| laraPropagate | ~485 ns | ~466 ns |
+| buildAndValladoPropagate | ~1183 ns | ~1135 ns |
+
+Each propagation allocates about 2.6-3.1 KB (result chain of Or, tuples and case
+classes). If throughput at scale ever becomes a problem, that allocation churn,
+not the generic spire arithmetic, is where to look.
+
+For a description of the algorithm itself, see [sgp4.md](sgp4.md).
+
 Author
 --------------------
 Pablo Pita
