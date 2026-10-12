@@ -95,7 +95,9 @@ The software contains parts adapted from an SGP 4 s/w implementation in the publ
 
 Requires
 ---------------
-* JDK 11 or newer (a current LTS JDK such as 21 is recommended).
+* JDK 11 or newer. Both LTS JDKs 21 and 25 are verified: all tests pass on
+  either (pass `JAVA_HOME` to sbt to pick one), and the `@specialized`
+  Double code paths hold on both.
 * [sbt 1.x](https://www.scala-sbt.org) (the build uses sbt 1.13.0, declared in `project/build.properties`).
 * The code runs on Scala 2.13.18 with Spire 0.18.0, ScalaTest 3.2.20 and better-files 3.9.2.
 
@@ -192,19 +194,24 @@ Run a subset, or include per-operation allocation with the JMH GC profiler:
 	> benchmarks/jmh:run -prof gc .*ValladoPropagate.*
 	> benchmarks/jmh:run -wi 5 -i 5 -f 1
 
-Reference results on one machine (JDK 21, average time per propagation):
+Reference results on one machine, side by side on the two LTS JDKs
+(average time per propagation):
 
-| Benchmark | TLE 00005 | TLE 06251 |
+| Benchmark | JDK 21, TLE 00005 / 06251 | JDK 25, TLE 00005 / 06251 |
 |---|---|---|
-| valladoPropagate | ~393 ns | ~369 ns |
-| valladoLongPropagate | ~396 ns | ~377 ns |
-| polarNodalsPropagate | ~459 ns | ~460 ns |
-| laraPropagate | ~463 ns | ~499 ns |
-| buildAndValladoPropagate | ~1142 ns | ~1128 ns |
+| valladoPropagate | ~399 / 370 ns | ~379 / 355 ns |
+| valladoLongPropagate | ~391 / 370 ns | ~379 / 349 ns |
+| polarNodalsPropagate | ~464 / 457 ns | ~471 / 453 ns |
+| laraPropagate | ~468 / 516 ns | ~458 / 444 ns |
+| buildAndValladoPropagate | ~1192 / 1107 ns | ~1193 / 1188 ns |
 
-Each propagation allocates about 2.3-3.3 KB (the Or/tuple/case-class result
-chain; the generic spire arithmetic is not the cost, the code is @specialized
-for Double and dispatches to primitive-signature methods). If throughput at
+Each propagation allocates about 2.3-3.3 KB, identically on both JDKs (the
+Or/tuple/case-class result chain; the generic spire arithmetic is not the
+cost, the code is @specialized for Double and dispatches to
+primitive-signature methods). The `@specialized` class files are a
+compile-time property, so what a new JDK can change is the JIT: the
+allocation parity above is the observable check that the specialized
+paths are still inlined and escape-analysed on JDK 25. If throughput at
 scale ever becomes a problem, that allocation churn is where to look.
 
 For a description of the algorithm itself, see [sgp4.md](sgp4.md).
