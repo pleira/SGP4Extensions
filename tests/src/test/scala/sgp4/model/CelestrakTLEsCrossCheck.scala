@@ -1,5 +1,4 @@
-package sgp4
-package model
+package sgp4.model
 
 import org.scalactic.Or
 import org.scalatest.funsuite.AnyFunSuite
@@ -22,7 +21,7 @@ import scala.io.Source
   * routes and legitimately differ from the reference algorithm; they are asserted within their expected agreement
   * envelope (measured on this data: up to ~0.5 km over the 6 day grid).
   */
-class CelestrakTLEsCrossCheck extends AnyFunSuite {
+class CelestrakTLEsCrossCheck extends AnyFunSuite:
 
   import spire.std.any.DoubleAlgebra
   private val wgs = SGP72Constants.tleDoubleConstants
@@ -56,19 +55,17 @@ class CelestrakTLEsCrossCheck extends AnyFunSuite {
   private val envelopeVelTol = 5.0e-3 // km/s, periodic correction variants: measured ~4e-4
 
   private def check(name: String, build: TLE => SGP4[Double] Or SGP4Error, posTol: Double, velTol: Double): Unit =
-    for ((satnum, grid) <- referenceBySat.toList.sortBy(_._1)) {
-      test(f"$name: TLE $satnum%d vs python3-sgp4 (${grid.size} points)") {
-        val propagator = build(tles(satnum)) match {
+    for (satnum, grid) <- referenceBySat.toList.sortBy(_._1) do
+      test(f"$name: TLE $satnum%d vs python3-sgp4 (${grid.size} points)"):
+        val propagator = build(tles(satnum)) match
           case org.scalactic.Good(p) => p
           case org.scalactic.Bad(e)  => fail(s"fromTLE failed for TLE $satnum: $e")
-        }
         var maxPosDev = 0.0
         var maxVelDev = 0.0
-        for ((t, expected) <- grid) {
-          val pv = propagator.propagate(t) match {
+        for (t, expected) <- grid do
+          val pv = propagator.propagate(t) match
             case org.scalactic.Good(propCtx) => propCtx.pv
             case org.scalactic.Bad(e)        => fail(s"propagation failed for TLE $satnum at t=$t: $e")
-          }
           val dp =
             math.max(math.abs(pv.x - expected.x), math.max(math.abs(pv.y - expected.y), math.abs(pv.z - expected.z)))
           val dv = math.max(
@@ -77,18 +74,12 @@ class CelestrakTLEsCrossCheck extends AnyFunSuite {
           )
           maxPosDev = math.max(maxPosDev, dp)
           maxVelDev = math.max(maxVelDev, dv)
-        }
-        withClue(f"max position deviation $maxPosDev%.9f km (tolerance $posTol) at 6-day grid: ") {
+        withClue(f"max position deviation $maxPosDev%.9f km (tolerance $posTol) at 6-day grid: "):
           assert(maxPosDev < posTol)
-        }
-        withClue(f"max velocity deviation $maxVelDev%.12f km/s (tolerance $velTol): ") {
+        withClue(f"max velocity deviation $maxVelDev%.12f km/s (tolerance $velTol): "):
           assert(maxVelDev < velTol)
-        }
-      }
-    }
 
   check("SGP4Vallado", tle => SGP4Vallado.fromTLE(tle, wgs), tightPosTol, tightVelTol)
   check("SGP4ValladoLong", tle => SGP4ValladoLong.fromTLE(tle, wgs), envelopePosTol, envelopeVelTol)
   check("SGP4PN", tle => SGP4PN.fromTLE(tle, wgs), envelopePosTol, envelopeVelTol)
   check("SGP4Lara", tle => SGP4Lara.fromTLE(tle, wgs), envelopePosTol, envelopeVelTol)
-}

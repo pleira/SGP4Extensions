@@ -1,10 +1,10 @@
 package sgp4.report
 import sgp4.io.TLE
-import better.files._
-import better.files.Dsl._
-import sgp4.coord._
+import better.files.*
+import better.files.Dsl.*
+import sgp4.coord.*
 
-object ValladoFileReport {
+object ValladoFileReport:
 
   type F = Double
 
@@ -13,7 +13,7 @@ object ValladoFileReport {
       tle: TLE,
       lines: List[String],
       times: IndexedSeq[Int]
-  ) = {
+  ) =
     val f = File("doc/reports/sgp4vallado_" + tle.satelliteNumber + "_" + tle.year + "_" + tle.epoch + ".md")
     implicit val oo = File.OpenOptions.append
     f << "# Vallado SGP4 algorithm\n"
@@ -54,6 +54,3 @@ object ValladoFileReport {
     pnr foreach { p =>
       f << p._2.toString().replaceAll(",|SGPElems\\(|\\)|\\(", "|")
     }
-
-  }
-}

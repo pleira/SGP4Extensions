@@ -1,15 +1,14 @@
-package sgp4
-package propagation
+package sgp4.propagation
 
-import spire.algebra._
+import spire.algebra.*
 import spire.math.{sin, cos, abs, pi}
-import spire.implicits._
-import sgp4.coord._
+import spire.implicits.*
+import sgp4.coord.*
 import org.scalactic.Good
 import org.scalactic.Bad
 import scala.annotation.tailrec
 
-trait TwoTermsKeplerEq {
+trait TwoTermsKeplerEq:
 
   /** Solve Kepler's equation expressed in Lyddane's variables U = Ψ + S'cosΨ − C'sinΨ where U = F' − h' to compute the
     * anomaly Ψ = U'+g', where U is the eccentric anomaly and g is the argument of the perigee (ω). The Newton-Raphson
@@ -17,13 +16,13 @@ trait TwoTermsKeplerEq {
     */
   def solveKeplerEq[@sp(Double) F: Field: Trig: Order: TruncatedDivision: FromDouble](
       elems: LyddaneElems[F]
-  ): AnomalyResult[F] = {
+  ): AnomalyResult[F] =
     import elems._
     // U = F' - h' = M" + g";
     val u = TruncatedDivision[F].tmod(xl - Ω, asF[F](2) * pi)
 
     @tailrec
-    def loop(U: F, remainingIters: Int): AnomalyResult[F] = {
+    def loop(U: F, remainingIters: Int): AnomalyResult[F] =
       val sinU = sin(U)
       val cosU = cos(U)
       val ecosU = `C´` * cosU + `S´` * sinU
@@ -31,16 +30,9 @@ trait TwoTermsKeplerEq {
       val fdot = 1 - ecosU
       val f = (u + esinU - U)
       val incr = f / fdot
-      if (abs(incr) < asF[F](1e-12)) {
+      if abs(incr) < asF[F](1e-12) then
         // NOTE: as we have Lyddane's variables here, the eccentric anomaly is U - ω when comparing
         Good(AnomalyState(U, cosU, sinU, ecosU, esinU))
-      } else if (remainingIters < 0) {
-        Bad(SGP4Error.LyddaneKeplerNoConvergence(incr, U))
-      } else {
-        loop(U + incr, remainingIters - 1)
-      }
-    }
+      else if remainingIters < 0 then Bad(SGP4Error.LyddaneKeplerNoConvergence(incr, U))
+      else loop(U + incr, remainingIters - 1)
     loop(u, 10)
-  }
-
-}

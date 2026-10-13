@@ -1,10 +1,10 @@
 package sgp4.report
 
-import sgp4.model._
+import sgp4.model.*
 
-object PropagateTLE28xxx extends App {
+object PropagateTLE28xxx:
 
-  def report(propag: Propagate): Unit = {
+  def report(propag: Propagate): Unit =
     Console.out.println(s"### TLE${propag.ttle.tle.satelliteNumber}")
     Console.out.println(s"Propagations size is ${propag.pvts.size}")
     val glen = propag.goods.size
@@ -12,9 +12,8 @@ object PropagateTLE28xxx extends App {
     Console.out.println(s"Last good is at epoch time ${propag.goods(glen - 1)._2}")
     val elen = propag.errors.size
     Console.out.println(s"Error's size is ${elen}")
-    if (elen > 0) {
+    if elen > 0 then
       Console.out.println(s"First error is ${propag.errors.head._1} at epoch time ${propag.errors.head._2}")
-    }
     Console.out.println(s"Comparison with Vallado's cpp results")
     val cglen = propag.cppOuts.size
     Console.out.println(s"Cpp good's size is ${cglen}")
@@ -22,9 +21,11 @@ object PropagateTLE28xxx extends App {
     Console.out.println("time, pv differences : ")
     propag.pvDiffs map { println }
     Console.out.println("###")
-  }
 
   report(new Propagate(TLE28350))
   report(new Propagate(TLE28872))
 
-}
+  /** Runs the program: the statements above execute at object initialization, when the JVM launcher accesses this main
+    * method.
+    */
+  def main(args: Array[String]): Unit = ()

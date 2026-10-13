@@ -1,27 +1,25 @@
-package sgp4
-package coord
+package sgp4.coord
 import sgp4.io.TLE
-import sgp4.earth_gravity._
+import sgp4.earth_gravity.*
 
-import spire.algebra._
+import spire.algebra.*
 import spire.math.{sqrt, atan2}
-import spire.implicits._
+import spire.implicits.*
 
-case class AnomalyState[@sp(Double) F](E: F, cosE: F, sinE: F, ecosE: F, esinE: F) {
+case class AnomalyState[@sp(Double) F](E: F, cosE: F, sinE: F, ecosE: F, esinE: F):
   // define alternative methods to allow expressing a different Anomaly U (not the Eccentric Anomaly)
   def U: F = E; def cosU: F = cosE; def sinU: F = sinE; def ecosU: F = ecosE; def esinU: F = esinE;
-}
 
 case class SPNAuxVariables[@sp(Double) F](p: F, κ: F, σ: F, n: F, β: F)
 
-object SGPElemsConversions {
+object SGPElemsConversions:
 
   /** Builds SGPElems with original mean motion (n0'', n0dp) and semimajor axis (a0'' , a0dp).
     */
   def sgpElemsAndContext[@sp(Double) F: Field: Trig: NRoot: Order: TruncatedDivision: FromDouble](
       tle: TLE,
       wgs: SGPConstants[F]
-  ): SGPElemsResult[F] = {
+  ): SGPElemsResult[F] =
     val e0 = asF[F](tle.eccentricity.toDouble)
     val i0 = asF[F](tle.inclination.toDouble.toRadians)
     val pa = asF[F](tle.argumentOfPeriapsis.toDouble.toRadians)
@@ -30,16 +28,14 @@ object SGPElemsConversions {
     val meanMotionPerDay = asF[F](tle.meanMotion.toDouble)
     val bStar = asF[F](tle.atmosphericDragCoefficient.toDouble)
     // in julian days
-    val epoch: F = {
+    val epoch: F =
       val mdhms = TimeUtils.days2mdhms(tle.year, tle.epoch.toDouble)
       asF[F]((TimeUtils.jday(tle.year, mdhms._1, mdhms._2, mdhms._3, mdhms._4, mdhms._5) - 2433281.5))
-    }
     val ω0 = pa
     val Ω0 = raan
     val M0 = meanAnomaly
     val radPerMin0 = TimeUtils.revPerDay2RadPerMin(meanMotionPerDay)
     calcContextAndOriginalMotionAndSemimajorAxis(e0, i0, ω0, Ω0, M0, bStar, epoch, radPerMin0, wgs)
-  }
 
   private def calcContextAndOriginalMotionAndSemimajorAxis[F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
       e: F,
@@ -52,12 +48,12 @@ object SGPElemsConversions {
       radPerMin: F,
       wgs: SGPConstants[F]
   ): SGPElemsResult[F] =
-    for {
+    for
       eCtx <- EccentricityCtx.elliptical(e)
       iCtx = InclinationCtx(I)
       n_and_a = calcOriginalMotionAndSemimajorAxis(radPerMin, iCtx, eCtx, wgs)
       (n, a) = (n_and_a._1, n_and_a._2)
-    } yield SGPElemsCtx(SGPElems(n, e, I, ω, Ω, M, a, bStar, epoch), iCtx, eCtx, wgs)
+    yield SGPElemsCtx(SGPElems(n, e, I, ω, Ω, M, a, bStar, epoch), iCtx, eCtx, wgs)
 
   private def calcOriginalMotionAndSemimajorAxis[
       @sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble
@@ -66,7 +62,7 @@ object SGPElemsConversions {
       iCtx: InclinationCtx[F],
       eCtx: EccentricityCtx[F],
       wgs: SGPConstants[F]
-  ): (F, F) = {
+  ): (F, F) =
     import wgs.{KE, J2, `2/3`, `1/3`}
     import iCtx.`3c²-1`, eCtx.`β0³`
 
@@ -78,12 +74,11 @@ object SGPElemsConversions {
     val n0dp = n / (1 + δ0)
     val a0dp = (KE / n0dp) fpow `2/3` // a0   / (1 - δ0)
     (n0dp, a0dp)
-  }
 
   def sgpelems2spn[@sp(Double) F: Field: Trig: NRoot: Order: TruncatedDivision: FromDouble](
       eaState: AnomalyState[F],
       secularCtx: SGPSecularCtx[F]
-  ): SpecialPolarNodal[F] = {
+  ): SpecialPolarNodal[F] =
     import eaState._
     import secularCtx.elem
     import elem.{a, I, e, ω, Ω}
@@ -105,5 +100,3 @@ object SGPElemsConversions {
     val f = atan2(sinf, cosf)
     val θ = (f + ω) tmod asF[F](`2pi`) // if (θ0to2pi > asF[F](pi)) θ0to2pi - `2pi` else θ0to2pi
     SpecialPolarNodal(I, θ, Ω, r, R, Θ / r)
-  }
-}

@@ -1,12 +1,11 @@
-package sgp4
-package coord
+package sgp4.coord
 
 import org.scalactic.Or
 import org.scalactic.Good
 import org.scalactic.Bad
-import spire.algebra._
+import spire.algebra.*
 import spire.math.{sqrt, atan2}
-import spire.implicits._
+import spire.implicits.*
 
 case class LyddaneElems[@sp(Double) F: Field](
     I: F, // inclination
@@ -15,23 +14,22 @@ case class LyddaneElems[@sp(Double) F: Field](
     C: F,
     S: F,
     F: F
-) {
+):
   // methods used to match Vallado's variables in CPP version
   def xl = F; def `C´` = C; def `S´` = S; def `F´` = xl; def h = Ω; def axnl = C; def ecosω = C; def aynl = S;
 //  def +(o: LyddaneElems[F]) = LyddaneElems(I + o.I, a - o.a,Ω + o.Ω,C + o.C,S + o.S, F + o.F)
 //  def -(o: LyddaneElems[F]) = LyddaneElems(I - o.I,a - o.a,Ω - o.Ω,C - o.C,S - o.S, F - o.F)
-}
 
 case class LyddaneCtx[F](ϵ3: F, η: F, esinω: F)
 
 case class LongPeriodContext[@sp(Double) F](`el²`: F, pl: F, `√pl`: F, βl: F, sin2θ: F, cos2θ: F)
 
-object LyddaneConversions {
+object LyddaneConversions:
 
   def lyd2spn[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
       eaState: AnomalyState[F],
       lylppState: LyddaneElems[F]
-  ): (SpecialPolarNodal[F], LongPeriodContext[F]) Or SGP4Error = {
+  ): (SpecialPolarNodal[F], LongPeriodContext[F]) Or SGP4Error =
     import eaState._
     import lylppState._
 
@@ -42,7 +40,7 @@ object LyddaneConversions {
 
     val `el²` = `C´` * `C´` + `S´` * `S´`
     val pl = a * (1 - `el²`) // semilatus rectum , as MU=1, p=Z²
-    if (pl < asF[F](0)) return Bad(SGP4Error.NegativeSemilatusRectum(pl))
+    if pl < asF[F](0) then return Bad(SGP4Error.NegativeSemilatusRectum(pl))
     val `√pl` = sqrt(pl)
     val rl = a * (1 - ecosU) // r´
     val rdotl = sqrt(a) * esinU / rl // R´
@@ -58,6 +56,3 @@ object LyddaneConversions {
     val cos2θ = 1 - 2 * sinθ * sinθ
 
     Good((SpecialPolarNodal(I, θ, Ω, rl, rdotl, rvdotl), LongPeriodContext(`el²`, pl, `√pl`, βl, sin2θ, cos2θ)))
-  }
-
-}

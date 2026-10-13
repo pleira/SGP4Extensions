@@ -14,7 +14,7 @@ import spire.implicits.partialOrderOps
 import spire.math.floor
 import spire.math.pi
 
-object TimeUtils {
+object TimeUtils:
 
   val `2pi` = 2 * pi
 
@@ -37,7 +37,7 @@ object TimeUtils {
     * references : vallado 2004, 191, eq 3-45
     */
 
-  def gstime[@sp(Double) F: Field: Order: TruncatedDivision: FromDouble](jdut1: F): F = {
+  def gstime[@sp(Double) F: Field: Order: TruncatedDivision: FromDouble](jdut1: F): F =
     val deg2rad = pi / 180
 
     val tut1 = (jdut1 - 2451545) / 36525
@@ -46,14 +46,14 @@ object TimeUtils {
     temp = TruncatedDivision[F].tmod(temp * deg2rad / 240, asF[F](`2pi`)) // 360/86400 = 1/240, to deg, to rad
 
     // ------------------------ check quadrants ---------------------
-    if (temp < 0) temp += `2pi`
+    if temp < 0 then temp += `2pi`
 
     temp
-  } // end gstime
+  // end gstime
 
   // use old way of finding gst
   // count integer number of days from 0 jan 1970
-  def oldGst(epoch: Double): Double = {
+  def oldGst(epoch: Double): Double =
     val ts70 = epoch - 7305.0
     val ds70 = floor(ts70 + 1.0e-8)
     val tfrac = ts70 - ds70
@@ -63,8 +63,7 @@ object TimeUtils {
     val fk5r = 5.07551419432269442e-15
     val c1p2p = c1 + `2pi`
     val gsto = (thgr70 + c1 * ds70 + c1p2p * tfrac + ts70 * ts70 * fk5r) % `2pi`
-    if (gsto < 0.0) gsto + `2pi` else gsto
-  }
+    if gsto < 0.0 then gsto + `2pi` else gsto
 
   /** procedure jday
     *
@@ -117,13 +116,11 @@ object TimeUtils {
     * coupling : none.
     */
 
-  def days2mdhms(year: Int, days: Double) = {
+  def days2mdhms(year: Int, days: Double) =
 
     val lmonth: Vector[Int] =
-      if ((year % 4) == 0)
-        Vector(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-      else
-        Vector(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+      if (year % 4) == 0 then Vector(31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+      else Vector(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
     val dayofyr: Int = floor(days).toInt
 
@@ -131,10 +128,9 @@ object TimeUtils {
 
     var i = 1
     var inttemp = 0
-    while ((dayofyr > inttemp + lmonth(i - 1)) && (i < 12)) {
+    while (dayofyr > inttemp + lmonth(i - 1)) && (i < 12) do
       inttemp = inttemp + lmonth(i - 1)
       i = i + 1
-    }
     val mon = i
     val day = dayofyr - inttemp
 
@@ -145,7 +141,7 @@ object TimeUtils {
     val minute = floor(temp).toInt
     val sec = (temp - minute) * 60
     (mon, day, hr, minute, sec)
-  } // end days2mdhms
+  // end days2mdhms
 
   /** procedure invjday
     *
@@ -169,7 +165,7 @@ object TimeUtils {
     *
     * references : vallado 2007, 208, alg 22, ex 3-13
     */
-  def invjday(jd: Double): (Int, Int, Int, Int, Int, Double) = {
+  def invjday(jd: Double): (Int, Int, Int, Int, Int, Double) =
 
     /* --------------- find year and days of the year --------------- */
     val temp = jd - 2415019.5
@@ -181,16 +177,13 @@ object TimeUtils {
     var days = temp - ((year - 1900) * 365.0 + leapyrs) + 0.00000000001
 
     /* ------------ check for case of beginning of a year ----------- */
-    if (days < 1.0) {
+    if days < 1.0 then
       year = year - 1
       leapyrs = floor((year - 1901) * 0.25).toInt
       days = temp - ((year - 1900) * 365 + leapyrs)
-    }
 
     /* ----------------- find remaing data  ------------------------- */
     val (mon, day, hr, minute, sec0) = days2mdhms(year, days)
     val sec = sec0 - 0.00000086400
     (year, mon, day, hr, minute, sec)
-  } // end invjday
-
-}
+  // end invjday

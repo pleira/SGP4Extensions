@@ -1,10 +1,9 @@
-package sgp4
-package coord
-import sgp4.earth_gravity._
+package sgp4.coord
+import sgp4.earth_gravity.*
 
-import spire.algebra._
+import spire.algebra.*
 import spire.math.{sqrt, sin, cos}
-import spire.implicits._
+import spire.implicits.*
 import org.scalactic.Or
 import org.scalactic.Good
 import org.scalactic.Bad
@@ -15,7 +14,7 @@ case class SGPElemsCtx[@sp(Double) F: Field: Order: FromDouble](
     iCtx: InclinationCtx[F],
     eCtx: EccentricityCtx[F],
     wgs: SGPConstants[F]
-) {
+):
   import elem.{a, e, n}, wgs.{aE, `2pi`}
 
   /** radius of perigee
@@ -33,9 +32,8 @@ case class SGPElemsCtx[@sp(Double) F: Field: Order: FromDouble](
   def period: F = asF[F](`2pi`) / n
 
   def isDeepSpace: Boolean = period >= 225
-}
 
-case class InclinationCtx[@sp(Double) F: Field](c: F, s: F) {
+case class InclinationCtx[@sp(Double) F: Field](c: F, s: F):
   lazy val `s²` = s * s
   lazy val `c²` = c * c
   lazy val `c³` = `c²` * c
@@ -52,28 +50,21 @@ case class InclinationCtx[@sp(Double) F: Field](c: F, s: F) {
   def `θ³` = `c³` // cosI0 * `cos²I0`
   def `θ⁴` = `c⁴` // `cos²I0` * `cos²I0`
   def θsq = `c²` // `cos²I0`
-}
 
-object InclinationCtx {
+object InclinationCtx:
   def apply[@sp(Double) F: Field: Trig](I: F): InclinationCtx[F] = InclinationCtx(cos(I), sin(I))
-}
 
-case class EccentricityCtx[@sp(Double) F: Field: NRoot](eccentricity: F, `e²`: F, `β0²`: F) {
+case class EccentricityCtx[@sp(Double) F: Field: NRoot](eccentricity: F, `e²`: F, `β0²`: F):
   val β0: F = sqrt(`β0²`)
   val `β0³`: F = β0 * `β0²`
   val `β0⁴`: F = `β0²` * `β0²`
-}
 
-object EccentricityCtx {
+object EccentricityCtx:
   // valid interval for eccentricity calculations
   def checkEccentricityValidInterval[@sp(Double) F: Field: Order](e: F): Boolean = e > 0 && e < 1
 
   def apply[@sp(Double) F: Field: Order: NRoot](e: F): EccentricityCtx[F] = EccentricityCtx(e, e * e, 1 - e * e)
 
   def elliptical[@sp(Double) F: Field: NRoot: Order](e: F): EccentricityCtx[F] Or SGP4Error =
-    if (e > 0 && e < 1)
-      Good(EccentricityCtx(e, e * e, 1 - e * e))
-    else
-      Bad(SGP4Error.NegativeEccentricity(e))
-
-}
+    if e > 0 && e < 1 then Good(EccentricityCtx(e, e * e, 1 - e * e))
+    else Bad(SGP4Error.NegativeEccentricity(e))

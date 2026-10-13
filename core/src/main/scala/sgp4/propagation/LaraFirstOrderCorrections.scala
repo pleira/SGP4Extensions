@@ -1,15 +1,14 @@
-package sgp4
-package propagation
+package sgp4.propagation
 
-import spire.algebra._
-import spire.implicits._
-import sgp4.coord._
+import spire.algebra.*
+import spire.implicits.*
+import sgp4.coord.*
 
-trait LaraFirstOrderCorrections[@sp(Double) F] {
+trait LaraFirstOrderCorrections[@sp(Double) F]:
 
   def lppCorrections(lns: LaraNonSingular[F], secularElemt: SGPSecularCtx[F])(implicit
       ev: Field[F]
-  ): (LaraNonSingular[F], SGPSecularCtx[F]) = {
+  ): (LaraNonSingular[F], SGPSecularCtx[F]) =
     val elem = secularElemt.elem
     val ictx = secularElemt.iCtx
     val wgs = secularElemt.wgs
@@ -37,9 +36,8 @@ trait LaraFirstOrderCorrections[@sp(Double) F] {
     val Rl = R + δR
     val Θl = δΘ + Θ
     (LaraNonSingular(ψ + δψ, ξ + δξ, χ + δχ, rl, Rl, Θl), secularElemt)
-  }
 
-  def sppCorrections(lppState: (LaraNonSingular[F], SGPSecularCtx[F]))(implicit ev: Field[F]): LaraNonSingular[F] = {
+  def sppCorrections(lppState: (LaraNonSingular[F], SGPSecularCtx[F]))(using ev: Field[F]): LaraNonSingular[F] =
     import lppState.{_1 => lns, _2 => secularElemt}
     val ictx = secularElemt.iCtx
     val wgs = secularElemt.wgs
@@ -58,11 +56,10 @@ trait LaraFirstOrderCorrections[@sp(Double) F] {
     val δR = ϵ2 * 4 * (Θ / r) * ξ * χ
     val δΘ = ϵ2 * 3 * Θ * (`ξ²` - `χ²`)
     LaraNonSingular(ψ + δψ, ξ + δξ, χ + δχ, r + δr, R + δR, Θ + δΘ)
-  }
 
   def allCorrections(lns: LaraNonSingular[F], secularElemt: SGPSecularCtx[F])(implicit
       ev: Field[F]
-  ): LaraNonSingular[F] = {
+  ): LaraNonSingular[F] =
     val elem = secularElemt.elem
     val ictx = secularElemt.iCtx
     val wgs = secularElemt.wgs
@@ -106,5 +103,3 @@ trait LaraFirstOrderCorrections[@sp(Double) F] {
     val δRs = ϵ2 * 4 * (Θl / rl) * ξl * χl
     val δΘs = ϵ2 * 3 * Θl * (`ξl²` - `χl²`)
     LaraNonSingular(ψl + δψs, ξl + δξs, χl + δχs, rl + δrs, Rl + δRs, Θl + δΘs)
-  }
-}

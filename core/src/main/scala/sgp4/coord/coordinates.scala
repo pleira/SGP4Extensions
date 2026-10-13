@@ -1,10 +1,9 @@
-package sgp4
-package coord
+package sgp4.coord
 
 import spire.algebra.Trig
 import spire.algebra.Field
-import spire.math._
-import spire.implicits._
+import spire.math.*
+import spire.implicits.*
 import scala.Vector
 
 case class SGPElems[@sp(Double) F](
@@ -19,7 +18,7 @@ case class SGPElems[@sp(Double) F](
     epoch: F
 ) // epoch time in days from jan 0, 1950. 0 hr
 
-case class CartesianElems[@sp(Double) F: Field](x: F, y: F, z: F, vx: F, vy: F, vz: F) {
+case class CartesianElems[@sp(Double) F: Field](x: F, y: F, z: F, vx: F, vy: F, vz: F):
   def pos: Vector[F] = Vector[F](x, y, z)
   def vel: Vector[F] = Vector[F](vx, vy, vz)
   // Lara uses X,Y,Z for velocities in his formulas. Allow to follow his convention
@@ -30,7 +29,6 @@ case class CartesianElems[@sp(Double) F: Field](x: F, y: F, z: F, vx: F, vy: F, 
   // used to calculate differences in results or to add corrections
   def +(c: CartesianElems[F]) = CartesianElems(x + c.x, y + c.y, z + c.z, vx + c.vx, vy + c.vy, vz + c.vz)
   def -(c: CartesianElems[F]) = CartesianElems(x - c.x, y - c.y, z - c.z, vx - c.vx, vy - c.vy, vz - c.vz)
-}
 
 // Naming of the elements after "Efficient formulation of the periodic corrections in
 // Brouwer’s gravity solution" by Martin Lara
@@ -50,7 +48,7 @@ case class SpecialPolarNodal[@sp(Double) F: Field: Trig](
     r: F, // the radial distance
     R: F, // the radial velocity
     `Θ/r`: F // related to the total angular momentum
-) {
+):
   def su: F = θ; def su0: F = su; def mrt: F = r; def mvt: F = R; def rdot0: F = mvt;
   // Note: Vallado's SGP4 uses rθdot = Θ/r instead of Θ, used by Lara
   def rvdot: F = `Θ/r`;
@@ -59,7 +57,6 @@ case class SpecialPolarNodal[@sp(Double) F: Field: Trig](
   def +(o: SpecialPolarNodal[F]) = SpecialPolarNodal(I + o.I, θ + o.θ, Ω + o.Ω, r + o.r, R + o.R, `Θ/r` + o.`Θ/r`)
   def -(o: SpecialPolarNodal[F]) = SpecialPolarNodal(I - o.I, θ - o.θ, Ω - o.Ω, r - o.r, R - o.R, `Θ/r` - o.`Θ/r`)
   def toCPN: CSpecialPolarNodal[F] = CSpecialPolarNodal(cos(I), θ, Ω, r, R, `Θ/r`)
-}
 
 // This class is just used in one test/comparison between Lara's SGP4 algorithm and the one in polar nodals
 case class CSpecialPolarNodal[@sp(Double) F: Field: Trig](
@@ -69,11 +66,10 @@ case class CSpecialPolarNodal[@sp(Double) F: Field: Trig](
     r: F, // the radial distance
     R: F, // the radial velocity
     `Θ/r`: F // related to the total angular momentum
-) {
+):
   def su: F = θ; def su0: F = su; def mrt: F = r; def mvt: F = R; def rdot0: F = mvt;
   // Note: Vallado's SGP4 uses rθdot = Θ/r instead of Θ, used by Lara
   def rvdot: F = `Θ/r`;
   def Θ: F = `Θ/r` * r;
   def rθdot: F = `Θ/r`
   def toSPN: SpecialPolarNodal[F] = SpecialPolarNodal(acos(cosI), θ, Ω, r, R, `Θ/r`)
-}

@@ -1,11 +1,10 @@
-package sgp4
-package conjunction
+package sgp4.conjunction
 
 import sgp4.io.TLE;
 
 /* These two satellites collided on 10 February 2009, at 16:56 GMT */
 
-trait TLE24946 {
+trait TLE24946:
   val lines24946 = List(
     "#      IRIDIUM 33: last TLE before collision",
     "1 24946U 97051C   15313.53802329  .00000228  00000-0  75380-4 0  9991",
@@ -13,9 +12,8 @@ trait TLE24946 {
   )
 
   val tle24946 = TLE.parseLines(lines24946).head
-}
 
-trait TLE22675 {
+trait TLE22675:
   val lines22675 = List(
     "# COSMOS 2251 : last TLE before collision",
     "1 22675U 93036A   15312.87914574  .00000046  00000-0  26387-4 0  9990",
@@ -23,4 +21,3 @@ trait TLE22675 {
   )
 
   val tle22675 = TLE.parseLines(lines22675).head
-}

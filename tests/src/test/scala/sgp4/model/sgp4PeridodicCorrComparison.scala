@@ -1,12 +1,11 @@
-package sgp4
-package model
+package sgp4.model
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
-import spire.math._
+import spire.math.*
 import sgp4.earth_gravity.SGP72Constants
-import sgp4.propagation._
+import sgp4.propagation.*
 import sgp4.coord.SGPElemsConversions
 import sgp4.coord.SpecialPolarNodal
 import sgp4.conjunction.TLE22675
@@ -18,9 +17,9 @@ class Sgp4PeriodicCorrectionImplComparison
     with TLE24946
     with TLE00005
     with TLE06251
-    with TLE28057 {
+    with TLE28057:
 
-  implicit val wgs: SGP72Constants[Double] = SGP72Constants.tleDoubleConstants
+  given wgs: SGP72Constants[Double] = SGP72Constants.tleDoubleConstants
   val tol1 = TolerantNumerics.tolerantDoubleEquality(3e-4)
   val tol2 = TolerantNumerics.tolerantDoubleEquality(1.6e-6)
   val tol3 = TolerantNumerics.tolerantDoubleEquality(3e-4)
@@ -28,7 +27,7 @@ class Sgp4PeriodicCorrectionImplComparison
 
   import spire.std.any.DoubleAlgebra
   val tles = List(tle00005, tle06251, tle22675, tle24946, tle28057)
-  for (tle <- tles) {
+  for tle <- tles do
     val elem0AndCtx = SGPElemsConversions.sgpElemsAndContext(tle, wgs).get
     val model = BrouwerLaneSecularCorrections(elem0AndCtx)
     val vasgp4 = SGP4Vallado[Double](model)
@@ -39,13 +38,13 @@ class Sgp4PeriodicCorrectionImplComparison
     ts foreach { t =>
       vasgp4.secularCorrections(t) foreach { secularElemt =>
         val result =
-          for {
+          for
             vafspn <- vasgp4.periodicCorrections(secularElemt)
             pnfspn <- pnsgp4.periodicCorrections(secularElemt)
             vlfspn <- vlsgp4.periodicCorrections(secularElemt)
             lafspn <- lasgp4.periodicCorrections(secularElemt)
-          } yield (vafspn, pnfspn, vlfspn, lafspn)
-        if (result.isGood) {
+          yield (vafspn, pnfspn, vlfspn, lafspn)
+        if result.isGood then
           val (vafspn, pnfspn, vlfspn, lafspn) = result.get
           compareSPN(
             s"TLE ${tle.satelliteNumber} : Vallado/Polar Nodals comparison in SPN at time $t",
@@ -65,10 +64,8 @@ class Sgp4PeriodicCorrectionImplComparison
             lafspn,
             tol3
           );
-        }
       }
     }
-  }
 
   def compareSPN(
       msg: String,
@@ -76,23 +73,19 @@ class Sgp4PeriodicCorrectionImplComparison
       spn2: SpecialPolarNodal[Double],
       tolerant: Equality[Double]
   ) =
-    test(msg) {
-      implicit val tolerantVal = tolerant
+    test(msg):
+      given tolerantVal: Equality[Double] = tolerant
       assert(spn1.r === spn2.r)
       assert(spn1.R === spn2.R)
       assert(spn1.Ω === spn2.Ω)
       assert(spn1.`Θ/r` === spn2.`Θ/r`)
       assert(spn1.I === spn2.I)
-      if (abs(spn1.θ - spn2.θ) > 6) {
+      if abs(spn1.θ - spn2.θ) > 6 then
         // different signs, correct one by 2pi
-        val o1 = if (spn1.θ < 0) spn1.θ + `2pi` else spn1.θ
-        val o2 = if (spn2.θ < 0) spn2.θ + `2pi` else spn2.θ
+        val o1 = if spn1.θ < 0 then spn1.θ + `2pi` else spn1.θ
+        val o2 = if spn2.θ < 0 then spn2.θ + `2pi` else spn2.θ
         assert(o1 === o2)
-      } else {
-        assert(spn1.θ === spn2.θ)
-      }
-
-    }
+      else assert(spn1.θ === spn2.θ)
 
   def compareSPN2(
       msg: String,
@@ -100,28 +93,21 @@ class Sgp4PeriodicCorrectionImplComparison
       spn2: SpecialPolarNodal[Double],
       tolerant: Equality[Double]
   ) =
-    test(msg) {
-      implicit val tolerantVal = tolerant
+    test(msg):
+      given tolerantVal: Equality[Double] = tolerant
       assert(spn1.r === spn2.r)
       assert(spn1.R === spn2.R)
-      if (abs(spn1.Ω - spn2.Ω) > 6) {
+      if abs(spn1.Ω - spn2.Ω) > 6 then
         // different signs, correct one by 2Pi
-        val o1 = if (spn1.Ω < 0) spn1.Ω + `2pi` else spn1.Ω
-        val o2 = if (spn2.Ω < 0) spn2.Ω + `2pi` else spn2.Ω
+        val o1 = if spn1.Ω < 0 then spn1.Ω + `2pi` else spn1.Ω
+        val o2 = if spn2.Ω < 0 then spn2.Ω + `2pi` else spn2.Ω
         assert(o1 === o2)
-      } else {
-        assert(spn1.Ω === spn2.Ω)
-      }
+      else assert(spn1.Ω === spn2.Ω)
       assert(spn1.`Θ/r` === spn2.`Θ/r`)
       assert(spn1.I === spn2.I)
-      if (abs(spn1.θ - spn2.θ) < 6) {
-        assert(spn1.θ === spn2.θ)
-      } else {
+      if abs(spn1.θ - spn2.θ) < 6 then assert(spn1.θ === spn2.θ)
+      else
         // different signs, correct one by 2Pi
-        val o1 = if (spn1.θ < 0) spn1.θ + `2pi` else spn1.θ
-        val o2 = if (spn2.θ < 0) spn2.θ + `2pi` else spn2.θ
+        val o1 = if spn1.θ < 0 then spn1.θ + `2pi` else spn1.θ
+        val o2 = if spn2.θ < 0 then spn2.θ + `2pi` else spn2.θ
         assert(o1 === o2)
-      }
-    }
-
-}

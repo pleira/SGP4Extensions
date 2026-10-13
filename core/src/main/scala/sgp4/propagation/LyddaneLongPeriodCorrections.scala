@@ -1,22 +1,20 @@
-package sgp4
-package propagation
+package sgp4.propagation
 
-import spire.algebra._
+import spire.algebra.*
 import spire.math.{abs, sqrt, sin, cos}
-import spire.implicits._
-import sgp4.coord._
+import spire.implicits.*
+import sgp4.coord.*
 
-trait LyddaneLongPeriodCorrections[@sp(Double) F] {
+trait LyddaneLongPeriodCorrections[@sp(Double) F]:
 
   def lylppCorrections(
       secularCtx: SGPSecularCtx[F]
-  )(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F], fd: FromDouble[F]): LyddaneElems[F] = {
+  )(using ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F], fd: FromDouble[F]): LyddaneElems[F] =
     lylppCorrectionsCtx(secularCtx).elems
-  }
 
   def lylppCorrectionsCtx(
       secularCtx: SGPSecularCtx[F]
-  )(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F], fd: FromDouble[F]): LyddaneResult[F] = {
+  )(using ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F], fd: FromDouble[F]): LyddaneResult[F] =
 
     import secularCtx.{elem, wgs, iCtx => ictx}
     import ictx.{c, s}, wgs.`J3/J2`, elem.{a, e, ω, M, I, Ω}
@@ -35,7 +33,7 @@ trait LyddaneLongPeriodCorrections[@sp(Double) F] {
 
     // sgp4fix for divide by zero with I = 180 deg
     val `1+c`: F =
-      if (abs(1 + c) > asF[F](1.5e-12)) (1 + c) else asF[F](1.5e-12)
+      if abs(1 + c) > asF[F](1.5e-12) then (1 + c) else asF[F](1.5e-12)
 
     // C´´ = e´´ * cos(g´´) there is no long period correction for Lyddane's C term
     val C = ecosω
@@ -48,6 +46,3 @@ trait LyddaneLongPeriodCorrections[@sp(Double) F] {
     // no more corrections, that is, L’= L",  I’= I", h’= h"
 
     LyddaneResult(LyddaneElems(I, a, Ω, C, S, F), LyddaneCtx(ϵ3, η, esinω))
-  }
-
-}

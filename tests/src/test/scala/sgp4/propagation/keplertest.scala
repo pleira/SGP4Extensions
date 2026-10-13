@@ -1,36 +1,34 @@
-package sgp4
-package propagation
+package sgp4.propagation
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
 import spire.math.{sqrt, atan2}
-import spire.implicits._
+import spire.implicits.*
 
 // Tests of the algorithm used in solving Kepler's equation
 // Solutions are compared with the results obtained in Wolframalpha.com for Kepler's equation
 
-class KeplerAndTrueAnomalyTest extends AnyFunSuite {
+class KeplerAndTrueAnomalyTest extends AnyFunSuite:
 
   object kepler extends SimpleKeplerEq
 
   // e: eccentricity, M: mean anomaly, E: expected eccentric anomaly
-  def solveKeplerAndCheckE(e: Double, M: Double, E: Double)(implicit equ: Equality[Double]) = for {
+  def solveKeplerAndCheckE(e: Double, M: Double, E: Double)(using equ: Equality[Double]) = for
     eas <- kepler.solveKeplerEq(e, M.toRadians)
     xEd = eas.E.toDegrees
     // Console.println(s"calculated eccentric anomaly: ${Ed} , expected eccentric anomaly: ${E} ")
     _ = assert(E === xEd)
-  } yield eas
+  yield eas
 
-  def checkr(ecosE: Double, r: Double) = {
+  def checkr(ecosE: Double, r: Double) =
     val a = 10000
     val rc = a * (1 - ecosE)
     // note: precision is 2E-3 here, if not E-12
     implicit val toMinus3: Equality[Double] = TolerantNumerics.tolerantDoubleEquality(2e-3)
     assert(rc === r)
-  }
 
-  test("Kepler equation solving followed by True Anomaly test, inputs in degrees ") {
+  test("Kepler equation solving followed by True Anomaly test, inputs in degrees "):
     val e = 0.02
     val `e²` = e * e
     val β = sqrt(1 - `e²`)
@@ -53,8 +51,8 @@ class KeplerAndTrueAnomalyTest extends AnyFunSuite {
     all foreach { p =>
       val M = p._1; val E = p._2; val f = p._3; val r = p._4
       val orEas = solveKeplerAndCheckE(e, M, E)
-      if (orEas.isBad) fail()
-      else {
+      if orEas.isBad then fail()
+      else
         val eas = orEas.get
         import eas._
         val sinf = β * sinE
@@ -63,8 +61,4 @@ class KeplerAndTrueAnomalyTest extends AnyFunSuite {
         val fd = fr.toDegrees
         assert(fd === f)
         checkr(ecosE, r)
-      }
     }
-  }
-
-}

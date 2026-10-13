@@ -66,7 +66,7 @@ trait ValladoTLE00005Check[F] { self: AnyFunSuite =>
   /** Inputs of the sgp4 propagation of TLE 5 from Vallado's cpp output. They are identical at every propagation time;
     * only t changes.
     */
-  def checkSgp4Inputs5(res: Sgp4Result[F])(implicit equ: Equality[F]): Unit = {
+  def checkSgp4Inputs5(res: Sgp4Result[F])(using equ: Equality[F]): Unit =
     import res._
     assert(isimp === 0); assert(method === 110); assert(bstar === 0.000028098); assert(cc1 === 0.000000000);
     assert(cc4 === 0.000000526); assert(cc5 === 0.000016465); assert(d2 === 0.000000000); assert(d3 === 0.000000000);
@@ -81,7 +81,6 @@ trait ValladoTLE00005Check[F] { self: AnyFunSuite =>
     assert(xno === 0.047206302); assert(nodeo === 6.086385471); assert(nodedt === -0.000037171);
     assert(xmcof === -0.000000000);
     assert(nodecf === -0.000000000);
-  }
 
   // propagation times in minutes
   val times00005: List[Double] =
@@ -90,7 +89,7 @@ trait ValladoTLE00005Check[F] { self: AnyFunSuite =>
   val check00005: List[Sgp4Result[F] => Equality[F] => Unit] =
     times00005 map { t => res =>
       { implicit equ: Equality[F] =>
-        checkSgp4Inputs5(res)(equ)
+        checkSgp4Inputs5(res)(using equ)
         assert(res.t === t)
       }
     }
@@ -136,7 +135,7 @@ trait ValladoTLE06251Check[F] { self: AnyFunSuite =>
   /** Inputs of the sgp4 propagation of TLE 6251 from Vallado's cpp output. They are identical at every propagation
     * time; only t changes.
     */
-  def checkSgp4Inputs6251(res: Sgp4Result[F])(implicit equ: Equality[F]): Unit = {
+  def checkSgp4Inputs6251(res: Sgp4Result[F])(using equ: Equality[F]): Unit =
     import res._
     assert(bstar === 0.000128080); assert(cc1 === 0.000000003); assert(cc4 === 0.000005200);
     assert(cc5 === 0.000650194);
@@ -150,7 +149,6 @@ trait ValladoTLE06251Check[F] { self: AnyFunSuite =>
     assert(mo === 3.860413487); assert(mdot === 0.067910210); assert(xno === 0.067918037);
     assert(nodeo === 0.943219561);
     assert(nodedt === -0.000051677); assert(xmcof === -0.000133147); assert(nodecf === -0.000000000);
-  }
 
   // propagation times in minutes
   val times06251: List[Double] = List(0.0, 120.0, 240.0, 360.0, 480.0, 600.0, 720.0, 840.0, 960.0, 1080.0, 1200.0,
@@ -159,7 +157,7 @@ trait ValladoTLE06251Check[F] { self: AnyFunSuite =>
   val check06251: List[Sgp4Result[F] => Equality[F] => Unit] =
     times06251 map { t => res =>
       { implicit equ: Equality[F] =>
-        checkSgp4Inputs6251(res)(equ)
+        checkSgp4Inputs6251(res)(using equ)
         assert(res.t === t)
       }
     }
@@ -207,7 +205,7 @@ trait ValladoTLE28057Check[F] { self: AnyFunSuite =>
   /** Inputs of the sgp4 propagation of TLE 28057 from Vallado's cpp output. They are identical at every propagation
     * time; only t changes.
     */
-  def checkSgp4Inputs28057(res: Sgp4Result[F])(implicit equ: Equality[F]): Unit = {
+  def checkSgp4Inputs28057(res: Sgp4Result[F])(using equ: Equality[F]): Unit =
     import res._
     assert(cc4 === -0.000000044); assert(cc5 === 0.000030313); assert(d2 === 0.000000000); assert(d3 === 0.000000000);
     assert(d4 === 0.000000000); assert(ecco === 0.000088400); assert(eta === 0.000912426);
@@ -221,7 +219,6 @@ trait ValladoTLE28057Check[F] { self: AnyFunSuite =>
     assert(xno === 0.062672399); assert(nodeo === 4.323112489); assert(nodedt === 0.000011840);
     assert(xmcof === 0.000000000);
     assert(nodecf === 0.000000000);
-  }
 
   // propagation times in minutes
   val times28057: List[Double] = List(0.0, 120.0, 240.0, 360.0, 480.0, 600.0, 720.0, 840.0, 960.0, 1080.0, 1200.0,
@@ -230,7 +227,7 @@ trait ValladoTLE28057Check[F] { self: AnyFunSuite =>
   val check28057: List[Sgp4Result[F] => Equality[F] => Unit] =
     times28057 map { t => res =>
       { implicit equ: Equality[F] =>
-        checkSgp4Inputs28057(res)(equ)
+        checkSgp4Inputs28057(res)(using equ)
         assert(res.t === t)
       }
     }

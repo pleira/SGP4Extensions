@@ -16,77 +16,54 @@ import sgp4.model.SGP4ValladoLong
   * propagation times; the remaining arguments are the TLEs, as inline two line element sets and/or TLE file names. The
   * parsing is a pure function of the arguments, so that it is fully testable without running the program.
   */
-object Cli {
+object Cli:
 
   import spire.std.any.DoubleAlgebra
 
   /** The SGP4 propagation models selectable from the command line.
     */
-  sealed trait PropagationModel {
-    def option: String
-    def name: String
-    def fromTLE(tle: TLE, wgs: SGPConstants[Double]): SGP4[Double] Or SGP4Error
-  }
+  enum PropagationModel(val option: String, val name: String):
 
-  case object Vallado extends PropagationModel {
-    val option: String = "-v"
-    val name: String = "Vallado SGP4"
-    def fromTLE(tle: TLE, wgs: SGPConstants[Double]): SGP4[Double] Or SGP4Error = SGP4.fromTLE(tle, wgs)
-  }
+    /** Builds the propagator of the selected model from the TLE.
+      */
+    def fromTLE(tle: TLE, wgs: SGPConstants[Double]): SGP4[Double] Or SGP4Error = this match
+      case Vallado     => SGP4.fromTLE(tle, wgs)
+      case ValladoLong => SGP4ValladoLong.fromTLE(tle, wgs)
+      case PolarNodals => SGP4PN.fromTLE(tle, wgs)
+      case Lara        => SGP4Lara.fromTLE(tle, wgs)
 
-  case object ValladoLong extends PropagationModel {
-    val option: String = "-vl"
-    val name: String = "Vallado-Lyddane LONG SGP4"
-    def fromTLE(tle: TLE, wgs: SGPConstants[Double]): SGP4[Double] Or SGP4Error =
-      SGP4ValladoLong.fromTLE(tle, wgs)
-  }
-
-  case object PolarNodals extends PropagationModel {
-    val option: String = "-p"
-    val name: String = "PN SGP4"
-    def fromTLE(tle: TLE, wgs: SGPConstants[Double]): SGP4[Double] Or SGP4Error = SGP4PN.fromTLE(tle, wgs)
-  }
-
-  case object Lara extends PropagationModel {
-    val option: String = "-l"
-    val name: String = "Lara SGP4"
-    def fromTLE(tle: TLE, wgs: SGPConstants[Double]): SGP4[Double] Or SGP4Error = SGP4Lara.fromTLE(tle, wgs)
-  }
+    case Vallado extends PropagationModel("-v", "Vallado SGP4")
+    case ValladoLong extends PropagationModel("-vl", "Vallado-Lyddane LONG SGP4")
+    case PolarNodals extends PropagationModel("-p", "PN SGP4")
+    case Lara extends PropagationModel("-l", "Lara SGP4")
 
   /** The selectable models, in help order.
     */
-  val models: List[PropagationModel] = List(Vallado, ValladoLong, PolarNodals, Lara)
+  val models: List[PropagationModel] = PropagationModel.values.toList
 
   /** The Earth gravity models selectable from the command line, named as in the python sgp4 library's earth_gravity
     * module.
     */
-  sealed trait GravityModel {
-    def name: String
-    def wgs: SGPConstants[Double]
-  }
+  enum GravityModel(val name: String):
 
-  case object WGS72 extends GravityModel {
-    val name: String = "wgs72"
-    def wgs: SGPConstants[Double] = SGP72Constants.tleDoubleConstants
-  }
+    /** The constants of the selected gravity model.
+      */
+    def wgs: SGPConstants[Double] = this match
+      case WGS72  => SGP72Constants.tleDoubleConstants
+      case WGS721 => SGP721Constants.tleDoubleConstants
+      case WGS84  => SGP84Constants.tleDoubleConstants
 
-  case object WGS721 extends GravityModel {
-    val name: String = "wgs72old"
-    def wgs: SGPConstants[Double] = SGP721Constants.tleDoubleConstants
-  }
-
-  case object WGS84 extends GravityModel {
-    val name: String = "wgs84"
-    def wgs: SGPConstants[Double] = SGP84Constants.tleDoubleConstants
-  }
+    case WGS72 extends GravityModel("wgs72")
+    case WGS721 extends GravityModel("wgs72old")
+    case WGS84 extends GravityModel("wgs84")
 
   /** The selectable gravity models, in help order.
     */
-  val gravityModels: List[GravityModel] = List(WGS72, WGS721, WGS84)
+  val gravityModels: List[GravityModel] = GravityModel.values.toList
 
   /** The default propagation times: one day, from 0 to 24*60 min, by 1 min steps.
     */
-  val defaultTimes: Seq[Double] = for (i <- 0 to 24 * 60; t = i * 1.0) yield t
+  val defaultTimes: Seq[Double] = for i <- 0 to 24 * 60; t = i * 1.0 yield t
 
   /** A successfully parsed command line: the selected propagation model, the inline TLE lines, the TLE files and the
     * propagation times in minutes from the TLE epoch.
@@ -101,12 +78,10 @@ object Cli {
 
   /** The result of parsing the command line: the configuration, or a request for the help message, or an error.
     */
-  sealed trait Parsed
-  object Parsed {
-    case object Help extends Parsed
-    final case class Ok(config: Config) extends Parsed
-    final case class Error(message: String) extends Parsed
-  }
+  enum Parsed:
+    case Help
+    case Ok(config: Config)
+    case Error(message: String)
 
   def helpMessage: String =
     s"""|Usage: sbt "reports/runMain sgp4.Main [options] [TLE line 1] [TLE line 2] [TLE files ...]"
@@ -152,42 +127,37 @@ object Cli {
       args: List[String],
       option: String,
       valueName: String
-  ): (Option[String], List[String], Option[String]) = {
+  ): (Option[String], List[String], Option[String]) =
     val positions = args.zipWithIndex.collect { case (`option`, i) => i }
-    if (positions.isEmpty) (None, args, None)
-    else if (positions.length > 1) (None, args, Some(s"Error: at most one $option option"))
-    else {
+    if positions.isEmpty then (None, args, None)
+    else if positions.length > 1 then (None, args, Some(s"Error: at most one $option option"))
+    else
       val i = positions.head
-      if (i + 1 >= args.length)
-        (None, args, Some(s"Error: the $option option needs $valueName as its value"))
+      if i + 1 >= args.length then (None, args, Some(s"Error: the $option option needs $valueName as its value"))
       else (Some(args(i + 1)), args.patch(i, Nil, 2), None)
-    }
-  }
 
   /** Parses the value of the -t option: a comma separated list of minutes from the TLE epoch, the negative ones
     * propagating back from the epoch.
     */
-  private def parseTimes(value: String): Option[Seq[Double]] = {
+  private def parseTimes(value: String): Option[Seq[Double]] =
     val fields = value.split(",").map(_.trim)
-    if (fields.exists(_.isEmpty)) None
+    if fields.exists(_.isEmpty) then None
     else
       scala.util
         .Try(fields.map(_.toDouble))
         .toOption
         .filter(times => times.forall(t => !t.isInfinite && !t.isNaN))
         .map(_.toIndexedSeq)
-  }
 
   /** Parses the command line into a configuration for the program, a request for the help message, or an error.
     */
   def parse(args: Array[String]): Parsed =
-    if (args.exists(a => a == "-h" || a == "--help"))
-      Parsed.Help
-    else {
+    if args.exists(a => a == "-h" || a == "--help") then Parsed.Help
+    else
       val (timesValue, others0, timesArgError) = extractValue(args.toList, "-t", "the propagation times")
       val (gravityValue, others, gravityArgError) = extractValue(others0, "-g", "the gravity model name")
-      val flags = others filter (_ startsWith "-")
-      val rest = others filterNot (_ startsWith "-")
+      val flags = others filter (_.startsWith("-"))
+      val rest = others filterNot (_.startsWith("-"))
       val modelFlags = models filter (m => flags contains m.option)
       val unknownFlags = flags filterNot (f => models.exists(_.option == f))
       val parsedTimes = timesValue.flatMap(parseTimes)
@@ -195,39 +165,33 @@ object Cli {
       val files = rest filter isFile
       val tleLines = rest filter isTLELine
       val badArgs = rest filterNot (a => isFile(a) || isTLELine(a))
-      if (timesArgError.isDefined)
-        Parsed.Error(timesArgError.get)
-      else if (gravityArgError.isDefined)
-        Parsed.Error(gravityArgError.get)
-      else if (unknownFlags.nonEmpty)
-        Parsed.Error(s"Error: unknown option ${unknownFlags.mkString(" ")}")
-      else if (modelFlags.size > 1)
+      if timesArgError.isDefined then Parsed.Error(timesArgError.get)
+      else if gravityArgError.isDefined then Parsed.Error(gravityArgError.get)
+      else if unknownFlags.nonEmpty then Parsed.Error(s"Error: unknown option ${unknownFlags.mkString(" ")}")
+      else if modelFlags.size > 1 then
         Parsed.Error(s"Error: at most one propagation model option, got ${modelFlags.map(_.option).mkString(" ")}")
-      else if (timesValue.isDefined && parsedTimes.isEmpty)
+      else if timesValue.isDefined && parsedTimes.isEmpty then
         Parsed.Error(s"Error: invalid propagation times '${timesValue.get}'")
-      else if (gravityValue.isDefined && gravityModel.isEmpty)
+      else if gravityValue.isDefined && gravityModel.isEmpty then
         Parsed.Error(
           s"Error: unknown gravity model '${gravityValue.get}' (available: ${gravityModels.map(_.name).mkString(", ")})"
         )
-      else if (badArgs.nonEmpty)
+      else if badArgs.nonEmpty then
         Parsed.Error(
           s"Error: not a TLE file or TLE line: ${badArgs.mkString(" ")} (propagation times are given with the -t option)"
         )
-      else if (files.isEmpty && tleLines.length < 2)
-        if (args.isEmpty)
-          Parsed.Help
+      else if files.isEmpty && tleLines.length < 2 then
+        if args.isEmpty then Parsed.Help
         else Parsed.Error("Error: no TLE to propagate: give a two line element set or TLE file names")
-      else if (tleLines.nonEmpty && tleLines.length % 2 != 0)
+      else if tleLines.nonEmpty && tleLines.length % 2 != 0 then
         Parsed.Error("Error: the inline TLE lines must come in pairs, line 1 followed by line 2")
       else
         Parsed.Ok(
           Config(
-            modelFlags.headOption.getOrElse(Vallado),
+            modelFlags.headOption.getOrElse(PropagationModel.Vallado),
             gravityModel.get,
             tleLines.toList,
             files.toList,
             parsedTimes.getOrElse(defaultTimes)
           )
         )
-    }
-}

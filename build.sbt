@@ -1,27 +1,14 @@
 lazy val commonSettings = Seq(
   organization := "org.sgp4s",
-  // the cross build of the Scala 3 migration: 2.13 stays the default, +test runs both
-  crossScalaVersions := Seq("2.13.18", "3.9.0"),
-  scalaVersion := "2.13.18",
+  scalaVersion := "3.9.0",
   libraryDependencies ++= Seq(
     "org.typelevel" %% "spire" % "0.18.0",
     "org.scalactic" %% "scalactic" % "3.2.20",
     "org.scalatest" %% "scalatest" % "3.2.20" % Test
   ),
-  scalacOptions ++= {
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((3, _)) =>
-        // the 2.13 lint flags do not exist on Scala 3; -Wunused:all is its closest equivalent
-        Seq(
-          "-deprecation", "-feature", "-language:implicitConversions", "-encoding", "UTF-8", "-Wunused:imports,locals,privates,nowarn"
-        )
-      case _ =>
-        Seq(
-          "-deprecation", "-unchecked", "-Xlint", "-Wunused:imports,locals,privates,implicits,nowarn", "-encoding", "UTF-8",
-          "-language:implicitConversions", "-language:higherKinds", "-feature"
-        )
-    }
-  },
+  scalacOptions ++= Seq(
+    "-deprecation", "-feature", "-language:implicitConversions", "-encoding", "UTF-8", "-Wunused:imports,locals,privates,nowarn"
+  ),
   licenses += ("Apache License, Version 2.0", url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
   homepage := Some(url("http://github.com/pleira/SGP4Extensions"))
 )

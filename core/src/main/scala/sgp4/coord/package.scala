@@ -1,40 +1,41 @@
-package sgp4
+package sgp4.coord
 
 import org.scalactic.Or
 
-package object coord {
+/** The result types of the pipeline steps and the literal conversions of the numeric type F of the propagation, as top
+  * level definitions of the sgp4.coord package (the Scala 3 replacement of the former package object).
+  */
 
-  /** Converts a Double into the numeric type F of the propagation, through the FromDouble type class.
-    */
-  def asF[@sp(Double) F: FromDouble](x: Double): F = convert.asF[F](x)
+/** Converts a Double into the numeric type F of the propagation, through the FromDouble type class.
+  */
+def asF[@sp(Double) F: FromDouble](x: Double): F = convert.asF[F](x)
 
-  /** Converts an Int into the numeric type F of the propagation, through the FromDouble type class.
-    */
-  def asF[@sp(Double) F: FromDouble](x: Int): F = convert.asF[F](x)
+/** Converts an Int into the numeric type F of the propagation, through the FromDouble type class.
+  */
+def asF[@sp(Double) F: FromDouble](x: Int): F = convert.asF[F](x)
 
-  type sp = scala.specialized
+type sp = scala.specialized
 
-  // for secular corrections
-  type SGPSecularResult[F] = SGPSecularCtx[F] Or SGP4Error
+// for secular corrections
+type SGPSecularResult[F] = SGPSecularCtx[F] Or SGP4Error
 
-  // intermediate results in polar nodals SPN
-  type SGPSPNResult[F] = SpecialPolarNodal[F] Or SGP4Error
+// intermediate results in polar nodals SPN
+type SGPSPNResult[F] = SpecialPolarNodal[F] Or SGP4Error
 
-  // final correction results in Lara Non Singular (LNS)
-  type SGPLNSResult[F] = LaraNonSingular[F] Or SGP4Error
+// final correction results in Lara Non Singular (LNS)
+type SGPLNSResult[F] = LaraNonSingular[F] Or SGP4Error
 
-  // final results in cartesians
-  type SGPPropResult[F] = SGPPropCtx[F] Or SGP4Error
+// final results in cartesians
+type SGPPropResult[F] = SGPPropCtx[F] Or SGP4Error
 
-  // For Long Period Periodic corrections in polar nodals SPN
-  type LPPSPNResult[F] = LPPSPNCtx[F] Or SGP4Error
+// For Long Period Periodic corrections in polar nodals SPN
+type LPPSPNResult[F] = LPPSPNCtx[F] Or SGP4Error
 
-  // For Long Period Periodic corrections in cosI polar nodals CPN
-  type LPPCPNResult[F] = CSpecialPolarNodal[F] Or SGP4Error
+// For Long Period Periodic corrections in cosI polar nodals CPN
+type LPPCPNResult[F] = CSpecialPolarNodal[F] Or SGP4Error
 
-  // for Kepler Equations
-  type AnomalyResult[F] = AnomalyState[F] Or SGP4Error
+// for Kepler Equations
+type AnomalyResult[F] = AnomalyState[F] Or SGP4Error
 
-  // SGPElems
-  type SGPElemsResult[F] = SGPElemsCtx[F] Or SGP4Error
-}
+// SGPElems
+type SGPElemsResult[F] = SGPElemsCtx[F] Or SGP4Error

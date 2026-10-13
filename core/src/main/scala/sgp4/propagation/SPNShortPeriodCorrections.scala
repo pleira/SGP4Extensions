@@ -1,13 +1,12 @@
-package sgp4
-package propagation
+package sgp4.propagation
 
-import spire.algebra._
-import spire.implicits._
-import sgp4.coord._
+import spire.algebra.*
+import spire.implicits.*
+import sgp4.coord.*
 
-trait SPNShortPeriodCorrections[F] {
+trait SPNShortPeriodCorrections[F]:
 
-  def sppCorrections(@sp(Double) ctx: LPPSPNCtx[F])(implicit ev: Field[F], trig: Trig[F]): SpecialPolarNodal[F] = {
+  def sppCorrections(@sp(Double) ctx: LPPSPNCtx[F])(using ev: Field[F], trig: Trig[F]): SpecialPolarNodal[F] =
     import ctx.{spn => lppPN, lppCtx => lppc, secularCtx => secular}
     import lppPN.r, lppc.{pl, βl, `√pl`, cos2θ, sin2θ}
     import secular.{iCtx => ictx, wgs}
@@ -34,6 +33,3 @@ trait SPNShortPeriodCorrections[F] {
       lppPN.R + δR,
       lppPN.`Θ/r` + δrvdot
     )
-  }
-
-}

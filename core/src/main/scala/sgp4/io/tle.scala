@@ -1,5 +1,4 @@
-package sgp4
-package io
+package sgp4.io
 
 import scala.io.Source
 
@@ -31,9 +30,9 @@ case class TLE(
     revolutionNumberAtEpoch: Int
 )
 
-object TLE {
+object TLE:
 
-  def apply(line1: String, line2: String): TLE = {
+  def apply(line1: String, line2: String): TLE =
     val lineNumber = parseInt(line1, 1, 1)
     val satelliteNumber = parseInt(line1, 2, 5)
     val classification = line1.charAt(7)
@@ -43,7 +42,7 @@ object TLE {
     val ephemerisType = parseInt(line1, 62, 1)
     val elementNumber = parseInt(line1, 64, 4)
     val epochyear = parseInt(line1, 18, 2)
-    val year = epochyear + (if (epochyear < 57) 2000 else 1900)
+    val year = epochyear + (if epochyear < 57 then 2000 else 1900)
 
     val epoch = parse(line1, 20, 12) // days of the year
     // rev/day, 2 * rev/day^2 and 6 * rev/day^3
@@ -88,50 +87,42 @@ object TLE {
       meanAnomaly,
       revolutionNumberAtEpoch
     )
-  }
 
-  def parseInt(line: String, start: Int, length: Int): Int = {
+  def parseInt(line: String, start: Int, length: Int): Int =
     line.substring(start, start + length).replace(' ', '0').toInt
-  }
 
   def parse(line: String, start: Int, length: Int): String =
     line.substring(start, start + length)
 
-  def parseYear(line: String, start: Int): Int = {
+  def parseYear(line: String, start: Int): Int =
     val year = 2000 + parseInt(line, start, 2)
-    if (year > 2056) (year - 100) else year
-  }
+    if year > 2056 then (year - 100) else year
 
-  def parseFile(path: String): List[TLE] = {
+  def parseFile(path: String): List[TLE] =
     val source = Source.fromFile(path)
     try parseLines(source.getLines().toList)
     finally source.close()
-  }
 
-  def parseResource(path: String): List[TLE] = {
+  def parseResource(path: String): List[TLE] =
     val source = Source.fromInputStream(getClass.getResourceAsStream(path))
     try parseLines(source.getLines().toList)
     finally source.close()
-  }
 
   /** Scans the lines in order for the TLE pairs, line 1 followed by line 2, and builds a TLE from each pair. All the
     * other lines are ignored: the name lines of the 3 line format, comment lines starting with '#' and blank lines.
     */
-  def parseLines(list: List[String]): List[TLE] = {
+  def parseLines(list: List[String]): List[TLE] =
     import scala.annotation.tailrec
     @tailrec
     def scan(lines: List[String], acc: List[TLE]): List[TLE] =
-      lines match {
+      lines match
         case line1 :: rest if line1.startsWith("1 ") =>
-          rest match {
+          rest match
             case line2 :: rest2 if line2.startsWith("2 ") => scan(rest2, apply(line1, line2) :: acc)
             case _                                        => scan(rest, acc)
-          }
         case _ :: rest => scan(rest, acc)
         case Nil       => acc.reverse
-      }
     scan(list, Nil)
-  }
 
   import java.util.regex.Pattern
 
@@ -154,17 +145,10 @@ object TLE {
       line1.substring(68).toInt == checksum(line1) % 10 &&
       line2.substring(68).toInt == checksum(line2) % 10
 
-  def checksum(line: String): Int = {
+  def checksum(line: String): Int =
     var sum: Int = 0
-    for (j <- 0 until 68) {
+    for j <- 0 until 68 do
       val c = line(j)
-      if (Character.isDigit(c)) {
-        sum += Character.digit(c, 10)
-      } else if (c == '-') {
-        sum += 1
-      }
-    }
+      if Character.isDigit(c) then sum += Character.digit(c, 10)
+      else if c == '-' then sum += 1
     sum % 10
-  }
-
-}

@@ -1,20 +1,18 @@
-package sgp4
-package coord
+package sgp4.coord
 
-import spire.algebra._
+import spire.algebra.*
 import spire.math.{acos, atan, atan2, cos, pi, sin, sqrt}
-import spire.implicits._
+import spire.implicits.*
 
 // abbreviated LNS
-case class LaraNonSingular[@sp(Double) F: Field](ψ: F, ξ: F, χ: F, r: F, R: F, Θ: F) {
+case class LaraNonSingular[@sp(Double) F: Field](ψ: F, ξ: F, χ: F, r: F, R: F, Θ: F):
   def +(o: LaraNonSingular[F]): LaraNonSingular[F] =
     LaraNonSingular(ψ + o.ψ, ξ + o.ξ, χ + o.χ, r + o.r, R + o.R, Θ + o.Θ)
   def -(o: LaraNonSingular[F]): LaraNonSingular[F] =
     LaraNonSingular(ψ - o.ψ, ξ - o.ξ, χ - o.χ, r - o.r, R - o.R, Θ - o.Θ)
   def `Θ/r`: F = Θ / r
-}
 
-object LNSConversions {
+object LNSConversions:
 
   val `2pi` = 2 * pi
 
@@ -68,7 +66,7 @@ object LNSConversions {
   def lns2spn[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
       lns: LaraNonSingular[F],
       N: F
-  ): SpecialPolarNodal[F] = {
+  ): SpecialPolarNodal[F] =
     import lns._
     // atan2 uniquely uses the principal value in the range (−π, π]
     val θ = atan2(ξ, χ)
@@ -77,14 +75,13 @@ object LNSConversions {
     val Ω = ν
 
     SpecialPolarNodal(acos(N / Θ), θ, Ω, r, R, Θ / r)
-  }
 
   // ν = ψ − θ and sinθ = ξ/s, cosθ = χ/s and c = N/Θ, tanθ = ξ/χ
   // laraNonSingular to PolarNodal
   def lns2pn[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
       lns: LaraNonSingular[F],
       N: F
-  ): PolarNodalElems[F] = {
+  ): PolarNodalElems[F] =
     import lns._
     // atan2 uniquely uses the principal value in the range (−π, π]
     val θ = atan2(ξ, χ)
@@ -93,33 +90,30 @@ object LNSConversions {
     val Ω = ν
 
     PolarNodalElems(r, θ, Ω, R, Θ, N)
-  }
 
   // ν = ψ − θ and sinθ = ξ/s, cosθ = χ/s and c = N/Θ, tanθ = ξ/χ
   // laraNonSingular to CSpecialPolarNodal
   def lns2cpn[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
       lns: LaraNonSingular[F],
       N: F
-  ): CSpecialPolarNodal[F] = {
+  ): CSpecialPolarNodal[F] =
     import lns._
     val θ = atan2(ξ, χ)
     // convert ν to -2pi,2pi range
     val ν = (ψ - θ) tmod asF[F](`2pi`)
     val Ω = ν
     CSpecialPolarNodal(N / Θ, θ, Ω, r, R, Θ / r)
-  }
 
   // specialPolarNodal2LaraNonSingular
   def spn2lns[@sp(Double) F: Field: NRoot: Trig: FromDouble](
       spn: SpecialPolarNodal[F],
       ictx: InclinationCtx[F]
-  ): LaraNonSingular[F] = {
+  ): LaraNonSingular[F] =
     import spn._, ictx.s
     val ψ = Ω + θ
     val ξ = s * sin(θ)
     val χ = s * cos(θ)
     LaraNonSingular(ψ, ξ, χ, r, R, Θ)
-  }
 
 //  def polarNodal2LaraNonSingular[F: Field: NRoot: Trig: FromDouble](all : PolarNodalElems[F], SPNAuxVariables[F]) ) : LaraNonSingular[F] = {
 //    import all._1._ ,all._2.s
@@ -129,7 +123,7 @@ object LNSConversions {
 //    LaraNonSingular(ψ, ξ, χ, r, R, Θ)
 //  }
 
-  def cartesian2lns[@sp(Double) F: Field: NRoot: Trig: FromDouble](pv: CartesianElems[F]): LaraNonSingular[F] = {
+  def cartesian2lns[@sp(Double) F: Field: NRoot: Trig: FromDouble](pv: CartesianElems[F]): LaraNonSingular[F] =
     import pv._
     // (x,y,z) position, (X,Y,Z) velocity
     val r: F = (x ** 2 + y ** 2 + z ** 2).sqrt
@@ -148,10 +142,9 @@ object LNSConversions {
     val tanψ: F = (x * q + y * τ) / (x * τ - y * q)
     val ψ: F = atan(tanψ)
     LaraNonSingular(ψ, ξ, χ, r, R, Θ)
-  }
 
   // laraNonSingular2Cartesian
-  def lns2Cartesian[@sp(Double) F: Field: NRoot: Trig: FromDouble](lns: LaraNonSingular[F], N: F): CartesianElems[F] = {
+  def lns2Cartesian[@sp(Double) F: Field: NRoot: Trig: FromDouble](lns: LaraNonSingular[F], N: F): CartesianElems[F] =
     import lns._
     val `ξ²` = ξ * ξ
     val `χ²` = χ * χ
@@ -175,12 +168,11 @@ object LNSConversions {
       R * uy - `Θ/r` * (q * sinψ - τ * cosψ),
       R * uz + `Θ/r` * χ
     )
-  }
 
   def lns2CartesianCtx[@sp(Double) F: Field: NRoot: Trig: FromDouble](
       lns: LaraNonSingular[F],
       N: F
-  ): (CartesianElems[F], CartesianElems[F]) = {
+  ): (CartesianElems[F], CartesianElems[F]) =
     import lns._
 
     val `ξ²` = ξ * ξ
@@ -213,12 +205,11 @@ object LNSConversions {
       ),
       CartesianElems(ux, uy, uz, uvx, uvy, uvz)
     )
-  }
 
   def lns2UnitPositionCartesian[@sp(Double) F: Field: NRoot: Trig: FromDouble](
       lns: LaraNonSingular[F],
       N: F
-  ): CartesianElems[F] = {
+  ): CartesianElems[F] =
     import lns._
 
     val `ξ²` = ξ * ξ
@@ -235,9 +226,8 @@ object LNSConversions {
     val uz = ξ
 
     CartesianElems(ux, uy, uz, R * ux - Θ * (q * cosψ + τ * sinψ), R * uy - Θ * (q * sinψ - τ * cosψ), R * uz + Θ * χ)
-  }
 
-  def lns2uPV[@sp(Double) F: Field: NRoot: Trig: FromDouble](lns: LaraNonSingular[F], N: F): CartesianElems[F] = {
+  def lns2uPV[@sp(Double) F: Field: NRoot: Trig: FromDouble](lns: LaraNonSingular[F], N: F): CartesianElems[F] =
     import lns._
 
     // new cosI
@@ -261,9 +251,8 @@ object LNSConversions {
     val uvz = χ
 
     CartesianElems(ux, uy, uz, uvx, uvy, uvz)
-  }
 
-  def lns2UnitCartesian[F: Field: Trig: NRoot: FromDouble](lns: LaraNonSingular[F]): CartesianElems[F] = {
+  def lns2UnitCartesian[F: Field: Trig: NRoot: FromDouble](lns: LaraNonSingular[F]): CartesianElems[F] =
     import lns._
     val `ξ²` = ξ * ξ
     val `χ²` = χ * χ
@@ -292,5 +281,3 @@ object LNSConversions {
 
     // return unit vectors position and velocity
     CartesianElems(ux, uy, uz, vx, vy, vz)
-  }
-}

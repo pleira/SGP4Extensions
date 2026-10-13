@@ -6,7 +6,7 @@ Scala project to try different SGP4 algorithm implementations. SGP4 is used to p
 Most of the code is based in the work done by Vallado, documented in [SpaceTrackReport #3](https://celestrak.com/NORAD/documentation/). To verify the results, the cpp [public code](http://celestrak.com/publications/AIAA/2006-6753/) has been taken. Also, I have looked into the TLE processing done in the [Orekit](http://www.orekit.org) project.
 My initial aim is to introduce an alternative implementation for the calculation of the perturbations suggested by [Martin Lara](http://arxiv.org/pdf/1407.8076.pdf). 
 
-This implementation is also an exercise of having cleaner code written in Scala. That means, the physical models and transformations should appear clearer in the code. 
+This implementation is also an exercise of having cleaner code written in idiomatic Scala 3. That means, the physical models and transformations should appear clearer in the code. 
 
 The numerical library Spire is used, and the propagation is parameterized on the numeric type F through Spire's type classes. The right class for propagation is **Double**: TLE data quantizes the elements to a few decimal places, which keeps even the conflictive points of the theory (low inclinations, and the critical inclination at 63.4 deg, where the perigee rate vanishes) well conditioned in Double; the achievable accuracy is limited by the TLE data and by the SGP4 model itself, not by round off. Higher precision cannot improve a propagation. That said, the parameterization keeps the door open to other numeric types for **round off analysis**: propagating with Spire's Real measures the accumulated round off of the Double pipeline, which is of interest in conjunction experiments, where a small position error shifts the time of a close approach. That analysis, not propagation accuracy, is the use case of the numeric type parameterization, at the expense of a much longer running time. 
 
@@ -108,17 +108,20 @@ algorithm is implemented.
 Requires
 ---------------
 * JDK 11 or newer. Both LTS JDKs 21 and 25 are verified: all tests pass on
-  either (pass `JAVA_HOME` to sbt to pick one), and the `@specialized`
-  Double code paths hold on both.
+  either (pass `JAVA_HOME` to sbt to pick one), and the propagation hot path
+  keeps the same performance profile on both (see the benchmarks section).
 * [sbt 1.x](https://www.scala-sbt.org) (the build uses sbt 1.13.0, declared in `project/build.properties`).
-* The code cross builds on Scala 2.13.18 (the default) and 3.9.0: `sbt +test`
-  runs the full suite on both. All dependencies (Spire 0.18.0, ScalaTest 3.2.20,
-  better-files 3.9.2) are available for both Scala versions.
-
-  On the propagation hot path, Scala 3.9 stays close to the Scala 2.13
-  `@specialized` Double numbers (about 5-30% slower depending on the
-  propagator, see the benchmarks section); the generic spire Kepler solver
-  still matches the hand written primitive Double loop.
+* The code runs on Scala 3.9.0, written with the Scala 3 idioms: significant
+  indentation syntax, enums for the selection ADTs of the command line
+  interface, `given`/`using` for the type class evidence, single clause
+  packages and top level definitions in place of the package object. The
+  migration went through a cross build on 2.13.18 and 3.9.0 (commit b00a178);
+  on the propagation hot path Scala 3.9 stayed close to the Scala 2.13
+  `@specialized` Double numbers, about 5-30% slower depending on the
+  propagator (see the benchmarks section), and the generic spire Kepler solver
+  still matches the hand written primitive Double loop. All dependencies
+  (Spire 0.18.0, ScalaTest 3.2.20, better-files 3.9.2) are available for
+  Scala 3.
 
 Use
 ---------------
@@ -201,8 +204,9 @@ dependency is no longer available. It measures:
 * the cost of rebuilding the propagator on every call (`buildAndValladoPropagate`),
   which is the common misuse to avoid: build once, propagate many times,
 * the generic spire Kepler equation solver against an equivalent hand-written
-  primitive Double loop (they run at the same speed: the code is `@specialized`
-  for Double and spire's Double type class instances use primitive JVM signatures).
+  primitive Double loop (they run at the same speed on Scala 3: the spire
+  Double type class instances dispatch to primitive JVM signatures, and the
+  measured generic solver is as fast as the loop, ~68 vs ~77 ns).
 
 Run all benchmarks:
 
@@ -213,25 +217,28 @@ Run a subset, or include per-operation allocation with the JMH GC profiler:
 	> benchmarks/jmh:run -prof gc .*ValladoPropagate.*
 	> benchmarks/jmh:run -wi 5 -i 5 -f 1
 
-Reference results on one machine, side by side on the two LTS JDKs
-(average time per propagation):
+Reference results on one machine, on Scala 3.9.0, side by side on the two
+LTS JDKs (average time per propagation, `-wi 2 -i 3 -w 2 -r 2` reduced runs):
 
 | Benchmark | JDK 21, TLE 00005 / 06251 | JDK 25, TLE 00005 / 06251 |
 |---|---|---|
-| valladoPropagate | ~399 / 370 ns | ~379 / 355 ns |
-| valladoLongPropagate | ~391 / 370 ns | ~379 / 349 ns |
-| polarNodalsPropagate | ~464 / 457 ns | ~471 / 453 ns |
-| laraPropagate | ~468 / 516 ns | ~458 / 444 ns |
-| buildAndValladoPropagate | ~1192 / 1107 ns | ~1193 / 1188 ns |
+| valladoPropagate | ~402 / 380 ns | ~394 / 371 ns |
+| valladoLongPropagate | ~423 / 392 ns | ~418 / 395 ns |
+| polarNodalsPropagate | ~532 / 530 ns | ~521 / 536 ns |
+| laraPropagate | ~578 / 556 ns | ~597 / 557 ns |
+| buildAndValladoPropagate | ~1373 / 1279 ns | ~1358 / 1352 ns |
 
-Each propagation allocates about 2.3-3.3 KB, identically on both JDKs (the
-Or/tuple/case-class result chain; the generic spire arithmetic is not the
-cost, the code is @specialized for Double and dispatches to
-primitive-signature methods). The `@specialized` class files are a
-compile-time property, so what a new JDK can change is the JIT: the
-allocation parity above is the observable check that the specialized
-paths are still inlined and escape-analysed on JDK 25. If throughput at
-scale ever becomes a problem, that allocation churn is where to look.
+For reference, the same measurements on the Scala 2.13.18 cross build were
+about 5-30% faster depending on the propagator (valladoPropagate ~381 / 357 ns
+on JDK 25); that baseline lives in the git history of the migration.
+
+Each valladoPropagate call allocates about 2.7 KB (`-prof gc`, ~2744 B/op on
+JDK 25), the Or/case-class result chain of the pipeline. The generic spire
+arithmetic is not the cost: its Double instances dispatch to
+primitive-signature methods, which is what keeps the whole propagation
+sub-microsecond and the allocation profile identical on both JDKs. If
+throughput at scale ever becomes a problem, that allocation churn is where
+to look.
 
 For a description of the algorithm itself, see [sgp4.md](sgp4.md).
 

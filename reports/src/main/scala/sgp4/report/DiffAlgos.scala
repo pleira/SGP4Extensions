@@ -1,11 +1,11 @@
 package sgp4.report
 
-import sgp4.model._
+import sgp4.model.*
 
 /** The differences of the final results of the Vallado long, polar nodals and Lara algorithms against Vallado's
   * original one, in cartesian elements and in polar nodals.
   */
-class CompareAlgos(all: AllPropagators, tle: TestTLE) {
+class CompareAlgos(all: AllPropagators, tle: TestTLE):
   val SEP = "|"
   val sat = tle.tle.satelliteNumber
 
@@ -44,27 +44,24 @@ class CompareAlgos(all: AllPropagators, tle: TestTLE) {
       s"$SEP ---- $SEP --- $SEP ---------- $SEP ----------- $SEP -------- $SEP -------- $SEP ---------- $SEP ---------- $SEP ---------- $SEP"
     )
 
-  def cartesianDiffReport() = {
+  def cartesianDiffReport() =
     println("### Differences between cartesian final results from Vallado to the other algorithms\n")
     cartesianDiffReportHeader map println
     algosPvDiffsList map { ls => ls map { println } }
     println()
-  }
 
-  def pnDiffReport() = {
+  def pnDiffReport() =
     println(
       "### Differences between final results from Vallado in polar nodals using internal units to the other algorithms\n"
     )
     pnDiffReportHeader map println
     algosPnDiffsList map { ls => ls map { println } }
     println()
-  }
-}
 
 /** Writes the cartesian and polar nodals differences against Vallado's algorithm of the test TLEs into gnuplot data
   * files under doc/reports.
   */
-object ReportAlgorithmsWithTestNearTLEs extends App {
+object ReportAlgorithmsWithTestNearTLEs:
   import better.files._
   import better.files.Dsl._
   def allComp(t: TestTLE) = new CompareAlgos(AllPropagators(t), t)
@@ -77,4 +74,8 @@ object ReportAlgorithmsWithTestNearTLEs extends App {
   val pvfile = file"doc/reports/algodiffcartesians.out"
   pvfile.overwrite("")
   comps map { _.algosPvDiffsList map { ls => ls map { _ >>: pvfile } } }
-}
+
+  /** Runs the program: the statements above execute at object initialization, when the JVM launcher accesses this main
+    * method.
+    */
+  def main(args: Array[String]): Unit = ()

@@ -1,9 +1,8 @@
-package sgp4
-package conjunction
+package sgp4.conjunction
 
-import spire.math._
+import spire.math.*
 import sgp4.earth_gravity.SGP72Constants
-import sgp4.propagation._
+import sgp4.propagation.*
 import sgp4.model.SGP4Vallado
 import sgp4.coord.SGPElemsConversions
 
@@ -11,17 +10,17 @@ import sgp4.coord.SGPElemsConversions
 // In this case, the problem is about relating the classical elements of two satellites in different orbits
 // with one another. That requires a relation for the transformation of the elements in one orbit to the other,
 // in particular, the mean anomaly.
-object ConjunctionInterpreterExperiment1 extends App with TLE22675 with TLE24946 {
+object ConjunctionInterpreterExperiment1 extends TLE22675 with TLE24946:
 
   val wgs = SGP72Constants.tleDoubleConstants
 
   import spire.std.any.DoubleAlgebra
   val tles = List(tle22675, tle24946)
-  val sgp4s = for {
+  val sgp4s = for
     tle <- tles
     elem0AndCtx = SGPElemsConversions.sgpElemsAndContext(tle, wgs).get
     model = BrouwerLaneSecularCorrections(elem0AndCtx)
-  } yield SGP4Vallado[Double](model)
+  yield SGP4Vallado[Double](model)
 
   // we have initialized the propagators for the 2 TLEs.
   val sgp22675 = sgp4s.head
@@ -79,4 +78,7 @@ object ConjunctionInterpreterExperiment1 extends App with TLE22675 with TLE24946
 
   // TODO analyse conjunctions in those times, going for more detailed propagations
 
-}
+  /** Runs the program: the statements above execute at object initialization, when the JVM launcher accesses this main
+    * method.
+    */
+  def main(args: Array[String]): Unit = ()

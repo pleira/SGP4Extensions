@@ -1,20 +1,19 @@
-package sgp4
-package model
+package sgp4.model
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
-import spire.math._
+import spire.math.*
 import sgp4.earth_gravity.SGP72Constants
-import sgp4.propagation._
+import sgp4.propagation.*
 import sgp4.coord.SGPElemsConversions
 import sgp4.coord.CartesianElems
 import sgp4.conjunction.TLE22675
 import sgp4.conjunction.TLE24946
 
-class Sgp4ImplComparison extends AnyFunSuite with TLE22675 with TLE24946 with TLE00005 with TLE06251 with TLE28057 {
+class Sgp4ImplComparison extends AnyFunSuite with TLE22675 with TLE24946 with TLE00005 with TLE06251 with TLE28057:
 
-  implicit val wgs: SGP72Constants[Double] = SGP72Constants.tleDoubleConstants
+  given wgs: SGP72Constants[Double] = SGP72Constants.tleDoubleConstants
   val tol1 = TolerantNumerics.tolerantDoubleEquality(1.5)
   val tol2 = TolerantNumerics.tolerantDoubleEquality(4e-3)
   val tol3 = TolerantNumerics.tolerantDoubleEquality(1.5)
@@ -25,7 +24,7 @@ class Sgp4ImplComparison extends AnyFunSuite with TLE22675 with TLE24946 with TL
 
   import spire.std.any.DoubleAlgebra
   val tles = List(tle00005) // ,tle06251,tle22675,tle24946,tle28057)
-  for (tle <- tles) {
+  for tle <- tles do
     val elem0AndCtx = SGPElemsConversions.sgpElemsAndContext(tle, wgs).get
     val model = BrouwerLaneSecularCorrections(elem0AndCtx)
     val vasgp4 = SGP4Vallado[Double](model)
@@ -36,13 +35,13 @@ class Sgp4ImplComparison extends AnyFunSuite with TLE22675 with TLE24946 with TL
     ts foreach { t =>
       vasgp4.secularCorrections(t) foreach { secularElemt =>
         val result =
-          for {
+          for
             vapv <- vasgp4.corrections2CartesianContext(secularElemt)
             pnpv <- pnsgp4.corrections2CartesianContext(secularElemt)
             vlpv <- vlsgp4.corrections2CartesianContext(secularElemt)
             lapv <- lasgp4.corrections2CartesianContext(secularElemt)
-          } yield (vapv, pnpv, vlpv, lapv)
-        if (result.isGood) {
+          yield (vapv, pnpv, vlpv, lapv)
+        if result.isGood then
           val (vapv, pnpv, vlpv, lapv) = result.get
           comparePV(
             s"TLE ${tle.satelliteNumber} : Vallado/Polar Nodals position comparison in Cartesian at time $t",
@@ -80,24 +79,19 @@ class Sgp4ImplComparison extends AnyFunSuite with TLE22675 with TLE24946 with TL
             lapv.pv,
             tol6
           );
-        }
       }
     }
-  }
 
   def comparePV(msg: String, pv1: CartesianElems[Double], pv2: CartesianElems[Double], tolerant: Equality[Double]) =
-    test(msg) {
-      implicit val tolerantVal = tolerant
+    test(msg):
+      given tolerantVal: Equality[Double] = tolerant
       assert(pv1.x === pv2.x)
       assert(pv1.y === pv2.y)
       assert(pv1.z === pv2.z)
-    }
 
   def compareVel(msg: String, pv1: CartesianElems[Double], pv2: CartesianElems[Double], tolerant: Equality[Double]) =
-    test(msg) {
-      implicit val tolerantVal = tolerant
+    test(msg):
+      given tolerantVal: Equality[Double] = tolerant
       assert(pv1.vx === pv2.vx)
       assert(pv1.vy === pv2.vy)
       assert(pv1.vz === pv2.vz)
-    }
-}

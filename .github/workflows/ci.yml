@@ -15,5 +15,5 @@ jobs:
           distribution: temurin
           java-version: '25'
           cache: sbt
-      - name: Format check, compile and test on all Scala versions
-        run: sbt --batch scalafmtCheckAll +test
+      - name: Format check, compile and test
+        run: sbt --batch scalafmtCheckAll test

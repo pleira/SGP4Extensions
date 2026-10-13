@@ -1,10 +1,9 @@
-package sgp4
-package propagation
+package sgp4.propagation
 
-import spire.algebra._
+import spire.algebra.*
 import spire.math.{abs, cos}
-import spire.implicits._
-import sgp4.coord._
+import spire.implicits.*
+import sgp4.coord.*
 
 // The notation used in the formulas here correspond to that used in SPACETRACK Report n 3, Hoots.
 
@@ -16,11 +15,11 @@ final case class GeoPotentialCtx[@sp(Double) F: FromDouble](
     context: GeoPotentialContext[F]
 )
 
-trait GeoPotentialAndAtmosphere2ndOrderModel {
+trait GeoPotentialAndAtmosphere2ndOrderModel:
 
   def geoPotentialCoefs[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
       elem0Ctx: SGPElemsCtx[F]
-  ): GeoPotentialCtx[F] = {
+  ): GeoPotentialCtx[F] =
     import elem0Ctx.{elem, iCtx, eCtx, wgs, perigeeHeight}
     import wgs.{J2, `J3/J2`, aE}
     import elem.{e => e0, n => n0, ω => ω0, a => a0, bStar}, iCtx.{sinI0, `θ²`}, eCtx.`β0²`
@@ -42,7 +41,7 @@ trait GeoPotentialAndAtmosphere2ndOrderModel {
     val C1: F = bStar * C2
     val `C1²` = C1 * C1
 
-    val C3: F = if (Order[F].gt(e0, asF[F](0.0001))) -2 * `ξ⁴(q0-s)⁴` * ξ * `J3/J2` * n0 * sinI0 / e0 else asF[F](0)
+    val C3: F = if Order[F].gt(e0, asF[F](0.0001)) then -2 * `ξ⁴(q0-s)⁴` * ξ * `J3/J2` * n0 * sinI0 / e0 else asF[F](0)
     val aterm =
       3 * (1 - 3 * `θ²`) * (1 + 3 * `η²` / 2 - 2 * e0η - e0η * `η²` / 2) + 3 * (1 - `θ²`) * (2 * `η²` - e0η - e0η * `η²`) * cos(
         2 * ω0
@@ -53,26 +52,21 @@ trait GeoPotentialAndAtmosphere2ndOrderModel {
     val D3 = D2 * (17 * a0 + s) * C1 * ξ / 3
     val D4 = D2 * D2 * ξ * (221 * a0 + 31 * s) / 24
     GeoPotentialCtx(GeoPotentialCoefs(C1, C2, C3, C4, C5, D2, D3, D4), gctx)
-  }
 
-  def fittingAtmosphericParameter[@sp(Double) F: Field: Order: FromDouble](perigeeHeight: F, aE: F): F = {
+  def fittingAtmosphericParameter[@sp(Double) F: Field: Order: FromDouble](perigeeHeight: F, aE: F): F =
     def S_above156: F = 1 + 78 / aE
-    // def hs(perigeeHeight: F)(implicit ev: Field[F]) : F =  perigeeHeight - 78   // interpolation, being a number bigger than 20, and smaller that 78
+    // def hs(perigeeHeight: F)(using ev: Field[F]) : F =  perigeeHeight - 78   // interpolation, being a number bigger than 20, and smaller that 78
     def S_between_98_156: F = (1 + (perigeeHeight - 78) / aE)
     def S_below98: F = (1 + 20 / aE)
 
-    if (perigeeHeight >= 156) S_above156
-    else if (perigeeHeight >= 98) S_between_98_156
+    if perigeeHeight >= 156 then S_above156
+    else if perigeeHeight >= 98 then S_between_98_156
     else S_below98
-  }
 
-}
-
-case class GeoPotentialContext[@sp(Double) F: Field: Order: FromDouble](s: F, ξ: F, η: F, e0η: F, q0: F) {
+case class GeoPotentialContext[@sp(Double) F: Field: Order: FromDouble](s: F, ξ: F, η: F, e0η: F, q0: F):
   val `η²` = η * η
   val `η³` = η * `η²`
   val `1-η²` = abs[F](1 - `η²`)
   // The parameter q0 is the geocentric reference altitude,
   // a constant equal to 120 km plus one Earth radius
   val `ξ⁴(q0-s)⁴` = (ξ * (q0 - s)) ** 4
-}

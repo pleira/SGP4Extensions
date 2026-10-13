@@ -1,17 +1,16 @@
-package sgp4
-package coord
+package sgp4.coord
 
-import spire.algebra._
+import spire.algebra.*
 import spire.math.{sqrt, sin, cos, acos}
-import spire.implicits._
+import spire.implicits.*
 
-object CoordinatesConversions {
+object CoordinatesConversions:
 
   /** The direct transformation from nonsingular to Cartesian variables is obtained by means of the usual rotations
     * applied to the projections of the position and velocity vectors in the orbital frame. Thus R3 (−ν) ◦ R1 (−I) ◦ R3
     * (−θ) with I the orbital inclination where R1 , R3 , are the usual rotation matrices
     */
-  def polarNodal2Cartesian[F: Field: NRoot: Trig](pn: PolarNodalElems[F]): CartesianElems[F] = {
+  def polarNodal2Cartesian[F: Field: NRoot: Trig](pn: PolarNodalElems[F]): CartesianElems[F] =
     // After replacing ν = ψ − θ and sinθ = ξ/s, cosθ = χ/s, the
     // transformation from nonsingular to Cartesian variables can be obtained from the sequence
     // (s and c are abbreviations for the sine and cosine of the inclination)
@@ -39,24 +38,21 @@ object CoordinatesConversions {
       R * uy - Θ / r * (q * sinψ - τ * cosψ),
       R * uz + Θ / r * χ
     )
-  }
 
-  def polarNodal2SpecialPolarNodal[F: Field: Trig](pn: PolarNodalElems[F]): SpecialPolarNodal[F] = {
+  def polarNodal2SpecialPolarNodal[F: Field: Trig](pn: PolarNodalElems[F]): SpecialPolarNodal[F] =
     import pn._
     SpecialPolarNodal(acos(N / Θ), θ, ν, r, R, r * Θ)
-  }
 
-  def specialPolarNodal2PolarNodal[F: Field: Trig](spn: SpecialPolarNodal[F]) = {
+  def specialPolarNodal2PolarNodal[F: Field: Trig](spn: SpecialPolarNodal[F]) =
     import spn._
     PolarNodalElems(r, θ, Ω, R, Θ, Θ * cos(I))
-  }
 
   /** Standard transformation from polar-nodal to Cartesian variables (r,0,0, rdot=R, rθdot = Θ/r, 0) -> (x,y,z,
     * vx,vy,vz) where r is radial distance, R is radial velocity, and Ω is the node argument Mathematically involves
     * matrix multiplication R3(−h) R1(−I) R3(−θ) where R1 and R3 are the usual rotation matrices about the x and z axes,
     * respectively
     */
-  def spn2UnscaledCartesian[@sp(Double) F: Field: Trig](spn: SpecialPolarNodal[F]): CartesianElems[F] = {
+  def spn2UnscaledCartesian[@sp(Double) F: Field: Trig](spn: SpecialPolarNodal[F]): CartesianElems[F] =
     import spn._
     val sinI = sin(I); val cosI = cos(I)
     val sinθ = sin(θ); val cosθ = cos(θ)
@@ -75,9 +71,8 @@ object CoordinatesConversions {
     val vz = R * uz + vvz
     // return unit vectors position and unscaled velocity
     CartesianElems(ux, uy, uz, vx, vy, vz)
-  }
 
-  def pn2UnitCartesian[F: Field: Trig](spn: SpecialPolarNodal[F]): CartesianElems[F] = {
+  def pn2UnitCartesian[F: Field: Trig](spn: SpecialPolarNodal[F]): CartesianElems[F] =
     import spn._
     // val θ = atan2(ξ,χ)
     val sinθ = sin(θ); val cosθ = cos(θ) // to replace
@@ -104,5 +99,3 @@ object CoordinatesConversions {
 
     // return unit vectors position and velocity
     CartesianElems(ux, uy, uz, vx, vy, vz)
-  }
-}

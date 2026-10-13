@@ -1,8 +1,7 @@
-package sgp4
-package bench
+package sgp4.bench
 
 import java.util.concurrent.TimeUnit
-import org.openjdk.jmh.annotations._
+import org.openjdk.jmh.annotations.*
 import org.openjdk.jmh.infra.Blackhole
 import sgp4.earth_gravity.SGP72Constants
 import sgp4.io.TLE
@@ -25,10 +24,10 @@ import sgp4.model.SGP4ValladoLong
 @Warmup(iterations = 10, time = 1)
 @Measurement(iterations = 10, time = 1)
 @Fork(1)
-class SGP4PropagationBench {
+class SGP4PropagationBench:
 
   import spire.std.any.DoubleAlgebra
-  implicit val wgs: SGP72Constants[Double] = SGP72Constants.tleDoubleConstants
+  given wgs: SGP72Constants[Double] = SGP72Constants.tleDoubleConstants
 
   @Param(Array("00005", "06251"))
   var tleId: String = null
@@ -42,16 +41,14 @@ class SGP4PropagationBench {
   var la: SGP4Lara[Double] = null
 
   @Setup
-  def setup(): Unit = {
-    tle = tleId match {
+  def setup(): Unit =
+    tle = tleId match
       case "06251" => TLE06251.tle
       case _       => TLE00005.tle
-    }
     va = SGP4Vallado.fromTLE(tle, wgs).get
     pn = SGP4PN.fromTLE(tle, wgs).get
     vl = SGP4ValladoLong.fromTLE(tle, wgs).get
     la = SGP4Lara.fromTLE(tle, wgs).get
-  }
 
   @Benchmark
   def valladoPropagate(bh: Blackhole): Unit =
@@ -72,4 +69,3 @@ class SGP4PropagationBench {
   @Benchmark
   def buildAndValladoPropagate(bh: Blackhole): Unit =
     bh.consume(SGP4Vallado.fromTLE(tle, wgs).get.propagate(t))
-}

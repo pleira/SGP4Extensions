@@ -1,11 +1,11 @@
 package sgp4.report
 import sgp4.io.TLE
 
-import better.files._
-import better.files.Dsl._
-import sgp4.coord._
+import better.files.*
+import better.files.Dsl.*
+import sgp4.coord.*
 
-abstract class FileReport[F] {
+abstract class FileReport[F]:
 
   def path(tle: TLE) = s"doc/reports/${propagator}_${tle.satelliteNumber}_${tle.year}_${tle.epoch}.md"
 
@@ -16,7 +16,7 @@ abstract class FileReport[F] {
       tle: TLE,
       lines: List[String],
       times: IndexedSeq[Int]
-  ) = {
+  ) =
     val f = File(path(tle))
     implicit val oo = File.OpenOptions.append
     f << s"# ${propagator} algorithm\n"
@@ -56,25 +56,19 @@ abstract class FileReport[F] {
     pnr foreach { p =>
       f << p._2.toString().replaceAll(",|SGPElems\\(|\\)|\\(", "|")
     }
-  }
-}
 
-object PolarNodalFileReport extends FileReport[Double] {
+object PolarNodalFileReport extends FileReport[Double]:
 
   def propagator: String = "sgp4pn"
-}
 
-object LaraFileReport extends FileReport[Double] {
+object LaraFileReport extends FileReport[Double]:
 
   def propagator: String = "sgp4lara"
-}
 
-object ValladoLongFileReport extends FileReport[Double] {
+object ValladoLongFileReport extends FileReport[Double]:
 
   def propagator: String = "sgp4valladoLong"
-}
 
-object ValladoSimpleFileReport extends FileReport[Double] {
+object ValladoSimpleFileReport extends FileReport[Double]:
 
   def propagator: String = "sgp4vallado"
-}

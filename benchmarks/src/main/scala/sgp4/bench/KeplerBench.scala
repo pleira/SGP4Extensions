@@ -1,8 +1,7 @@
-package sgp4
-package bench
+package sgp4.bench
 
 import java.util.concurrent.TimeUnit
-import org.openjdk.jmh.annotations._
+import org.openjdk.jmh.annotations.*
 import org.openjdk.jmh.infra.Blackhole
 import sgp4.propagation.SimpleKeplerEq
 
@@ -17,7 +16,7 @@ import sgp4.propagation.SimpleKeplerEq
 @Warmup(iterations = 10, time = 1)
 @Measurement(iterations = 10, time = 1)
 @Fork(1)
-class KeplerBench {
+class KeplerBench:
 
   object kepler extends SimpleKeplerEq
 
@@ -26,18 +25,17 @@ class KeplerBench {
   val M = math.toRadians(90.0)
 
   @Benchmark
-  def genericSpireKepler(bh: Blackhole): Unit = {
+  def genericSpireKepler(bh: Blackhole): Unit =
     import spire.std.any.DoubleAlgebra
     bh.consume(kepler.solveKeplerEq[Double](e, M))
-  }
 
   @Benchmark
-  def primitiveKepler(bh: Blackhole): Unit = {
+  def primitiveKepler(bh: Blackhole): Unit =
     var E = M
     var remaining = 10
     var res = (E, math.cos(E), math.sin(E), 0.0, 0.0)
     var done = false
-    while (!done) {
+    while !done do
       val sinE = math.sin(E)
       val cosE = math.cos(E)
       val ecosE = e * cosE
@@ -45,16 +43,11 @@ class KeplerBench {
       val fdot = 1 - ecosE
       val f = M - (E - esinE)
       val incr = f / fdot
-      if (math.abs(incr) < 1e-12) {
+      if math.abs(incr) < 1e-12 then
         res = (E, cosE, sinE, ecosE, esinE)
         done = true
-      } else if (remaining < 0) {
-        done = true
-      } else {
+      else if remaining < 0 then done = true
+      else
         E += incr
         remaining -= 1
-      }
-    }
     bh.consume(res)
-  }
-}

@@ -1,12 +1,11 @@
-package sgp4
-package propagation
+package sgp4.propagation
 import sgp4.io.TLE
-import sgp4.earth_gravity._
+import sgp4.earth_gravity.*
 
-import spire.algebra._
+import spire.algebra.*
 import spire.math.{sin, cos}
-import spire.implicits._
-import sgp4.coord._
+import spire.implicits.*
+import sgp4.coord.*
 import org.scalactic.Or
 import org.scalactic.Good
 import org.scalactic.Bad
@@ -28,11 +27,11 @@ class BrouwerLaneSecularCorrections[@sp(Double) F: Field: NRoot: Order: Trig: Tr
     val laneCoefs: LaneCoefs[F],
     val secularFreqs: SecularFrequencies[F],
     val dragCoefs: DragSecularCoefs[F]
-) {
+):
 
   type Minutes = F // type to remember dealing with minutes from epoch
 
-  def secularCorrections(t: Minutes): SGPSecularResult[F] = {
+  def secularCorrections(t: Minutes): SGPSecularResult[F] =
 
     import secularFreqs._ // {ωdot,Ωdot,mdot=>Mdot,Ωcof}
     import elem0Ctx.{elem, iCtx, wgs}
@@ -59,13 +58,12 @@ class BrouwerLaneSecularCorrections[@sp(Double) F: Field: NRoot: Order: Trig: Tr
 
     // fix tolerance for error recognition
     // sgp4fix am is fixed from the previous nm check
-    if (em_ <= 0 || em_ >= 1) {
+    if em_ <= 0 || em_ >= 1 then
       // sgp4fix to return if there is an error in eccentricity
       return Bad(SGP4Error.SecularEccentricityOutOfRange(em_))
-    }
 
     // sgp4fix fix tolerance to avoid a divide by zero
-    val em: F = if (asF[F](1.0e-6) > em_) asF[F](1.0e-6) else em_
+    val em: F = if asF[F](1.0e-6) > em_ then asF[F](1.0e-6) else em_
 
     val Mm_ = Mp + n * δℓ
 
@@ -83,7 +81,6 @@ class BrouwerLaneSecularCorrections[@sp(Double) F: Field: NRoot: Order: Trig: Tr
 
     val elems = SGPElems(nm, em, I, ω_, Ω_, Mm, am, bStar, jd)
     Good(SGPSecularCtx(elems, iCtx, wgs))
-  }
 
   /*
    * The secular corrections due to atmospheric drag are calculated
@@ -91,7 +88,7 @@ class BrouwerLaneSecularCorrections[@sp(Double) F: Field: NRoot: Order: Trig: Tr
    * have been evaluated at the initialization stage.
    * δL,δe,δℓ,δh
    */
-  private def dragSecularCorrections(t: Minutes, ωdf: F, Mdf: F, Ωdf: F): DragSecular[F] = {
+  private def dragSecularCorrections(t: Minutes, ωdf: F, Mdf: F, Ωdf: F): DragSecular[F] =
 
     import laneCoefs._
     import dragCoefs._ // {ωcof,delM0,sinM0,Mcof}
@@ -106,8 +103,7 @@ class BrouwerLaneSecularCorrections[@sp(Double) F: Field: NRoot: Order: Trig: Tr
     // It should be noted that when epoch perigee height is less than
     // 220 kilometers, the equations for a and Lane's are truncated after the C1 term,
     // and the terms involving C5 , δω, and δM are dropped.
-    if (isImpacting)
-      return DragSecular(asF[F](1.0) - C1 * t, bStar * C4 * t, T2 * `t²`, ωdf, Mdf, Ωm)
+    if isImpacting then return DragSecular(asF[F](1.0) - C1 * t, bStar * C4 * t, T2 * `t²`, ωdf, Mdf, Ωm)
 
     val `t³` = `t²` * t
     val `t⁴` = `t²` * `t²`
@@ -123,24 +119,20 @@ class BrouwerLaneSecularCorrections[@sp(Double) F: Field: NRoot: Order: Trig: Tr
     val δℓ = T2 * `t²` + T3 * `t³` + `t⁴` * (T4 + t * T5) // (ℓ´´ - ℓj´´)/ n0
 
     DragSecular(δL, δe, δℓ, ωm_, Mpm_, Ωm)
-  }
 
-}
-
-object BrouwerLaneSecularCorrections extends GeoPotentialAndAtmosphere2ndOrderModel {
+object BrouwerLaneSecularCorrections extends GeoPotentialAndAtmosphere2ndOrderModel:
 
   /** Factory method to produce all inputs needed to create the propagator for SecularCorrections. Here we are starting
     * with a SGP Elements directly obtained from a TLE.
     */
   def apply[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
       elem0Ctx: SGPElemsCtx[F]
-  ): BrouwerLaneSecularCorrections[F] = {
+  ): BrouwerLaneSecularCorrections[F] =
     val geoPotCtx: GeoPotentialCtx[F] = geoPotentialCoefs(elem0Ctx)
     val laneCoefs = calcLaneCoefs(geoPotCtx.coefs)
     val (secularFrequencies, hdot) = calcSecularFrequencies(elem0Ctx)
     val dragSecularCoefs = calcSecularDragCoefs(hdot, elem0Ctx, geoPotCtx)
     new BrouwerLaneSecularCorrections(elem0Ctx, geoPotCtx, laneCoefs, secularFrequencies, dragSecularCoefs)
-  }
 
   /** Builds the secular corrections model from a TLE: the TLE is converted to SGP elements in context, which can fail,
     * and then the factory is applied. Deep space TLEs, with period >= 225 min, are rejected: this project implements
@@ -151,13 +143,13 @@ object BrouwerLaneSecularCorrections extends GeoPotentialAndAtmosphere2ndOrderMo
       wgs: SGPConstants[F]
   ): BrouwerLaneSecularCorrections[F] Or SGP4Error =
     SGPElemsConversions.sgpElemsAndContext(tle, wgs).flatMap { ctx =>
-      if (ctx.isDeepSpace) Bad(SGP4Error.DeepSpace(ctx.period))
+      if ctx.isDeepSpace then Bad(SGP4Error.DeepSpace(ctx.period))
       else Good(BrouwerLaneSecularCorrections(ctx))
     }
 
   private def calcSecularFrequencies[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
       elem0Ctx: SGPElemsCtx[F]
-  ): (SecularFrequencies[F], F) = {
+  ): (SecularFrequencies[F], F) =
     import elem0Ctx.{elem, iCtx, eCtx, wgs}
     import wgs._, iCtx._, eCtx._
     import elem.{n => n0, a => a0}
@@ -173,7 +165,7 @@ object BrouwerLaneSecularCorrections extends GeoPotentialAndAtmosphere2ndOrderMo
     val `3n0ϵ2`: F = 3 * ϵ2 * n0
     val hdot = 2 * `3n0ϵ2` * c
     val secularFrequencies =
-      if (n0 >= 0 || `β0²` >= 0)
+      if n0 >= 0 || `β0²` >= 0 then
         SecularFrequencies( // derivative of M
           n0 - `3n0ϵ2` * β0 * (`3c²-1` - ϵ2 * (13 - 78 * `c²` + 137 * `c⁴`) / 4),
           // derivative of the perigee argument
@@ -182,17 +174,15 @@ object BrouwerLaneSecularCorrections extends GeoPotentialAndAtmosphere2ndOrderMo
           // (2* `3n0ϵ2` * (1 + (ϵ2*(4 - 19*`c²`)) + 2*temp3 * (3 - 7*`c²`)))*c
           hdot + ϵ2 * hdot * (4 - 19 * `c²`) + 2 * n0ϵ4 * c * (3 - 7 * `c²`)
         )
-      else
-        SecularFrequencies(asF[F](0), asF[F](0), asF[F](0))
+      else SecularFrequencies(asF[F](0), asF[F](0), asF[F](0))
 
     (secularFrequencies, hdot)
-  }
 
   private def calcSecularDragCoefs[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
       hdot: F,
       elem0Ctx: SGPElemsCtx[F],
       gctx: GeoPotentialCtx[F]
-  ): DragSecularCoefs[F] = {
+  ): DragSecularCoefs[F] =
 
     import gctx.{coefs => gcoef, context => geoctx}
     import gcoef.{C1, C3}, geoctx.{e0η, `ξ⁴(q0-s)⁴`}
@@ -201,16 +191,15 @@ object BrouwerLaneSecularCorrections extends GeoPotentialAndAtmosphere2ndOrderMo
 
     // other derived coeficients and variables that are used related to drag corrections
     DragSecularCoefs(
-      if (asF[F](0.0001) < e0) - `2/3` * `ξ⁴(q0-s)⁴` * bStar / e0η else asF[F](0),
+      if asF[F](0.0001) < e0 then - `2/3` * `ξ⁴(q0-s)⁴` * bStar / e0η else asF[F](0),
       bStar * C3 * cos(ω0),
       7 * `β0²` * hdot * C1 / 2
     )
-  }
 
   /** The initialization process provides a series of coefficients needed to apply drag secular corrections as computed
     * from Lane’s theory.
     */
-  private def calcLaneCoefs[@sp(Double) F: Field: FromDouble](gcoefs: GeoPotentialCoefs[F]): LaneCoefs[F] = {
+  private def calcLaneCoefs[@sp(Double) F: Field: FromDouble](gcoefs: GeoPotentialCoefs[F]): LaneCoefs[F] =
     import gcoefs._
     val `C1²` = C1 * C1
     LaneCoefs(
@@ -219,6 +208,3 @@ object BrouwerLaneSecularCorrections extends GeoPotentialAndAtmosphere2ndOrderMo
       (3 * D3 + C1 * (12 * D2 + 10 * `C1²`)) / 4,
       (3 * D4 + 12 * C1 * D3 + 6 * D2 * D2 + 15 * `C1²` * (2 * D2 + `C1²`)) / 5
     )
-  }
-
-}

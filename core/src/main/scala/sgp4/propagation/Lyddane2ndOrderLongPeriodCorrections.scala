@@ -1,16 +1,15 @@
-package sgp4
-package propagation
+package sgp4.propagation
 
-import spire.algebra._
-import spire.implicits._
-import sgp4.coord._
+import spire.algebra.*
+import spire.implicits.*
+import sgp4.coord.*
 import sgp4.coord.LyddaneElems
 
-trait Lyddane2ndOrderLongPeriodCorrections[@sp(Double) F] extends LyddaneLongPeriodCorrections[F] {
+trait Lyddane2ndOrderLongPeriodCorrections[@sp(Double) F] extends LyddaneLongPeriodCorrections[F]:
 
   override def lylppCorrectionsCtx(
       secularCtx: SGPSecularCtx[F]
-  )(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F], fd: FromDouble[F]): LyddaneResult[F] = {
+  )(using ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F], fd: FromDouble[F]): LyddaneResult[F] =
 
     import secularCtx.iCtx.{c, s}
 
@@ -25,7 +24,7 @@ trait Lyddane2ndOrderLongPeriodCorrections[@sp(Double) F] extends LyddaneLongPer
     // 2nd order corrections
     // note the singularity for (sinI) s = 0
     // use s_ only in terms that would "explode"
-    val s_ = if (s < asF[F](1.5e-12)) asF[F](1.5e-12) else s
+    val s_ = if s < asF[F](1.5e-12) then asF[F](1.5e-12) else s
 
     val δI = ϵ3 * esinω * c
     val δh = -ϵ3 * ecosω * c / s_
@@ -35,6 +34,3 @@ trait Lyddane2ndOrderLongPeriodCorrections[@sp(Double) F] extends LyddaneLongPer
 
     // add 2nd order corrections to the first order corrections
     LyddaneResult(LyddaneElems(ly1.I + δI, ly1.a, ly1.h + δh, ly1.C + δC, ly1.S + δS, ly1.F + δF), lyddaneResult.ctx)
-  }
-
-}

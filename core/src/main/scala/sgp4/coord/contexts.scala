@@ -1,5 +1,4 @@
-package sgp4
-package coord
+package sgp4.coord
 
 import sgp4.earth_gravity.SGPConstants
 

@@ -1,5 +1,4 @@
-package sgp4
-package model
+package sgp4.model
 
 import org.scalatest.funsuite.AnyFunSuite
 import sgp4.coord.CartesianElems
@@ -12,7 +11,7 @@ import sgp4.io.TLE
   * propagate TLEs at the inclinations closest to the critical one that the TLE format can express, with 4 decimal
   * places, and check that all the algorithms remain well conditioned and keep their usual mutual agreement.
   */
-class NearCriticalInclinationTest extends AnyFunSuite {
+class NearCriticalInclinationTest extends AnyFunSuite:
 
   import spire.std.any.DoubleAlgebra
 
@@ -27,27 +26,24 @@ class NearCriticalInclinationTest extends AnyFunSuite {
   private val envelopeVelTol = 5.0e-3 // km/s
   private val times = List(0.0, 720.0, 1440.0, 4320.0)
 
-  private def propagators(tle: TLE): List[SGP4[Double]] = {
+  private def propagators(tle: TLE): List[SGP4[Double]] =
     val vallado = SGP4Vallado.fromTLE(tle, wgs).get
     List(vallado, SGP4ValladoLong(vallado.sec), SGP4PN(vallado.sec), SGP4Lara(vallado.sec))
-  }
 
   private def positions(tle: TLE): List[List[CartesianElems[Double]]] =
     propagators(tle).map { sgp4 =>
       times.map { t =>
-        sgp4.propagate(t) match {
+        sgp4.propagate(t) match
           case org.scalactic.Good(propCtx) => propCtx.pv
           case org.scalactic.Bad(e)        => fail(s"propagation failed at t=$t: $e")
-        }
       }
     }
 
-  test("SGP4 propagates a TLE at the inclination closest to the critical one without error") {
+  test("SGP4 propagates a TLE at the inclination closest to the critical one without error"):
     val tle = TLE.parseLines(List(line1, line2("63.4349"))).head
     assert(positions(tle).forall(_.size == times.size))
-  }
 
-  test("all the algorithms keep their usual mutual agreement at the critical inclination") {
+  test("all the algorithms keep their usual mutual agreement at the critical inclination"):
     val tle = TLE.parseLines(List(line1, line2("63.4349"))).head
     val positionsByAlgo = positions(tle)
     val vallado = positionsByAlgo.head
@@ -61,9 +57,8 @@ class NearCriticalInclinationTest extends AnyFunSuite {
         assert(dv < envelopeVelTol, s"velocity difference $dv km/s at t=$t min")
       }
     }
-  }
 
-  test("adjacent TLE inclination quanta around the critical inclination propagate smoothly") {
+  test("adjacent TLE inclination quanta around the critical inclination propagate smoothly"):
     val inclinations = List("63.4348", "63.4349", "63.4350")
     val positionsByInclination =
       inclinations.map(i => TLE.parseLines(List(line1, line2(i))).head).map(positions(_).head)
@@ -79,5 +74,3 @@ class NearCriticalInclinationTest extends AnyFunSuite {
         }
       }
     }
-  }
-}

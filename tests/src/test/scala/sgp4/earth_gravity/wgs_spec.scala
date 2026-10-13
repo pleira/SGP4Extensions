@@ -1,12 +1,11 @@
-package sgp4
-package earth_gravity
-import sgp4.earth_gravity._
+package sgp4.earth_gravity
+import sgp4.earth_gravity.*
 
 import org.scalatest.funsuite.AnyFunSuite
 
-class wgs_spec extends AnyFunSuite {
+class wgs_spec extends AnyFunSuite:
 
-  test("Check WGS values") {
+  test("Check WGS values"):
     val wgs = WGS72Constants.tleDoubleConstants
 
     import wgs._
@@ -14,6 +13,3 @@ class wgs_spec extends AnyFunSuite {
     assert(J2 === 0.001082616)
     assert(K2 === (J2 * aE / 2))
     assert(K4 === (-3 * J4 * aE * aE * aE * aE / 8))
-  }
-
-}

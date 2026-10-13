@@ -1,16 +1,15 @@
-package sgp4
-package model
+package sgp4.model
 import sgp4.io.TLE
 
 import sgp4.propagation.Sgp4Result
-import sgp4.coord._
+import sgp4.coord.*
 
 case class Sgp4ValladoResult(
     sgp: SGP4Vallado[Double],
     statett: SGPPropCtx[Double],
     tle: TLE,
     t: Double
-) extends Sgp4Result[Double] {
+) extends Sgp4Result[Double]:
   val posVel = statett.pv
   val r = posVel.pos
   val v = posVel.vel
@@ -54,8 +53,7 @@ case class Sgp4ValladoResult(
   def bstar: Double = elem.bStar
   def argpo: Double = elem.ω
   def mo: Double = elem.M
-  def isimp: Int = if ((omeosq >= 0.0) || (no >= 0.0))
-    if (isImpacting) 1 else 0
+  def isimp: Int = if (omeosq >= 0.0) || (no >= 0.0) then if isImpacting then 1 else 0
   // FIXME: should be if (isImpacting || isDeepSpace) 1 else 0
   else 0
   def cc1: Double = C1
@@ -86,5 +84,3 @@ case class Sgp4ValladoResult(
   def no: Double = elem.n
   // FIXME
   def atime: Double = t
-
-}

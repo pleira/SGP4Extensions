@@ -1,22 +1,22 @@
 package sgp4.report
-import sgp4.earth_gravity._
+import sgp4.earth_gravity.*
 
-import sgp4.model._
-import sgp4.coord._
-import spire.implicits._
+import sgp4.model.*
+import sgp4.coord.*
+import spire.implicits.*
 import sgp4.model.SGP4Vallado
 
-class Propagate(val ttle: TestTLE) extends LoadCppResults {
+class Propagate(val ttle: TestTLE) extends LoadCppResults:
 
   val cppOuts = loadCppOutputData(ttle.tle.satelliteNumber)
 
   val vasgp4 = SGP4Vallado.fromTLE(ttle.tle, SGP72Constants.tleDoubleConstants).get
 
   def pvts =
-    for {
+    for
       t <- ttle.start to ttle.end by ttle.step
       pv = vasgp4.propagate(t.toDouble)
-    } yield (pv, t.toDouble)
+    yield (pv, t.toDouble)
 
   // Check that results contain SGP4Errors from the propagation
   def errors = pvts.filter(pvt => pvt._1.isBad)
@@ -28,12 +28,12 @@ class Propagate(val ttle: TestTLE) extends LoadCppResults {
 
   def diffPosVelCartesian(
       opv: (CartesianPNLppUnit, (CartesianElems[Double], Double))
-  ): (Double, CartesianElems[Double]) = {
+  ): (Double, CartesianElems[Double]) =
     val o = opv._1
     val p = opv._2
     val c = p._1
     val t = p._2
-    if (t == o.t.toDouble)
+    if t == o.t.toDouble then
       (
         t,
         CartesianElems(
@@ -45,23 +45,19 @@ class Propagate(val ttle: TestTLE) extends LoadCppResults {
           o.vz.toDouble - c.vz
         )
       )
-    else
-      (o.t.toDouble, CartesianElems(t, -9, -9, -9, -9, -9))
-  }
-}
+    else (o.t.toDouble, CartesianElems(t, -9, -9, -9, -9, -9))
 
-class Propagate22312D extends Propagate(TLE22312) {
-  val seq = for {
+class Propagate22312D extends Propagate(TLE22312):
+  val seq = for
     t <- Iterator.iterate(TLE22312.startD)(_ + TLE22312.step.toDouble).takeWhile(_ <= TLE22312.end)
     pv = vasgp4.propagate(t)
-  } yield (pv, t)
+  yield (pv, t)
   val sgpOutsD = (vasgp4.propagate(0), 0.0) +: seq.toIndexedSeq
   // Check that results contain SGP4Errors from the propagation
   override val errors = sgpOutsD.filter(pvt => pvt._1.isBad)
   override val goods = sgpOutsD.flatMap(pvt => pvt._1.toOption.map(r => (r, pvt._2)))
-}
 
-object Propagate22312 extends App {
+object Propagate22312:
   val p22312 = new Propagate22312D
 
   Console.out.println(s"Propagations size is ${p22312.sgpOutsD.size}")
@@ -78,4 +74,7 @@ object Propagate22312 extends App {
   Console.out.println(s"Cpp good's size is ${cglen}")
   Console.out.println(s"Last cpp good is at epoch time ${p22312.cppOuts(cglen - 1).t}")
 
-}
+  /** Runs the program: the statements above execute at object initialization, when the JVM launcher accesses this main
+    * method.
+    */
+  def main(args: Array[String]): Unit = ()

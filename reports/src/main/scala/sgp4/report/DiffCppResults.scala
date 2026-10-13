@@ -1,11 +1,11 @@
 package sgp4.report
 
-import sgp4.model._
+import sgp4.model.*
 
 /** The differences of the final results of all the algorithms against the cpp reference results of Vallado's
   * implementation, in cartesian elements and in polar nodals.
   */
-class CompareAll(all: AllPropagators, tle: TestTLE) extends LoadCppResults with DiffResults {
+class CompareAll(all: AllPropagators, tle: TestTLE) extends LoadCppResults with DiffResults:
   val SEP = "|"
   val sat = tle.tle.satelliteNumber
   val cppOuts = loadCppOutputData(sat)
@@ -70,43 +70,38 @@ class CompareAll(all: AllPropagators, tle: TestTLE) extends LoadCppResults with 
       s"$SEP ---- $SEP --- $SEP ----------------- $SEP ------------------- $SEP"
     )
 
-  def cartesianMaxDiffReport() = {
+  def cartesianMaxDiffReport() =
     println("### Maximum Differences between final results in cartesian elements from Vallado to the algorithms\n")
     cartesianMaxDiffReportHeader map println
     algosCartesianMaxDiffList map println
     println()
-  }
 
-  def cartesianDiffReport() = {
+  def cartesianDiffReport() =
     println("### Differences between cartesian final results from Vallado to the algorithms\n")
     cartesianDiffReportHeader map println
     algosPvDiffsList map { ls => ls map { println } }
     println()
-  }
 
-  def pnDiffReport() = {
+  def pnDiffReport() =
     println(
       "### Differences between final results from Vallado in polar nodals using internal units to the algorithms\n"
     )
     pnDiffReportHeader map println
     algosPnDiffsList map { ls => ls map { println } }
     println()
-  }
 
-  def vlpnFinalPNDiffReport() = {
+  def vlpnFinalPNDiffReport() =
     println(
       "### Differences between final polar nodals results from Vallado Long and Polar Nodals algorithms using internal units\n"
     )
     vlpnFinalPNDiffReportHeader map println
     vlpnPnDiffsList map println
     println()
-  }
-}
 
 /** Writes the differences against the cpp reference results of the test TLEs into markdown and gnuplot data files under
   * doc/reports.
   */
-object ReportTestNearTLEs extends App {
+object ReportTestNearTLEs:
   import better.files._
   import better.files.Dsl._
   def allComp(t: TestTLE) = new CompareAll(AllPropagators(t), t)
@@ -147,4 +142,8 @@ object ReportTestNearTLEs extends App {
     cls.vlpnFinalPNDiffReportHeader map { _ >>: vlpndifffile }
     cls.vlpnPnDiffsList map { _ >>: vlpndifffile }
   }
-}
+
+  /** Runs the program: the statements above execute at object initialization, when the JVM launcher accesses this main
+    * method.
+    */
+  def main(args: Array[String]): Unit = ()

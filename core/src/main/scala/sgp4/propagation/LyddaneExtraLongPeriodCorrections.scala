@@ -1,16 +1,15 @@
-package sgp4
-package propagation
+package sgp4.propagation
 
-import spire.algebra._
+import spire.algebra.*
 import spire.math.{abs, sqrt, sin, cos}
-import spire.implicits._
-import sgp4.coord._
+import spire.implicits.*
+import sgp4.coord.*
 
-trait LyddaneExtraLongPeriodCorrections[@sp(Double) F] {
+trait LyddaneExtraLongPeriodCorrections[@sp(Double) F]:
 
   def lppLydCorrections(
       secularElemt: SGPSecularCtx[F]
-  )(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F], fd: FromDouble[F]): LyddaneElems[F] = {
+  )(using ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F], fd: FromDouble[F]): LyddaneElems[F] =
 
     import secularElemt.{elem, wgs, iCtx => ictx}
     import ictx.{c, s}, wgs.`J3/J2`, elem.{a, e, ω, M, I, Ω}
@@ -30,11 +29,11 @@ trait LyddaneExtraLongPeriodCorrections[@sp(Double) F] {
     // a similar fix as Vallado's fix for divide by zero with I = 180 deg
     // sgp4fix for divide by zero with I = 180 deg
     val `1+c`: F =
-      if (abs(1 + c) > asF[F](1.5e-12)) (1 + c) else asF[F](1.5e-12)
+      if abs(1 + c) > asF[F](1.5e-12) then (1 + c) else asF[F](1.5e-12)
 
     // Lyddane elements including 2nd order corrections // FIXME: note the singularity for (sinI) s = 0
     val s_ =
-      if (s < asF[F](1.5e-12)) asF[F](1.5e-12) else s
+      if s < asF[F](1.5e-12) then asF[F](1.5e-12) else s
 
     val Il = I + ϵ3 * esinω * c
     val h = Ω - ϵ3 * ecosω * c / s_
@@ -44,6 +43,3 @@ trait LyddaneExtraLongPeriodCorrections[@sp(Double) F] {
       M + ω + Ω - ϵ3 * s_ * ecosω * ((1 + 2 * c) / `1+c` + `η²` / (1 + η)) // Lyddane F' = (M´´ + g´´ + h´´) +  ...
 
     LyddaneElems(Il, a, h, C, S, F)
-  }
-
-}
