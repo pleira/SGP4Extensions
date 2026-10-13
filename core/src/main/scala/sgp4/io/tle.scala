@@ -115,14 +115,24 @@ object TLE {
     finally source.close()
   }
 
-  /** Ignores comment lines starting with '#' and pairs the remaining lines in order into TLEs.
+  /** Scans the lines in order for the TLE pairs, line 1 followed by line 2, and builds a TLE from each pair. All the
+    * other lines are ignored: the name lines of the 3 line format, comment lines starting with '#' and blank lines.
     */
-  def parseLines(list: List[String]): List[TLE] =
-    list
-      .filterNot(_.startsWith("#"))
-      .grouped(2)
-      .collect { case Seq(line1, line2) => apply(line1, line2) }
-      .toList
+  def parseLines(list: List[String]): List[TLE] = {
+    import scala.annotation.tailrec
+    @tailrec
+    def scan(lines: List[String], acc: List[TLE]): List[TLE] =
+      lines match {
+        case line1 :: rest if line1.startsWith("1 ") =>
+          rest match {
+            case line2 :: rest2 if line2.startsWith("2 ") => scan(rest2, apply(line1, line2) :: acc)
+            case _                                        => scan(rest, acc)
+          }
+        case _ :: rest => scan(rest, acc)
+        case Nil       => acc.reverse
+      }
+    scan(list, Nil)
+  }
 
   import java.util.regex.Pattern
 

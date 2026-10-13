@@ -243,3 +243,13 @@ object SGP4Lara extends SGP4Companion[SGP4Lara] {
   def apply[F: Field: NRoot: Order: Trig: TruncatedDivision](sec: BrouwerLaneSecularCorrections[F]): SGP4Lara[F] =
     new SGP4Lara(sec)
 }
+
+/** The standard entry point of the SGP4 propagator, corresponding to the original Vallado algorithm: SGP4.apply and
+  * SGP4.fromTLE build SGP4Vallado propagators, as in the python sgp4 library, where sgp4.model.SGP4 is Vallado's
+  * implementation.
+  */
+object SGP4 extends SGP4Companion[SGP4Vallado] {
+
+  def apply[F: Field: NRoot: Order: Trig: TruncatedDivision](sec: BrouwerLaneSecularCorrections[F]): SGP4Vallado[F] =
+    new SGP4Vallado(sec)
+}
