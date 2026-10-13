@@ -2,7 +2,7 @@ package sgp4
 package coord
 
 import spire.algebra._
-import spire.math._
+import spire.math.{sqrt, sin, cos, acos}
 import spire.implicits._
 
 object CoordinatesConversions {

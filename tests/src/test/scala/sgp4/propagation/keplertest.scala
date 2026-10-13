@@ -4,7 +4,7 @@ package propagation
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalactic.TolerantNumerics
 import org.scalactic.Equality
-import spire.math._
+import spire.math.{sqrt, atan2}
 import spire.implicits._
 
 // Tests of the algorithm used in solving Kepler's equation

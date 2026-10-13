@@ -3,6 +3,15 @@ package sgp4
 import org.scalactic.Or
 
 package object coord {
+
+  /** Converts a Double into the numeric type F of the propagation, through the FromDouble type class.
+    */
+  def asF[@sp(Double) F: FromDouble](x: Double): F = convert.asF[F](x)
+
+  /** Converts an Int into the numeric type F of the propagation, through the FromDouble type class.
+    */
+  def asF[@sp(Double) F: FromDouble](x: Int): F = convert.asF[F](x)
+
   type sp = scala.specialized
 
   // for secular corrections

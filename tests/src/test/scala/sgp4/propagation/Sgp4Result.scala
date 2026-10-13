@@ -1,6 +1,7 @@
 package sgp4.propagation
+import sgp4.coord.FromDouble
 
-trait Sgp4Result[F] extends Sgp4Near[F] {
+abstract class Sgp4Result[F: FromDouble] extends Sgp4Near[F] {
 
   def satn: Int
   def ecco: F
@@ -57,6 +58,6 @@ trait Sgp4Result[F] extends Sgp4Near[F] {
   def xno: F = no
   // FIXME
   def atime: F
-//  def xli : F  = 0.0.as[F]
-//  def xni : F  = 0.0.as[F]
+//  def xli : F  = asF[F](0.0)
+//  def xni : F  = asF[F](0.0)
 }

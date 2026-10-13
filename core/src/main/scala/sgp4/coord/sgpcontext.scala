@@ -3,15 +3,14 @@ package coord
 import sgp4.earth_gravity._
 
 import spire.algebra._
-import spire.math._
+import spire.math.{sqrt, sin, cos}
 import spire.implicits._
-import spire.syntax.primitives._
 import org.scalactic.Or
 import org.scalactic.Good
 import org.scalactic.Bad
 
 // this class has the first informations related to the TLE processing
-case class SGPElemsCtx[@sp(Double) F: Field: Order](
+case class SGPElemsCtx[@sp(Double) F: Field: Order: FromDouble](
     elem: SGPElems[F],
     iCtx: InclinationCtx[F],
     eCtx: EccentricityCtx[F],
@@ -31,7 +30,7 @@ case class SGPElemsCtx[@sp(Double) F: Field: Order](
 
   /** orbital period in minutes
     */
-  def period: F = `2pi`.as[F] / n
+  def period: F = asF[F](`2pi`) / n
 
   def isDeepSpace: Boolean = period >= 225
 }

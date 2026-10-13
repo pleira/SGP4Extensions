@@ -8,7 +8,7 @@ My initial aim is to introduce an alternative implementation for the calculation
 
 This implementation is also an exercise of having cleaner code written in Scala. That means, the physical models and transformations should appear clearer in the code. 
 
-The numerical library Spire is used. In particular, the user can work with other numerical types that can offer more precision than Double. That can be of interest near conflictive points in the theory (low inclinations, and 63 deg) at the expense of longer running time. 
+The numerical library Spire is used, and the propagation is parameterized on the numeric type F through Spire's type classes. The right class for propagation is **Double**: TLE data quantizes the elements to a few decimal places, which keeps even the conflictive points of the theory (low inclinations, and the critical inclination at 63.4 deg, where the perigee rate vanishes) well conditioned in Double; the achievable accuracy is limited by the TLE data and by the SGP4 model itself, not by round off. Higher precision cannot improve a propagation. That said, the parameterization keeps the door open to other numeric types for **round off analysis**: propagating with Spire's Real measures the accumulated round off of the Double pipeline, which is of interest in conjunction experiments, where a small position error shifts the time of a close approach. That analysis, not propagation accuracy, is the use case of the numeric type parameterization, at the expense of a much longer running time. 
 
 The SGP4 pipeline
 -----------------
@@ -111,7 +111,14 @@ Requires
   either (pass `JAVA_HOME` to sbt to pick one), and the `@specialized`
   Double code paths hold on both.
 * [sbt 1.x](https://www.scala-sbt.org) (the build uses sbt 1.13.0, declared in `project/build.properties`).
-* The code runs on Scala 2.13.18 with Spire 0.18.0, ScalaTest 3.2.20 and better-files 3.9.2.
+* The code cross builds on Scala 2.13.18 (the default) and 3.9.0: `sbt +test`
+  runs the full suite on both. All dependencies (Spire 0.18.0, ScalaTest 3.2.20,
+  better-files 3.9.2) are available for both Scala versions.
+
+  On the propagation hot path, Scala 3.9 stays close to the Scala 2.13
+  `@specialized` Double numbers (about 5-30% slower depending on the
+  propagator, see the benchmarks section); the generic spire Kepler solver
+  still matches the hand written primitive Double loop.
 
 Use
 ---------------

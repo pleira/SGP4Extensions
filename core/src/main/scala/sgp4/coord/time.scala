@@ -5,7 +5,6 @@ import scala.Vector
 import spire.algebra.TruncatedDivision
 import spire.algebra.Field
 import spire.algebra.Order
-import spire.implicits.DoubleAlgebra
 import spire.implicits.additiveGroupOps
 import spire.implicits.additiveSemigroupOps
 import spire.implicits.literalDoubleMultiplicativeSemigroupOps
@@ -14,13 +13,12 @@ import spire.implicits.multiplicativeSemigroupOps
 import spire.implicits.partialOrderOps
 import spire.math.floor
 import spire.math.pi
-import spire.syntax.primitives.DoubleAs
 
 object TimeUtils {
 
   val `2pi` = 2 * pi
 
-  def revPerDay2RadPerMin[@sp(Double) F: Field](rpd: F): F = `2pi` * rpd / 1440
+  def revPerDay2RadPerMin[@sp(Double) F: Field: FromDouble](rpd: F): F = `2pi` * rpd / 1440
 
   /** function gstime
     *
@@ -39,13 +37,13 @@ object TimeUtils {
     * references : vallado 2004, 191, eq 3-45
     */
 
-  def gstime[@sp(Double) F: Field: Order: TruncatedDivision](jdut1: F): F = {
+  def gstime[@sp(Double) F: Field: Order: TruncatedDivision: FromDouble](jdut1: F): F = {
     val deg2rad = pi / 180
 
     val tut1 = (jdut1 - 2451545) / 36525
     var temp = -6.2e-6 * tut1 * tut1 * tut1 + 0.093104 * tut1 * tut1 +
       (876600.0 * 3600 + 8640184.812866) * tut1 + 67310.54841 // sec
-    temp = TruncatedDivision[F].tmod(temp * deg2rad / 240, `2pi`.as[F]) // 360/86400 = 1/240, to deg, to rad
+    temp = TruncatedDivision[F].tmod(temp * deg2rad / 240, asF[F](`2pi`)) // 360/86400 = 1/240, to deg, to rad
 
     // ------------------------ check quadrants ---------------------
     if (temp < 0) temp += `2pi`

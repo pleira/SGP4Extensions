@@ -1,11 +1,12 @@
 package sgp4
 package earth_gravity
+import sgp4.coord.FromDouble
 import sgp4.coord.sp
 
 import spire.algebra._
-import spire.math._
+import spire.math.{pi}
+import spire.math.Real
 import spire.implicits._
-import spire.syntax.primitives._
 
 trait WGSConstants[@sp(Double) F] {
 
@@ -26,7 +27,7 @@ trait WGSConstants[@sp(Double) F] {
 
   /** J3 spherical harmonic value */
   def J4: F
-  def CK2: F = K2 // = 5.413080E-4.as[F] // 1/2 J2aE
+  def CK2: F = K2 // = FromDouble[F](5.413080e-4) // 1/2 J2aE
   def CK4: F = K4 // = -3*J4* aE⁴ / 8
   def K2: F
   def K4: F
@@ -35,7 +36,7 @@ trait WGSConstants[@sp(Double) F] {
 
 }
 
-abstract class WGS[@sp(Double) F: Field]() extends WGSConstants[F] {
+abstract class WGS[@sp(Double) F: Field: FromDouble]() extends WGSConstants[F] {
   def K2 = J2 * aE / 2 // We use Vallado's, in reality J2 * aE² / 2
   def K4 = -3 * J4 * aE * aE * aE * aE / 8
   def A3OVK2 = -J3 / K2
@@ -45,13 +46,13 @@ abstract class WGS[@sp(Double) F: Field]() extends WGSConstants[F] {
 }
 
 // old WGS72 constants
-class WGS721Constants[F: Field]() extends WGS[F] {
-  val MU = 398600.8.as[F]
-  val aE = 6378.135.as[F]
-  val KE = 0.0743669161.as[F] // units 1/min = 60/sqrt(aE³/μ)
-  val J2 = 0.001082616.as[F]
-  val J3 = -0.00000253881.as[F]
-  val J4 = -0.00000165597.as[F]
+class WGS721Constants[F: Field: FromDouble]() extends WGS[F] {
+  val MU = FromDouble[F](398600.8)
+  val aE = FromDouble[F](6378.135)
+  val KE = FromDouble[F](0.0743669161) // units 1/min = 60/sqrt(aE³/μ)
+  val J2 = FromDouble[F](0.001082616)
+  val J3 = -FromDouble[F](0.00000253881)
+  val J4 = -FromDouble[F](0.00000165597)
   val vkmpersec = aE * KE / 60
   val `J2/J3`: F = J2 / J3
   val `J3/J2`: F = J3 / J2
@@ -59,13 +60,13 @@ class WGS721Constants[F: Field]() extends WGS[F] {
   override val K4 = super.K4
 }
 
-class WGS72Constants[F: Field]() extends WGS[F] {
-  val MU = 398600.79964.as[F]
-  val aE = 6378.135.as[F]
-  val KE = 0.07436691613317.as[F] //   60 / (aE³/ MU).sqrt  // /min
-  val J2 = 0.001082616.as[F]
-  val J3 = -0.00000253881.as[F]
-  val J4 = -0.00000165597.as[F]
+class WGS72Constants[F: Field: FromDouble]() extends WGS[F] {
+  val MU = FromDouble[F](398600.79964)
+  val aE = FromDouble[F](6378.135)
+  val KE = FromDouble[F](0.07436691613317) //   60 / (aE³/ MU).sqrt  // /min
+  val J2 = FromDouble[F](0.001082616)
+  val J3 = -FromDouble[F](0.00000253881)
+  val J4 = -FromDouble[F](0.00000165597)
   override val K2 = super.K2
   override val K4 = super.K4
   val `J2/J3`: F = J2 / J3
@@ -73,13 +74,13 @@ class WGS72Constants[F: Field]() extends WGS[F] {
   val α: F = aE // Earth's equatorial radius
 }
 
-class WGS84Constants[F: Field]() extends WGS[F] {
-  val MU = 398600.5.as[F]
-  val aE = 6378.137.as[F]
-  val KE = 0.07436685316871.as[F] //   60 / (aE³/ MU).sqrt   //  /min
-  val J2 = 0.00108262998905.as[F]
-  val J3 = -0.00000253215306.as[F]
-  val J4 = -0.00000161098761.as[F]
+class WGS84Constants[F: Field: FromDouble]() extends WGS[F] {
+  val MU = FromDouble[F](398600.5)
+  val aE = FromDouble[F](6378.137)
+  val KE = FromDouble[F](0.07436685316871) //   60 / (aE³/ MU).sqrt   //  /min
+  val J2 = FromDouble[F](0.00108262998905)
+  val J3 = -FromDouble[F](0.00000253215306)
+  val J4 = -FromDouble[F](0.00000161098761)
   override val K2 = super.K2
   override val K4 = super.K4
   val `J2/J3`: F = J2 / J3
@@ -117,7 +118,7 @@ trait SGPConstants[@sp(Double) F] {
   def `2pi` = 2 * pi
   def `2/3`: F
   def `1/3`: F
-//  def CK2: F = wgs.K2 // = 5.413080E-4.as[F] // 1/2 J2aE
+//  def CK2: F = wgs.K2 // = FromDouble[F](5.413080e-4) // 1/2 J2aE
 //  def CK4: F = wgs.K4  // = -3*J4* aE⁴ / 8
 //  def K2: F =  wgs.K2
 //  def K4: F = wgs.K4
@@ -125,7 +126,7 @@ trait SGPConstants[@sp(Double) F] {
 //  def A3OVK2 : F  = wgs.A3OVK2  // def K2: F   // units of (Earth radii) ]
 }
 
-class SGP721Constants[@sp(Double) F: Field](wgs: WGS721Constants[F]) extends SGPConstants[F] {
+class SGP721Constants[@sp(Double) F: Field: FromDouble](wgs: WGS721Constants[F]) extends SGPConstants[F] {
   override def MU: F = wgs.MU
   override def aE: F = wgs.aE
   override def KE: F = wgs.KE
@@ -137,11 +138,11 @@ class SGP721Constants[@sp(Double) F: Field](wgs: WGS721Constants[F]) extends SGP
   override val `J3/J2`: F = J3 / J2
   override val α: F = aE // Earth's equatorial radius
   override val μ: F = wgs.MU
-  override val `2/3` = 2.as[F] / 3.as[F]
-  override val `1/3` = 1.as[F] / 3.as[F]
+  override val `2/3` = FromDouble[F](2) / FromDouble[F](3)
+  override val `1/3` = FromDouble[F](1) / FromDouble[F](3)
 }
 
-class SGP72Constants[@sp(Double) F: Field](wgs: WGS72Constants[F]) extends SGPConstants[F] {
+class SGP72Constants[@sp(Double) F: Field: FromDouble](wgs: WGS72Constants[F]) extends SGPConstants[F] {
   override def MU: F = wgs.MU
   override def aE: F = wgs.aE
   override def KE: F = wgs.KE
@@ -153,11 +154,11 @@ class SGP72Constants[@sp(Double) F: Field](wgs: WGS72Constants[F]) extends SGPCo
   override val `J3/J2`: F = J3 / J2
   override val α: F = aE // Earth's equatorial radius
   override val μ: F = wgs.MU
-  override val `2/3` = 2.as[F] / 3.as[F]
-  override val `1/3` = 1.as[F] / 3.as[F]
+  override val `2/3` = FromDouble[F](2) / FromDouble[F](3)
+  override val `1/3` = FromDouble[F](1) / FromDouble[F](3)
 }
 
-class SGP84Constants[@sp(Double) F: Field](wgs: WGS84Constants[F]) extends SGPConstants[F] {
+class SGP84Constants[@sp(Double) F: Field: FromDouble](wgs: WGS84Constants[F]) extends SGPConstants[F] {
   override def MU: F = wgs.MU
   override def aE: F = wgs.aE
   override def KE: F = wgs.KE
@@ -169,8 +170,8 @@ class SGP84Constants[@sp(Double) F: Field](wgs: WGS84Constants[F]) extends SGPCo
   override val `J3/J2`: F = J3 / J2
   override val α: F = aE // Earth's equatorial radius
   override val μ: F = wgs.MU
-  override val `2/3` = 2.as[F] / 3.as[F]
-  override val `1/3` = 1.as[F] / 3.as[F]
+  override val `2/3` = FromDouble[F](2) / FromDouble[F](3)
+  override val `1/3` = FromDouble[F](1) / FromDouble[F](3)
 }
 
 object SGP721Constants {

@@ -5,9 +5,8 @@ import org.scalactic.Or
 import org.scalactic.Good
 import org.scalactic.Bad
 import spire.algebra._
-import spire.math._
+import spire.math.{sqrt, atan2}
 import spire.implicits._
-import spire.syntax.primitives._
 
 case class LyddaneElems[@sp(Double) F: Field](
     I: F, // inclination
@@ -29,7 +28,7 @@ case class LongPeriodContext[@sp(Double) F](`el²`: F, pl: F, `√pl`: F, βl: F
 
 object LyddaneConversions {
 
-  def lyd2spn[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision](
+  def lyd2spn[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
       eaState: AnomalyState[F],
       lylppState: LyddaneElems[F]
   ): (SpecialPolarNodal[F], LongPeriodContext[F]) Or SGP4Error = {
@@ -43,7 +42,7 @@ object LyddaneConversions {
 
     val `el²` = `C´` * `C´` + `S´` * `S´`
     val pl = a * (1 - `el²`) // semilatus rectum , as MU=1, p=Z²
-    if (pl < 0.as[F]) return Bad(SGP4Error.NegativeSemilatusRectum(pl))
+    if (pl < asF[F](0)) return Bad(SGP4Error.NegativeSemilatusRectum(pl))
     val `√pl` = sqrt(pl)
     val rl = a * (1 - ecosU) // r´
     val rdotl = sqrt(a) * esinU / rl // R´

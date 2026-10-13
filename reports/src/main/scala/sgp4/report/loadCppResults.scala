@@ -2,8 +2,8 @@ package sgp4.report
 
 import scala.io.Source
 import sgp4.coord._
+import spire.math.{abs}
 import spire.implicits._
-import spire.math._
 
 trait LoadCppResults {
 

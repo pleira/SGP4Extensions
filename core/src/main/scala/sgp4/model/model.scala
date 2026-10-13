@@ -4,7 +4,6 @@ package model
 import org.scalactic.Or
 import spire.algebra._
 import spire.implicits._
-import spire.syntax.primitives._
 import sgp4.coord._
 import sgp4.coord.CoordinatesConversions._
 import sgp4.coord.LNSConversions._
@@ -26,7 +25,7 @@ import sgp4.propagation._
   * corrections and conversion to Cartesian TEME. The four concrete models differ only in the periodic corrections,
   * which are shown side by side here (see the README for the comparison table).
   */
-abstract class SGP4[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision](
+abstract class SGP4[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
     val sec: BrouwerLaneSecularCorrections[F]
 ) {
 
@@ -81,9 +80,9 @@ abstract class SGP4[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision]
   */
 trait SGP4Companion[Alg[_]] {
 
-  def apply[F: Field: NRoot: Order: Trig: TruncatedDivision](sec: BrouwerLaneSecularCorrections[F]): Alg[F]
+  def apply[F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](sec: BrouwerLaneSecularCorrections[F]): Alg[F]
 
-  def fromTLE[F: Field: NRoot: Order: Trig: TruncatedDivision](
+  def fromTLE[F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
       tle: TLE,
       wgs: SGPConstants[F]
   ): Alg[F] Or SGP4Error =
@@ -93,7 +92,7 @@ trait SGP4Companion[Alg[_]] {
 // Here are collected SGP4 algorithms that perform the periodic corrections in polar nodals (SPN variant),
 // among them, Vallado's original
 
-abstract class SGP4WithSPNCorrections[F: Field: NRoot: Order: Trig: TruncatedDivision](
+abstract class SGP4WithSPNCorrections[F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
     sec: BrouwerLaneSecularCorrections[F]
 ) extends SGP4(sec)
     with SPNShortPeriodCorrections[F] {
@@ -107,7 +106,7 @@ abstract class SGP4WithSPNCorrections[F: Field: NRoot: Order: Trig: TruncatedDiv
 /** Vallado's original algorithm: the long period corrections in Lyddane's variables, with the eccentric anomaly
   * obtained from Kepler's equation solved in Lyddane form.
   */
-class SGP4Vallado[F: Field: NRoot: Order: Trig: TruncatedDivision](
+class SGP4Vallado[F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
     sec: BrouwerLaneSecularCorrections[F]
 ) extends SGP4WithSPNCorrections(sec)
     with LyddaneLongPeriodCorrections[F]
@@ -126,7 +125,7 @@ class SGP4Vallado[F: Field: NRoot: Order: Trig: TruncatedDivision](
 
 /** As SGP4Vallado, plus the extra long period terms in Lyddane's variables.
   */
-class SGP4ValladoLong[F: Field: NRoot: Order: Trig: TruncatedDivision](
+class SGP4ValladoLong[F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
     sec: BrouwerLaneSecularCorrections[F]
 ) extends SGP4WithSPNCorrections(sec)
     with LyddaneExtraLongPeriodCorrections[F]
@@ -145,7 +144,7 @@ class SGP4ValladoLong[F: Field: NRoot: Order: Trig: TruncatedDivision](
 
 /** The long period corrections computed directly in Special Polar Nodals.
   */
-class SGP4PN[F: Field: NRoot: Order: Trig: TruncatedDivision](
+class SGP4PN[F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
     sec: BrouwerLaneSecularCorrections[F]
 ) extends SGP4WithSPNCorrections(sec)
     with SPNLongPeriodCorrections[F]
@@ -174,7 +173,7 @@ class SGP4PN[F: Field: NRoot: Order: Trig: TruncatedDivision](
 
 /** Lara's algorithm: the first order long and short period corrections derived in his non-singular variables.
   */
-class SGP4Lara[F: Field: NRoot: Order: Trig: TruncatedDivision](
+class SGP4Lara[F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
     sec: BrouwerLaneSecularCorrections[F]
 ) extends SGP4(sec)
     with LaraFirstOrderCorrections[F]
@@ -206,7 +205,11 @@ class SGP4Lara[F: Field: NRoot: Order: Trig: TruncatedDivision](
     lnsSecular(secularElemt).map { lns =>
       val _N = lns.Θ * secularElemt.iCtx.c // cosI = N/Θ, N remains a constant
       val lppcorr1 = lns2spn(lppCorrections(lns, secularElemt)._1, _N)
-      LPPSPNCtx(lppcorr1, LongPeriodContext(0.as[F], 0.as[F], 0.as[F], 0.as[F], 0.as[F], 0.as[F]), secularElemt)
+      LPPSPNCtx(
+        lppcorr1,
+        LongPeriodContext(asF[F](0), asF[F](0), asF[F](0), asF[F](0), asF[F](0), asF[F](0)),
+        secularElemt
+      )
     }
 
   /*
@@ -221,26 +224,32 @@ class SGP4Lara[F: Field: NRoot: Order: Trig: TruncatedDivision](
 
 object SGP4Vallado extends SGP4Companion[SGP4Vallado] {
 
-  def apply[F: Field: NRoot: Order: Trig: TruncatedDivision](sec: BrouwerLaneSecularCorrections[F]): SGP4Vallado[F] =
+  def apply[F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
+      sec: BrouwerLaneSecularCorrections[F]
+  ): SGP4Vallado[F] =
     new SGP4Vallado(sec)
 }
 
 object SGP4PN extends SGP4Companion[SGP4PN] {
 
-  def apply[F: Field: NRoot: Order: Trig: TruncatedDivision](sec: BrouwerLaneSecularCorrections[F]): SGP4PN[F] =
+  def apply[F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
+      sec: BrouwerLaneSecularCorrections[F]
+  ): SGP4PN[F] =
     new SGP4PN(sec)
 }
 
 object SGP4ValladoLong extends SGP4Companion[SGP4ValladoLong] {
 
-  def apply[F: Field: NRoot: Order: Trig: TruncatedDivision](
+  def apply[F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
       sec: BrouwerLaneSecularCorrections[F]
   ): SGP4ValladoLong[F] = new SGP4ValladoLong(sec)
 }
 
 object SGP4Lara extends SGP4Companion[SGP4Lara] {
 
-  def apply[F: Field: NRoot: Order: Trig: TruncatedDivision](sec: BrouwerLaneSecularCorrections[F]): SGP4Lara[F] =
+  def apply[F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
+      sec: BrouwerLaneSecularCorrections[F]
+  ): SGP4Lara[F] =
     new SGP4Lara(sec)
 }
 
@@ -250,6 +259,8 @@ object SGP4Lara extends SGP4Companion[SGP4Lara] {
   */
 object SGP4 extends SGP4Companion[SGP4Vallado] {
 
-  def apply[F: Field: NRoot: Order: Trig: TruncatedDivision](sec: BrouwerLaneSecularCorrections[F]): SGP4Vallado[F] =
+  def apply[F: Field: NRoot: Order: Trig: TruncatedDivision: FromDouble](
+      sec: BrouwerLaneSecularCorrections[F]
+  ): SGP4Vallado[F] =
     new SGP4Vallado(sec)
 }

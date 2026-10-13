@@ -4,7 +4,6 @@ package propagation
 import spire.algebra._
 import spire.math.{sin, cos, abs}
 import spire.implicits._
-import spire.syntax.primitives._
 import org.scalactic.Good
 import scala.annotation.tailrec
 import org.scalactic.Bad
@@ -15,7 +14,7 @@ trait SimpleKeplerEq {
   /** Solve Kepler's equation M = E − e sinE to compute E the eccentric anomaly. The Newton-Raphson iterations start
     * from E0 = M = (l in Delauneys).
     */
-  def solveKeplerEq[@sp(Double) F: Field: Trig: Order](e: F, M: F): AnomalyResult[F] = {
+  def solveKeplerEq[@sp(Double) F: Field: Trig: Order: FromDouble](e: F, M: F): AnomalyResult[F] = {
     @tailrec
     def loop(E: F, remainingIters: Int): AnomalyResult[F] = {
       val sinE = sin(E)
@@ -25,7 +24,7 @@ trait SimpleKeplerEq {
       val fdot = 1 - ecosE
       val f = M - (E - esinE)
       val incr = f / fdot
-      if (abs(incr) < 1e-12.as[F]) {
+      if (abs(incr) < asF[F](1e-12)) {
         Good(AnomalyState(E, cosE, sinE, ecosE, esinE))
       } else if (remainingIters < 0) {
         Bad(SGP4Error.KeplerNoConvergence(incr, E))
@@ -36,9 +35,9 @@ trait SimpleKeplerEq {
     loop(M, 10)
   }
 
-  def solveKeplerEq[@sp(Double) F: Field: Trig: Order](elem: SGPElems[F]): AnomalyResult[F] =
+  def solveKeplerEq[@sp(Double) F: Field: Trig: Order: FromDouble](elem: SGPElems[F]): AnomalyResult[F] =
     solveKeplerEq(elem.e, elem.M)
 
-  def solveKeplerEq[@sp(Double) F: Field: Trig: Order](elemCtx: SGPSecularCtx[F]): AnomalyResult[F] =
+  def solveKeplerEq[@sp(Double) F: Field: Trig: Order: FromDouble](elemCtx: SGPSecularCtx[F]): AnomalyResult[F] =
     solveKeplerEq(elemCtx.elem)
 }

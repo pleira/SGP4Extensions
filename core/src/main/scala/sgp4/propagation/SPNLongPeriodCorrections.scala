@@ -2,18 +2,23 @@ package sgp4
 package propagation
 
 import spire.algebra._
-import spire.math._
+import spire.math.{abs, sqrt, sin, cos, acos, pi}
 import spire.implicits._
-import spire.syntax.primitives._
 import sgp4.coord._
 
 trait SPNLongPeriodCorrections[@sp(Double) F] {
 
   def lppCorrectionsSPN(
       spnCtx: SPNSecularCtx[F]
-  )(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]): (SpecialPolarNodal[F], LongPeriodContext[F]) = {
+  )(implicit
+      ev: Field[F],
+      trig: Trig[F],
+      or: Order[F],
+      nr: NRoot[F],
+      fd: FromDouble[F]
+  ): (SpecialPolarNodal[F], LongPeriodContext[F]) = {
     import spnCtx.{spn, secularCtx}, spn._, secularCtx.elem
-    import elem.{Ω => _, _} // do not import Ω from secular elements, just use spn version
+    import elem.{a, e} // only a and e of the secular elements: the node Ω and the inclination I are the spn ones
     import secularCtx.iCtx.{c, s}
     import secularCtx.wgs.{`J3/J2`, `2pi`}
 
@@ -22,7 +27,7 @@ trait SPNLongPeriodCorrections[@sp(Double) F] {
 
     // note the singularity for (sinI) s = 0,
     // use s_ only in terms that would "explode"
-    val s_ = if (s < 1.5e-12.as[F]) 1.5e-12.as[F] else s
+    val s_ = if (s < asF[F](1.5e-12)) asF[F](1.5e-12) else s
 
     val σ = p * R / Θ
     val κ = p / r - 1
@@ -54,9 +59,9 @@ trait SPNLongPeriodCorrections[@sp(Double) F] {
     // apply corrections
     val θl_ = θ + δθ
     // convert to -pi,pi range
-    val diff = abs(θl_) - pi.as[F]
-    val θl = if (diff > 0.as[F]) {
-      if (θl_ > 0.as[F]) θl_ - `2pi`
+    val diff = abs(θl_) - asF[F](pi)
+    val θl = if (diff > asF[F](0)) {
+      if (θl_ > asF[F](0)) θl_ - `2pi`
       else `2pi` + θl_
     } else θl_
 
@@ -80,9 +85,9 @@ trait SPNLongPeriodCorrections[@sp(Double) F] {
   // this one is just used to do a test with Lara's lpp corrections
   def lppCorrectionsCPN(
       spnCtx: SPNSecularCtx[F]
-  )(implicit ev: Field[F], trig: Trig[F], or: Order[F]): CSpecialPolarNodal[F] = {
+  )(implicit ev: Field[F], trig: Trig[F], or: Order[F], fd: FromDouble[F]): CSpecialPolarNodal[F] = {
     import spnCtx.{spn, secularCtx}, spn._, secularCtx.elem
-    import elem.{Ω => _, _} // do not import Ω from secular elements, just use spn version
+    import elem.{a, e} // only a and e of the secular elements: the node Ω and the inclination I are the spn ones
     import secularCtx.iCtx.{c, s}
     import secularCtx.wgs.{`J3/J2`, `2pi`}
 
@@ -91,7 +96,7 @@ trait SPNLongPeriodCorrections[@sp(Double) F] {
 
     // note the singularity for (sinI) s = 0,
     // use s_ only in terms that would "explode"
-    val s_ = if (s < 1.5e-12.as[F]) 1.5e-12.as[F] else s
+    val s_ = if (s < asF[F](1.5e-12)) asF[F](1.5e-12) else s
 
     val σ = p * R / Θ
     val κ = p / r - 1
@@ -123,9 +128,9 @@ trait SPNLongPeriodCorrections[@sp(Double) F] {
     // apply corrections
     val θl_ = θ + δθ
     // convert to -pi,pi range
-    val diff = abs(θl_) - pi.as[F]
-    val θl = if (diff > 0.as[F]) {
-      if (θl_ > 0.as[F]) θl_ - `2pi`
+    val diff = abs(θl_) - asF[F](pi)
+    val θl = if (diff > asF[F](0)) {
+      if (θl_ > asF[F](0)) θl_ - `2pi`
       else `2pi` + θl_
     } else θl_
 
