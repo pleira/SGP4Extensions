@@ -1,5 +1,5 @@
 SGP4Extensions
-------------
+==============
 
 Scala project to try different SGP4 algorithm implementations. SGP4 is used to predict orbits from TLE data. The Deep Space algorithm, which contains lunar-solar perturbations, is not implemented. 
 
@@ -11,7 +11,7 @@ This implementation is also an exercise of having cleaner code written in Scala.
 The numerical library Spire is used. In particular, the user can work with other numerical types that can offer more precision than Double. That can be of interest near conflictive points in the theory (low inclinations, and 63 deg) at the expense of longer running time. 
 
 The SGP4 pipeline
-====================
+-----------------
 
 All propagator variants share the same front end:
 
@@ -35,8 +35,8 @@ at time t into osculating position and velocity:
 A description of the near-Earth SGP4 algorithm is in [sgp4.md](sgp4.md); the
 design rationale of this implementation is in [doc/proposal.md](doc/proposal.md).
 
-What Lara changes
---------------------
+Lara's derivation changes
+-------------------------
 
 Vallado's reference algorithm evaluates the long-period corrections in
 Lyddane's variables: element combinations introduced so that Brouwer's periodic
@@ -65,7 +65,7 @@ The comparison tests verify the Lara route against Vallado's reference outputs
 and against the polar-nodal route, with tight tolerances.
 
 Project layout
---------------------
+--------------
 
 The package structure mirrors the python sgp4 package:
 
@@ -81,16 +81,28 @@ By module:
 * `core`: the SGP4 library
 * `tests`: the reference test suite (Vallado's C++ outputs, the python3-sgp4
   cross-check, algorithm-to-algorithm comparisons) and the TLE fixtures
-* `reports`: command line programs that write comparison reports
+* `reports`: the `sgp4.Main` command line propagator, and the comparison report programs
 * `benchmarks`: the JMH micro-benchmarks
 
 
-Copyright and License
-====================
+The sgp4.Main command line propagator
+-------------------------------------
 
-This software is Copyright by Pablo Pita Leira, 2015. Licensed under Apache v. 2.0.
+`reports/runMain sgp4.Main` propagates a two line element set given as arguments,
+or all the TLEs of the files given as arguments, printing the propagated TEME
+position and velocity to the standard output:
 
-The software contains parts adapted from an SGP 4 s/w implementation in the public domain from Vallado. Some parts of the software were inspired by the SGP4 Orekit implementation, specially at the beginning of this project. Software taken from Orekit has copyright by CS Systèmes d'Information, licensed under Apache v. 2.0. 
+    sbt "reports/runMain sgp4.Main [options] [TLE line 1] [TLE line 2] [TLE files ...]"
+
+Each argument that names an existing file is a TLE file, in the 2 line or the 3
+line (with name) format; lines starting with `"1 "` and `"2 "` form an inline two
+line element set. The options select the propagation model (`-v` Vallado, the
+default, `-vl` Vallado-Lyddane long, `-p` polar nodals, `-l` Lara), the
+propagation times (`-t 0,720,1440` in minutes from epoch, defaulting to one day,
+every minute) and the Earth gravity model (`-g wgs72|wgs72old|wgs84`, defaulting
+to `wgs72`, as in the python sgp4 library). `--help` prints a help message that shows the propagation model
+being used. Deep space TLEs are reported and skipped: only the near Earth SGP4
+algorithm is implemented.
 
 
 Requires
@@ -216,7 +228,9 @@ scale ever becomes a problem, that allocation churn is where to look.
 
 For a description of the algorithm itself, see [sgp4.md](sgp4.md).
 
-Author
---------------------
-Pablo Pita
+License
+-------
+
+See [LICENSE.txt](LICENSE.txt) for details.
+
 

@@ -15,7 +15,7 @@ case class SGPElems[@sp(Double) F](
     Ω: F, // right ascension ascending node
     M: F, // mean anomaly
     a: F, // semimajor axis (apogee)
-    bStar: F, // atmospheric Drag Coeficient
+    bStar: F, // atmospheric Drag Coefficient
     epoch: F
 ) // epoch time in days from jan 0, 1950. 0 hr
 

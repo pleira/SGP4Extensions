@@ -29,7 +29,7 @@ object SGPElemsConversions {
     val raan = tle.rightAscension.toDouble.toRadians.as[F]
     val meanAnomaly = tle.meanAnomaly.toDouble.toRadians.as[F]
     val meanMotionPerDay = tle.meanMotion.toDouble.as[F]
-    val bStar = tle.atmosphericDragCoeficient.toDouble.as[F]
+    val bStar = tle.atmosphericDragCoefficient.toDouble.as[F]
     // in julian days
     val epoch: F = {
       val mdhms = TimeUtils.days2mdhms(tle.year, tle.epoch.toDouble)
@@ -84,8 +84,10 @@ object SGPElemsConversions {
       secularCtx: SGPSecularCtx[F]
   ): SpecialPolarNodal[F] = {
     import eaState._
-    import secularCtx.{_1 => elem}, elem.{a, I, e, ω, Ω}
-    import secularCtx.{_3 => wgs}, wgs.`2pi`
+    import secularCtx.elem
+    import elem.{a, I, e, ω, Ω}
+    import secularCtx.wgs
+    import wgs.`2pi`
 
     val `e²` = e * e
     val β = sqrt(1 - `e²`)

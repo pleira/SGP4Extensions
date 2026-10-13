@@ -1,62 +1,57 @@
 package sgp4.report
-import sgp4.io.TLE
+import sgp4.coord._
 import sgp4.earth_gravity._
-
-import sgp4.model.TestTLE
+import sgp4.io.TLE
 import sgp4.model._
 import spire.implicits._
 
+/** Propagates a TLE with the four SGP4 algorithms over a time grid. All the results are kept keyed by the algorithm
+  * short name: "va" (Vallado), "vl" (Vallado long), "pn" (polar nodals) and "la" (Lara).
+  */
 class AllPropagators(val tle: TLE, val wgs: SGPConstants[Double], val start: Int, val end: Int, val step: Int) {
-  val times = Range(start, end, step) // times in minutes
-  val vasgp4 = SGP4Vallado.fromTLE(tle, wgs).get
-  val pnsgp4 = SGP4PN(vasgp4.sec)
-  val vlsgp4 = SGP4ValladoLong(vasgp4.sec)
-  val lasgp4 = SGP4Lara(vasgp4.sec)
-  val sgp4s = List(vasgp4, vlsgp4, pnsgp4, lasgp4)
-  val results = sgp4s map { sgp4 =>
-    for (t <- start to end by step) yield sgp4.propagate(t).get
-  }
-  val varesult = results(0)
-  val vlresult = results(1)
-  val pnresult = results(2)
-  val laresult = results(3) // for (t <- start to end by step) yield lasgp4.propagate(t).get
 
-  val finalCartesiansResults = results map { l =>
-    l map { tuple => tuple._1 }
-  }
-  val vafc = finalCartesiansResults(0)
-  val vlfc = finalCartesiansResults(1)
-  val pnfc = finalCartesiansResults(2)
-  val lafc = finalCartesiansResults(3) // laresult map { tuple => tuple._1 }
+  /** The short names of the algorithms, in the canonical order.
+    */
+  val algorithmNames = List("va", "vl", "pn", "la")
 
-  val finalPNResults = results map { l =>
-    l map { tuple => tuple._3 }
-  }
-  val vafpn = finalPNResults(0)
-  val vlfpn = finalPNResults(1)
-  val pnfpn = finalPNResults(2)
-  val lafpn = finalPNResults(3) // laresult map { tuple => tuple._3._1._1 }
-
-//  val lppPNResults = results map { l =>
-//    l map { tuple => tuple._3._1._2 }
-//  }
-//  val lpvpn = lppPNResults(0)
-//  val lpvlpn = lppPNResults(1)
-//  val lppnpn = lppPNResults(2)
-  // val lplpn = lppPNResults(3)
-
-  val unitCartesianPositions = results map { l =>
-    l map { tuple => tuple._2 }
+  /** The propagators of the algorithms, keyed by their short names. All reuse the secular corrections of the Vallado
+    * one.
+    */
+  val sgp4s: Map[String, SGP4[Double]] = {
+    val vasgp4 = SGP4Vallado.fromTLE(tle, wgs).get
+    List(
+      "va" -> vasgp4,
+      "vl" -> SGP4ValladoLong(vasgp4.sec),
+      "pn" -> SGP4PN(vasgp4.sec),
+      "la" -> SGP4Lara(vasgp4.sec)
+    ).toMap
   }
 
-//  def calcPropagation(sgp4: SGP4[Double], start: Int, end: Int, step: Int) = {
-//    for (t <- start to end by step) yield sgp4.propagate(t)
-//  }
+  /** The propagation results of each algorithm over the grid, one entry per time in minutes from the TLE epoch.
+    */
+  val results: Map[String, IndexedSeq[SGPPropCtx[Double]]] =
+    sgp4s.map { case (algo, sgp4) =>
+      algo -> (for (t <- start to end by step) yield sgp4.propagate(t).get)
+    }
 
-  def algorithmNames = List("va", "vl", "pn", "la")
+  /** The final TEME state vectors of each algorithm, position in km and velocity in km/s.
+    */
+  val finalCartesiansResults: Map[String, IndexedSeq[CartesianElems[Double]]] =
+    results.map { case (algo, l) => algo -> l.map(_.pv) }
+
+  /** The final results of each algorithm in Special Polar Nodals, with internal units.
+    */
+  val finalPNResults: Map[String, IndexedSeq[SpecialPolarNodal[Double]]] =
+    results.map { case (algo, l) => algo -> l.map(_.spn) }
+
+  /** The final results of each algorithm in cartesian elements with the internal unit system.
+    */
+  val unitCartesianPositions: Map[String, IndexedSeq[CartesianElems[Double]]] =
+    results.map { case (algo, l) => algo -> l.map(_.unitPv) }
 }
 
 object AllPropagators {
   def apply(o: TestTLE) = new AllPropagators(o.tle, SGP72Constants.tleDoubleConstants, o.start, o.end, o.step)
-  def createWithWGS84(o: TestTLE) = new AllPropagators(o.tle, SGP84Constants.tleDoubleConstants, o.start, o.end, o.step)
+  def createWithWGS84(o: TestTLE) =
+    new AllPropagators(o.tle, SGP84Constants.tleDoubleConstants, o.start, o.end, o.step)
 }

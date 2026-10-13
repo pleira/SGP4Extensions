@@ -32,7 +32,7 @@ object LyddaneConversions {
   def lyd2spn[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision](
       eaState: AnomalyState[F],
       lylppState: LyddaneElems[F]
-  ): (SpecialPolarNodal[F], LongPeriodContext[F]) Or ErrorMessage = {
+  ): (SpecialPolarNodal[F], LongPeriodContext[F]) Or SGP4Error = {
     import eaState._
     import lylppState._
 

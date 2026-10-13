@@ -14,7 +14,7 @@ object ValladoFileReport {
       lines: List[String],
       times: IndexedSeq[Int]
   ) = {
-    val f = File("../doc/reports/sgp4vallado_" + tle.satelliteNumber + "_" + tle.year + "_" + tle.epoch + ".md")
+    val f = File("doc/reports/sgp4vallado_" + tle.satelliteNumber + "_" + tle.year + "_" + tle.epoch + ".md")
     implicit val oo = File.OpenOptions.append
     f << "# Vallado SGP4 algorithm\n"
 

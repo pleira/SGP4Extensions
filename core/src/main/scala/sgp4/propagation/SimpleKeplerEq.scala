@@ -40,5 +40,5 @@ trait SimpleKeplerEq {
     solveKeplerEq(elem.e, elem.M)
 
   def solveKeplerEq[@sp(Double) F: Field: Trig: Order](elemCtx: SGPSecularCtx[F]): AnomalyResult[F] =
-    solveKeplerEq(elemCtx._1)
+    solveKeplerEq(elemCtx.elem)
 }

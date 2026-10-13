@@ -2,17 +2,16 @@ package sgp4
 package model
 import sgp4.io.TLE
 
-import sgp4.coord.CartesianElems
 import sgp4.propagation.Sgp4Result
 import sgp4.coord._
 
 case class Sgp4ValladoResult(
     sgp: SGP4Vallado[Double],
-    statett: (CartesianElems[Double], CartesianElems[Double], SpecialPolarNodal[Double]),
+    statett: SGPPropCtx[Double],
     tle: TLE,
     t: Double
 ) extends Sgp4Result[Double] {
-  val posVel = statett._1
+  val posVel = statett.pv
   val r = posVel.pos
   val v = posVel.vel
 

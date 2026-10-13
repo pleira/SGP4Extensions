@@ -38,8 +38,8 @@ object ConjunctionInterpreterExperiment1 extends App with TLE22675 with TLE24946
   var t = 0.0;
   import scala.collection.mutable.ListBuffer
   val lb = new ListBuffer[Double]
-  val (s0t, _, _) = sgp24946.secularCorrections(t).get
-  val (s1t, _, _) = sgp22675.secularCorrections(t + diffMinutes).get
+  val s0t = sgp24946.secularCorrections(t).get.elem
+  val s1t = sgp22675.secularCorrections(t + diffMinutes).get.elem
   // TODO: with the secular elements, estimate characteristics related to both orbital planes.
   // At the end, it is to find the passing times in the plane crossings
   // and check for conjunction overthere

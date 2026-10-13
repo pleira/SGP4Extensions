@@ -30,7 +30,7 @@ abstract class SGP4[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision]
     val sec: BrouwerLaneSecularCorrections[F]
 ) {
 
-  type Minutes = sec.Minutes
+  type Minutes = F // minutes from the TLE epoch
 
   def gsto: F = TimeUtils.gstime(sec.elem0Ctx.elem.epoch + 2433281.5)
 
@@ -42,14 +42,14 @@ abstract class SGP4[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision]
       spn <- periodicCorrections(secularElemt)
       unitpv = spn2UnscaledCartesian(spn)
       pv = scaleUnitCartesians(unitpv, spn.r)
-    } yield (pv, unitpv, spn)
+    } yield SGPPropCtx(pv, unitpv, spn)
 
   def corrections2CartesianContext(secularElemt: SGPSecularCtx[F]): SGPPropResult[F] =
     for {
       spn <- periodicCorrections(secularElemt)
       unitpv = spn2UnscaledCartesian(spn)
       pv = scaleUnitCartesians(unitpv, spn.r)
-    } yield (pv, unitpv, spn)
+    } yield SGPPropCtx(pv, unitpv, spn)
 
   def propagate2SPNContext(t: Minutes) =
     for {
@@ -86,7 +86,7 @@ trait SGP4Companion[Alg[_]] {
   def fromTLE[F: Field: NRoot: Order: Trig: TruncatedDivision](
       tle: TLE,
       wgs: SGPConstants[F]
-  ): Alg[F] Or ErrorMessage =
+  ): Alg[F] Or SGP4Error =
     BrouwerLaneSecularCorrections.fromTLE(tle, wgs).map(apply(_))
 }
 
@@ -120,7 +120,7 @@ class SGP4Vallado[F: Field: NRoot: Order: Trig: TruncatedDivision](
       // To transform to Special Polar Nodals, get the eccentric anomaly
       eaState <- solveKeplerEq(lydElems)
       spnctx <- lyd2spn(eaState, lydElems)
-    } yield (spnctx._1, spnctx._2, secularElemt)
+    } yield LPPSPNCtx(spnctx._1, spnctx._2, secularElemt)
   }
 }
 
@@ -139,7 +139,7 @@ class SGP4ValladoLong[F: Field: NRoot: Order: Trig: TruncatedDivision](
       // To transform to Special Polar Nodals, get the eccentric anomaly
       eaState <- solveKeplerEq(lydElems)
       spnctx <- lyd2spn(eaState, lydElems)
-    } yield (spnctx._1, spnctx._2, secularElemt)
+    } yield LPPSPNCtx(spnctx._1, spnctx._2, secularElemt)
   }
 }
 
@@ -152,23 +152,23 @@ class SGP4PN[F: Field: NRoot: Order: Trig: TruncatedDivision](
     with SimpleKeplerEq {
 
   /** Secular elements transformed to Special Polar Nodals, solving Kepler's equation for the eccentric anomaly. */
-  private def spnSecularCtx(secularElemt: SGPSecularCtx[F]): SpecialPolarNodal[F] Or ErrorMessage = {
-    val elem = secularElemt._1
+  private def spnSecularCtx(secularElemt: SGPSecularCtx[F]): SpecialPolarNodal[F] Or SGP4Error = {
+    val elem = secularElemt.elem
     solveKeplerEq(elem.e, elem.M).map(eaState => sgpelems2spn(eaState, secularElemt))
   }
 
   override def lppCorrections(secularElemt: SGPSecularCtx[F]): LPPSPNResult[F] =
     for {
       spnSecular <- spnSecularCtx(secularElemt)
-      lppcorr = lppCorrectionsSPN((spnSecular, secularElemt))
-    } yield (lppcorr._1, lppcorr._2, secularElemt)
+      lppcorr = lppCorrectionsSPN(SPNSecularCtx(spnSecular, secularElemt))
+    } yield LPPSPNCtx(lppcorr._1, lppcorr._2, secularElemt)
 
   /** long period corrections in CSpecialPolarNodal coordinates used to compare with Lara's non singular results
     */
   def cpnLPPCorrections(secularElemt: SGPSecularCtx[F]): LPPCPNResult[F] =
     for {
       spnSecular <- spnSecularCtx(secularElemt)
-      lppcorr = lppCorrectionsCPN((spnSecular, secularElemt))
+      lppcorr = lppCorrectionsCPN(SPNSecularCtx(spnSecular, secularElemt))
     } yield lppcorr
 }
 
@@ -183,15 +183,15 @@ class SGP4Lara[F: Field: NRoot: Order: Trig: TruncatedDivision](
   /** Secular elements in Lara Non Singular coordinates, solving Kepler's equation for the eccentric anomaly on the way.
     * The constant angular momentum component N = Θ*cosI is derived from the result where needed.
     */
-  private def lnsSecular(secularElemt: SGPSecularCtx[F]): LaraNonSingular[F] Or ErrorMessage = {
-    val elem = secularElemt._1
-    val ictx = secularElemt._2
+  private def lnsSecular(secularElemt: SGPSecularCtx[F]): LaraNonSingular[F] Or SGP4Error = {
+    val elem = secularElemt.elem
+    val ictx = secularElemt.iCtx
     solveKeplerEq(elem.e, elem.M).map(eaState => spn2lns(sgpelems2spn(eaState, secularElemt), ictx))
   }
 
   override def periodicCorrections(secularElemt: SGPSecularCtx[F]): SGPSPNResult[F] =
     lnsSecular(secularElemt).map { lns =>
-      val _N = lns.Θ * secularElemt._2.c // N = Θ*cosI , which remains constant
+      val _N = lns.Θ * secularElemt.iCtx.c // N = Θ*cosI , which remains constant
       lns2spn(allCorrections(lns, secularElemt), _N)
     }
 
@@ -204,9 +204,9 @@ class SGP4Lara[F: Field: NRoot: Order: Trig: TruncatedDivision](
    */
   def propagateToSPNLPP(secularElemt: SGPSecularCtx[F]): LPPSPNResult[F] =
     lnsSecular(secularElemt).map { lns =>
-      val _N = lns.Θ * secularElemt._2.c // cosI = N/Θ, N remains a constant
+      val _N = lns.Θ * secularElemt.iCtx.c // cosI = N/Θ, N remains a constant
       val lppcorr1 = lns2spn(lppCorrections(lns, secularElemt)._1, _N)
-      (lppcorr1, LongPeriodContext(0.as[F], 0.as[F], 0.as[F], 0.as[F], 0.as[F], 0.as[F]), secularElemt)
+      LPPSPNCtx(lppcorr1, LongPeriodContext(0.as[F], 0.as[F], 0.as[F], 0.as[F], 0.as[F], 0.as[F]), secularElemt)
     }
 
   /*
@@ -214,7 +214,7 @@ class SGP4Lara[F: Field: NRoot: Order: Trig: TruncatedDivision](
    */
   def cpnLPPCorrections(secularElemt: SGPSecularCtx[F]): LPPCPNResult[F] =
     lnsSecular(secularElemt).map { lns =>
-      val _N = lns.Θ * secularElemt._2.c // cosI = N/Θ, N remains a constant
+      val _N = lns.Θ * secularElemt.iCtx.c // cosI = N/Θ, N remains a constant
       lns2cpn(lppCorrections(lns, secularElemt)._1, _N)
     }
 }

@@ -12,10 +12,10 @@ trait SPNLongPeriodCorrections[@sp(Double) F] {
   def lppCorrectionsSPN(
       spnCtx: SPNSecularCtx[F]
   )(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]): (SpecialPolarNodal[F], LongPeriodContext[F]) = {
-    import spnCtx.{_1 => spn}, spn._, spnCtx.{_2 => secularCtx}, secularCtx.{_1 => elem}
+    import spnCtx.{spn, secularCtx}, spn._, secularCtx.elem
     import elem.{Ω => _, _} // do not import Ω from secular elements, just use spn version
-    import secularCtx._2.{c, s}
-    import secularCtx._3.{`J3/J2`, `2pi`}
+    import secularCtx.iCtx.{c, s}
+    import secularCtx.wgs.{`J3/J2`, `2pi`}
 
     val p = a * (1 - e * e) // semilatus rectum , as MU=1, p=Z²
     val ϵ3 = `J3/J2` / p / 2 // ϵ3 = 1/2 aE/p C30/C20 in Lara's
@@ -81,10 +81,10 @@ trait SPNLongPeriodCorrections[@sp(Double) F] {
   def lppCorrectionsCPN(
       spnCtx: SPNSecularCtx[F]
   )(implicit ev: Field[F], trig: Trig[F], or: Order[F]): CSpecialPolarNodal[F] = {
-    import spnCtx.{_1 => spn}, spn._, spnCtx.{_2 => secularCtx}, secularCtx.{_1 => elem}
+    import spnCtx.{spn, secularCtx}, spn._, secularCtx.elem
     import elem.{Ω => _, _} // do not import Ω from secular elements, just use spn version
-    import secularCtx._2.{c, s}
-    import secularCtx._3.{`J3/J2`, `2pi`}
+    import secularCtx.iCtx.{c, s}
+    import secularCtx.wgs.{`J3/J2`, `2pi`}
 
     val p = a * (1 - e * e) // semilatus rectum , as MU=1, p=Z²
     val ϵ3 = `J3/J2` / p / 2 // ϵ3 = 1/2 aE/p C30/C20 in Lara's

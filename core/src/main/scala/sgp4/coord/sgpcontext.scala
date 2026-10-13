@@ -29,7 +29,11 @@ case class SGPElemsCtx[@sp(Double) F: Field: Order](
 
   def isImpacting: Boolean = rp < (220 / aE + 1)
 
-  def isDeepSpace: Boolean = (`2pi`.as[F] / n) >= 225
+  /** orbital period in minutes
+    */
+  def period: F = `2pi`.as[F] / n
+
+  def isDeepSpace: Boolean = period >= 225
 }
 
 case class InclinationCtx[@sp(Double) F: Field](c: F, s: F) {
@@ -67,7 +71,7 @@ object EccentricityCtx {
 
   def apply[@sp(Double) F: Field: Order: NRoot](e: F): EccentricityCtx[F] = EccentricityCtx(e, e * e, 1 - e * e)
 
-  def elliptical[@sp(Double) F: Field: NRoot: Order](e: F): EccentricityCtx[F] Or ErrorMessage =
+  def elliptical[@sp(Double) F: Field: NRoot: Order](e: F): EccentricityCtx[F] Or SGP4Error =
     if (e > 0 && e < 1)
       Good(EccentricityCtx(e, e * e, 1 - e * e))
     else

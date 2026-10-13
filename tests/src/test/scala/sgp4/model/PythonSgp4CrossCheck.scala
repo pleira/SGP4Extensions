@@ -64,8 +64,8 @@ class PythonSgp4CrossCheck extends AnyFunSuite {
         case Some((ex, ey, ez, evx, evy, evz)) =>
           test(s"python3-sgp4 cross-check for TLE $satnum at time $t minutes") {
             val pv = vasgp4.propagate(t) match {
-              case org.scalactic.Good((pv, _, _)) => pv
-              case org.scalactic.Bad(msg)         => fail(s"propagation failed: $msg")
+              case org.scalactic.Good(propCtx) => propCtx.pv
+              case org.scalactic.Bad(msg)      => fail(s"propagation failed: $msg")
             }
             def assertClose(actual: Double, expected: Double, tol: Double, what: String): Unit =
               assert(math.abs(actual - expected) < tol, s"$what: $actual vs $expected (tolerance $tol)")

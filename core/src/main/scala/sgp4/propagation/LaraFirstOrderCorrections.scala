@@ -10,9 +10,9 @@ trait LaraFirstOrderCorrections[@sp(Double) F] {
   def lppCorrections(lns: LaraNonSingular[F], secularElemt: SGPSecularCtx[F])(implicit
       ev: Field[F]
   ): (LaraNonSingular[F], SGPSecularCtx[F]) = {
-    val elem = secularElemt._1
-    val ictx = secularElemt._2
-    val wgs = secularElemt._3
+    val elem = secularElemt.elem
+    val ictx = secularElemt.iCtx
+    val wgs = secularElemt.wgs
     import lns._
     import elem.{a, e}, wgs.`J3/J2`, ictx.{c, `c²`}
 
@@ -41,8 +41,8 @@ trait LaraFirstOrderCorrections[@sp(Double) F] {
 
   def sppCorrections(lppState: (LaraNonSingular[F], SGPSecularCtx[F]))(implicit ev: Field[F]): LaraNonSingular[F] = {
     import lppState.{_1 => lns, _2 => secularElemt}
-    val ictx = secularElemt._2
-    val wgs = secularElemt._3
+    val ictx = secularElemt.iCtx
+    val wgs = secularElemt.wgs
     import wgs.J2, ictx.{`c²`, `(1+7c)/(1+c)`}
     import lns._
 
@@ -63,9 +63,9 @@ trait LaraFirstOrderCorrections[@sp(Double) F] {
   def allCorrections(lns: LaraNonSingular[F], secularElemt: SGPSecularCtx[F])(implicit
       ev: Field[F]
   ): LaraNonSingular[F] = {
-    val elem = secularElemt._1
-    val ictx = secularElemt._2
-    val wgs = secularElemt._3
+    val elem = secularElemt.elem
+    val ictx = secularElemt.iCtx
+    val wgs = secularElemt.wgs
     import lns._
     import elem.{a, e}, wgs.{`J3/J2`, J2}, ictx.{c, `c²`, `(1+7c)/(1+c)`}
 

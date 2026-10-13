@@ -1,5 +1,7 @@
-package sgp4.model
+package sgp4.report
+
 import sgp4.earth_gravity._
+import sgp4.model._
 
 object HardcodedPNReport extends App with TLE00005 with TLE06251 with TLE28057 {
 
@@ -12,8 +14,6 @@ object HardcodedPNReport extends App with TLE00005 with TLE06251 with TLE28057 {
     import spire.std.any.DoubleAlgebra
     SGP4PN.fromTLE[Double](tle, wgs).get
   }
-  def sgpImpl: String = "PN SGP4"
-
   val sgps = propags
 
   def sgp00005 = sgps(0)
@@ -24,8 +24,4 @@ object HardcodedPNReport extends App with TLE00005 with TLE06251 with TLE28057 {
   val results06251 = for (t <- times06251) yield sgp06251.propagate2SPNContext(t)
   val results28057 = for (t <- times28057) yield sgp28057.propagate2SPNContext(t)
 
-  // uncomment below to save the report
-//  PolarNodalFileReport.save(results00005, tle00005, lines(0), times00005)
-//  PolarNodalFileReport.save(results06251, tle06251, lines(1), times06251)
-//  PolarNodalFileReport.save(results28057, tle28057, lines(2), times28057)
 }

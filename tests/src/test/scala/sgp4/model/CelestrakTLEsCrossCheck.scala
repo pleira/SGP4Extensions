@@ -3,7 +3,7 @@ package model
 
 import org.scalactic.Or
 import org.scalatest.funsuite.AnyFunSuite
-import sgp4.coord.{CartesianElems, ErrorMessage}
+import sgp4.coord.{CartesianElems, SGP4Error}
 import sgp4.earth_gravity.SGP72Constants
 import sgp4.io.TLE
 
@@ -55,7 +55,7 @@ class CelestrakTLEsCrossCheck extends AnyFunSuite {
   private val envelopePosTol = 5.0 // km, periodic correction variants: measured up to ~0.5
   private val envelopeVelTol = 5.0e-3 // km/s, periodic correction variants: measured ~4e-4
 
-  private def check(name: String, build: TLE => SGP4[Double] Or ErrorMessage, posTol: Double, velTol: Double): Unit =
+  private def check(name: String, build: TLE => SGP4[Double] Or SGP4Error, posTol: Double, velTol: Double): Unit =
     for ((satnum, grid) <- referenceBySat.toList.sortBy(_._1)) {
       test(f"$name: TLE $satnum%d vs python3-sgp4 (${grid.size} points)") {
         val propagator = build(tles(satnum)) match {
@@ -66,8 +66,8 @@ class CelestrakTLEsCrossCheck extends AnyFunSuite {
         var maxVelDev = 0.0
         for ((t, expected) <- grid) {
           val pv = propagator.propagate(t) match {
-            case org.scalactic.Good((pv, _, _)) => pv
-            case org.scalactic.Bad(e)           => fail(s"propagation failed for TLE $satnum at t=$t: $e")
+            case org.scalactic.Good(propCtx) => propCtx.pv
+            case org.scalactic.Bad(e)        => fail(s"propagation failed for TLE $satnum at t=$t: $e")
           }
           val dp =
             math.max(math.abs(pv.x - expected.x), math.max(math.abs(pv.y - expected.y), math.abs(pv.z - expected.z)))

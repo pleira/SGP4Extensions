@@ -83,8 +83,7 @@ class BrouwerLaneSecularCorrections[@sp(Double) F: Field: NRoot: Order: Trig: Tr
     val jd = epoch + t / 1440
 
     val elems = SGPElems(nm, em, I, ω_, Ω_, Mm, am, bStar, jd)
-    val elemCtx = (elems, iCtx, wgs)
-    Good(elemCtx)
+    Good(SGPSecularCtx(elems, iCtx, wgs))
   }
 
   /*
@@ -145,13 +144,17 @@ object BrouwerLaneSecularCorrections extends GeoPotentialAndAtmosphere2ndOrderMo
   }
 
   /** Builds the secular corrections model from a TLE: the TLE is converted to SGP elements in context, which can fail,
-    * and then the factory is applied.
+    * and then the factory is applied. Deep space TLEs, with period >= 225 min, are rejected: this project implements
+    * the near Earth SGP4 algorithm only.
     */
   def fromTLE[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision](
       tle: TLE,
       wgs: SGPConstants[F]
-  ): BrouwerLaneSecularCorrections[F] Or ErrorMessage =
-    SGPElemsConversions.sgpElemsAndContext(tle, wgs).map(BrouwerLaneSecularCorrections(_))
+  ): BrouwerLaneSecularCorrections[F] Or SGP4Error =
+    SGPElemsConversions.sgpElemsAndContext(tle, wgs).flatMap { ctx =>
+      if (ctx.isDeepSpace) Bad(SGP4Error.DeepSpace(ctx.period))
+      else Good(BrouwerLaneSecularCorrections(ctx))
+    }
 
   private def calcSecularFrequencies[@sp(Double) F: Field: NRoot: Order: Trig: TruncatedDivision](
       elem0Ctx: SGPElemsCtx[F]

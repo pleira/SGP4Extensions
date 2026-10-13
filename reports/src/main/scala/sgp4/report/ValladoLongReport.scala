@@ -1,7 +1,9 @@
-package sgp4.model
-import sgp4.earth_gravity._
+package sgp4.report
 
-object HardcodedLydanneLongReport extends App with TLE00005 with TLE06251 with TLE28057 {
+import sgp4.earth_gravity._
+import sgp4.model._
+
+object HardcodedLyddaneLongReport extends App with TLE00005 with TLE06251 with TLE28057 {
 
   val wgs = SGP72Constants.tleDoubleConstants
   val times00005 = for (i <- 0 until 13; j = i * 360) yield j // times in minutes
@@ -12,8 +14,6 @@ object HardcodedLydanneLongReport extends App with TLE00005 with TLE06251 with T
     import spire.std.any.DoubleAlgebra
     SGP4ValladoLong.fromTLE[Double](tle, wgs).get
   }
-  def sgpImpl: String = "Vallado-Lydanne LONG SGP4"
-
   val sgps = propags
 
   def sgp00005 = sgps(0)
@@ -24,8 +24,4 @@ object HardcodedLydanneLongReport extends App with TLE00005 with TLE06251 with T
   val results06251 = for (t <- times06251) yield sgp06251.propagate2SPNContext(t)
   val results28057 = for (t <- times28057) yield sgp28057.propagate2SPNContext(t)
 
-  // uncomment below to save the report
-//  ValladoLongFileReport.save(results00005, tle00005, lines(0), times00005)
-//  ValladoLongFileReport.save(results06251, tle06251, lines(1), times06251)
-//  ValladoLongFileReport.save(results28057, tle28057, lines(2), times28057)
 }

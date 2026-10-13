@@ -1,68 +1,48 @@
 package sgp4.report
 
-import sgp4.coord._
 import sgp4.model._
 
+/** The differences of the final results of all the algorithms against the cpp reference results of Vallado's
+  * implementation, in cartesian elements and in polar nodals.
+  */
 class CompareAll(all: AllPropagators, tle: TestTLE) extends LoadCppResults with DiffResults {
-  val algos = all.algorithmNames // List("va", "vl", "pn", "la") in this order
   val SEP = "|"
   val sat = tle.tle.satelliteNumber
   val cppOuts = loadCppOutputData(sat)
   val pvs = all.finalCartesiansResults
   val pns = all.finalPNResults
-//  val pnls = all.lppPNResults
-  val ups = all.unitCartesianPositions
 
-  def maxs = pvs map { pvl => diffListPosVel(cppOuts, pvl) }
-  def almaxs = algos zip maxs
-  def cartesianMaxDiffList = maxs map { p => f"$SEP ${sat}%d $SEP ${p._1}%6.4e $SEP ${p._2}%6.4e $SEP" }
-  def algosCartesianMaxDiffList = almaxs map { p =>
-    f"$SEP ${p._1}%3s $SEP ${sat}%05d  $SEP ${p._2._1}%6.4e $SEP${p._2._2}%6.4e $SEP"
+  /** The maximum cartesian differences of each algorithm against the cpp results.
+    */
+  def algosCartesianMaxDiffList = all.algorithmNames map { algo =>
+    val (maxdp, maxdv) = diffListPosVel(cppOuts, pvs(algo))
+    f"$SEP ${algo}%3s $SEP ${sat}%05d  $SEP ${maxdp}%6.4e $SEP${maxdv}%6.4e $SEP"
   }
-  val pvDiffs = pvs map { pvl => calculateDiffList(cppOuts, pvl) }
-  val algosPvDiffs = algos zip pvDiffs
-  // TODO: a.zipWithIndex.map{ case (s,i) => myFn(s,i) }
-  val algosPvDiffsList = algosPvDiffs map { p =>
-    val algo = p._1
-    val list = p._2
-    val ls = list map { tc =>
-      val t: Int = (tc._1).toDouble.toInt
+
+  /** The cartesian differences of each algorithm against the cpp results, one entry per cpp result time.
+    */
+  val algosPvDiffsList = all.algorithmNames map { algo =>
+    calculateDiffList(cppOuts, pvs(algo)) map { tc =>
+      val t: Int = tc._1.toDouble.toInt
       val c = tc._2
       f"$SEP ${algo}%3s $SEP ${sat}%05d  $SEP ${t}%5d $SEP ${c.x}% 6.4e $SEP ${c.y}% 6.4e $SEP ${c.z}% 6.4e $SEP ${c.vx}% 6.4e $SEP ${c.vy}% 6.4e $SEP ${c.vz}% 6.4e $SEP"
     }
-    ls
   }
-  val pnDiffs = pns map { pnl => calculatePnDiffList(cppOuts, pnl) }
-  val algosPnDiffs = algos zip pnDiffs
-  // TODO: applicative ?
-  val algosPnDiffsList = algosPnDiffs map { p =>
-    val algo = p._1
-    val list = p._2
-    val ls = list map { tc =>
-      val t: Int = (tc._1).toDouble.toInt
+
+  /** The polar nodals differences of each algorithm against the cpp results, one entry per cpp result time.
+    */
+  val algosPnDiffsList = all.algorithmNames map { algo =>
+    calculatePnDiffList(cppOuts, pns(algo)) map { tc =>
+      val t: Int = tc._1.toDouble.toInt
       val c = tc._2
       f"$SEP ${algo}%3s $SEP ${sat}%05d  $SEP ${t}%5d $SEP ${c.I}% 6.4e $SEP ${c.θ}% 6.4e $SEP ${c.Ω}% 6.4e $SEP ${c.r}% 6.4e $SEP ${c.R}% 6.4e $SEP ${c.`Θ/r`}% 6.4e $SEP"
     }
-    ls
   }
-//  val pnLppDiffs = pnls map { pnl => calculatePnLppDiffList(cppOuts, pnl) }
-//  val algosPnLppDiffs = algos zip pnLppDiffs
-  // TODO: applicative ?
-//  val algosPnLppDiffsList = algosPnLppDiffs map {p =>
-//    val algo = p._1
-//    val list = p._2
-//    val ls = list map { tc =>
-//      val t : Int = (tc._1).toDouble.toInt
-//      val c = tc._2
-//      f"$SEP ${algo}%3s $SEP ${sat}%05d  $SEP ${t}%5d $SEP ${c.I}% 6.4e $SEP ${c.θ}% 6.4e $SEP ${c.Ω}% 6.4e $SEP ${c.r}% 6.4e $SEP ${c.R}% 6.4e $SEP ${c.`Θ/r`}% 6.4e $SEP"
-//    }
-//    ls
-//  }
 
-  def vlpnPnDiffs: List[SpecialPolarNodal[Double]] = (pnDiffs.tail.head zip pnDiffs.tail.tail.head) map { p =>
-    p._1._2 - p._2._2
-  }
-  def vlpnPnDiffsList = vlpnPnDiffs map { c =>
+  /** The polar nodals differences between the Vallado long and the polar nodals algorithms, with internal units.
+    */
+  val vlpnPnDiffsList = pns("vl").zip(pns("pn")).map { case (vl, pn) =>
+    val c = vl - pn
     f"$SEP ${c.I}% 6.4e $SEP ${c.θ}% 6.4e $SEP ${c.Ω}% 6.4e $SEP ${c.r}% 6.4e $SEP ${c.R}% 6.4e $SEP ${c.`Θ/r`}% 6.4e $SEP"
   }
 
@@ -84,27 +64,11 @@ class CompareAll(all: AllPropagators, tle: TestTLE) extends LoadCppResults with 
       s"$SEP ----------- $SEP -------- $SEP -------- $SEP ---------- $SEP ---------- $SEP ---------- $SEP"
     )
 
-  def unitCartesianDiffReportHeader =
-    List(
-      s"$SEP Algo $SEP TLE $SEP time (min) $SEP  dux  $SEP   duy   $SEP   duz   $SEP",
-      s"$SEP ---- $SEP --- $SEP ---------- $SEP ----- $SEP ------- $SEP ------- $SEP"
-    )
-
   def cartesianMaxDiffReportHeader =
     List(
       s"$SEP Algo $SEP TLE $SEP Max diff pos (km) $SEP Max diff vel (km/s) $SEP",
       s"$SEP ---- $SEP --- $SEP ----------------- $SEP ------------------- $SEP"
     )
-//    List(s"$SEP Algo $SEP TLE $SEP Max difference $SEP Max difference $SEP",
-//         s"$SEP type $SEP num $SEP position (km)  $SEP velocity (km/s)$SEP",
-//         s"$SEP ---- $SEP --- $SEP -------------- $SEP -------------- $SEP")
-  // s"$SEP ==== $SEP === $SEP ============== $SEP ============== $SEP")
-
-  def printDiffPosVel(p: (Double, Double)) = {
-    val maxdp = p._1
-    val maxdv = p._2
-    println(s"TLE ${sat} : Max difference position (km): $maxdp , Max difference velocity (km/s): $maxdv")
-  }
 
   def cartesianMaxDiffReport() = {
     println("### Maximum Differences between final results in cartesian elements from Vallado to the algorithms\n")
@@ -129,13 +93,6 @@ class CompareAll(all: AllPropagators, tle: TestTLE) extends LoadCppResults with 
     println()
   }
 
-//  def pnLppDiffReport() = {
-//    println("### Differences between long period periodic corrections from Vallado in polar nodals using internal units to the algorithms\n")
-//    pnDiffReportHeader map println
-//    algosPnLppDiffsList map { ls => ls map { println } }
-//    println
-//  }
-
   def vlpnFinalPNDiffReport() = {
     println(
       "### Differences between final polar nodals results from Vallado Long and Polar Nodals algorithms using internal units\n"
@@ -144,9 +101,11 @@ class CompareAll(all: AllPropagators, tle: TestTLE) extends LoadCppResults with 
     vlpnPnDiffsList map println
     println()
   }
-
 }
 
+/** Writes the differences against the cpp reference results of the test TLEs into markdown and gnuplot data files under
+  * doc/reports.
+  */
 object ReportTestNearTLEs extends App {
   import better.files._
   import better.files.Dsl._
@@ -154,8 +113,7 @@ object ReportTestNearTLEs extends App {
   val tles = List(TLE00005) // , TLE06251, TLE28057, TLE29238, TLE29141)
   val comps = tles map allComp
 
-  //  comps map { _.cartesianDiffReport }
-  val cdifffile = file".doc/hcartesiandiff.md"
+  val cdifffile = file"doc/reports/hcartesiandiff.md"
   cdifffile.overwrite("")
   "### Differences between cartesian final results from Vallado to the algorithms\n" >>: cdifffile
   comps map { cls =>
@@ -163,8 +121,7 @@ object ReportTestNearTLEs extends App {
     cls.algosPvDiffsList map { ls => ls map { _ >>: cdifffile } }
   }
 
-//  comps map { _.pnDiffReport }
-  val pndifffile = file".doc/hpndiff.md"
+  val pndifffile = file"doc/reports/hpndiff.md"
   pndifffile.overwrite("")
   "### Differences between final results from Vallado in polar nodals using internal units to the algorithms\n" >>: pndifffile
   comps map { cls =>
@@ -173,31 +130,16 @@ object ReportTestNearTLEs extends App {
     cls.algosPnDiffsList map { ls => ls map { _ >>: pndifffile } }
   }
 
-//  comps map { _.pnLppDiffReport }
-//  val pnlppdifffile = file".doc/hpnlppdiff.md"
-//  pndifffile.overwrite("")
-//  "### Differences between long period periodic corrections from Vallado in polar nodals using internal units to the algorithms\n" >>: pndifffile
-//  comps map { cls =>
-//    "\n" >>: pndifffile
-//    cls.pnDiffReportHeader map { _ >>: pnlppdifffile }
-//    cls.algosPnLppDiffsList map { ls => ls map {_ >>: pnlppdifffile }}
-//  }
-
-  // val comp5 = comps(0)
-  // comp5.algosPvDiffsList map { ls => ls map { println } }
-
   // GNUPLOT
-
-  val file = file".doc/diffpn.out"
-  file.overwrite("")
-  comps map { _.algosPnDiffsList map { ls => ls map { _ >>: file } } }
-  val pvfile = file".doc/diffcartesians.out"
+  val pnfile = file"doc/reports/diffpn.out"
+  pnfile.overwrite("")
+  comps map { _.algosPnDiffsList map { ls => ls map { _ >>: pnfile } } }
+  val pvfile = file"doc/reports/diffcartesians.out"
   pvfile.overwrite("")
   comps map { _.algosPvDiffsList map { ls => ls map { _ >>: pvfile } } }
 
   // COMPARISON VL with PN
-  // comps map {_.vlpnFinalPNDiffReport }
-  val vlpndifffile = file".doc/hvlpndiff.md"
+  val vlpndifffile = file"doc/reports/hvlpndiff.md"
   vlpndifffile.overwrite("")
   "### Differences between final polar nodals results from Vallado Long and Polar Nodals algorithms using internal units\n" >>: vlpndifffile
   comps map { cls =>
@@ -205,11 +147,4 @@ object ReportTestNearTLEs extends App {
     cls.vlpnFinalPNDiffReportHeader map { _ >>: vlpndifffile }
     cls.vlpnPnDiffsList map { _ >>: vlpndifffile }
   }
-  // comps map {_.vlpnLppPNDiffReport }
-//  val vlpnlppdifffile = file".doc/hvlpnlppdiff.out"
-//  vlpnlppdifffile.overwrite("")
-//  "### Differences between long period periodic corrections from Vallado in polar nodals using internal units to the algorithms\n" >>: vlpnlppdifffile
-//  comps map { cls => cls.pnDiffReportHeader map { _ >>: vlpnlppdifffile }}
-//  comps map { cls => cls.algosPnLppDiffsList map { ls => ls map {_ >>: vlpnlppdifffile }}}
-
 }

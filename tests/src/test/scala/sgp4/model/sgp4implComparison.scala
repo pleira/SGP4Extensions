@@ -46,38 +46,38 @@ class Sgp4ImplComparison extends AnyFunSuite with TLE22675 with TLE24946 with TL
           val (vapv, pnpv, vlpv, lapv) = result.get
           comparePV(
             s"TLE ${tle.satelliteNumber} : Vallado/Polar Nodals position comparison in Cartesian at time $t",
-            vapv._1,
-            pnpv._1,
+            vapv.pv,
+            pnpv.pv,
             tol1
           );
           comparePV(
             s"TLE ${tle.satelliteNumber} : Vallado Long/Polar Nodals position comparison in Cartesian at time $t",
-            vlpv._1,
-            pnpv._1,
+            vlpv.pv,
+            pnpv.pv,
             tol2
           );
           comparePV(
             s"TLE ${tle.satelliteNumber} : Vallado/Lara Non Singular position comparison in Cartesian at time $t",
-            vapv._1,
-            lapv._1,
+            vapv.pv,
+            lapv.pv,
             tol3
           );
           compareVel(
             s"TLE ${tle.satelliteNumber} : Vallado/Polar Nodals velocity comparison in Cartesian at time $t",
-            vapv._1,
-            pnpv._1,
+            vapv.pv,
+            pnpv.pv,
             tol4
           );
           compareVel(
             s"TLE ${tle.satelliteNumber} : Vallado Long/Polar Nodals velocity comparison in Cartesian at time $t",
-            vlpv._1,
-            pnpv._1,
+            vlpv.pv,
+            pnpv.pv,
             tol5
           );
           compareVel(
             s"TLE ${tle.satelliteNumber} : Vallado/Lara Non Singular velocity comparison in Cartesian at time $t",
-            vapv._1,
-            lapv._1,
+            vapv.pv,
+            lapv.pv,
             tol6
           );
         }

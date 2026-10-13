@@ -15,7 +15,7 @@ object PropagateTLE28xxx extends App {
     if (elen > 0) {
       Console.out.println(s"First error is ${propag.errors.head._1} at epoch time ${propag.errors.head._2}")
     }
-    Console.out.println(s"Comparison with Vallado's cpp resutls")
+    Console.out.println(s"Comparison with Vallado's cpp results")
     val cglen = propag.cppOuts.size
     Console.out.println(s"Cpp good's size is ${cglen}")
     Console.out.println(s"Last cpp good is at epoch time ${propag.cppOuts(cglen - 1).t}")

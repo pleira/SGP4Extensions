@@ -3,47 +3,29 @@ package sgp4
 import org.scalactic.Or
 
 package object coord {
-  import sgp4.earth_gravity._
-
   type sp = scala.specialized
 
-  type ErrorMessage = SGP4Error
-
   // for secular corrections
-  type SGPSecularCtx[F] = (SGPElems[F], InclinationCtx[F], SGPConstants[F])
-  type SGPSecularResult[F] = SGPSecularCtx[F] Or ErrorMessage
-
-  // for SPN secular corrections
-  type SPNSecularCtx[F] = (SpecialPolarNodal[F], SGPSecularCtx[F])
-  type SPNSecularResult[F] = SPNSecularCtx[F] Or ErrorMessage
+  type SGPSecularResult[F] = SGPSecularCtx[F] Or SGP4Error
 
   // intermediate results in polar nodals SPN
-  type SGPSPNResult[F] = SpecialPolarNodal[F] Or ErrorMessage
-
-  // final correction results in polar nodals SPN
-  type SGPCorrPropCtx[F] = ((SpecialPolarNodal[F], SpecialPolarNodal[F]), SGPSecularCtx[F])
-  type SGPCorrPropResult[F] = SGPCorrPropCtx[F] Or ErrorMessage
+  type SGPSPNResult[F] = SpecialPolarNodal[F] Or SGP4Error
 
   // final correction results in Lara Non Singular (LNS)
-  type SGPLNSResult[F] = LaraNonSingular[F] Or ErrorMessage
+  type SGPLNSResult[F] = LaraNonSingular[F] Or SGP4Error
 
   // final results in cartesians
-  type SGPPropCtx[F] = (CartesianElems[F], CartesianElems[F], SpecialPolarNodal[F])
-  type SGPPropResult[F] = SGPPropCtx[F] Or ErrorMessage
+  type SGPPropResult[F] = SGPPropCtx[F] Or SGP4Error
 
   // For Long Period Periodic corrections in polar nodals SPN
-  type LPPSPNCtx[F] = (SpecialPolarNodal[F], LongPeriodContext[F], SGPSecularCtx[F])
-  type LPPSPNResult[F] = LPPSPNCtx[F] Or ErrorMessage
+  type LPPSPNResult[F] = LPPSPNCtx[F] Or SGP4Error
 
   // For Long Period Periodic corrections in cosI polar nodals CPN
-  type LPPCPNResult[F] = CSpecialPolarNodal[F] Or ErrorMessage
-
-  // Intermediate results in Lyddane's
-  type LyddaneResult[F] = (LyddaneElems[F], LyddaneCtx[F])
+  type LPPCPNResult[F] = CSpecialPolarNodal[F] Or SGP4Error
 
   // for Kepler Equations
-  type AnomalyResult[F] = AnomalyState[F] Or ErrorMessage
+  type AnomalyResult[F] = AnomalyState[F] Or SGP4Error
 
   // SGPElems
-  type SGPElemsResult[F] = SGPElemsCtx[F] Or ErrorMessage
+  type SGPElemsResult[F] = SGPElemsCtx[F] Or SGP4Error
 }

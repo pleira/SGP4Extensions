@@ -23,6 +23,10 @@ object SGP4Error {
     def message: String = s"Secular eccentricity $em outside valid range"
   }
 
+  final case class DeepSpace[F](period: F) extends SGP4Error {
+    def message: String = s"Deep space TLE: period $period min >= 225 min (SDP4 not implemented)"
+  }
+
   final case class KeplerNoConvergence[F](incr: F, E: F) extends SGP4Error {
     def message: String = s"No convergence while solving Kepler equation: incr=$incr, E=$E"
   }

@@ -3,7 +3,7 @@ package io
 
 import scala.io.Source
 
-/** TLE represents the non converted data given bz a Two Line Element. No double mumeric conversions done here, so
+/** TLE represents the non converted data given by a Two Line Element. No double mumeric conversions done here, so
   * double values are returned as Strings. See Dr. T.S. Kelso comments on TLE at
   * http://www.celestrak.com/columns/v04n03/
   */
@@ -18,12 +18,11 @@ case class TLE(
     elementNumber: Int,
     epochyear: Int,
     year: Int,
-    epoch: String // day of the year and fractional portion of the day
-    ,
+    epoch: String, // day of the year and fractional portion of the day
     meanMotion: String,
     meanMotionFirstDerivative: String,
     meanMotionSecondDerivative: String,
-    atmosphericDragCoeficient: String,
+    atmosphericDragCoefficient: String,
     eccentricity: String,
     inclination: String,
     argumentOfPeriapsis: String,
@@ -57,7 +56,7 @@ object TLE {
     val meanMotionSecondDerivative = (line1.substring(44, 45) + '.' +
       line1.substring(45, 50) + 'e' +
       line1.substring(50, 52)).replace(' ', '0')
-    val atmosphericDragCoeficient = (line1.substring(53, 54) + '.' +
+    val atmosphericDragCoefficient = (line1.substring(53, 54) + '.' +
       line1.substring(54, 59) + 'e' +
       line1.substring(59, 61)).replace(' ', '0')
     val eccentricity = ("." + line2.substring(26, 33).replace(' ', '0'))
@@ -81,7 +80,7 @@ object TLE {
       meanMotion,
       meanMotionFirstDerivative,
       meanMotionSecondDerivative,
-      atmosphericDragCoeficient,
+      atmosphericDragCoefficient,
       eccentricity,
       inclination,
       argumentOfPeriapsis,

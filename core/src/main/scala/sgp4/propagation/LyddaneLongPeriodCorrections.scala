@@ -12,15 +12,14 @@ trait LyddaneLongPeriodCorrections[@sp(Double) F] {
   def lylppCorrections(
       secularCtx: SGPSecularCtx[F]
   )(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]): LyddaneElems[F] = {
-    val (lydElems, _) = lylppCorrectionsCtx(secularCtx)
-    lydElems
+    lylppCorrectionsCtx(secularCtx).elems
   }
 
   def lylppCorrectionsCtx(
       secularCtx: SGPSecularCtx[F]
   )(implicit ev: Field[F], trig: Trig[F], or: Order[F], nr: NRoot[F]): LyddaneResult[F] = {
 
-    import secularCtx.{_1 => elem, _3 => wgs, _2 => ictx}
+    import secularCtx.{elem, wgs, iCtx => ictx}
     import ictx.{c, s}, wgs.`J3/J2`, elem.{a, e, ω, M, I, Ω}
 
     // Brouwer long-period gravitational corrections are reformulated in Lyddane’s (F,S,C,a,h,I).
@@ -49,7 +48,7 @@ trait LyddaneLongPeriodCorrections[@sp(Double) F] {
 
     // no more corrections, that is, L’= L",  I’= I", h’= h"
 
-    (LyddaneElems(I, a, Ω, C, S, F), LyddaneCtx(ϵ3, η, esinω))
+    LyddaneResult(LyddaneElems(I, a, Ω, C, S, F), LyddaneCtx(ϵ3, η, esinω))
   }
 
 }

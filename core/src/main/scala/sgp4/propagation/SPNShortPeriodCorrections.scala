@@ -8,9 +8,9 @@ import sgp4.coord._
 trait SPNShortPeriodCorrections[F] {
 
   def sppCorrections(@sp(Double) ctx: LPPSPNCtx[F])(implicit ev: Field[F], trig: Trig[F]): SpecialPolarNodal[F] = {
-    import ctx.{_1 => lppPN, _2 => lppc, _3 => secular}
+    import ctx.{spn => lppPN, lppCtx => lppc, secularCtx => secular}
     import lppPN.r, lppc.{pl, βl, `√pl`, cos2θ, sin2θ}
-    import secular.{_2 => ictx, _3 => wgs}
+    import secular.{iCtx => ictx, wgs}
     import wgs.J2, ictx.{c, s, `3c²-1`, `7c²-1`, `s²`}
     val `βl³/√pl` = βl * βl * βl / `√pl`
     val ϵ2 = -J2 / pl / pl / 4
